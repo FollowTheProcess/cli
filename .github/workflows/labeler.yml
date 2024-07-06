@@ -1,0 +1,24 @@
+name: Labeler
+
+on:
+  push:
+    branches:
+      - main
+
+permissions: read-all
+
+jobs:
+  labeler:
+    name: Labeler
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Run Labeler
+        uses: crazy-max/ghaction-github-labeler@v5
+        with:
+          skip-delete: false
