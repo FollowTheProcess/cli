@@ -1,0 +1,66 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  COV_DATA: coverage.out
+
+tasks:
+  default:
+    desc: List all available tasks
+    silent: true
+    cmd: task --list
+
+  tidy:
+    desc: Tidy dependencies in go.mod and go.sum
+    cmd: go mod tidy
+
+  fmt:
+    desc: Run go fmt on all source files
+    cmd: go fmt ./...
+
+  test:
+    desc: Run the test suite
+    cmd: go test -race ./... {{ .CLI_ARGS }}
+
+  bench:
+    desc: Run all project benchmarks
+    cmd: go test ./... -run None -benchmem -bench . {{ .CLI_ARGS }}
+
+  lint:
+    desc: Run the linters and auto-fix if possible
+    cmd: golangci-lint run --fix
+    preconditions:
+      - sh: command -v golangci-lint
+        msg: golangci-lint not installed, see https://golangci-lint.run/usage/install/#local-installation
+
+  doc:
+    desc: Render the pkg docs locally
+    cmd: pkgsite -open
+    preconditions:
+      - sh: command -v pkgsite
+        msg: pkgsite not installed, run go install golang.org/x/pkgsite/cmd/pkgsite@latest
+
+  cov:
+    desc: Calculate test coverage and render the html
+    generates:
+      - "{{ .COV_DATA }}"
+    cmds:
+      - go test -race -cover -covermode atomic -coverprofile {{ .COV_DATA }} ./...
+      - go tool cover -html {{ .COV_DATA }}
+
+  check:
+    desc: Run tests and linting in one
+    cmds:
+      - task: test
+      - task: lint
+
+  sloc:
+    desc: Print lines of code
+    cmd: fd . -e go | xargs wc -l | sort -nr | head
+
+  clean:
+    desc: Remove build artifacts and other clutter
+    cmds:
+      - go clean ./...
+      - rm -rf {{ .COV_DATA }}
