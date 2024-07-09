@@ -41,8 +41,37 @@ type Command struct {
 	// Long is the long form description for the command, shown when -h/--help is called on the command itself.
 	Long string
 
-	// Example is examples of how to use the command, free form text.
-	Example string
+	// Example is examples of how to use the command.
+	Example []Example
+}
+
+// Example is a single usage example for a [Command].
+//
+// The example will be shown in the -h/--help output as follows:
+//
+//	# Comment
+//	$ Command
+type Example struct {
+	Comment string // The comment for the example.
+	Command string // The command string for the example.
+}
+
+// String implements [fmt.Stringer] for [Example].
+func (e Example) String() string {
+	switch {
+	case e.Comment == "" && e.Command == "":
+		// Empty example, return empty string
+		return ""
+	case e.Command == "":
+		// Empty command, show just the comment
+		return fmt.Sprintf("# %s", e.Comment)
+	case e.Comment == "":
+		// No comment, just show command on it's own
+		return fmt.Sprintf("$ %s", e.Command)
+	default:
+		// Both passed, show the full example
+		return fmt.Sprintf("# %s\n$ %s", e.Comment, e.Command)
+	}
 }
 
 // Execute parses the flags and arguments, and invokes the Command's Run
