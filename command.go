@@ -2,6 +2,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"io"
 
@@ -84,14 +85,23 @@ func (e Example) String() string {
 //
 //	err := cmd.Execute(os.Args[1:])
 func (c *Command) Execute(args []string) error {
-	if c.flags == nil {
-		c.flags = pflag.NewFlagSet(c.Name, pflag.ExitOnError)
+	if c == nil {
+		return errors.New("Execute called on a nil Command")
 	}
-	if err := c.flags.Parse(args); err != nil {
+
+	if err := c.Flags().Parse(args); err != nil {
 		return fmt.Errorf("failed to parse command flags: %w", err)
 	}
 
 	argsWithoutFlags := c.flags.Args()
 
 	return c.Run(c, argsWithoutFlags)
+}
+
+// Flags returns the set of flags for the command.
+func (c *Command) Flags() *pflag.FlagSet {
+	if c.flags == nil {
+		c.flags = pflag.NewFlagSet(c.Name, pflag.ContinueOnError)
+	}
+	return c.flags
 }
