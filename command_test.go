@@ -22,8 +22,6 @@ func TestExecute(t *testing.T) {
 			name: "simple",
 			cmd: cli.New(
 				"test",
-				cli.Short("A simple test command"),
-				cli.Long("Much longer description blah blah blah"),
 				cli.Args([]string{"arg1", "arg2", "arg3"}),
 			),
 			stdout:  "Hello from test\n",
@@ -40,8 +38,6 @@ func TestExecute(t *testing.T) {
 					fmt.Fprintf(cmd.Stdout(), "--force was: %v\n", force)
 					return nil
 				}),
-				cli.Short("A simple test command"),
-				cli.Long("Much longer description blah blah blah"),
 				cli.Args([]string{"arg1", "arg2", "--force"}),
 			),
 			customiser: func(t *testing.T, cmd *cli.Command) {
@@ -62,8 +58,6 @@ func TestExecute(t *testing.T) {
 					fmt.Fprintf(cmd.Stdout(), "--force was: %v\n", force)
 					return nil
 				}),
-				cli.Short("A simple test command"),
-				cli.Long("Much longer description blah blah blah"),
 				cli.Args([]string{"arg1", "arg2", "arg3", "-]force"}),
 			),
 			customiser: func(t *testing.T, cmd *cli.Command) {
