@@ -16,65 +16,54 @@ func TestExecute(t *testing.T) {
 		name       string                               // Identifier of the test case
 		stdout     string                               // Desired output to stdout
 		stderr     string                               // Desired output to stderr
-		args       []string                             // Command line arguments (minus flags)
 		wantErr    bool                                 // Whether we want an error
 	}{
 		{
 			name: "simple",
-			cmd: &cli.Command{
-				Run: func(cmd *cli.Command, args []string) error {
-					fmt.Fprintf(cmd.Stdout, "Oooh look, it ran, here are some args: %v\n", args)
-					return nil
-				},
-				Name:  "test",
-				Short: "A simple test command",
-				Long:  "Much longer description blah blah blah",
-			},
-			args:    []string{"arg1", "arg2", "arg3"},
-			stdout:  "Oooh look, it ran, here are some args: [arg1 arg2 arg3]\n",
+			cmd: cli.New(
+				"test",
+				cli.Args([]string{"arg1", "arg2", "arg3"}),
+			),
+			stdout:  "Hello from test\n",
 			wantErr: false,
 		},
 		{
 			name: "simple with flags",
-			cmd: &cli.Command{
-				Run: func(cmd *cli.Command, args []string) error {
-					fmt.Fprintf(cmd.Stdout, "Oooh look, it ran, here are some args: %v\n", args)
+			cmd: cli.New(
+				"test",
+				cli.Run(func(cmd *cli.Command, args []string) error {
+					fmt.Fprintf(cmd.Stdout(), "Oooh look, it ran, here are some args: %v\n", args)
 					force, err := cmd.Flags().GetBool("force")
 					test.Ok(t, err)
-					fmt.Fprintf(cmd.Stdout, "--force was: %v\n", force)
+					fmt.Fprintf(cmd.Stdout(), "--force was: %v\n", force)
 					return nil
-				},
-				Name:  "test",
-				Short: "A simple test command",
-				Long:  "Much longer description blah blah blah",
-			},
+				}),
+				cli.Args([]string{"arg1", "arg2", "--force"}),
+			),
 			customiser: func(t *testing.T, cmd *cli.Command) {
 				t.Helper()
 				cmd.Flags().BoolP("force", "f", false, "Force something")
 			},
-			args:    []string{"arg1", "arg2", "--force"},
 			stdout:  "Oooh look, it ran, here are some args: [arg1 arg2]\n--force was: true\n",
 			wantErr: false,
 		},
 		{
-			name: "bad flags",
-			cmd: &cli.Command{
-				Run: func(cmd *cli.Command, args []string) error {
-					fmt.Fprintf(cmd.Stdout, "Oooh look, it ran, here are some args: %v\n", args)
+			name: "bad flag",
+			cmd: cli.New(
+				"test",
+				cli.Run(func(cmd *cli.Command, args []string) error {
+					fmt.Fprintf(cmd.Stdout(), "Oooh look, it ran, here are some args: %v\n", args)
 					force, err := cmd.Flags().GetBool("force")
 					test.Ok(t, err)
-					fmt.Fprintf(cmd.Stdout, "--force was: %v\n", force)
+					fmt.Fprintf(cmd.Stdout(), "--force was: %v\n", force)
 					return nil
-				},
-				Name:  "test",
-				Short: "A simple test command",
-				Long:  "Much longer description blah blah blah",
-			},
+				}),
+				cli.Args([]string{"arg1", "arg2", "arg3", "-]force"}),
+			),
 			customiser: func(t *testing.T, cmd *cli.Command) {
 				t.Helper()
 				cmd.Flags().BoolP("force", "f", false, "Force something")
 			},
-			args:    []string{"arg1", "arg2", "-[force"},
 			wantErr: true,
 		},
 	}
@@ -84,15 +73,15 @@ func TestExecute(t *testing.T) {
 			stderr := &bytes.Buffer{}
 			stdout := &bytes.Buffer{}
 
-			tt.cmd.Stderr = stderr
-			tt.cmd.Stdout = stdout
+			cli.Stderr(stderr)(tt.cmd)
+			cli.Stdout(stdout)(tt.cmd)
 
 			// Customise if it's set
 			if tt.customiser != nil {
 				tt.customiser(t, tt.cmd)
 			}
 
-			err := tt.cmd.Execute(tt.args)
+			err := tt.cmd.Execute()
 			test.WantErr(t, err, tt.wantErr)
 
 			test.Equal(t, stdout.String(), tt.stdout)
