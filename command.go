@@ -32,8 +32,6 @@ func New(name string, options ...Option) *Command {
 	return cmd
 }
 
-// TODO: Make all the fields of Command unexported, can only set through options
-
 // Command represents a CLI command.
 type Command struct {
 	// run is the function actually implementing the command, the command and arguments to it, are passed into the function, flags
@@ -122,7 +120,7 @@ func (c *Command) Execute() error {
 	return c.run(c, argsWithoutFlags)
 }
 
-// TODO: Make it so we can add flags in the functional options pattern
+// TODO: Make it so we can add flags via the functional options pattern
 
 // Flags returns the set of flags for the command.
 func (c *Command) Flags() *pflag.FlagSet {
