@@ -5,45 +5,71 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 
 	"github.com/spf13/pflag"
 )
 
+// New builds and returns a new [Command].
+func New(name string, options ...Option) *Command {
+	// Default implementation
+	cmd := &Command{
+		run: func(cmd *Command, args []string) error {
+			fmt.Fprintf(cmd.stdout, "Hello from %s\n", name)
+			return nil
+		},
+		flags:  pflag.NewFlagSet(name, pflag.ContinueOnError),
+		stdin:  os.Stdin,
+		stdout: os.Stdout,
+		stderr: os.Stderr,
+		name:   name,
+	}
+
+	for _, option := range options {
+		option(cmd)
+	}
+
+	return cmd
+}
+
 // Command represents a CLI command.
 type Command struct {
-	// Run is the function actually implementing the command, the command and arguments to it, are passed into the function, flags
+	// run is the function actually implementing the command, the command and arguments to it, are passed into the function, flags
 	// are parsed out before the arguments are passed to Run, so `args` here are the command line arguments minus flags.
-	Run func(cmd *Command, args []string) error
+	run func(cmd *Command, args []string) error
 
 	// flags is the set of flags for this command.
 	flags *pflag.FlagSet
 
-	// Stdin is an [io.Reader] from which command input is read.
+	// stdin is an [io.Reader] from which command input is read.
 	//
 	// It defaults to [os.Stdin] but can be overridden as desired e.g. for testing.
-	Stdin io.Reader
+	stdin io.Reader
 
-	// Stdout is an [io.Writer] to which normal command output is written.
+	// stdout is an [io.Writer] to which normal command output is written.
 	//
 	// It defaults to [os.Stdout] but can be overridden as desired e.g. for testing.
-	Stdout io.Writer
+	stdout io.Writer
 
-	// Stderr is an [io.Writer] to which error command output is written.
+	// stderr is an [io.Writer] to which error command output is written.
 	//
 	// It defaults to [os.Stderr] but can be overridden as desired e.g. for testing.
-	Stderr io.Writer
+	stderr io.Writer
 
-	// Name is the name of the command.
-	Name string
+	// name is the name of the command.
+	name string
 
-	// Short is the one line summary for the command, shown inline in the -h/--help output.
-	Short string
+	// short is the one line summary for the command, shown inline in the -h/--help output.
+	short string
 
-	// Long is the long form description for the command, shown when -h/--help is called on the command itself.
-	Long string
+	// long is the long form description for the command, shown when -h/--help is called on the command itself.
+	long string
 
-	// Example is examples of how to use the command.
-	Example []Example
+	// example is examples of how to use the command.
+	example []Example
+
+	// args is the arguments passed to the command.
+	args []string
 }
 
 // Example is a single usage example for a [Command].
@@ -78,30 +104,43 @@ func (e Example) String() string {
 // Execute parses the flags and arguments, and invokes the Command's Run
 // function, returning any error.
 //
-// The arguments should not include the command name.
-//
 // If the flags fail to parse, an error will be returned and the Run function
 // will not be called.
-//
-//	err := cmd.Execute(os.Args[1:])
-func (c *Command) Execute(args []string) error {
+func (c *Command) Execute() error {
 	if c == nil {
 		return errors.New("Execute called on a nil Command")
 	}
 
-	if err := c.Flags().Parse(args); err != nil {
+	if err := c.Flags().Parse(c.args); err != nil {
 		return fmt.Errorf("failed to parse command flags: %w", err)
 	}
 
 	argsWithoutFlags := c.flags.Args()
 
-	return c.Run(c, argsWithoutFlags)
+	return c.run(c, argsWithoutFlags)
 }
+
+// TODO: Make it so we can add flags via the functional options pattern
 
 // Flags returns the set of flags for the command.
 func (c *Command) Flags() *pflag.FlagSet {
 	if c.flags == nil {
-		c.flags = pflag.NewFlagSet(c.Name, pflag.ContinueOnError)
+		c.flags = pflag.NewFlagSet(c.name, pflag.ContinueOnError)
 	}
 	return c.flags
+}
+
+// Stdout returns the configured Stdout for the Command.
+func (c *Command) Stdout() io.Writer {
+	return c.stdout
+}
+
+// Stderr returns the configured Stderr for the Command.
+func (c *Command) Stderr() io.Writer {
+	return c.stderr
+}
+
+// Stdin returns the configured Stdin for the Command.
+func (c *Command) Stdin() io.Reader {
+	return c.stdin
 }
