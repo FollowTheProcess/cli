@@ -50,6 +50,9 @@ func Examples(examples ...Example) Option {
 }
 
 // Run is an [Option] that sets the run function for a [Command].
+//
+// The run function is the actual implementation of your command i.e. what you
+// want it to do when invoked.
 func Run(run func(cmd *Command, args []string) error) Option {
 	return func(cmd *Command) {
 		cmd.run = run
@@ -60,5 +63,15 @@ func Run(run func(cmd *Command, args []string) error) Option {
 func Args(args []string) Option {
 	return func(cmd *Command) {
 		cmd.args = args
+	}
+}
+
+// HelpFunc is an [Option] that allows for a custom implementation of the -h/--help flag.
+//
+// A [Command] will have a default implementation of this function that prints a default
+// format of the help to [os.Stderr].
+func HelpFunc(fn func(cmd *Command) error) Option {
+	return func(cmd *Command) {
+		cmd.helpFunc = fn
 	}
 }

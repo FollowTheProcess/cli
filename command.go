@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/pflag"
 )
@@ -24,14 +25,19 @@ func New(name string, options ...Option) *Command {
 			fmt.Fprintf(cmd.stdout, "Hello from %s\n", name)
 			return nil
 		},
-		flags:  pflag.NewFlagSet(name, pflag.ContinueOnError),
-		stdin:  os.Stdin,
-		stdout: os.Stdout,
-		stderr: os.Stderr,
-		args:   os.Args[1:],
-		name:   name,
+		flags:    pflag.NewFlagSet(name, pflag.ContinueOnError),
+		stdin:    os.Stdin,
+		stdout:   os.Stdout,
+		stderr:   os.Stderr,
+		args:     os.Args[1:],
+		name:     name,
+		helpFunc: defaultHelp,
+		short:    "A placeholder for something cool",
 	}
 
+	cmd.Flags().BoolP("help", "h", false, fmt.Sprintf("Show help for %s", name))
+
+	// Apply the options
 	for _, option := range options {
 		option(cmd)
 	}
@@ -41,7 +47,7 @@ func New(name string, options ...Option) *Command {
 
 // Command represents a CLI command. In terms of an example, in the line
 // git commit -m <msg>; 'commit' is the command. It can have any number of subcommands
-// which themselves can have subcommands etc.
+// which themselves can have subcommands etc. The root command in this example is 'git'.
 type Command struct {
 	// run is the function actually implementing the command, the command and arguments to it, are passed into the function, flags
 	// are parsed out before the arguments are passed to Run, so `args` here are the command line arguments minus flags.
@@ -49,6 +55,12 @@ type Command struct {
 
 	// flags is the set of flags for this command.
 	flags *pflag.FlagSet
+
+	// helpFunc is the function that gets called when the user calls -h/--help.
+	//
+	// It can be overridden by the user to customise their help output using
+	// the [HelpFunc] [Option].
+	helpFunc func(cmd *Command) error
 
 	// stdin is an [io.Reader] from which command input is read.
 	//
@@ -79,7 +91,7 @@ type Command struct {
 
 	// args is the arguments passed to the command, default to [os.Args]
 	// (excluding the command name, so os.Args[1:]), can be overridden using
-	// the [Args] option.
+	// the [Args] option for e.g. testing.
 	args []string
 }
 
@@ -126,7 +138,23 @@ func (c *Command) Execute() error {
 		return fmt.Errorf("failed to parse command flags: %w", err)
 	}
 
-	argsWithoutFlags := c.flags.Args()
+	// Check if we should be responding to -h/--help
+	helpCalled, err := c.Flags().GetBool("help")
+	if err != nil {
+		// We shouldn't ever get here because we define a default for help
+		return fmt.Errorf("help was called for but unset: %w", err)
+	}
+
+	// If -h/--help was called, call the defined helpFunc and exit so that
+	// the run function is never called.
+	if helpCalled {
+		if err := c.helpFunc(c); err != nil {
+			return fmt.Errorf("help function returned an error: %w", err)
+		}
+		return nil
+	}
+
+	argsWithoutFlags := c.Flags().Args()
 
 	return c.run(c, argsWithoutFlags)
 }
@@ -151,4 +179,52 @@ func (c *Command) Stderr() io.Writer {
 // Stdin returns the configured Stdin for the Command.
 func (c *Command) Stdin() io.Reader {
 	return c.stdin
+}
+
+// defaultHelp is the default for a command's helpFunc.
+func defaultHelp(cmd *Command) error {
+	// Note: The decision to not use text/template here is intentional, template calls
+	// reflect.Value.MethodByName() and/or reflect.Type.MethodByName() disables dead
+	// code elimination in the compiler, meaning any application that uses cli for it's
+	// command line interface will not be run through dead code elimination which could cause
+	// significant increase in memory consumption and disk space.
+	// See https://github.com/spf13/cobra/issues/2015
+	s := &strings.Builder{}
+	s.WriteString(cmd.short)
+	s.WriteString("\n\n")
+	s.WriteString("Usage: ")
+	s.WriteString(cmd.name)
+
+	// TODO: Check here if there are subcommands (when we get to adding those)
+	// Yes -> "Usage: {name} [COMMAND]"
+	// No -> "Usage: {name} [OPTIONS] ARGS..."
+	// See if we can be clever about dynamically generating the syntax for e.g. variadic args
+	// required args etc.
+
+	// If the user defined some examples, show those
+	if len(cmd.example) != 0 {
+		s.WriteString("\n\nExamples:\n\n")
+		for _, example := range cmd.example {
+			s.WriteString(example.String())
+		}
+	}
+
+	// Now we'd be onto subcommands... haven't got those yet
+
+	// Now options
+	s.WriteString("\n\nOptions:\n")
+	s.WriteString(cmd.Flags().FlagUsages())
+
+	// Subcommand help
+	s.WriteString("\n")
+	s.WriteString(`Use "`)
+	s.WriteString(cmd.name)
+	s.WriteString(" [command] -h/--help")
+	s.WriteString(`" `)
+	s.WriteString("for more information about a command.")
+	s.WriteString("\n")
+
+	fmt.Fprint(cmd.Stderr(), s.String())
+
+	return nil
 }
