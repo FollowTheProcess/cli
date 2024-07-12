@@ -1,0 +1,6 @@
+A placeholder for something cool
+
+Usage: test
+
+Options:
+  -h/--help     Show help for test

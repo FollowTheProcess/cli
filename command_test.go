@@ -41,6 +41,7 @@ func TestExecute(t *testing.T) {
 				cli.Args([]string{"arg1", "arg2", "--force"}),
 			),
 			customiser: func(t *testing.T, cmd *cli.Command) {
+				// Set flags in the customiser
 				t.Helper()
 				cmd.Flags().BoolP("force", "f", false, "Force something")
 			},
@@ -66,6 +67,32 @@ func TestExecute(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "default help long",
+			cmd: cli.New(
+				"test",
+				cli.Run(func(cmd *cli.Command, args []string) error {
+					fmt.Fprintln(cmd.Stdout(), "Output to stdout that we shouldn't see")
+					return nil
+				}),
+				cli.Args([]string{"--help"}),
+			),
+			wantErr: false,
+			stderr:  "--help was used\n",
+		},
+		{
+			name: "default help short",
+			cmd: cli.New(
+				"test",
+				cli.Run(func(cmd *cli.Command, args []string) error {
+					fmt.Fprintln(cmd.Stdout(), "Output to stdout that we shouldn't see")
+					return nil
+				}),
+				cli.Args([]string{"-h"}),
+			),
+			wantErr: false,
+			stderr:  "--help was used\n",
+		},
 	}
 
 	for _, tt := range tests {
@@ -85,6 +112,42 @@ func TestExecute(t *testing.T) {
 			test.WantErr(t, err, tt.wantErr)
 
 			test.Equal(t, stdout.String(), tt.stdout)
+			test.Equal(t, stderr.String(), tt.stderr)
+		})
+	}
+}
+
+func TestHelp(t *testing.T) {
+	tests := []struct {
+		cmd     *cli.Command // The command under test
+		name    string       // Identifier of the test case
+		golden  string       // The name of the file relative to testdata containing to expected output
+		wantErr bool         // Whether we want an error
+	}{
+		{
+			name: "default",
+			cmd: cli.New(
+				"test",
+				cli.Args([]string{"--help"}),
+			),
+			golden:  "",
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			stderr := &bytes.Buffer{}
+			stdout := &bytes.Buffer{}
+
+			cli.Stderr(stderr)(tt.cmd)
+			cli.Stdout(stdout)(tt.cmd)
+
+			err := tt.cmd.Execute()
+			test.WantErr(t, err, tt.wantErr)
+
+			// Should have no output to stdout
+			test.Equal(t, stdout.String(), "")
 		})
 	}
 }
