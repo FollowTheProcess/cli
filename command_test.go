@@ -67,32 +67,6 @@ func TestExecute(t *testing.T) {
 			},
 			wantErr: true,
 		},
-		{
-			name: "default help long",
-			cmd: cli.New(
-				"test",
-				cli.Run(func(cmd *cli.Command, args []string) error {
-					fmt.Fprintln(cmd.Stdout(), "Output to stdout that we shouldn't see")
-					return nil
-				}),
-				cli.Args([]string{"--help"}),
-			),
-			wantErr: false,
-			stderr:  "--help was used\n",
-		},
-		{
-			name: "default help short",
-			cmd: cli.New(
-				"test",
-				cli.Run(func(cmd *cli.Command, args []string) error {
-					fmt.Fprintln(cmd.Stdout(), "Output to stdout that we shouldn't see")
-					return nil
-				}),
-				cli.Args([]string{"-h"}),
-			),
-			wantErr: false,
-			stderr:  "--help was used\n",
-		},
 	}
 
 	for _, tt := range tests {
@@ -148,6 +122,9 @@ func TestHelp(t *testing.T) {
 
 			// Should have no output to stdout
 			test.Equal(t, stdout.String(), "")
+
+			// --help output should be as per the golden file
+			test.File(t, stderr.String(), "default-help.txt")
 		})
 	}
 }

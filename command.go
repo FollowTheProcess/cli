@@ -212,14 +212,15 @@ func defaultHelp(cmd *Command) error {
 	// Now we'd be onto subcommands... haven't got those yet
 
 	// Now options
-	s.WriteString("\n\nOptions:\n\n")
+	s.WriteString("\n\nOptions:\n")
 	s.WriteString(cmd.Flags().FlagUsages())
 
 	// Subcommand help
+	s.WriteString("\n")
 	s.WriteString(`Use "`)
 	s.WriteString(cmd.name)
-	s.WriteString("[command] -h/--help")
-	s.WriteString(`"`)
+	s.WriteString(" [command] -h/--help")
+	s.WriteString(`" `)
 	s.WriteString("for more information about a command.")
 	s.WriteString("\n")
 
