@@ -11,6 +11,12 @@ import (
 )
 
 // New builds and returns a new [Command].
+//
+// Without any options passed, the default implementation returns a [Command] with
+// no flags, hooked up to [os.Stdin], [os.Stdout] and [os.Stderr], and accepting
+// [os.Args] as arguments (with the command path stripped, equivalent to os.Args[1:]).
+//
+// This default command, when invoked, will print "Hello from {name}\n" to [os.Stdout].
 func New(name string, options ...Option) *Command {
 	// Default implementation
 	cmd := &Command{
@@ -22,6 +28,7 @@ func New(name string, options ...Option) *Command {
 		stdin:  os.Stdin,
 		stdout: os.Stdout,
 		stderr: os.Stderr,
+		args:   os.Args[1:],
 		name:   name,
 	}
 
@@ -32,7 +39,9 @@ func New(name string, options ...Option) *Command {
 	return cmd
 }
 
-// Command represents a CLI command.
+// Command represents a CLI command. In terms of an example, in the line
+// git commit -m <msg>; 'commit' is the command. It can have any number of subcommands
+// which themselves can have subcommands etc.
 type Command struct {
 	// run is the function actually implementing the command, the command and arguments to it, are passed into the function, flags
 	// are parsed out before the arguments are passed to Run, so `args` here are the command line arguments minus flags.
@@ -68,7 +77,9 @@ type Command struct {
 	// example is examples of how to use the command.
 	example []Example
 
-	// args is the arguments passed to the command.
+	// args is the arguments passed to the command, default to [os.Args]
+	// (excluding the command name, so os.Args[1:]), can be overridden using
+	// the [Args] option.
 	args []string
 }
 
@@ -120,13 +131,10 @@ func (c *Command) Execute() error {
 	return c.run(c, argsWithoutFlags)
 }
 
-// TODO: Make it so we can add flags via the functional options pattern
-
 // Flags returns the set of flags for the command.
+//
+// TODO: Make it so we can add flags via the functional options pattern.
 func (c *Command) Flags() *pflag.FlagSet {
-	if c.flags == nil {
-		c.flags = pflag.NewFlagSet(c.name, pflag.ContinueOnError)
-	}
 	return c.flags
 }
 
