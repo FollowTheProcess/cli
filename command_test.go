@@ -104,7 +104,16 @@ func TestHelp(t *testing.T) {
 				"test",
 				cli.Args([]string{"--help"}),
 			),
-			golden:  "",
+			golden:  "default-help.txt",
+			wantErr: false,
+		},
+		{
+			name: "default short",
+			cmd: cli.New(
+				"test",
+				cli.Args([]string{"-h"}),
+			),
+			golden:  "default-help.txt",
 			wantErr: false,
 		},
 	}
@@ -124,7 +133,7 @@ func TestHelp(t *testing.T) {
 			test.Equal(t, stdout.String(), "")
 
 			// --help output should be as per the golden file
-			test.File(t, stderr.String(), "default-help.txt")
+			test.File(t, stderr.String(), tt.golden)
 		})
 	}
 }
