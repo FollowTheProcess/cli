@@ -41,6 +41,7 @@ func TestExecute(t *testing.T) {
 				cli.Args([]string{"arg1", "arg2", "--force"}),
 			),
 			customiser: func(t *testing.T, cmd *cli.Command) {
+				// Set flags in the customiser
 				t.Helper()
 				cmd.Flags().BoolP("force", "f", false, "Force something")
 			},
@@ -85,6 +86,54 @@ func TestExecute(t *testing.T) {
 			test.WantErr(t, err, tt.wantErr)
 
 			test.Equal(t, stdout.String(), tt.stdout)
+			test.Equal(t, stderr.String(), tt.stderr)
+		})
+	}
+}
+
+func TestHelp(t *testing.T) {
+	tests := []struct {
+		cmd     *cli.Command // The command under test
+		name    string       // Identifier of the test case
+		golden  string       // The name of the file relative to testdata containing to expected output
+		wantErr bool         // Whether we want an error
+	}{
+		{
+			name: "default",
+			cmd: cli.New(
+				"test",
+				cli.Args([]string{"--help"}),
+			),
+			golden:  "default-help.txt",
+			wantErr: false,
+		},
+		{
+			name: "default short",
+			cmd: cli.New(
+				"test",
+				cli.Args([]string{"-h"}),
+			),
+			golden:  "default-help.txt",
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			stderr := &bytes.Buffer{}
+			stdout := &bytes.Buffer{}
+
+			cli.Stderr(stderr)(tt.cmd)
+			cli.Stdout(stdout)(tt.cmd)
+
+			err := tt.cmd.Execute()
+			test.WantErr(t, err, tt.wantErr)
+
+			// Should have no output to stdout
+			test.Equal(t, stdout.String(), "")
+
+			// --help output should be as per the golden file
+			test.File(t, stderr.String(), tt.golden)
 		})
 	}
 }
