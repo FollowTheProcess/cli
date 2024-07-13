@@ -2,6 +2,7 @@ package cli_test
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -99,7 +100,7 @@ func TestHelp(t *testing.T) {
 		wantErr bool         // Whether we want an error
 	}{
 		{
-			name: "default",
+			name: "default long",
 			cmd: cli.New(
 				"test",
 				cli.Args([]string{"--help"}),
@@ -114,6 +115,35 @@ func TestHelp(t *testing.T) {
 				cli.Args([]string{"-h"}),
 			),
 			golden:  "default-help.txt",
+			wantErr: false,
+		},
+		{
+			name: "custom",
+			cmd: cli.New(
+				"test",
+				cli.Args([]string{"--help"}),
+				cli.HelpFunc(func(cmd *cli.Command) error {
+					fmt.Fprintln(cmd.Stderr(), "Do something custom")
+					return nil
+				}),
+			),
+			golden:  "custom-help.txt",
+			wantErr: false,
+		},
+		{
+			name: "with examples",
+			cmd: cli.New(
+				"test",
+				cli.Args([]string{"--help"}),
+				cli.Examples(
+					cli.Example{Comment: "Do a thing", Command: "test do thing --now"},
+					cli.Example{
+						Comment: "Do a different thing",
+						Command: "test do thing --different",
+					},
+				),
+			),
+			golden:  "with-examples.txt",
 			wantErr: false,
 		},
 	}
@@ -133,7 +163,81 @@ func TestHelp(t *testing.T) {
 			test.Equal(t, stdout.String(), "")
 
 			// --help output should be as per the golden file
+			fmt.Print(stderr.String())
 			test.File(t, stderr.String(), tt.golden)
+		})
+	}
+}
+
+func TestVersion(t *testing.T) {
+	tests := []struct {
+		name    string       // Name of the test case
+		cmd     *cli.Command // Command under test
+		stderr  string       // Expected output to stderr
+		wantErr bool         // Whether we want an error or not
+	}{
+		{
+			name:    "default long",
+			cmd:     cli.New("version-test", cli.Args([]string{"--version"})),
+			stderr:  "version-test, version: dev\n",
+			wantErr: false,
+		},
+		{
+			name:    "default short",
+			cmd:     cli.New("version-test", cli.Args([]string{"-v"})),
+			stderr:  "version-test, version: dev\n",
+			wantErr: false,
+		},
+		{
+			name: "custom version",
+			cmd: cli.New(
+				"version-test",
+				cli.Args([]string{"--version"}),
+				cli.Version("v1.2.3"),
+			),
+			stderr:  "version-test, version: v1.2.3\n",
+			wantErr: false,
+		},
+		{
+			name: "custom versionFunc",
+			cmd: cli.New(
+				"version-test",
+				cli.Args([]string{"--version"}),
+				cli.VersionFunc(func(cmd *cli.Command) error {
+					fmt.Fprintln(cmd.Stderr(), "Do something custom here")
+					return nil
+				}),
+			),
+			stderr:  "Do something custom here\n",
+			wantErr: false,
+		},
+		{
+			name: "return error",
+			cmd: cli.New(
+				"version-test",
+				cli.Args([]string{"--version"}),
+				cli.VersionFunc(func(cmd *cli.Command) error { return errors.New("Uh oh!") }),
+			),
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			stderr := &bytes.Buffer{}
+			stdout := &bytes.Buffer{}
+
+			cli.Stderr(stderr)(tt.cmd)
+			cli.Stdout(stdout)(tt.cmd)
+
+			err := tt.cmd.Execute()
+			test.WantErr(t, err, tt.wantErr)
+
+			// Should have no output to stdout
+			test.Equal(t, stdout.String(), "")
+
+			// --version output should be as desired
+			test.Equal(t, stderr.String(), tt.stderr)
 		})
 	}
 }
@@ -152,12 +256,12 @@ func TestExampleString(t *testing.T) {
 		{
 			name:    "only command",
 			example: cli.Example{Command: "run this program --once"},
-			want:    "$ run this program --once",
+			want:    "  $ run this program --once\n",
 		},
 		{
 			name:    "only comment",
 			example: cli.Example{Comment: "Run the program once"},
-			want:    "# Run the program once",
+			want:    "  # Run the program once\n",
 		},
 		{
 			name: "both",
@@ -165,7 +269,7 @@ func TestExampleString(t *testing.T) {
 				Comment: "Run the program once",
 				Command: "run this program --once",
 			},
-			want: "# Run the program once\n$ run this program --once",
+			want: "  # Run the program once\n  $ run this program --once\n",
 		},
 	}
 

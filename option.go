@@ -66,6 +66,23 @@ func Args(args []string) Option {
 	}
 }
 
+// Version is an [Option] that sets the version for a [Command].
+func Version(version string) Option {
+	return func(cmd *Command) {
+		cmd.version = version
+	}
+}
+
+// VersionFunc is an [Option] that allows for a custom implementation of the -v/--version flag.
+//
+// A [Command] will have a default implementation of this function that prints a default
+// format of the version info to [os.Stderr].
+func VersionFunc(fn func(cmd *Command) error) Option {
+	return func(cmd *Command) {
+		cmd.versionFunc = fn
+	}
+}
+
 // HelpFunc is an [Option] that allows for a custom implementation of the -h/--help flag.
 //
 // A [Command] will have a default implementation of this function that prints a default
