@@ -25,17 +25,21 @@ func New(name string, options ...Option) *Command {
 			fmt.Fprintf(cmd.stdout, "Hello from %s\n", name)
 			return nil
 		},
-		flags:    pflag.NewFlagSet(name, pflag.ContinueOnError),
-		stdin:    os.Stdin,
-		stdout:   os.Stdout,
-		stderr:   os.Stderr,
-		args:     os.Args[1:],
-		name:     name,
-		helpFunc: defaultHelp,
-		short:    "A placeholder for something cool",
+		flags:       pflag.NewFlagSet(name, pflag.ContinueOnError),
+		stdin:       os.Stdin,
+		stdout:      os.Stdout,
+		stderr:      os.Stderr,
+		args:        os.Args[1:],
+		name:        name,
+		version:     "dev",
+		helpFunc:    defaultHelp,
+		versionFunc: defaultVersion,
+		short:       "A placeholder for something cool",
 	}
 
+	// Add the built in help and version flags
 	cmd.Flags().BoolP("help", "h", false, fmt.Sprintf("Show help for %s", name))
+	cmd.Flags().BoolP("version", "v", false, fmt.Sprintf("Show version info for %s", name))
 
 	// Apply the options
 	for _, option := range options {
@@ -62,6 +66,12 @@ type Command struct {
 	// the [HelpFunc] [Option].
 	helpFunc func(cmd *Command) error
 
+	// versionFunc is the function thatgets called when the user calls -v/--version.
+	//
+	// It can be overridden by the user to customise their version output using
+	// the [VersionFunc] [Option].
+	versionFunc func(cmd *Command) error
+
 	// stdin is an [io.Reader] from which command input is read.
 	//
 	// It defaults to [os.Stdin] but can be overridden as desired e.g. for testing.
@@ -85,6 +95,9 @@ type Command struct {
 
 	// long is the long form description for the command, shown when -h/--help is called on the command itself.
 	long string
+
+	// version is the version of this command, shown when -v/--version is called.
+	version string
 
 	// example is examples of how to use the command.
 	example []Example
@@ -114,13 +127,13 @@ func (e Example) String() string {
 		return ""
 	case e.Command == "":
 		// Empty command, show just the comment
-		return fmt.Sprintf("# %s", e.Comment)
+		return fmt.Sprintf("  # %s\n", e.Comment)
 	case e.Comment == "":
 		// No comment, just show command on it's own
-		return fmt.Sprintf("$ %s", e.Command)
+		return fmt.Sprintf("  $ %s\n", e.Command)
 	default:
 		// Both passed, show the full example
-		return fmt.Sprintf("# %s\n$ %s", e.Comment, e.Command)
+		return fmt.Sprintf("  # %s\n  $ %s\n", e.Comment, e.Command)
 	}
 }
 
@@ -148,8 +161,24 @@ func (c *Command) Execute() error {
 	// If -h/--help was called, call the defined helpFunc and exit so that
 	// the run function is never called.
 	if helpCalled {
-		if err := c.helpFunc(c); err != nil {
+		if err = c.helpFunc(c); err != nil {
 			return fmt.Errorf("help function returned an error: %w", err)
+		}
+		return nil
+	}
+
+	// Check if we should be responding to -v/--version
+	versionCalled, err := c.Flags().GetBool("version")
+	if err != nil {
+		// Again, shouldn't ever get here
+		return fmt.Errorf("version was call for but unset: %w", err)
+	}
+
+	// If -v/--version was called, call the defined versionFunc and exit so that
+	// the run function is never called
+	if versionCalled {
+		if err := c.versionFunc(c); err != nil {
+			return fmt.Errorf("version function returned an error: %w", err)
 		}
 		return nil
 	}
@@ -184,7 +213,7 @@ func (c *Command) Stdin() io.Reader {
 // defaultHelp is the default for a command's helpFunc.
 func defaultHelp(cmd *Command) error {
 	// Note: The decision to not use text/template here is intentional, template calls
-	// reflect.Value.MethodByName() and/or reflect.Type.MethodByName() disables dead
+	// reflect.Value.MethodByName() and/or reflect.Type.MethodByName() which disables dead
 	// code elimination in the compiler, meaning any application that uses cli for it's
 	// command line interface will not be run through dead code elimination which could cause
 	// significant increase in memory consumption and disk space.
@@ -203,8 +232,9 @@ func defaultHelp(cmd *Command) error {
 
 	// If the user defined some examples, show those
 	if len(cmd.example) != 0 {
-		s.WriteString("\n\nExamples:\n\n")
+		s.WriteString("\n\nExamples:")
 		for _, example := range cmd.example {
+			s.WriteString("\n")
 			s.WriteString(example.String())
 		}
 	}
@@ -212,7 +242,14 @@ func defaultHelp(cmd *Command) error {
 	// Now we'd be onto subcommands... haven't got those yet
 
 	// Now options
-	s.WriteString("\n\nOptions:\n")
+	if len(cmd.example) != 0 {
+		// If there were examples, the last one would have printed a newline
+		s.WriteString("\n")
+	} else {
+		// If there weren't, we need some more space
+		s.WriteString("\n\n")
+	}
+	s.WriteString("Options:\n")
 	s.WriteString(cmd.Flags().FlagUsages())
 
 	// Subcommand help
@@ -226,5 +263,11 @@ func defaultHelp(cmd *Command) error {
 
 	fmt.Fprint(cmd.Stderr(), s.String())
 
+	return nil
+}
+
+// defaultVersion is the default for a command's versionFunc.
+func defaultVersion(cmd *Command) error {
+	fmt.Fprintf(cmd.Stderr(), "%s, version: %s\n", cmd.name, cmd.version)
 	return nil
 }
