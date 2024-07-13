@@ -161,6 +161,9 @@ func (c *Command) Execute() error {
 	// If -h/--help was called, call the defined helpFunc and exit so that
 	// the run function is never called.
 	if helpCalled {
+		if c.helpFunc == nil {
+			return errors.New("helpFunc was nil")
+		}
 		if err = c.helpFunc(c); err != nil {
 			return fmt.Errorf("help function returned an error: %w", err)
 		}
@@ -177,6 +180,9 @@ func (c *Command) Execute() error {
 	// If -v/--version was called, call the defined versionFunc and exit so that
 	// the run function is never called
 	if versionCalled {
+		if c.versionFunc == nil {
+			return errors.New("versionFunc was nil")
+		}
 		if err := c.versionFunc(c); err != nil {
 			return fmt.Errorf("version function returned an error: %w", err)
 		}
@@ -185,6 +191,9 @@ func (c *Command) Execute() error {
 
 	argsWithoutFlags := c.Flags().Args()
 
+	if c.run == nil {
+		return errors.New("runFunc was nil")
+	}
 	return c.run(c, argsWithoutFlags)
 }
 
@@ -192,6 +201,14 @@ func (c *Command) Execute() error {
 //
 // TODO: Make it so we can add flags via the functional options pattern.
 func (c *Command) Flags() *pflag.FlagSet {
+	if c == nil {
+		// Only thing to do really, slightly more helpful than a generic
+		// nil pointer dereference
+		panic("Flags called on a nil Command")
+	}
+	if c.flags == nil {
+		return pflag.NewFlagSet(c.name, pflag.ContinueOnError)
+	}
 	return c.flags
 }
 
@@ -212,6 +229,9 @@ func (c *Command) Stdin() io.Reader {
 
 // defaultHelp is the default for a command's helpFunc.
 func defaultHelp(cmd *Command) error {
+	if cmd == nil {
+		return errors.New("defaultHelp called on a nil Command")
+	}
 	// Note: The decision to not use text/template here is intentional, template calls
 	// reflect.Value.MethodByName() and/or reflect.Type.MethodByName() which disables dead
 	// code elimination in the compiler, meaning any application that uses cli for it's
@@ -268,6 +288,9 @@ func defaultHelp(cmd *Command) error {
 
 // defaultVersion is the default for a command's versionFunc.
 func defaultVersion(cmd *Command) error {
+	if cmd == nil {
+		return errors.New("defaultVersion called on a nil Command")
+	}
 	fmt.Fprintf(cmd.Stderr(), "%s, version: %s\n", cmd.name, cmd.version)
 	return nil
 }
