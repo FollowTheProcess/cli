@@ -239,8 +239,19 @@ func defaultHelp(cmd *Command) error {
 	// significant increase in memory consumption and disk space.
 	// See https://github.com/spf13/cobra/issues/2015
 	s := &strings.Builder{}
-	s.WriteString(cmd.short)
-	s.WriteString("\n\n")
+
+	// If we have a short description, write that
+	if cmd.short != "" {
+		s.WriteString(cmd.short)
+		s.WriteString("\n\n")
+	}
+
+	// If we have a long description, write that
+	if cmd.long != "" {
+		s.WriteString(cmd.long)
+		s.WriteString("\n\n")
+	}
+
 	s.WriteString("Usage: ")
 	s.WriteString(cmd.name)
 

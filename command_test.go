@@ -146,6 +146,28 @@ func TestHelp(t *testing.T) {
 			golden:  "with-examples.txt",
 			wantErr: false,
 		},
+		{
+			name: "with full description",
+			cmd: cli.New(
+				"test",
+				cli.Args([]string{"--help"}),
+				cli.Short("A cool CLI to do things"),
+				cli.Long("A longer, probably multiline description"),
+			),
+			golden:  "full.txt",
+			wantErr: false,
+		},
+		{
+			name: "with no description",
+			cmd: cli.New(
+				"test",
+				cli.Args([]string{"--help"}),
+				cli.Short(""),
+				cli.Long(""),
+			),
+			golden:  "no-about.txt",
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -163,7 +185,6 @@ func TestHelp(t *testing.T) {
 			test.Equal(t, stdout.String(), "")
 
 			// --help output should be as per the golden file
-			fmt.Print(stderr.String())
 			test.File(t, stderr.String(), tt.golden)
 		})
 	}
