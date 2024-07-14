@@ -98,6 +98,7 @@ func TestHelp(t *testing.T) {
 		name    string       // Identifier of the test case
 		golden  string       // The name of the file relative to testdata containing to expected output
 		wantErr bool         // Whether we want an error
+		debug   bool         // Whether or not to print the produced help text to stderr (useful for debugging)
 	}{
 		{
 			name: "default long",
@@ -168,6 +169,22 @@ func TestHelp(t *testing.T) {
 			golden:  "no-about.txt",
 			wantErr: false,
 		},
+		{
+			name: "with subcommands",
+			cmd: cli.New(
+				"test",
+				cli.Args([]string{"--help"}),
+				cli.Short("A cool CLI to do things"),
+				cli.Long("A longer, probably multiline description"),
+				cli.SubCommands(
+					cli.New("sub1", cli.Short("Do one thing")),
+					cli.New("sub2", cli.Short("Do another thing")),
+				),
+			),
+			golden:  "subcommands.txt",
+			wantErr: false,
+			debug:   true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -183,6 +200,11 @@ func TestHelp(t *testing.T) {
 
 			// Should have no output to stdout
 			test.Equal(t, stdout.String(), "")
+
+			// Show the help output, can aid debugging
+			if tt.debug {
+				fmt.Print(stderr.String())
+			}
 
 			// --help output should be as per the golden file
 			test.File(t, stderr.String(), tt.golden)

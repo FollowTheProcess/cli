@@ -92,3 +92,10 @@ func HelpFunc(fn func(cmd *Command) error) Option {
 		cmd.helpFunc = fn
 	}
 }
+
+// SubCommands is an [Option] that attaches 1 or more subcommands to the command being configured.
+func SubCommands(cmds ...*Command) Option {
+	return func(cmd *Command) {
+		cmd.subcommands = append(cmd.subcommands, cmds...)
+	}
+}
