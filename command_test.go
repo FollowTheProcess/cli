@@ -256,12 +256,12 @@ func TestExampleString(t *testing.T) {
 		{
 			name:    "only command",
 			example: cli.Example{Command: "run this program --once"},
-			want:    "  $ run this program --once\n",
+			want:    "\n  $ run this program --once\n",
 		},
 		{
 			name:    "only comment",
 			example: cli.Example{Comment: "Run the program once"},
-			want:    "  # Run the program once\n",
+			want:    "\n  # Run the program once\n",
 		},
 		{
 			name: "both",
@@ -269,7 +269,7 @@ func TestExampleString(t *testing.T) {
 				Comment: "Run the program once",
 				Command: "run this program --once",
 			},
-			want: "  # Run the program once\n  $ run this program --once\n",
+			want: "\n  # Run the program once\n  $ run this program --once\n",
 		},
 	}
 

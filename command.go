@@ -127,13 +127,13 @@ func (e Example) String() string {
 		return ""
 	case e.Command == "":
 		// Empty command, show just the comment
-		return fmt.Sprintf("  # %s\n", e.Comment)
+		return fmt.Sprintf("\n  # %s\n", e.Comment)
 	case e.Comment == "":
 		// No comment, just show command on it's own
-		return fmt.Sprintf("  $ %s\n", e.Command)
+		return fmt.Sprintf("\n  $ %s\n", e.Command)
 	default:
 		// Both passed, show the full example
-		return fmt.Sprintf("  # %s\n  $ %s\n", e.Comment, e.Command)
+		return fmt.Sprintf("\n  # %s\n  $ %s\n", e.Comment, e.Command)
 	}
 }
 
@@ -254,7 +254,6 @@ func defaultHelp(cmd *Command) error {
 	if len(cmd.example) != 0 {
 		s.WriteString("\n\nExamples:")
 		for _, example := range cmd.example {
-			s.WriteString("\n")
 			s.WriteString(example.String())
 		}
 	}
