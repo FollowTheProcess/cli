@@ -7,15 +7,28 @@ import (
 	"io"
 	"os"
 	"strings"
+	"text/tabwriter"
 
 	"github.com/spf13/pflag"
 )
 
+// TableWriter config, used for showing subcommands in help.
+const (
+	minWidth = 0    // Min cell width
+	tabWidth = 4    // Tab width in spaces
+	padding  = 1    // Padding
+	padChar  = '\t' // Char to pad with
+)
+
 // New builds and returns a new [Command].
 //
-// Without any options passed, the default implementation returns a [Command] with
-// no flags, hooked up to [os.Stdin], [os.Stdout] and [os.Stderr], and accepting
-// [os.Args] as arguments (with the command path stripped, equivalent to os.Args[1:]).
+// The command can be customised by passing in a number of options enabling you to
+// do things like configure stderr and stdout, add or customise help or version output
+// add subcommands and run functions etc.
+//
+// Without any options passed, the default implementation returns a [Command] with no subcommands,
+// a -v/--version and a -h/--help flag, hooked up to [os.Stdin], [os.Stdout] and [os.Stderr]
+// and accepting [os.Args] as arguments (with the command path stripped, equivalent to os.Args[1:]).
 //
 // This default command, when invoked, will print "Hello from {name}\n" to [os.Stdout].
 func New(name string, options ...Option) *Command {
@@ -106,6 +119,13 @@ type Command struct {
 	// (excluding the command name, so os.Args[1:]), can be overridden using
 	// the [Args] option for e.g. testing.
 	args []string
+
+	// subcommands is the list of subcommands this command has directly underneath it,
+	// these may have any number of subcommands under them, this is how we form nested
+	// command structures.
+	//
+	// If the command has no subcommands, this slice will be nil.
+	subcommands []*Command
 }
 
 // Example is a single usage example for a [Command].
@@ -270,10 +290,20 @@ func defaultHelp(cmd *Command) error {
 	}
 
 	// Now we'd be onto subcommands... haven't got those yet
+	if len(cmd.subcommands) != 0 {
+		s.WriteString("\n\nCommands:\n")
+		tab := tabwriter.NewWriter(s, minWidth, tabWidth, padding, padChar, tabwriter.AlignRight)
+		for _, subcommand := range cmd.subcommands {
+			fmt.Fprintf(tab, "  %s\t%s\n", subcommand.name, subcommand.short)
+		}
+		if err := tab.Flush(); err != nil {
+			return fmt.Errorf("could not format subcommands: %w", err)
+		}
+	}
 
 	// Now options
-	if len(cmd.example) != 0 {
-		// If there were examples, the last one would have printed a newline
+	if len(cmd.example) != 0 || len(cmd.subcommands) != 0 {
+		// If there were examples or subcommands, the last one would have printed a newline
 		s.WriteString("\n")
 	} else {
 		// If there weren't, we need some more space
