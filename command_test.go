@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"testing"
 
 	"github.com/FollowTheProcess/cli"
@@ -318,7 +319,7 @@ func TestHelp(t *testing.T) {
 			}
 
 			// --help output should be as per the golden file
-			test.File(t, stderr.String(), tt.golden)
+			test.File(t, stderr.String(), filepath.Join("TestHelp", tt.golden))
 		})
 	}
 }
