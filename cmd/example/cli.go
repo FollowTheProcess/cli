@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/FollowTheProcess/cli/command"
-	"github.com/FollowTheProcess/cli/flag"
 )
 
 func BuildCLI() *command.Command {
@@ -18,6 +17,7 @@ func BuildCLI() *command.Command {
 				Command: "demo say hello world",
 			},
 		),
+		command.Allow(command.NoArgs),
 		command.SubCommands(buildSayCommand()),
 	)
 
@@ -26,9 +26,9 @@ func BuildCLI() *command.Command {
 
 func buildSayCommand() *command.Command {
 	var (
-		shout     bool
-		count     int
-		something string
+		shout bool
+		count int
+		thing string
 	)
 	say := command.New(
 		"say",
@@ -57,9 +57,16 @@ func buildSayCommand() *command.Command {
 			return nil
 		}),
 	)
-	flag.New(&shout, "shout", "s", false, "Say the message louder")
-	flag.New(&count, "count", "c", 0, "Count the things")
-	flag.New(&something, "something", "s", "word", "Something is a string")
+
+	// In pflag
+	say.Flags().BoolVarP(&shout, "shout", "s", false, "Say the message louder")
+	say.Flags().IntVarP(&count, "count", "c", 0, "Count the things")
+	say.Flags().StringVarP(&thing, "thing", "t", "", "The name of a thing")
+
+	// With my version (not hooked up to can't actually be parsed yet)
+	// flag.New(&shout, "shout", "s", false, "Say the message louder")
+	// flag.New(&count, "count", "c", 0, "Count the things")
+	// flag.New(&something, "something", "s", "word", "Something is a string")
 
 	return say
 }

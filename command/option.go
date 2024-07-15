@@ -95,3 +95,13 @@ func SubCommands(subcommands ...*Command) Option {
 		}
 	}
 }
+
+// Allow is an [Option] that allows for validating positional arguments to a [Command].
+//
+// You provide a validator function that returns an error if it encounters invalid arguments, and it will
+// be run for you, passing in the non-flag arguments to the [Command] that was called.
+func Allow(validator func(cmd *Command, args []string) error) Option {
+	return func(cmd *Command) {
+		cmd.allowArgs = validator
+	}
+}
