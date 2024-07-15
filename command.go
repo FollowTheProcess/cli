@@ -361,26 +361,28 @@ func findSubCommand(cmd *Command, next string) *Command {
 	return nil
 }
 
+// stripFlags takes a slice of raw command line arguments (including possible flags) and removes
+// any arguments that are flags or values passed in to flags e.g. --flag value.
 func stripFlags(cmd *Command, args []string) []string {
 	if len(args) == 0 {
 		return args
 	}
 
-	commands := []string{}
+	argsWithoutFlags := []string{}
 
 Loop:
 	for len(args) > 0 {
-		s := args[0]
+		arg := args[0]
 		args = args[1:]
 		switch {
-		case s == "--":
+		case arg == "--":
 			// "--" terminates the flags
 			break Loop
-		case strings.HasPrefix(s, "--") && !strings.Contains(s, "=") && !cmd.hasFlag(s[2:]):
+		case strings.HasPrefix(arg, "--") && !strings.Contains(arg, "=") && !cmd.hasFlag(arg[2:]):
 			// If '--flag arg' then
 			// delete arg from args.
 			fallthrough // (do the same as below)
-		case strings.HasPrefix(s, "-") && !strings.Contains(s, "=") && len(s) == 2 && !cmd.hasShortFlag(s[1:]):
+		case strings.HasPrefix(arg, "-") && !strings.Contains(arg, "=") && len(arg) == 2 && !cmd.hasShortFlag(arg[1:]):
 			// If '-f arg' then
 			// delete 'arg' from args or break the loop if len(args) <= 1.
 			if len(args) <= 1 {
@@ -389,12 +391,12 @@ Loop:
 				args = args[1:]
 				continue
 			}
-		case s != "" && !strings.HasPrefix(s, "-"):
-			commands = append(commands, s)
+		case arg != "" && !strings.HasPrefix(arg, "-"):
+			argsWithoutFlags = append(argsWithoutFlags, arg)
 		}
 	}
 
-	return commands
+	return argsWithoutFlags
 }
 
 // defaultHelp is the default for a command's helpFunc.
