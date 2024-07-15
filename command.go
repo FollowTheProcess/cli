@@ -158,6 +158,11 @@ func (c *Command) Execute() error {
 		return errors.New("Execute called on a nil Command")
 	}
 
+	// Regardless of where we call execute, run it only from the root command
+	if c.parent != nil {
+		return c.root().Execute()
+	}
+
 	if err := c.Flags().Parse(c.args); err != nil {
 		return fmt.Errorf("failed to parse command flags: %w", err)
 	}
@@ -248,6 +253,14 @@ func (c *Command) Stderr() io.Writer {
 // Stdin returns the configured Stdin for the Command.
 func (c *Command) Stdin() io.Reader {
 	return c.stdin
+}
+
+// root returns the root of the command tree.
+func (c *Command) root() *Command {
+	if c.parent != nil {
+		return c.parent.root()
+	}
+	return c
 }
 
 // defaultHelp is the default for a command's helpFunc.
