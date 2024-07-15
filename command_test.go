@@ -108,6 +108,115 @@ func TestExecute(t *testing.T) {
 	}
 }
 
+func TestSubCommandExecute(t *testing.T) {
+	sub1 := cli.New(
+		"sub1",
+		cli.Run(func(cmd *cli.Command, args []string) error {
+			force, err := cmd.Flags().GetBool("force")
+			if err != nil {
+				return err
+			}
+			something, err := cmd.Flags().GetString("something")
+			if err != nil {
+				return err
+			}
+			if something == "" {
+				something = "<empty>"
+			}
+			fmt.Fprintf(
+				cmd.Stdout(),
+				"Hello from sub1, my args were: %v, force was %v, something was %s",
+				args,
+				force,
+				something,
+			)
+			return nil
+		}),
+	)
+	sub1.Flags().BoolP("force", "f", false, "Force for sub1")
+	sub1.Flags().StringP("something", "s", "", "Something for sub1")
+
+	sub2 := cli.New(
+		"sub2",
+		cli.Run(func(cmd *cli.Command, args []string) error {
+			deleteFlag, err := cmd.Flags().GetBool("delete")
+			if err != nil {
+				return err
+			}
+			number, err := cmd.Flags().GetInt("number")
+			if err != nil {
+				return err
+			}
+			fmt.Fprintf(
+				cmd.Stdout(),
+				"Hello from sub2, my args were: %v, delete was %v, number was %d",
+				args,
+				deleteFlag,
+				number,
+			)
+			return nil
+		}),
+	)
+	sub2.Flags().BoolP("delete", "d", false, "Delete for sub2")
+	sub2.Flags().IntP("number", "n", -1, "Number for sub2")
+
+	root := cli.New(
+		"root",
+		cli.SubCommands(sub1, sub2),
+	)
+
+	tests := []struct {
+		name    string   // Test case name
+		stdout  string   // Expected stdout
+		stderr  string   // Expected stderr
+		args    []string // Args passed to root command
+		wantErr bool     // Whether or not we wanted an error
+	}{
+		{
+			name:    "invoke sub1 no flags",
+			stdout:  "Hello from sub1, my args were: [my subcommand args], force was false, something was <empty>",
+			stderr:  "",
+			args:    []string{"sub1", "my", "subcommand", "args"},
+			wantErr: false,
+		},
+		{
+			name:    "invoke sub2 no flags",
+			stdout:  "Hello from sub2, my args were: [my different args], delete was false, number was -1",
+			stderr:  "",
+			args:    []string{"sub2", "my", "different", "args"},
+			wantErr: false,
+		},
+		{
+			name:    "invoke sub1 with flags",
+			stdout:  "Hello from sub1, my args were: [my subcommand args], force was true, something was here",
+			stderr:  "",
+			args:    []string{"sub1", "my", "subcommand", "args", "--force", "--something", "here"},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Set the args on the root command
+			cli.Args(tt.args)(root)
+
+			// Test output streams
+			stderr := &bytes.Buffer{}
+			stdout := &bytes.Buffer{}
+
+			cli.Stderr(stderr)(root)
+			cli.Stdout(stdout)(root)
+
+			// Execute the command, we should see the sub commands get executed based on what args we provide
+			err := root.Execute()
+			test.Ok(t, err)
+
+			test.Equal(t, stdout.String(), tt.stdout)
+			test.Equal(t, stderr.String(), tt.stderr)
+		})
+	}
+}
+
 func TestHelp(t *testing.T) {
 	tests := []struct {
 		cmd     *cli.Command // The command under test
