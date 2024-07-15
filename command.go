@@ -165,7 +165,10 @@ func (c *Command) Execute() error {
 		return c.root().Execute()
 	}
 
-	cmd, args, err := c.Find(c.args)
+	// Use the raw arguments and the command tree to determine which subcommand (if any)
+	// we should be invoking. If it turns out we want to invoke the root command, then
+	// cmd here will be c.
+	cmd, args, err := Find(c, c.args)
 	if err != nil {
 		return err
 	}
@@ -265,24 +268,24 @@ func (c *Command) root() *Command {
 
 // Find the target command given the args and command tree
 // Meant to be run on the highest node. Only searches down.
-func (c *Command) Find(args []string) (*Command, []string, error) {
-	var innerfind func(*Command, []string) (*Command, []string)
+func Find(root *Command, args []string) (*Command, []string, error) {
+	var findFunc func(*Command, []string) (*Command, []string)
 
-	innerfind = func(c *Command, innerArgs []string) (*Command, []string) {
-		argsWOflags := stripFlags(innerArgs, c)
+	findFunc = func(command *Command, innerArgs []string) (*Command, []string) {
+		argsWOflags := stripFlags(innerArgs, command)
 		if len(argsWOflags) == 0 {
-			return c, innerArgs
+			return command, innerArgs
 		}
 		nextSubCmd := argsWOflags[0]
 
-		cmd := c.findNext(nextSubCmd)
+		cmd := command.findNext(nextSubCmd)
 		if cmd != nil {
-			return innerfind(cmd, c.argsMinusFirstX(innerArgs, nextSubCmd))
+			return findFunc(cmd, command.argsMinusFirstX(innerArgs, nextSubCmd))
 		}
-		return c, innerArgs
+		return command, innerArgs
 	}
 
-	commandFound, a := innerfind(c, args)
+	commandFound, a := findFunc(root, args)
 	return commandFound, a, nil
 }
 
