@@ -28,7 +28,7 @@ const (
 //
 // Without any options passed, the default implementation returns a [Command] with no subcommands,
 // a -v/--version and a -h/--help flag, hooked up to [os.Stdin], [os.Stdout] and [os.Stderr]
-// and accepting [os.Args] as arguments (with the command path stripped, equivalent to os.Args[1:]).
+// and accepting arbitrary positional arguments from [os.Args] (with the command path stripped, equivalent to os.Args[1:]).
 func New(name string, options ...Option) *Command {
 	// Default implementation
 	cmd := &Command{
@@ -41,6 +41,7 @@ func New(name string, options ...Option) *Command {
 		version:     "dev",
 		versionFunc: defaultVersion,
 		short:       "A placeholder for something cool",
+		allowArgs:   AnyArgs,
 	}
 
 	// Add the built in help and version flags
@@ -59,19 +60,6 @@ func New(name string, options ...Option) *Command {
 // git commit -m <msg>; 'commit' is the command. It can have any number of subcommands
 // which themselves can have subcommands etc. The root command in this example is 'git'.
 type Command struct {
-	// run is the function actually implementing the command, the command and arguments to it, are passed into the function, flags
-	// are parsed out before the arguments are passed to Run, so `args` here are the command line arguments minus flags.
-	run func(cmd *Command, args []string) error
-
-	// flags is the set of flags for this command.
-	flags *pflag.FlagSet
-
-	// versionFunc is the function thatgets called when the user calls -v/--version.
-	//
-	// It can be overridden by the user to customise their version output using
-	// the [VersionFunc] [Option].
-	versionFunc func(cmd *Command) error
-
 	// stdin is an [io.Reader] from which command input is read.
 	//
 	// It defaults to [os.Stdin] but can be overridden as desired e.g. for testing.
@@ -87,9 +75,27 @@ type Command struct {
 	// It defaults to [os.Stderr] but can be overridden as desired e.g. for testing.
 	stderr io.Writer
 
+	// run is the function actually implementing the command, the command and arguments to it, are passed into the function, flags
+	// are parsed out before the arguments are passed to Run, so `args` here are the command line arguments minus flags.
+	run func(cmd *Command, args []string) error
+
+	// flags is the set of flags for this command.
+	flags *pflag.FlagSet
+
+	// versionFunc is the function thatgets called when the user calls -v/--version.
+	//
+	// It can be overridden by the user to customise their version output using
+	// the [VersionFunc] [Option].
+	versionFunc func(cmd *Command) error
+
 	// parent is the immediate parent of this subcommand. If this command is the root
 	// and has no parent, this will be nil.
 	parent *Command
+
+	// allowArgs is a function that gets called to validate the positional arguments
+	// to the command. It defaults to allowing arbitrary arguments, can be overridden using
+	// the [AllowArgs] option.
+	allowArgs func(cmd *Command, args []string) error
 
 	// name is the name of the command.
 	name string
@@ -217,12 +223,24 @@ func (c *Command) Execute() error {
 		)
 	}
 
-	// If the command is runnable, go and execute its run function
-	if cmd.run != nil {
-		return cmd.run(cmd, cmd.Flags().Args())
+	// Validate the arguments using the command's allowedArgs function
+	argsWithoutFlags := cmd.Flags().Args()
+	if err := cmd.allowArgs(cmd, argsWithoutFlags); err != nil {
+		return err
 	}
 
-	return nil
+	// If the command is runnable, go and execute its run function
+	if cmd.run != nil {
+		return cmd.run(cmd, argsWithoutFlags)
+	}
+
+	// If we get here it means... something?
+	// TODO: How do we actually get here? For now I've just made it print help
+	// and return the error
+	if err := defaultHelp(cmd); err != nil {
+		return err
+	}
+	return errors.New("invalid arguments")
 }
 
 // Flags returns the set of flags for the command.
