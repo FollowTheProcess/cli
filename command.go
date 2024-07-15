@@ -168,7 +168,7 @@ func (c *Command) Execute() error {
 	helpCalled, err := c.Flags().GetBool("help")
 	if err != nil {
 		// We shouldn't ever get here because we define a default for help
-		return fmt.Errorf("help was called for but unset: %w", err)
+		return fmt.Errorf("could not parse help flag: %w", err)
 	}
 
 	// If -h/--help was called, call the defined helpFunc and exit so that
