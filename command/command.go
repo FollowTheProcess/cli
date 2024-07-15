@@ -234,7 +234,13 @@ func (c *Command) Execute() error {
 		return cmd.run(cmd, argsWithoutFlags)
 	}
 
-	return nil
+	// If we get here it means... something?
+	// TODO: How do we actually get here? For now I've just made it print help
+	// and return the error
+	if err := defaultHelp(cmd); err != nil {
+		return err
+	}
+	return errors.New("invalid arguments")
 }
 
 // Flags returns the set of flags for the command.
