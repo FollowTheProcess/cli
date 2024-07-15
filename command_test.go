@@ -24,6 +24,10 @@ func TestExecute(t *testing.T) {
 			cmd: cli.New(
 				"test",
 				cli.Args([]string{"arg1", "arg2", "arg3"}),
+				cli.Run(func(cmd *cli.Command, args []string) error {
+					fmt.Fprintln(cmd.Stdout(), "Hello from test")
+					return nil
+				}),
 			),
 			stdout:  "Hello from test\n",
 			wantErr: false,
@@ -35,7 +39,9 @@ func TestExecute(t *testing.T) {
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintf(cmd.Stdout(), "Oooh look, it ran, here are some args: %v\n", args)
 					force, err := cmd.Flags().GetBool("force")
-					test.Ok(t, err)
+					if err != nil {
+						return err
+					}
 					fmt.Fprintf(cmd.Stdout(), "--force was: %v\n", force)
 					return nil
 				}),
@@ -50,13 +56,23 @@ func TestExecute(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "no run and no subcommands",
+			cmd: cli.New(
+				"test",
+				cli.Args([]string{"arg1", "arg2", "arg3"}),
+			),
+			wantErr: true,
+		},
+		{
 			name: "bad flag",
 			cmd: cli.New(
 				"test",
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintf(cmd.Stdout(), "Oooh look, it ran, here are some args: %v\n", args)
 					force, err := cmd.Flags().GetBool("force")
-					test.Ok(t, err)
+					if err != nil {
+						return err
+					}
 					fmt.Fprintf(cmd.Stdout(), "--force was: %v\n", force)
 					return nil
 				}),
