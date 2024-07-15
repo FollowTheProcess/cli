@@ -29,15 +29,9 @@ const (
 // Without any options passed, the default implementation returns a [Command] with no subcommands,
 // a -v/--version and a -h/--help flag, hooked up to [os.Stdin], [os.Stdout] and [os.Stderr]
 // and accepting [os.Args] as arguments (with the command path stripped, equivalent to os.Args[1:]).
-//
-// This default command, when invoked, will print "Hello from {name}\n" to [os.Stdout].
 func New(name string, options ...Option) *Command {
 	// Default implementation
 	cmd := &Command{
-		run: func(cmd *Command, args []string) error {
-			fmt.Fprintf(cmd.stdout, "Hello from %s\n", name)
-			return nil
-		},
 		flags:       pflag.NewFlagSet(name, pflag.ContinueOnError),
 		stdin:       os.Stdin,
 		stdout:      os.Stdout,
@@ -199,12 +193,27 @@ func (c *Command) Execute() error {
 		return nil
 	}
 
-	argsWithoutFlags := c.Flags().Args()
+	// Not all commands are runnable, e.g. if this command is the root of a subcommand
+	// it will define subcommands but no run function itself. We must decide here what to do when
+	// this command is executed.
 
-	if c.run == nil {
-		return errors.New("runFunc was nil")
+	// A command cannot have
+	// no subcommands and no run function, it must define one or the other
+	if c.run == nil && len(c.subcommands) == 0 {
+		return fmt.Errorf(
+			"command %s has no subcommands and no run function, a command must either be runnable or have subcommands",
+			c.name,
+		)
 	}
-	return c.run(c, argsWithoutFlags)
+
+	// If the command is runnable, go and execute it's run function
+	if c.run != nil {
+		return c.run(c, c.Flags().Args())
+	}
+
+	// TODO: If the command defines subcommands, we need to parse the args and determine which subcommand to go and run
+
+	return nil
 }
 
 // Flags returns the set of flags for the command.
