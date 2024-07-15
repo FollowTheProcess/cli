@@ -266,25 +266,29 @@ func (c *Command) root() *Command {
 // findRequestedCommand uses the raw arguments and the command tree to determine what
 // (if any) subcommand is being requested and return that command along with the arguments
 // that were meant for it.
-func findRequestedCommand(root *Command, args []string) (*Command, []string) {
-	var findFunc func(*Command, []string) (*Command, []string)
-
-	findFunc = func(command *Command, innerArgs []string) (*Command, []string) {
-		argsWithoutFlags := stripFlags(innerArgs, command)
-		if len(argsWithoutFlags) == 0 {
-			return command, innerArgs
-		}
-		nextSubCmd := argsWithoutFlags[0]
-
-		cmd := command.findNext(nextSubCmd)
-		if cmd != nil {
-			return findFunc(cmd, command.argsMinusFirstX(innerArgs, nextSubCmd))
-		}
-		return command, innerArgs
+func findRequestedCommand(cmd *Command, args []string) (*Command, []string) {
+	// Any arguments without flags could be names of subcommands
+	argsWithoutFlags := stripFlags(cmd, args)
+	if len(argsWithoutFlags) == 0 {
+		// If there are no non-flag arguments, we must already be either at the root command
+		// or the correct subcommand
+		return cmd, args
 	}
 
-	commandFound, a := findFunc(root, args)
-	return commandFound, a
+	// The next non-flag argument will be the first immediate subcommand
+	// e.g. in 'go mod tidy', argsWithoutFlags[0] will be 'mod'
+	nextSubCommand := argsWithoutFlags[0]
+
+	// Lookup this immediate subcommand by name and if we find it, recursively call
+	// this function so we eventually end up at the end of the command tree with
+	// the right arguments
+	next := findNext(cmd, nextSubCommand)
+	if next != nil {
+		return findRequestedCommand(next, cmd.argsMinusFirstX(args, nextSubCommand))
+	}
+
+	// Found it
+	return cmd, args
 }
 
 // argsMinusFirstX removes only the first x from args.  Otherwise, commands that look like
@@ -324,8 +328,8 @@ Loop:
 	return args
 }
 
-func (c *Command) findNext(next string) *Command {
-	for _, subcommand := range c.subcommands {
+func findNext(cmd *Command, next string) *Command {
+	for _, subcommand := range cmd.subcommands {
 		if subcommand.name == next {
 			return subcommand
 		}
@@ -353,13 +357,13 @@ func shortHasNoOptDefVal(name string, fs *pflag.FlagSet) bool {
 	return flag.NoOptDefVal != ""
 }
 
-func stripFlags(args []string, c *Command) []string {
+func stripFlags(cmd *Command, args []string) []string {
 	if len(args) == 0 {
 		return args
 	}
 
 	commands := []string{}
-	flags := c.Flags()
+	flags := cmd.Flags()
 
 Loop:
 	for len(args) > 0 {
