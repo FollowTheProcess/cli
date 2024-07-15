@@ -168,12 +168,9 @@ func (c *Command) Execute() error {
 	// Use the raw arguments and the command tree to determine which subcommand (if any)
 	// we should be invoking. If it turns out we want to invoke the root command, then
 	// cmd here will be c.
-	cmd, args, err := Find(c, c.args)
-	if err != nil {
-		return err
-	}
+	cmd, args := findRequestedCommand(c, c.args)
 
-	if err = cmd.Flags().Parse(args); err != nil {
+	if err := cmd.Flags().Parse(args); err != nil {
 		return fmt.Errorf("failed to parse command flags: %w", err)
 	}
 
@@ -266,17 +263,18 @@ func (c *Command) root() *Command {
 	return c
 }
 
-// Find the target command given the args and command tree
-// Meant to be run on the highest node. Only searches down.
-func Find(root *Command, args []string) (*Command, []string, error) {
+// findRequestedCommand uses the raw arguments and the command tree to determine what
+// (if any) subcommand is being requested and return that command along with the arguments
+// that were meant for it.
+func findRequestedCommand(root *Command, args []string) (*Command, []string) {
 	var findFunc func(*Command, []string) (*Command, []string)
 
 	findFunc = func(command *Command, innerArgs []string) (*Command, []string) {
-		argsWOflags := stripFlags(innerArgs, command)
-		if len(argsWOflags) == 0 {
+		argsWithoutFlags := stripFlags(innerArgs, command)
+		if len(argsWithoutFlags) == 0 {
 			return command, innerArgs
 		}
-		nextSubCmd := argsWOflags[0]
+		nextSubCmd := argsWithoutFlags[0]
 
 		cmd := command.findNext(nextSubCmd)
 		if cmd != nil {
@@ -286,7 +284,7 @@ func Find(root *Command, args []string) (*Command, []string, error) {
 	}
 
 	commandFound, a := findFunc(root, args)
-	return commandFound, a, nil
+	return commandFound, a
 }
 
 // argsMinusFirstX removes only the first x from args.  Otherwise, commands that look like
