@@ -45,7 +45,6 @@ func New(name string, options ...Option) *Command {
 		args:        os.Args[1:],
 		name:        name,
 		version:     "dev",
-		helpFunc:    defaultHelp,
 		versionFunc: defaultVersion,
 		short:       "A placeholder for something cool",
 	}
@@ -72,12 +71,6 @@ type Command struct {
 
 	// flags is the set of flags for this command.
 	flags *pflag.FlagSet
-
-	// helpFunc is the function that gets called when the user calls -h/--help.
-	//
-	// It can be overridden by the user to customise their help output using
-	// the [HelpFunc] [Option].
-	helpFunc func(cmd *Command) error
 
 	// versionFunc is the function thatgets called when the user calls -v/--version.
 	//
@@ -181,10 +174,7 @@ func (c *Command) Execute() error {
 	// If -h/--help was called, call the defined helpFunc and exit so that
 	// the run function is never called.
 	if helpCalled {
-		if c.helpFunc == nil {
-			return errors.New("helpFunc was nil")
-		}
-		if err = c.helpFunc(c); err != nil {
+		if err = defaultHelp(c); err != nil {
 			return fmt.Errorf("help function returned an error: %w", err)
 		}
 		return nil
