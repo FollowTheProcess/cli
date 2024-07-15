@@ -184,7 +184,7 @@ func (c *Command) Execute() error {
 	versionCalled, err := c.Flags().GetBool("version")
 	if err != nil {
 		// Again, shouldn't ever get here
-		return fmt.Errorf("version was call for but unset: %w", err)
+		return fmt.Errorf("could not parse version flag: %w", err)
 	}
 
 	// If -v/--version was called, call the defined versionFunc and exit so that
