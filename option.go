@@ -84,8 +84,14 @@ func VersionFunc(fn func(cmd *Command) error) Option {
 }
 
 // SubCommands is an [Option] that attaches 1 or more subcommands to the command being configured.
-func SubCommands(cmds ...*Command) Option {
+func SubCommands(subcommands ...*Command) Option {
 	return func(cmd *Command) {
-		cmd.subcommands = append(cmd.subcommands, cmds...)
+		// Add the subcommands to the command this is being called on
+		cmd.subcommands = append(cmd.subcommands, subcommands...)
+
+		// Loop through each subcommand and set this command as their immediate parent
+		for _, subcommand := range subcommands {
+			subcommand.parent = cmd
+		}
 	}
 }
