@@ -83,16 +83,6 @@ func VersionFunc(fn func(cmd *Command) error) Option {
 	}
 }
 
-// HelpFunc is an [Option] that allows for a custom implementation of the -h/--help flag.
-//
-// A [Command] will have a default implementation of this function that prints a default
-// format of the help to [os.Stderr].
-func HelpFunc(fn func(cmd *Command) error) Option {
-	return func(cmd *Command) {
-		cmd.helpFunc = fn
-	}
-}
-
 // SubCommands is an [Option] that attaches 1 or more subcommands to the command being configured.
 func SubCommands(cmds ...*Command) Option {
 	return func(cmd *Command) {
