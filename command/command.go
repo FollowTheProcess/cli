@@ -1,5 +1,5 @@
-// Package cli provides a tiny, simple and minimalistic CLI framework for building Go CLI tools.
-package cli
+// Package cli provides a clean, minimal and simple mechanism for constructing CLI commands.
+package command
 
 import (
 	"errors"
