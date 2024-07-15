@@ -263,6 +263,28 @@ func (c *Command) root() *Command {
 	return c
 }
 
+// hasFlag returns whether the command has a flag of the given name defined.
+func (c *Command) hasFlag(name string) bool {
+	flag := c.Flags().Lookup(name)
+	if flag == nil {
+		return false
+	}
+	return flag.NoOptDefVal != ""
+}
+
+// hasShortFlag returns whether the command has a shorthand flag of the given name defined.
+func (c *Command) hasShortFlag(name string) bool {
+	if len(name) == 0 {
+		return false
+	}
+
+	flag := c.Flags().ShorthandLookup(name[:1])
+	if flag == nil {
+		return false
+	}
+	return flag.NoOptDefVal != ""
+}
+
 // findRequestedCommand uses the raw arguments and the command tree to determine what
 // (if any) subcommand is being requested and return that command along with the arguments
 // that were meant for it.
@@ -298,7 +320,6 @@ func argsMinusFirstX(cmd *Command, args []string, x string) []string {
 	if len(args) == 0 {
 		return args
 	}
-	flags := cmd.Flags()
 
 Loop:
 	for pos := 0; pos < len(args); pos++ {
@@ -307,9 +328,9 @@ Loop:
 		case s == "--":
 			// -- means we have reached the end of the parseable args. Break out of the loop now.
 			break Loop
-		case strings.HasPrefix(s, "--") && !strings.Contains(s, "=") && !hasNoOptDefVal(s[2:], flags):
+		case strings.HasPrefix(s, "--") && !strings.Contains(s, "=") && !cmd.hasFlag(s[2:]):
 			fallthrough
-		case strings.HasPrefix(s, "-") && !strings.Contains(s, "=") && len(s) == 2 && !shortHasNoOptDefVal(s[1:], flags):
+		case strings.HasPrefix(s, "-") && !strings.Contains(s, "=") && len(s) == 2 && !cmd.hasShortFlag(s[1:]):
 			// This is a flag without a default value, and an equal sign is not used. Increment pos in order to skip
 			// over the next arg, because that is the value of this flag.
 			pos++
@@ -340,33 +361,12 @@ func findSubCommand(cmd *Command, next string) *Command {
 	return nil
 }
 
-func hasNoOptDefVal(name string, fs *pflag.FlagSet) bool {
-	flag := fs.Lookup(name)
-	if flag == nil {
-		return false
-	}
-	return flag.NoOptDefVal != ""
-}
-
-func shortHasNoOptDefVal(name string, fs *pflag.FlagSet) bool {
-	if len(name) == 0 {
-		return false
-	}
-
-	flag := fs.ShorthandLookup(name[:1])
-	if flag == nil {
-		return false
-	}
-	return flag.NoOptDefVal != ""
-}
-
 func stripFlags(cmd *Command, args []string) []string {
 	if len(args) == 0 {
 		return args
 	}
 
 	commands := []string{}
-	flags := cmd.Flags()
 
 Loop:
 	for len(args) > 0 {
@@ -376,11 +376,11 @@ Loop:
 		case s == "--":
 			// "--" terminates the flags
 			break Loop
-		case strings.HasPrefix(s, "--") && !strings.Contains(s, "=") && !hasNoOptDefVal(s[2:], flags):
+		case strings.HasPrefix(s, "--") && !strings.Contains(s, "=") && !cmd.hasFlag(s[2:]):
 			// If '--flag arg' then
 			// delete arg from args.
 			fallthrough // (do the same as below)
-		case strings.HasPrefix(s, "-") && !strings.Contains(s, "=") && len(s) == 2 && !shortHasNoOptDefVal(s[1:], flags):
+		case strings.HasPrefix(s, "-") && !strings.Contains(s, "=") && len(s) == 2 && !cmd.hasShortFlag(s[1:]):
 			// If '-f arg' then
 			// delete 'arg' from args or break the loop if len(args) <= 1.
 			if len(args) <= 1 {
