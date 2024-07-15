@@ -15,7 +15,7 @@ import (
 // TableWriter config, used for showing subcommands in help.
 const (
 	minWidth = 0    // Min cell width
-	tabWidth = 4    // Tab width in spaces
+	tabWidth = 8    // Tab width in spaces
 	padding  = 1    // Padding
 	padChar  = '\t' // Char to pad with
 )
@@ -272,14 +272,21 @@ func defaultHelp(cmd *Command) error {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString("Usage: ")
-	s.WriteString(cmd.name)
-
-	// TODO: Check here if there are subcommands (when we get to adding those)
-	// Yes -> "Usage: {name} [COMMAND]"
-	// No -> "Usage: {name} [OPTIONS] ARGS..."
-	// See if we can be clever about dynamically generating the syntax for e.g. variadic args
-	// required args etc.
+	// TODO: See if we can be clever about dynamically generating the syntax for e.g. variadic args
+	// required args, flags etc. based on what the command has defined.
+	if len(cmd.subcommands) == 0 {
+		// We don't have any subcommands so usage will be:
+		// "Usage: {name} [OPTIONS] ARGS..."
+		s.WriteString("Usage: ")
+		s.WriteString(cmd.name)
+		s.WriteString(" [OPTIONS] ARGS...")
+	} else {
+		// We do have subcommands, so usage will instead be:
+		// "Usage: {name} [OPTIONS] COMMAND"
+		s.WriteString("Usage: ")
+		s.WriteString(cmd.name)
+		s.WriteString(" [OPTIONS] COMMAND")
+	}
 
 	// If the user defined some examples, show those
 	if len(cmd.example) != 0 {
@@ -289,7 +296,7 @@ func defaultHelp(cmd *Command) error {
 		}
 	}
 
-	// Now we'd be onto subcommands... haven't got those yet
+	// Now show subcommands
 	if len(cmd.subcommands) != 0 {
 		s.WriteString("\n\nCommands:\n")
 		tab := tabwriter.NewWriter(s, minWidth, tabWidth, padding, padChar, tabwriter.AlignRight)
