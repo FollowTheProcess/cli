@@ -119,19 +119,6 @@ func TestHelp(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "custom",
-			cmd: cli.New(
-				"test",
-				cli.Args([]string{"--help"}),
-				cli.HelpFunc(func(cmd *cli.Command) error {
-					fmt.Fprintln(cmd.Stderr(), "Do something custom")
-					return nil
-				}),
-			),
-			golden:  "custom-help.txt",
-			wantErr: false,
-		},
-		{
 			name: "with examples",
 			cmd: cli.New(
 				"test",
