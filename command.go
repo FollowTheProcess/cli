@@ -87,6 +87,10 @@ type Command struct {
 	// It defaults to [os.Stderr] but can be overridden as desired e.g. for testing.
 	stderr io.Writer
 
+	// parent is the immediate parent of this subcommand. If this command is the root
+	// and has no parent, this will be nil.
+	parent *Command
+
 	// name is the name of the command.
 	name string
 
