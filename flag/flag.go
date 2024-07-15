@@ -26,9 +26,10 @@ type Flag[T Flaggable] struct {
 //
 // If you want the flag to be longhand only, pass "" for short.
 //
-//	flag.New("force", "f", false, "Force deletion without confirmation")
-func New[T Flaggable](name string, short string, value T, usage string) *Flag[T] {
-	// Default implementation
+//	var force bool
+//	flag.New(&force, "force", "f", false, "Force deletion without confirmation")
+func New[T Flaggable](p *T, name string, short string, value T, usage string) *Flag[T] {
+	*p = value
 	flag := &Flag[T]{
 		value: value,
 		name:  name,
