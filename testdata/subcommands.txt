@@ -2,7 +2,7 @@ A cool CLI to do things
 
 A longer, probably multiline description
 
-Usage: test
+Usage: test [OPTIONS] COMMAND
 
 Commands:
   sub1	Do one thing

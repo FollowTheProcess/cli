@@ -1,6 +1,6 @@
 A placeholder for something cool
 
-Usage: test
+Usage: test [OPTIONS] ARGS...
 
 Examples:
   # Do a thing

@@ -1,4 +1,4 @@
-Usage: test
+Usage: test [OPTIONS] ARGS...
 
 Options:
   -h, --help      Show help for test

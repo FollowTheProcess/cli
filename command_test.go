@@ -183,7 +183,6 @@ func TestHelp(t *testing.T) {
 			),
 			golden:  "subcommands.txt",
 			wantErr: false,
-			debug:   true,
 		},
 	}
 
