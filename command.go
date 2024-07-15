@@ -282,9 +282,9 @@ func findRequestedCommand(cmd *Command, args []string) (*Command, []string) {
 	// Lookup this immediate subcommand by name and if we find it, recursively call
 	// this function so we eventually end up at the end of the command tree with
 	// the right arguments
-	next := findNext(cmd, nextSubCommand)
+	next := findSubCommand(cmd, nextSubCommand)
 	if next != nil {
-		return findRequestedCommand(next, cmd.argsMinusFirstX(args, nextSubCommand))
+		return findRequestedCommand(next, argsMinusFirstX(cmd, args, nextSubCommand))
 	}
 
 	// Found it
@@ -294,11 +294,11 @@ func findRequestedCommand(cmd *Command, args []string) (*Command, []string) {
 // argsMinusFirstX removes only the first x from args.  Otherwise, commands that look like
 // openshift admin policy add-role-to-user admin my-user, lose the admin argument (arg[4]).
 // Special care needs to be taken not to remove a flag value.
-func (c *Command) argsMinusFirstX(args []string, x string) []string {
+func argsMinusFirstX(cmd *Command, args []string, x string) []string {
 	if len(args) == 0 {
 		return args
 	}
-	flags := c.Flags()
+	flags := cmd.Flags()
 
 Loop:
 	for pos := 0; pos < len(args); pos++ {
@@ -328,7 +328,10 @@ Loop:
 	return args
 }
 
-func findNext(cmd *Command, next string) *Command {
+// findSubCommand searches the immediate subcommands of cmd by name, looking for next.
+//
+// If next is not found, it will return nil.
+func findSubCommand(cmd *Command, next string) *Command {
 	for _, subcommand := range cmd.subcommands {
 		if subcommand.name == next {
 			return subcommand
