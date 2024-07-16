@@ -4,46 +4,46 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/FollowTheProcess/cli/command"
+	"github.com/FollowTheProcess/cli"
 )
 
-func BuildCLI() *command.Command {
-	demo := command.New(
+func BuildCLI() *cli.Command {
+	demo := cli.New(
 		"demo",
-		command.Short("An example CLI to demonstrate the library and play with it for real."),
-		command.Examples(
-			command.Example{
+		cli.Short("An example CLI to demonstrate the library and play with it for real."),
+		cli.Examples(
+			cli.Example{
 				Comment: "A basic subcommand",
 				Command: "demo say hello world",
 			},
 		),
-		command.Allow(command.NoArgs),
-		command.SubCommands(buildSayCommand()),
+		cli.Allow(cli.NoArgs),
+		cli.SubCommands(buildSayCommand()),
 	)
 
 	return demo
 }
 
-func buildSayCommand() *command.Command {
+func buildSayCommand() *cli.Command {
 	var (
 		shout bool
 		count int
 		thing string
 	)
-	say := command.New(
+	say := cli.New(
 		"say",
-		command.Short("Print a message"),
-		command.Examples(
-			command.Example{
+		cli.Short("Print a message"),
+		cli.Examples(
+			cli.Example{
 				Comment: "Say a well known phrase",
 				Command: "demo say hello world",
 			},
-			command.Example{
+			cli.Example{
 				Comment: "Now louder",
 				Command: "demo say hello world --shout",
 			},
 		),
-		command.Run(func(cmd *command.Command, args []string) error {
+		cli.Run(func(cmd *cli.Command, args []string) error {
 			if shout {
 				for _, arg := range args {
 					fmt.Fprint(cmd.Stdout(), strings.ToUpper(arg), " ")
@@ -63,7 +63,7 @@ func buildSayCommand() *command.Command {
 	say.Flags().IntVarP(&count, "count", "c", 0, "Count the things")
 	say.Flags().StringVarP(&thing, "thing", "t", "", "The name of a thing")
 
-	// With my version (not hooked up to can't actually be parsed yet)
+	// I'd like a generic version where I could do this... maybe next project
 	// flag.New(&shout, "shout", "s", false, "Say the message louder")
 	// flag.New(&count, "count", "c", 0, "Count the things")
 	// flag.New(&something, "something", "s", "word", "Something is a string")

@@ -1,5 +1,5 @@
 // Package cli provides a clean, minimal and simple mechanism for constructing CLI commands.
-package command
+package cli
 
 import (
 	"errors"
