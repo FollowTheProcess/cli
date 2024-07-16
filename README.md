@@ -21,8 +21,11 @@ Tiny, simple, minimal CLI framework for Go
 Good question 🤔
 
 1) I love Cobra and use it in a lot of my own programs, but IMO it's unnecessarily complex. The `Command` struct has lots of fields, has many ways to do things, and a lot of options I never use. It's a fantastic library, but has suffered from success in the sense that everybody wants it to do everything, rather than remaining tightly focussed on the essentials
-2) I feel like now we have generics and some other cool modern Go idioms, a CLI toolkit could be better designed and have a friendlier API, with less options and one clear way to do things
+2) I feel like a lot of time has passed since this was first made and now we have generics and some other cool modern Go idioms, a CLI toolkit could be better designed and have a friendlier API, with less options and one clear way to do things
 3) It's fun to implement cool things from scratch and stretch your programming legs on a new problem
+
+> [!NOTE]
+> Currently flag parsing is provided by <https://github.com/spf13/pflag> (same as Cobra) while I iterate and make the overall CLI experience as nice as I can. I do plan to add my own flag parsing capability so that `cli` is a completely self contained toolkit.
 
 ## Installation
 
