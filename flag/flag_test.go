@@ -1,6 +1,7 @@
 package flag_test
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/FollowTheProcess/cli/flag"
@@ -243,5 +244,21 @@ func TestFlagValueSet(t *testing.T) {
 		err := strFlag.Set("newvalue")
 		test.Ok(t, err)
 		test.Equal(t, strFlag.Get(), "newvalue")
+	})
+
+	t.Run("byte slice valid", func(t *testing.T) {
+		var byt []byte
+		byteFlag := flag.New(&byt, "byte", "b", []byte(""), "Set a byte slice value")
+		err := byteFlag.Set("5e")
+		test.Ok(t, err)
+		test.EqualFunc(t, byteFlag.Get(), []byte("^"), bytes.Equal)
+	})
+
+	t.Run("byte slice invalid", func(t *testing.T) {
+		var byt []byte
+		byteFlag := flag.New(&byt, "byte", "b", []byte(""), "Set a byte slice value")
+		err := byteFlag.Set("0xF")
+		test.Err(t, err)
+		test.Equal(t, err.Error(), `flag byte received invalid value "0xF" (expected []uint8)`)
 	})
 }
