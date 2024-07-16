@@ -10,6 +10,7 @@ package flag
 import (
 	"fmt"
 	"net"
+	"strconv"
 	"time"
 	"unsafe"
 )
@@ -161,6 +162,13 @@ func (f *Flag[T]) Set( //nolint:gocyclo // No other way of doing this realistica
 		return nil
 	case string:
 		val := str
+		f.value = *cast[T](&val)
+		return nil
+	case bool:
+		val, err := strconv.ParseBool(str)
+		if err != nil {
+			return errParse(f.name, str, typ)
+		}
 		f.value = *cast[T](&val)
 		return nil
 	default:

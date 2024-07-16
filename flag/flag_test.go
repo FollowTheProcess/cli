@@ -219,6 +219,22 @@ func TestFlagValueSet(t *testing.T) {
 		test.Equal(t, err.Error(), `flag float64 received invalid value "word" (expected float64)`)
 	})
 
+	t.Run("bool valid", func(t *testing.T) {
+		var b bool
+		boolFlag := flag.New(&b, "bool", "b", false, "Set a bool value")
+		err := boolFlag.Set("true")
+		test.Ok(t, err)
+		test.Equal(t, boolFlag.Get(), true)
+	})
+
+	t.Run("bool invalid", func(t *testing.T) {
+		var b bool
+		boolFlag := flag.New(&b, "bool", "b", false, "Set a bool value")
+		err := boolFlag.Set("word")
+		test.Err(t, err)
+		test.Equal(t, err.Error(), `flag bool received invalid value "word" (expected bool)`)
+	})
+
 	// No invalid case as all command line args are strings anyway so no real way of
 	// getting an error here
 	t.Run("string", func(t *testing.T) {
