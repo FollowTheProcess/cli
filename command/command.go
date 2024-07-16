@@ -144,13 +144,13 @@ func (e Example) String() string {
 		return ""
 	case e.Command == "":
 		// Empty command, show just the comment
-		return fmt.Sprintf("\n  # %s\n", e.Comment)
+		return fmt.Sprintf("\n# %s\n", e.Comment)
 	case e.Comment == "":
 		// No comment, just show command on it's own
-		return fmt.Sprintf("\n  $ %s\n", e.Command)
+		return fmt.Sprintf("\n$ %s\n", e.Command)
 	default:
 		// Both passed, show the full example
-		return fmt.Sprintf("\n  # %s\n  $ %s\n", e.Comment, e.Command)
+		return fmt.Sprintf("\n# %s\n$ %s\n", e.Comment, e.Command)
 	}
 }
 
@@ -234,9 +234,8 @@ func (c *Command) Execute() error {
 		return cmd.run(cmd, argsWithoutFlags)
 	}
 
-	// If we get here it means... something?
-	// TODO: How do we actually get here? For now I've just made it print help
-	// and return the error
+	// This basically only happens when we have subcommands defined but pass no args to the root command
+	// in which case we'll just show the help text and error
 	if err := defaultHelp(cmd); err != nil {
 		return err
 	}
