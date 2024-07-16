@@ -3,11 +3,11 @@ A placeholder for something cool
 Usage: test [OPTIONS] ARGS...
 
 Examples:
-  # Do a thing
-  $ test do thing --now
+# Do a thing
+$ test do thing --now
 
-  # Do a different thing
-  $ test do thing --different
+# Do a different thing
+$ test do thing --different
 
 Options:
   -h, --help      Show help for test
