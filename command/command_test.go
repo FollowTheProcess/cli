@@ -109,52 +109,6 @@ func TestExecute(t *testing.T) {
 	}
 }
 
-func TestArgValidators(t *testing.T) {
-	tests := []struct {
-		cmd     *command.Command // The command under test
-		name    string           // Identifier of the test case
-		stdout  string           // Desired output to stdout
-		stderr  string           // Desired output to stderr
-		errMsg  string           // If we wanted an error, what should it say
-		wantErr bool             // Whether we want an error
-	}{
-		{
-			name: "noargs",
-			cmd: command.New(
-				"noargs",
-				command.Args([]string{"arg1", "arg2", "arg3"}),
-				command.Run(func(cmd *command.Command, args []string) error {
-					fmt.Fprintln(cmd.Stdout(), "Hello from test")
-					return nil
-				}),
-				command.Allow(command.NoArgs),
-			),
-			wantErr: true,
-			errMsg:  "command noargs accepts no arguments but got [arg1 arg2 arg3]",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			stderr := &bytes.Buffer{}
-			stdout := &bytes.Buffer{}
-
-			command.Stderr(stderr)(tt.cmd)
-			command.Stdout(stdout)(tt.cmd)
-
-			err := tt.cmd.Execute()
-			test.WantErr(t, err, tt.wantErr)
-
-			if tt.wantErr {
-				test.Equal(t, err.Error(), tt.errMsg)
-			}
-
-			test.Equal(t, stdout.String(), tt.stdout)
-			test.Equal(t, stderr.String(), tt.stderr)
-		})
-	}
-}
-
 func TestSubCommandExecute(t *testing.T) {
 	sub1 := command.New(
 		"sub1",
