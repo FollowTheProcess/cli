@@ -30,7 +30,7 @@ tasks:
         msg: golines not installed, see https://github.com/segmentio/golines
     cmds:
       - go fmt ./...
-      - golines . --chain-split-dots --ignore-generated --write-output
+      - golines . --ignore-generated --write-output
 
   test:
     desc: Run the test suite
