@@ -138,6 +138,27 @@ func (f *Flag[T]) Set( //nolint:gocyclo // No other way of doing this realistica
 		}
 		f.value = *cast[T](&val)
 		return nil
+	case uintptr:
+		val, err := parseUint[uint64](bits64)(str)
+		if err != nil {
+			return errParse(f.name, str, typ)
+		}
+		f.value = *cast[T](&val)
+		return nil
+	case float32:
+		val, err := parseFloat[float32](bits32)(str)
+		if err != nil {
+			return errParse(f.name, str, typ)
+		}
+		f.value = *cast[T](&val)
+		return nil
+	case float64:
+		val, err := parseFloat[float64](bits64)(str)
+		if err != nil {
+			return errParse(f.name, str, typ)
+		}
+		f.value = *cast[T](&val)
+		return nil
 	case string:
 		val := str
 		f.value = *cast[T](&val)

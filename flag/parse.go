@@ -50,3 +50,17 @@ func parseUint[T unsigned](bits int) func(str string) (T, error) {
 		return T(val), nil
 	}
 }
+
+// parseFloat is a generic helper to parse floating point numbers, given a bit size.
+//
+// It returns the parsed value or an error.
+func parseFloat[T ~float32 | ~float64](bits int) func(str string) (T, error) {
+	return func(str string) (T, error) {
+		val, err := strconv.ParseFloat(str, bits)
+		if err != nil {
+			return 0, err
+		}
+
+		return T(val), nil
+	}
+}

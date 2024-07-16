@@ -8,7 +8,8 @@ import (
 )
 
 func TestFlagValueSet(t *testing.T) {
-	// We can't do table testing here because Flag[T] is different for each test
+	// We can't do table testing here because Flag[T] is a different type for each test
+	// so we can't do a []Flag[T] which is needed to define the test cases
 	// so strap in for a bunch of copy pasta
 	t.Run("int valid", func(t *testing.T) {
 		var i int
@@ -168,6 +169,54 @@ func TestFlagValueSet(t *testing.T) {
 		err := intFlag.Set("word")
 		test.Err(t, err)
 		test.Equal(t, err.Error(), `flag uint64 received invalid value "word" (expected uint64)`)
+	})
+
+	t.Run("uintptr valid", func(t *testing.T) {
+		var i uintptr
+		intFlag := flag.New(&i, "uintptr", "i", 0, "Set a uintptr value")
+		err := intFlag.Set("42")
+		test.Ok(t, err)
+		test.Equal(t, intFlag.Get(), uintptr(42))
+	})
+
+	t.Run("uintptr invalid", func(t *testing.T) {
+		var i uintptr
+		intFlag := flag.New(&i, "uintptr", "i", 0, "Set a uintptr value")
+		err := intFlag.Set("word")
+		test.Err(t, err)
+		test.Equal(t, err.Error(), `flag uintptr received invalid value "word" (expected uintptr)`)
+	})
+
+	t.Run("float32 valid", func(t *testing.T) {
+		var f float32
+		floatFlag := flag.New(&f, "float32", "f", 0, "Set a float32 value")
+		err := floatFlag.Set("3.14159")
+		test.Ok(t, err)
+		test.Equal(t, floatFlag.Get(), 3.14159)
+	})
+
+	t.Run("float32 invalid", func(t *testing.T) {
+		var f float32
+		floatFlag := flag.New(&f, "float32", "f", 0, "Set a float32 value")
+		err := floatFlag.Set("word")
+		test.Err(t, err)
+		test.Equal(t, err.Error(), `flag float32 received invalid value "word" (expected float32)`)
+	})
+
+	t.Run("float64 valid", func(t *testing.T) {
+		var f float64
+		floatFlag := flag.New(&f, "float64", "f", 0, "Set a float64 value")
+		err := floatFlag.Set("3.14159")
+		test.Ok(t, err)
+		test.Equal(t, floatFlag.Get(), 3.14159)
+	})
+
+	t.Run("float64 invalid", func(t *testing.T) {
+		var f float64
+		floatFlag := flag.New(&f, "float64", "f", 0, "Set a float64 value")
+		err := floatFlag.Set("word")
+		test.Err(t, err)
+		test.Equal(t, err.Error(), `flag float64 received invalid value "word" (expected float64)`)
 	})
 
 	// No invalid case as all command line args are strings anyway so no real way of
