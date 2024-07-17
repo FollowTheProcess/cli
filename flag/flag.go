@@ -74,91 +74,91 @@ func (f *Flag[T]) Set( //nolint:gocyclo // No other way of doing this realistica
 	case int:
 		val, err := parseInt[int](0)(str)
 		if err != nil {
-			return errParse(f.name, str, typ)
+			return errParse(f.name, str, typ, err)
 		}
 		f.value = *cast[T](&val)
 		return nil
 	case int8:
 		val, err := parseInt[int8](bits8)(str)
 		if err != nil {
-			return errParse(f.name, str, typ)
+			return errParse(f.name, str, typ, err)
 		}
 		f.value = *cast[T](&val)
 		return nil
 	case int16:
 		val, err := parseInt[int16](bits16)(str)
 		if err != nil {
-			return errParse(f.name, str, typ)
+			return errParse(f.name, str, typ, err)
 		}
 		f.value = *cast[T](&val)
 		return nil
 	case int32:
 		val, err := parseInt[int32](bits32)(str)
 		if err != nil {
-			return errParse(f.name, str, typ)
+			return errParse(f.name, str, typ, err)
 		}
 		f.value = *cast[T](&val)
 		return nil
 	case int64:
 		val, err := parseInt[int64](bits64)(str)
 		if err != nil {
-			return errParse(f.name, str, typ)
+			return errParse(f.name, str, typ, err)
 		}
 		f.value = *cast[T](&val)
 		return nil
 	case uint:
 		val, err := parseUint[uint](0)(str)
 		if err != nil {
-			return errParse(f.name, str, typ)
+			return errParse(f.name, str, typ, err)
 		}
 		f.value = *cast[T](&val)
 		return nil
 	case uint8:
 		val, err := parseUint[uint8](bits8)(str)
 		if err != nil {
-			return errParse(f.name, str, typ)
+			return errParse(f.name, str, typ, err)
 		}
 		f.value = *cast[T](&val)
 		return nil
 	case uint16:
 		val, err := parseUint[uint16](bits16)(str)
 		if err != nil {
-			return errParse(f.name, str, typ)
+			return errParse(f.name, str, typ, err)
 		}
 		f.value = *cast[T](&val)
 		return nil
 	case uint32:
 		val, err := parseUint[uint32](bits32)(str)
 		if err != nil {
-			return errParse(f.name, str, typ)
+			return errParse(f.name, str, typ, err)
 		}
 		f.value = *cast[T](&val)
 		return nil
 	case uint64:
 		val, err := parseUint[uint64](bits64)(str)
 		if err != nil {
-			return errParse(f.name, str, typ)
+			return errParse(f.name, str, typ, err)
 		}
 		f.value = *cast[T](&val)
 		return nil
 	case uintptr:
 		val, err := parseUint[uint64](bits64)(str)
 		if err != nil {
-			return errParse(f.name, str, typ)
+			return errParse(f.name, str, typ, err)
 		}
 		f.value = *cast[T](&val)
 		return nil
 	case float32:
 		val, err := parseFloat[float32](bits32)(str)
 		if err != nil {
-			return errParse(f.name, str, typ)
+			return errParse(f.name, str, typ, err)
 		}
 		f.value = *cast[T](&val)
 		return nil
 	case float64:
 		val, err := parseFloat[float64](bits64)(str)
 		if err != nil {
-			return errParse(f.name, str, typ)
+			return errParse(f.name, str, typ, err)
 		}
 		f.value = *cast[T](&val)
 		return nil
@@ -169,14 +169,21 @@ func (f *Flag[T]) Set( //nolint:gocyclo // No other way of doing this realistica
 	case bool:
 		val, err := strconv.ParseBool(str)
 		if err != nil {
-			return errParse(f.name, str, typ)
+			return errParse(f.name, str, typ, err)
 		}
 		f.value = *cast[T](&val)
 		return nil
 	case []byte:
 		val, err := hex.DecodeString(strings.TrimSpace(str))
 		if err != nil {
-			return errParse(f.name, str, typ)
+			return errParse(f.name, str, typ, err)
+		}
+		f.value = *cast[T](&val)
+		return nil
+	case time.Time:
+		val, err := time.Parse(time.RFC3339, str)
+		if err != nil {
+			return errParse(f.name, str, typ, err)
 		}
 		f.value = *cast[T](&val)
 		return nil
