@@ -27,6 +27,9 @@ const (
 )
 
 // Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
+//
+// It's worth noting that the complete set of supported types is wider than this constraint appears
+// as e.g. a [time.Duration] is actually just an int64 underneath, likewise a [net.IP] is actually just []byte.
 type Flaggable interface {
 	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr | ~float32 | ~float64 | ~string | ~bool | ~[]byte | time.Time
 }
