@@ -2,6 +2,7 @@ package flag_test
 
 import (
 	"bytes"
+	"net"
 	"testing"
 	"time"
 
@@ -332,5 +333,72 @@ func TestFlagValueSet(t *testing.T) {
 		want, err := time.Parse(time.RFC3339, "2024-07-17T07:38:05Z")
 		test.Ok(t, err)
 		test.Equal(t, timeFlag.Get(), want)
+	})
+
+	t.Run("time.Time invalid", func(t *testing.T) {
+		var tyme time.Time
+		timeFlag := flag.New(&tyme, "time", "t", time.Now(), "Set a time value")
+		err := timeFlag.Set("not a time")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag time received invalid value "not a time" (expected time.Time), detail: parsing time "not a time" as "2006-01-02T15:04:05Z07:00": cannot parse "not a time" as "2006"`,
+		)
+	})
+
+	t.Run("time.Duration valid", func(t *testing.T) {
+		var duration time.Duration
+		durationFlag := flag.New(
+			&duration,
+			"duration",
+			"d",
+			time.Duration(0),
+			"Set a duration value",
+		)
+		err := durationFlag.Set("300ms")
+		test.Ok(t, err)
+
+		want, err := time.ParseDuration("300ms")
+		test.Ok(t, err)
+		test.Equal(t, durationFlag.Get(), want)
+	})
+
+	t.Run("time.Duration invalid", func(t *testing.T) {
+		var duration time.Duration
+		durationFlag := flag.New(
+			&duration,
+			"duration",
+			"d",
+			time.Duration(0),
+			"Set a duration value",
+		)
+		err := durationFlag.Set("not a duration")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag duration received invalid value "not a duration" (expected time.Duration), detail: time: invalid duration "not a duration"`,
+		)
+	})
+
+	t.Run("ip valid", func(t *testing.T) {
+		var ip net.IP
+		ipFlag := flag.New(&ip, "ip", "i", nil, "Set an IP address")
+		err := ipFlag.Set("192.0.2.1")
+		test.Ok(t, err)
+		test.Diff(t, ipFlag.Get(), net.ParseIP("192.0.2.1"))
+	})
+
+	t.Run("ip invalid", func(t *testing.T) {
+		var ip net.IP
+		ipFlag := flag.New(&ip, "ip", "i", nil, "Set an IP address")
+		err := ipFlag.Set("not an ip")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag ip received invalid value "not an ip" (expected net.IP), detail: invalid IP address`,
+		)
 	})
 }

@@ -9,6 +9,7 @@ package flag
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net"
 	"strconv"
@@ -27,7 +28,7 @@ const (
 
 // Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
 type Flaggable interface {
-	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr | ~float32 | ~float64 | ~string | ~bool | ~[]byte | time.Time | net.IPNet
+	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr | ~float32 | ~float64 | ~string | ~bool | ~[]byte | time.Time
 }
 
 // Flag represents a single command line flag.
@@ -184,6 +185,20 @@ func (f *Flag[T]) Set( //nolint:gocyclo // No other way of doing this realistica
 		val, err := time.Parse(time.RFC3339, str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
+		}
+		f.value = *cast[T](&val)
+		return nil
+	case time.Duration:
+		val, err := time.ParseDuration(str)
+		if err != nil {
+			return errParse(f.name, str, typ, err)
+		}
+		f.value = *cast[T](&val)
+		return nil
+	case net.IP:
+		val := net.ParseIP(str)
+		if val == nil {
+			return errParse(f.name, str, typ, errors.New("invalid IP address"))
 		}
 		f.value = *cast[T](&val)
 		return nil
