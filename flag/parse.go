@@ -19,8 +19,14 @@ type unsigned interface {
 
 // errParse is a helper to quickly return a consistent error in the face of flag
 // value parsing errors.
-func errParse[T any](name, str string, typ T) error {
-	return fmt.Errorf("flag %s received invalid value %q (expected %T)", name, str, typ)
+func errParse[T any](name, str string, typ T, err error) error {
+	return fmt.Errorf(
+		"flag %s received invalid value %q (expected %T), detail: %w",
+		name,
+		str,
+		typ,
+		err,
+	)
 }
 
 // parseInt is a generic helper to parse all signed integers, given a bit size.
