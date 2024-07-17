@@ -2,7 +2,9 @@ package flag_test
 
 import (
 	"bytes"
+	"net"
 	"testing"
+	"time"
 
 	"github.com/FollowTheProcess/cli/flag"
 	"github.com/FollowTheProcess/test"
@@ -25,7 +27,11 @@ func TestFlagValueSet(t *testing.T) {
 		intFlag := flag.New(&i, "int", "i", 0, "Set an int value")
 		err := intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(t, err.Error(), `flag int received invalid value "word" (expected int)`)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag int received invalid value "word" (expected int), detail: strconv.ParseInt: parsing "word": invalid syntax`,
+		)
 	})
 
 	t.Run("int8 valid", func(t *testing.T) {
@@ -41,7 +47,11 @@ func TestFlagValueSet(t *testing.T) {
 		intFlag := flag.New(&i, "int8", "i", 0, "Set an int8 value")
 		err := intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(t, err.Error(), `flag int8 received invalid value "word" (expected int8)`)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag int8 received invalid value "word" (expected int8), detail: strconv.ParseInt: parsing "word": invalid syntax`,
+		)
 	})
 
 	t.Run("int16 valid", func(t *testing.T) {
@@ -57,7 +67,11 @@ func TestFlagValueSet(t *testing.T) {
 		intFlag := flag.New(&i, "int16", "i", 0, "Set an int16 value")
 		err := intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(t, err.Error(), `flag int16 received invalid value "word" (expected int16)`)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag int16 received invalid value "word" (expected int16), detail: strconv.ParseInt: parsing "word": invalid syntax`,
+		)
 	})
 
 	t.Run("int32 valid", func(t *testing.T) {
@@ -73,7 +87,11 @@ func TestFlagValueSet(t *testing.T) {
 		intFlag := flag.New(&i, "int32", "i", 0, "Set an int32 value")
 		err := intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(t, err.Error(), `flag int32 received invalid value "word" (expected int32)`)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag int32 received invalid value "word" (expected int32), detail: strconv.ParseInt: parsing "word": invalid syntax`,
+		)
 	})
 
 	t.Run("int64 valid", func(t *testing.T) {
@@ -89,7 +107,11 @@ func TestFlagValueSet(t *testing.T) {
 		intFlag := flag.New(&i, "int64", "i", 0, "Set an int64 value")
 		err := intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(t, err.Error(), `flag int64 received invalid value "word" (expected int64)`)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag int64 received invalid value "word" (expected int64), detail: strconv.ParseInt: parsing "word": invalid syntax`,
+		)
 	})
 
 	t.Run("uint valid", func(t *testing.T) {
@@ -105,7 +127,11 @@ func TestFlagValueSet(t *testing.T) {
 		intFlag := flag.New(&i, "uint", "i", 0, "Set a uint value")
 		err := intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(t, err.Error(), `flag uint received invalid value "word" (expected uint)`)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag uint received invalid value "word" (expected uint), detail: strconv.ParseUint: parsing "word": invalid syntax`,
+		)
 	})
 
 	t.Run("uint8 valid", func(t *testing.T) {
@@ -121,7 +147,11 @@ func TestFlagValueSet(t *testing.T) {
 		intFlag := flag.New(&i, "uint8", "i", 0, "Set a uint8 value")
 		err := intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(t, err.Error(), `flag uint8 received invalid value "word" (expected uint8)`)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag uint8 received invalid value "word" (expected uint8), detail: strconv.ParseUint: parsing "word": invalid syntax`,
+		)
 	})
 
 	t.Run("uint16 valid", func(t *testing.T) {
@@ -137,7 +167,11 @@ func TestFlagValueSet(t *testing.T) {
 		intFlag := flag.New(&i, "uint16", "i", 0, "Set a uint16 value")
 		err := intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(t, err.Error(), `flag uint16 received invalid value "word" (expected uint16)`)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag uint16 received invalid value "word" (expected uint16), detail: strconv.ParseUint: parsing "word": invalid syntax`,
+		)
 	})
 
 	t.Run("uint32 valid", func(t *testing.T) {
@@ -153,7 +187,11 @@ func TestFlagValueSet(t *testing.T) {
 		intFlag := flag.New(&i, "uint32", "i", 0, "Set a uint32 value")
 		err := intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(t, err.Error(), `flag uint32 received invalid value "word" (expected uint32)`)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag uint32 received invalid value "word" (expected uint32), detail: strconv.ParseUint: parsing "word": invalid syntax`,
+		)
 	})
 
 	t.Run("uint64 valid", func(t *testing.T) {
@@ -169,7 +207,11 @@ func TestFlagValueSet(t *testing.T) {
 		intFlag := flag.New(&i, "uint64", "i", 0, "Set a uint64 value")
 		err := intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(t, err.Error(), `flag uint64 received invalid value "word" (expected uint64)`)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag uint64 received invalid value "word" (expected uint64), detail: strconv.ParseUint: parsing "word": invalid syntax`,
+		)
 	})
 
 	t.Run("uintptr valid", func(t *testing.T) {
@@ -185,7 +227,11 @@ func TestFlagValueSet(t *testing.T) {
 		intFlag := flag.New(&i, "uintptr", "i", 0, "Set a uintptr value")
 		err := intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(t, err.Error(), `flag uintptr received invalid value "word" (expected uintptr)`)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag uintptr received invalid value "word" (expected uintptr), detail: strconv.ParseUint: parsing "word": invalid syntax`,
+		)
 	})
 
 	t.Run("float32 valid", func(t *testing.T) {
@@ -201,7 +247,11 @@ func TestFlagValueSet(t *testing.T) {
 		floatFlag := flag.New(&f, "float32", "f", 0, "Set a float32 value")
 		err := floatFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(t, err.Error(), `flag float32 received invalid value "word" (expected float32)`)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag float32 received invalid value "word" (expected float32), detail: strconv.ParseFloat: parsing "word": invalid syntax`,
+		)
 	})
 
 	t.Run("float64 valid", func(t *testing.T) {
@@ -217,7 +267,11 @@ func TestFlagValueSet(t *testing.T) {
 		floatFlag := flag.New(&f, "float64", "f", 0, "Set a float64 value")
 		err := floatFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(t, err.Error(), `flag float64 received invalid value "word" (expected float64)`)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag float64 received invalid value "word" (expected float64), detail: strconv.ParseFloat: parsing "word": invalid syntax`,
+		)
 	})
 
 	t.Run("bool valid", func(t *testing.T) {
@@ -233,7 +287,11 @@ func TestFlagValueSet(t *testing.T) {
 		boolFlag := flag.New(&b, "bool", "b", false, "Set a bool value")
 		err := boolFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(t, err.Error(), `flag bool received invalid value "word" (expected bool)`)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag bool received invalid value "word" (expected bool), detail: strconv.ParseBool: parsing "word": invalid syntax`,
+		)
 	})
 
 	// No invalid case as all command line args are strings anyway so no real way of
@@ -259,6 +317,88 @@ func TestFlagValueSet(t *testing.T) {
 		byteFlag := flag.New(&byt, "byte", "b", []byte(""), "Set a byte slice value")
 		err := byteFlag.Set("0xF")
 		test.Err(t, err)
-		test.Equal(t, err.Error(), `flag byte received invalid value "0xF" (expected []uint8)`)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag byte received invalid value "0xF" (expected []uint8), detail: encoding/hex: invalid byte: U+0078 'x'`,
+		)
+	})
+
+	t.Run("time.Time valid", func(t *testing.T) {
+		var tyme time.Time
+		timeFlag := flag.New(&tyme, "time", "t", time.Now(), "Set a time value")
+		err := timeFlag.Set("2024-07-17T07:38:05Z")
+		test.Ok(t, err)
+
+		want, err := time.Parse(time.RFC3339, "2024-07-17T07:38:05Z")
+		test.Ok(t, err)
+		test.Equal(t, timeFlag.Get(), want)
+	})
+
+	t.Run("time.Time invalid", func(t *testing.T) {
+		var tyme time.Time
+		timeFlag := flag.New(&tyme, "time", "t", time.Now(), "Set a time value")
+		err := timeFlag.Set("not a time")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag time received invalid value "not a time" (expected time.Time), detail: parsing time "not a time" as "2006-01-02T15:04:05Z07:00": cannot parse "not a time" as "2006"`,
+		)
+	})
+
+	t.Run("time.Duration valid", func(t *testing.T) {
+		var duration time.Duration
+		durationFlag := flag.New(
+			&duration,
+			"duration",
+			"d",
+			time.Duration(0),
+			"Set a duration value",
+		)
+		err := durationFlag.Set("300ms")
+		test.Ok(t, err)
+
+		want, err := time.ParseDuration("300ms")
+		test.Ok(t, err)
+		test.Equal(t, durationFlag.Get(), want)
+	})
+
+	t.Run("time.Duration invalid", func(t *testing.T) {
+		var duration time.Duration
+		durationFlag := flag.New(
+			&duration,
+			"duration",
+			"d",
+			time.Duration(0),
+			"Set a duration value",
+		)
+		err := durationFlag.Set("not a duration")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag duration received invalid value "not a duration" (expected time.Duration), detail: time: invalid duration "not a duration"`,
+		)
+	})
+
+	t.Run("ip valid", func(t *testing.T) {
+		var ip net.IP
+		ipFlag := flag.New(&ip, "ip", "i", nil, "Set an IP address")
+		err := ipFlag.Set("192.0.2.1")
+		test.Ok(t, err)
+		test.Diff(t, ipFlag.Get(), net.ParseIP("192.0.2.1"))
+	})
+
+	t.Run("ip invalid", func(t *testing.T) {
+		var ip net.IP
+		ipFlag := flag.New(&ip, "ip", "i", nil, "Set an IP address")
+		err := ipFlag.Set("not an ip")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag ip received invalid value "not an ip" (expected net.IP), detail: invalid IP address`,
+		)
 	})
 }
