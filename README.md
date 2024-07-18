@@ -12,6 +12,8 @@ Tiny, simple, minimal CLI framework for Go
 > [!WARNING]
 > **CLI is in early development and is not yet ready for use**
 
+![caution](img/caution.png)
+
 ## Project Description
 
 `cli` is my attempt at making a very simple, minimalist, yet functional and powerful CLI framework for Go. Inspired by things like <https://github.com/spf13/cobra> and <https://github.com/urfave/cli>.
