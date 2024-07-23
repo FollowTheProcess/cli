@@ -10,7 +10,7 @@ import (
 	"github.com/FollowTheProcess/test"
 )
 
-func TestFlagValueSet(t *testing.T) {
+func TestFlagValue(t *testing.T) {
 	// We can't do table testing here because Flag[T] is a different type for each test
 	// so we can't do a []Flag[T] which is needed to define the test cases
 	// so strap in for a bunch of copy pasta
@@ -20,6 +20,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := intFlag.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, intFlag.Get(), 42)
+		test.Equal(t, intFlag.Type(), "int")
 	})
 
 	t.Run("int invalid", func(t *testing.T) {
@@ -40,6 +41,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := intFlag.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, intFlag.Get(), int8(42))
+		test.Equal(t, intFlag.Type(), "int8")
 	})
 
 	t.Run("int8 invalid", func(t *testing.T) {
@@ -60,6 +62,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := intFlag.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, intFlag.Get(), int16(42))
+		test.Equal(t, intFlag.Type(), "int16")
 	})
 
 	t.Run("int16 invalid", func(t *testing.T) {
@@ -80,6 +83,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := intFlag.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, intFlag.Get(), int32(42))
+		test.Equal(t, intFlag.Type(), "int32")
 	})
 
 	t.Run("int32 invalid", func(t *testing.T) {
@@ -100,6 +104,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := intFlag.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, intFlag.Get(), int64(42))
+		test.Equal(t, intFlag.Type(), "int64")
 	})
 
 	t.Run("int64 invalid", func(t *testing.T) {
@@ -120,6 +125,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := intFlag.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, intFlag.Get(), 42)
+		test.Equal(t, intFlag.Type(), "uint")
 	})
 
 	t.Run("uint invalid", func(t *testing.T) {
@@ -140,6 +146,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := intFlag.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, intFlag.Get(), uint8(42))
+		test.Equal(t, intFlag.Type(), "uint8")
 	})
 
 	t.Run("uint8 invalid", func(t *testing.T) {
@@ -160,6 +167,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := intFlag.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, intFlag.Get(), uint16(42))
+		test.Equal(t, intFlag.Type(), "uint16")
 	})
 
 	t.Run("uint16 invalid", func(t *testing.T) {
@@ -180,6 +188,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := intFlag.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, intFlag.Get(), uint32(42))
+		test.Equal(t, intFlag.Type(), "uint32")
 	})
 
 	t.Run("uint32 invalid", func(t *testing.T) {
@@ -200,6 +209,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := intFlag.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, intFlag.Get(), uint64(42))
+		test.Equal(t, intFlag.Type(), "uint64")
 	})
 
 	t.Run("uint64 invalid", func(t *testing.T) {
@@ -220,6 +230,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := intFlag.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, intFlag.Get(), uintptr(42))
+		test.Equal(t, intFlag.Type(), "uintptr")
 	})
 
 	t.Run("uintptr invalid", func(t *testing.T) {
@@ -240,6 +251,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := floatFlag.Set("3.14159")
 		test.Ok(t, err)
 		test.Equal(t, floatFlag.Get(), 3.14159)
+		test.Equal(t, floatFlag.Type(), "float32")
 	})
 
 	t.Run("float32 invalid", func(t *testing.T) {
@@ -260,6 +272,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := floatFlag.Set("3.14159")
 		test.Ok(t, err)
 		test.Equal(t, floatFlag.Get(), 3.14159)
+		test.Equal(t, floatFlag.Type(), "float64")
 	})
 
 	t.Run("float64 invalid", func(t *testing.T) {
@@ -280,6 +293,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := boolFlag.Set("true")
 		test.Ok(t, err)
 		test.Equal(t, boolFlag.Get(), true)
+		test.Equal(t, boolFlag.Type(), "bool")
 	})
 
 	t.Run("bool invalid", func(t *testing.T) {
@@ -302,6 +316,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := strFlag.Set("newvalue")
 		test.Ok(t, err)
 		test.Equal(t, strFlag.Get(), "newvalue")
+		test.Equal(t, strFlag.Type(), "string")
 	})
 
 	t.Run("byte slice valid", func(t *testing.T) {
@@ -310,6 +325,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := byteFlag.Set("5e")
 		test.Ok(t, err)
 		test.EqualFunc(t, byteFlag.Get(), []byte("^"), bytes.Equal)
+		test.Equal(t, byteFlag.Type(), "bytesHex")
 	})
 
 	t.Run("byte slice invalid", func(t *testing.T) {
@@ -333,6 +349,7 @@ func TestFlagValueSet(t *testing.T) {
 		want, err := time.Parse(time.RFC3339, "2024-07-17T07:38:05Z")
 		test.Ok(t, err)
 		test.Equal(t, timeFlag.Get(), want)
+		test.Equal(t, timeFlag.Type(), "time")
 	})
 
 	t.Run("time.Time invalid", func(t *testing.T) {
@@ -362,6 +379,7 @@ func TestFlagValueSet(t *testing.T) {
 		want, err := time.ParseDuration("300ms")
 		test.Ok(t, err)
 		test.Equal(t, durationFlag.Get(), want)
+		test.Equal(t, durationFlag.Type(), "duration")
 	})
 
 	t.Run("time.Duration invalid", func(t *testing.T) {
@@ -388,6 +406,7 @@ func TestFlagValueSet(t *testing.T) {
 		err := ipFlag.Set("192.0.2.1")
 		test.Ok(t, err)
 		test.Diff(t, ipFlag.Get(), net.ParseIP("192.0.2.1"))
+		test.Equal(t, ipFlag.Type(), "ip")
 	})
 
 	t.Run("ip invalid", func(t *testing.T) {

@@ -89,15 +89,58 @@ func (f *Flag[T]) String() string {
 }
 
 // Type returns a string representation of the type of the Flag.
-func (f *Flag[T]) Type() string {
-	return "TODO"
+func (f *Flag[T]) Type() string { //nolint:gocyclo // No other way of doing this realistically
+	switch typ := any(f.value).(type) {
+	case pflag.Value:
+		return typ.Type()
+	case int:
+		return "int"
+	case int8:
+		return "int8"
+	case int16:
+		return "int16"
+	case int32:
+		return "int32"
+	case int64:
+		return "int64"
+	case uint:
+		return "uint"
+	case uint8:
+		return "uint8"
+	case uint16:
+		return "uint16"
+	case uint32:
+		return "uint32"
+	case uint64:
+		return "uint64"
+	case uintptr:
+		return "uintptr"
+	case float32:
+		return "float32"
+	case float64:
+		return "float64"
+	case string:
+		return "string"
+	case bool:
+		return "bool"
+	case []byte:
+		return "bytesHex"
+	case time.Time:
+		return "time"
+	case time.Duration:
+		return "duration"
+	case net.IP:
+		return "ip"
+	default:
+		return fmt.Sprintf("%T", typ)
+	}
 }
 
 // Set sets a [Flag] value based on string input, i.e. parsing from the command line.
-func (f *Flag[T]) Set( //nolint:gocyclo // No other way of doing this realistically
-	str string,
-) error {
+func (f *Flag[T]) Set(str string) error { //nolint:gocyclo // No other way of doing this realistically
 	switch typ := any(f.value).(type) {
+	case pflag.Value:
+		return typ.Set(str)
 	case int:
 		val, err := parseInt[int](0)(str)
 		if err != nil {
