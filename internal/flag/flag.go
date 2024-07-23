@@ -48,10 +48,11 @@ type Flaggable interface {
 
 // Flag represents a single command line flag.
 type Flag[T Flaggable] struct {
-	value T      // The actual stored value
-	name  string // The name of the flag as appears on the command line, e.g. "force" for a --force flag
-	usage string // One line description of the flag, e.g. "Force deletion without confirmation"
-	short string // Optional shorthand version of the flag, e.g. "f" for a -f flag
+	value       T      // The actual stored value
+	name        string // The name of the flag as appears on the command line, e.g. "force" for a --force flag
+	usage       string // One line description of the flag, e.g. "Force deletion without confirmation"
+	short       string // Optional shorthand version of the flag, e.g. "f" for a -f flag
+	NoOptDefVal string // Default value if no options provided, compatibility for spf13/pflag
 }
 
 // New constructs and returns a new [Flag].
@@ -68,11 +69,17 @@ func New[T Flaggable](p *T, name string, short string, value T, usage string) *F
 		p = new(T)
 	}
 	*p = value
+
 	flag := &Flag[T]{
 		value: value,
 		name:  name,
 		usage: usage,
 		short: short,
+	}
+
+	v := any(flag.value)
+	if _, isBool := v.(bool); isBool {
+		flag.NoOptDefVal = "true"
 	}
 	return flag
 }
