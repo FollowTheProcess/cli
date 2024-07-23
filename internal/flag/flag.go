@@ -4,6 +4,11 @@
 // a new approach with some of the tools we now have in modern Go. It is not intended to be backwards compatible
 // with pflag or the std lib flag package.
 //
+// Note: I'm using [spf13/pflag] here underneath as a gateway for now as it provides a lot of helpful functionality whilst I
+// figure out what I want this to look like. So for now Flag implements pflag.Value so it can be used as a drop in.
+//
+// Flag is intentionally internal so the only interraction is via the Flag option on a command.
+//
 // [spf13/pflag]: https://github.com/spf13/pflag
 package flag
 
@@ -16,6 +21,8 @@ import (
 	"strings"
 	"time"
 	"unsafe"
+
+	"github.com/spf13/pflag"
 )
 
 const (
@@ -24,6 +31,11 @@ const (
 	bits16             // 16 bit integer
 	bits32             // 32 bit integer
 	bits64             // 64 bit integer
+)
+
+var (
+	_ Value       = &Flag[string]{} // This will fail to compile if we ever violate the Value interface.
+	_ pflag.Value = &Flag[string]{} // This one will fail if we violate pflag.Value.
 )
 
 // Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
@@ -70,11 +82,110 @@ func (f *Flag[T]) Get() T {
 	return f.value
 }
 
-// Set sets a [Flag] value based on string input, i.e. parsing from the command line.
-func (f *Flag[T]) Set( //nolint:gocyclo // No other way of doing this realistically
-	str string,
-) error {
+// String implements [fmt.Stringer] for a [Flag], and also implements the String
+// part of [pflag.Value], allowing a flag to print itself.
+func (f *Flag[T]) String() string { //nolint:gocyclo // No other way of doing this realistically
 	switch typ := any(f.value).(type) {
+	case pflag.Value:
+		return typ.String()
+	case int:
+		return formatInt(typ)
+	case int8:
+		return formatInt(typ)
+	case int16:
+		return formatInt(typ)
+	case int32:
+		return formatInt(typ)
+	case int64:
+		return formatInt(typ)
+	case uint:
+		return formatUint(typ)
+	case uint8:
+		return formatUint(typ)
+	case uint16:
+		return formatUint(typ)
+	case uint32:
+		return formatUint(typ)
+	case uint64:
+		return formatUint(typ)
+	case uintptr:
+		return formatUint(typ)
+	case float32:
+		return formatFloat[float32](bits32)(typ)
+	case float64:
+		return formatFloat[float64](bits64)(typ)
+	case string:
+		return typ
+	case bool:
+		return strconv.FormatBool(typ)
+	case []byte:
+		return hex.EncodeToString(typ)
+	case time.Time:
+		return typ.Format(time.RFC3339)
+	case time.Duration:
+		return typ.String()
+	case net.IP:
+		return typ.String()
+	case fmt.Stringer:
+		return typ.String()
+	default:
+		return ""
+	}
+}
+
+// Type returns a string representation of the type of the Flag.
+func (f *Flag[T]) Type() string { //nolint:gocyclo // No other way of doing this realistically
+	switch typ := any(f.value).(type) {
+	case pflag.Value:
+		return typ.Type()
+	case int:
+		return "int"
+	case int8:
+		return "int8"
+	case int16:
+		return "int16"
+	case int32:
+		return "int32"
+	case int64:
+		return "int64"
+	case uint:
+		return "uint"
+	case uint8:
+		return "uint8"
+	case uint16:
+		return "uint16"
+	case uint32:
+		return "uint32"
+	case uint64:
+		return "uint64"
+	case uintptr:
+		return "uintptr"
+	case float32:
+		return "float32"
+	case float64:
+		return "float64"
+	case string:
+		return "string"
+	case bool:
+		return "bool"
+	case []byte:
+		return "bytesHex"
+	case time.Time:
+		return "time"
+	case time.Duration:
+		return "duration"
+	case net.IP:
+		return "ip"
+	default:
+		return fmt.Sprintf("%T", typ)
+	}
+}
+
+// Set sets a [Flag] value based on string input, i.e. parsing from the command line.
+func (f *Flag[T]) Set(str string) error { //nolint:gocyclo // No other way of doing this realistically
+	switch typ := any(f.value).(type) {
+	case pflag.Value:
+		return typ.Set(str)
 	case int:
 		val, err := parseInt[int](0)(str)
 		if err != nil {
