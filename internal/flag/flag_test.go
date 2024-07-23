@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/FollowTheProcess/cli/flag"
+	"github.com/FollowTheProcess/cli/internal/flag"
 	"github.com/FollowTheProcess/test"
 )
 

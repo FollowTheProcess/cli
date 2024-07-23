@@ -4,6 +4,11 @@
 // a new approach with some of the tools we now have in modern Go. It is not intended to be backwards compatible
 // with pflag or the std lib flag package.
 //
+// Note: I'm using [spf13/pflag] here underneath as a gateway for now as it provides a lot of helpful functionality whilst I
+// figure out what I want this to look like. So for now Flag implements pflag.Value so it can be used as a drop in.
+//
+// Flag is intentionally internal so the only interraction is via the Flag option on a command.
+//
 // [spf13/pflag]: https://github.com/spf13/pflag
 package flag
 
@@ -16,6 +21,8 @@ import (
 	"strings"
 	"time"
 	"unsafe"
+
+	"github.com/spf13/pflag"
 )
 
 const (
@@ -24,6 +31,11 @@ const (
 	bits16             // 16 bit integer
 	bits32             // 32 bit integer
 	bits64             // 64 bit integer
+)
+
+var (
+	_ Value       = &Flag[string]{} // This will fail to compile if we ever violate the Value interface.
+	_ pflag.Value = &Flag[string]{} // This one will fail if we violate pflag.Value.
 )
 
 // Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
@@ -68,6 +80,17 @@ func New[T Flaggable](p *T, name string, short string, value T, usage string) *F
 // Get gets a [Flag] value.
 func (f *Flag[T]) Get() T {
 	return f.value
+}
+
+// String implements [fmt.Stringer] for a [Flag], and also implements the String
+// part of [pflag.Value], allowing a flag to print itself.
+func (f *Flag[T]) String() string {
+	return "TODO"
+}
+
+// Type returns a string representation of the type of the Flag.
+func (f *Flag[T]) Type() string {
+	return "TODO"
 }
 
 // Set sets a [Flag] value based on string input, i.e. parsing from the command line.

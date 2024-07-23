@@ -63,7 +63,8 @@ func buildSayCommand() *cli.Command {
 	say.Flags().IntVarP(&count, "count", "c", 0, "Count the things")
 	say.Flags().StringVarP(&thing, "thing", "t", "", "The name of a thing")
 
-	// I'd like a generic version where I could do this... maybe next project
+	// I'd like a generic version where I could do this...
+	// or even better as functional options to the command
 	// flag.New(&shout, "shout", "s", false, "Say the message louder")
 	// flag.New(&count, "count", "c", 0, "Count the things")
 	// flag.New(&something, "something", "s", "word", "Something is a string")
