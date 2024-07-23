@@ -84,8 +84,53 @@ func (f *Flag[T]) Get() T {
 
 // String implements [fmt.Stringer] for a [Flag], and also implements the String
 // part of [pflag.Value], allowing a flag to print itself.
-func (f *Flag[T]) String() string {
-	return "TODO"
+func (f *Flag[T]) String() string { //nolint:gocyclo // No other way of doing this realistically
+	switch typ := any(f.value).(type) {
+	case pflag.Value:
+		return typ.String()
+	case int:
+		return formatInt(typ)
+	case int8:
+		return formatInt(typ)
+	case int16:
+		return formatInt(typ)
+	case int32:
+		return formatInt(typ)
+	case int64:
+		return formatInt(typ)
+	case uint:
+		return formatUint(typ)
+	case uint8:
+		return formatUint(typ)
+	case uint16:
+		return formatUint(typ)
+	case uint32:
+		return formatUint(typ)
+	case uint64:
+		return formatUint(typ)
+	case uintptr:
+		return formatUint(typ)
+	case float32:
+		return formatFloat[float32](bits32)(typ)
+	case float64:
+		return formatFloat[float64](bits64)(typ)
+	case string:
+		return typ
+	case bool:
+		return strconv.FormatBool(typ)
+	case []byte:
+		return hex.EncodeToString(typ)
+	case time.Time:
+		return typ.Format(time.RFC3339)
+	case time.Duration:
+		return typ.String()
+	case net.IP:
+		return typ.String()
+	case fmt.Stringer:
+		return typ.String()
+	default:
+		return ""
+	}
 }
 
 // Type returns a string representation of the type of the Flag.
