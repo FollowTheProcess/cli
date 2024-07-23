@@ -45,6 +45,7 @@ func New(name string, options ...Option) *Command {
 	}
 
 	// Add the built in help and version flags
+	// TODO: Replace with our functional options and see if it works still
 	cmd.Flags().BoolP("help", "h", false, fmt.Sprintf("Show help for %s", name))
 	cmd.Flags().BoolP("version", "v", false, fmt.Sprintf("Show version info for %s", name))
 
