@@ -70,3 +70,20 @@ func parseFloat[T ~float32 | ~float64](bits int) func(str string) (T, error) {
 		return T(val), nil
 	}
 }
+
+// formatInt is a generic helper to return a string representation of any signed integer.
+func formatInt[T signed](in T) string {
+	return strconv.FormatInt(int64(in), 10)
+}
+
+// formatUint is a generic helper to return a string representation of any unsigned integer.
+func formatUint[T unsigned](in T) string {
+	return strconv.FormatUint(uint64(in), 10)
+}
+
+// formatFloat is a generic helper to return a string representation of any floating point digit.
+func formatFloat[T ~float32 | ~float64](bits int) func(T) string {
+	return func(in T) string {
+		return strconv.FormatFloat(float64(in), 'g', -1, bits)
+	}
+}
