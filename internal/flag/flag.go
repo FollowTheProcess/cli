@@ -33,10 +33,7 @@ const (
 	bits64             // 64 bit integer
 )
 
-var (
-	_ Value       = &Flag[string]{} // This will fail to compile if we ever violate the Value interface.
-	_ pflag.Value = &Flag[string]{} // This one will fail if we violate pflag.Value.
-)
+var _ pflag.Value = &Flag[string]{} // This will fail if we violate pflag.Value.
 
 // Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
 //
@@ -48,11 +45,10 @@ type Flaggable interface {
 
 // Flag represents a single command line flag.
 type Flag[T Flaggable] struct {
-	value       T      // The actual stored value
-	name        string // The name of the flag as appears on the command line, e.g. "force" for a --force flag
-	usage       string // One line description of the flag, e.g. "Force deletion without confirmation"
-	short       string // Optional shorthand version of the flag, e.g. "f" for a -f flag
-	NoOptDefVal string // Default value if no options provided, compatibility for spf13/pflag
+	value *T     // The actual stored value
+	name  string // The name of the flag as appears on the command line, e.g. "force" for a --force flag
+	usage string // One line description of the flag, e.g. "Force deletion without confirmation"
+	short string // Optional shorthand version of the flag, e.g. "f" for a -f flag
 }
 
 // New constructs and returns a new [Flag].
@@ -71,67 +67,70 @@ func New[T Flaggable](p *T, name string, short string, value T, usage string) *F
 	*p = value
 
 	flag := &Flag[T]{
-		value: value,
+		value: p,
 		name:  name,
 		usage: usage,
 		short: short,
 	}
 
-	v := any(flag.value)
-	if _, isBool := v.(bool); isBool {
-		flag.NoOptDefVal = "true"
-	}
 	return flag
 }
 
 // Get gets a [Flag] value.
 func (f *Flag[T]) Get() T {
-	return f.value
+	if f.value == nil {
+		return *new(T)
+	}
+	return *f.value
 }
 
 // String implements [fmt.Stringer] for a [Flag], and also implements the String
 // part of [pflag.Value], allowing a flag to print itself.
 func (f *Flag[T]) String() string { //nolint:gocyclo // No other way of doing this realistically
+	if f.value == nil {
+		return ""
+	}
+
 	switch typ := any(f.value).(type) {
 	case pflag.Value:
 		return typ.String()
-	case int:
-		return formatInt(typ)
-	case int8:
-		return formatInt(typ)
-	case int16:
-		return formatInt(typ)
-	case int32:
-		return formatInt(typ)
-	case int64:
-		return formatInt(typ)
-	case uint:
-		return formatUint(typ)
-	case uint8:
-		return formatUint(typ)
-	case uint16:
-		return formatUint(typ)
-	case uint32:
-		return formatUint(typ)
-	case uint64:
-		return formatUint(typ)
-	case uintptr:
-		return formatUint(typ)
-	case float32:
-		return formatFloat[float32](bits32)(typ)
-	case float64:
-		return formatFloat[float64](bits64)(typ)
-	case string:
-		return typ
-	case bool:
-		return strconv.FormatBool(typ)
-	case []byte:
-		return hex.EncodeToString(typ)
-	case time.Time:
+	case *int:
+		return formatInt(*typ)
+	case *int8:
+		return formatInt(*typ)
+	case *int16:
+		return formatInt(*typ)
+	case *int32:
+		return formatInt(*typ)
+	case *int64:
+		return formatInt(*typ)
+	case *uint:
+		return formatUint(*typ)
+	case *uint8:
+		return formatUint(*typ)
+	case *uint16:
+		return formatUint(*typ)
+	case *uint32:
+		return formatUint(*typ)
+	case *uint64:
+		return formatUint(*typ)
+	case *uintptr:
+		return formatUint(*typ)
+	case *float32:
+		return formatFloat[float32](bits32)(*typ)
+	case *float64:
+		return formatFloat[float64](bits64)(*typ)
+	case *string:
+		return *typ
+	case *bool:
+		return strconv.FormatBool(*typ)
+	case *[]byte:
+		return hex.EncodeToString(*typ)
+	case *time.Time:
 		return typ.Format(time.RFC3339)
-	case time.Duration:
+	case *time.Duration:
 		return typ.String()
-	case net.IP:
+	case *net.IP:
 		return typ.String()
 	case fmt.Stringer:
 		return typ.String()
@@ -142,49 +141,52 @@ func (f *Flag[T]) String() string { //nolint:gocyclo // No other way of doing th
 
 // Type returns a string representation of the type of the Flag.
 func (f *Flag[T]) Type() string { //nolint:gocyclo // No other way of doing this realistically
+	if f.value == nil {
+		return ""
+	}
 	switch typ := any(f.value).(type) {
 	case pflag.Value:
 		return typ.Type()
-	case int:
+	case *int:
 		return "int"
-	case int8:
+	case *int8:
 		return "int8"
-	case int16:
+	case *int16:
 		return "int16"
-	case int32:
+	case *int32:
 		return "int32"
-	case int64:
+	case *int64:
 		return "int64"
-	case uint:
+	case *uint:
 		return "uint"
-	case uint8:
+	case *uint8:
 		return "uint8"
-	case uint16:
+	case *uint16:
 		return "uint16"
-	case uint32:
+	case *uint32:
 		return "uint32"
-	case uint64:
+	case *uint64:
 		return "uint64"
-	case uintptr:
+	case *uintptr:
 		return "uintptr"
-	case float32:
+	case *float32:
 		return "float32"
-	case float64:
+	case *float64:
 		return "float64"
-	case string:
+	case *string:
 		return "string"
-	case bool:
+	case *bool:
 		return "bool"
-	case []byte:
+	case *[]byte:
 		return "bytesHex"
-	case time.Time:
+	case *time.Time:
 		return "time"
-	case time.Duration:
+	case *time.Duration:
 		return "duration"
-	case net.IP:
+	case *net.IP:
 		return "ip"
 	default:
-		return fmt.Sprintf("%T", typ)
+		return fmt.Sprintf("%T", *f.value)
 	}
 }
 
@@ -193,135 +195,135 @@ func (f *Flag[T]) Set(str string) error { //nolint:gocyclo // No other way of do
 	switch typ := any(f.value).(type) {
 	case pflag.Value:
 		return typ.Set(str)
-	case int:
+	case *int:
 		val, err := parseInt[int](0)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case int8:
+	case *int8:
 		val, err := parseInt[int8](bits8)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case int16:
+	case *int16:
 		val, err := parseInt[int16](bits16)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case int32:
+	case *int32:
 		val, err := parseInt[int32](bits32)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case int64:
+	case *int64:
 		val, err := parseInt[int64](bits64)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case uint:
+	case *uint:
 		val, err := parseUint[uint](0)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case uint8:
+	case *uint8:
 		val, err := parseUint[uint8](bits8)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case uint16:
+	case *uint16:
 		val, err := parseUint[uint16](bits16)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case uint32:
+	case *uint32:
 		val, err := parseUint[uint32](bits32)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case uint64:
+	case *uint64:
 		val, err := parseUint[uint64](bits64)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case uintptr:
+	case *uintptr:
 		val, err := parseUint[uint64](bits64)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case float32:
+	case *float32:
 		val, err := parseFloat[float32](bits32)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case float64:
+	case *float64:
 		val, err := parseFloat[float64](bits64)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case string:
+	case *string:
 		val := str
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case bool:
+	case *bool:
 		val, err := strconv.ParseBool(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case []byte:
+	case *[]byte:
 		val, err := hex.DecodeString(strings.TrimSpace(str))
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case time.Time:
+	case *time.Time:
 		val, err := time.Parse(time.RFC3339, str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case time.Duration:
+	case *time.Duration:
 		val, err := time.ParseDuration(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
-	case net.IP:
+	case *net.IP:
 		val := net.ParseIP(str)
 		if val == nil {
 			return errParse(f.name, str, typ, errors.New("invalid IP address"))
 		}
-		f.value = *cast[T](&val)
+		*f.value = *cast[T](&val)
 		return nil
 	default:
 		return fmt.Errorf("unsupported flag type: %T", typ)
