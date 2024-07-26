@@ -33,7 +33,7 @@ const (
 	bits64             // 64 bit integer
 )
 
-var _ pflag.Value = &Flag[string]{} // This will fail if we violate pflag.Value.
+var _ pflag.Value = Flag[string]{} // This will fail if we violate pflag.Value.
 
 // Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
 //
@@ -60,13 +60,13 @@ type Flag[T Flaggable] struct {
 //
 //	var force bool
 //	flag.New(&force, "force", "f", false, "Force deletion without confirmation")
-func New[T Flaggable](p *T, name string, short string, value T, usage string) *Flag[T] {
+func New[T Flaggable](p *T, name string, short string, value T, usage string) Flag[T] {
 	if p == nil {
 		p = new(T)
 	}
 	*p = value
 
-	flag := &Flag[T]{
+	flag := Flag[T]{
 		value: p,
 		name:  name,
 		usage: usage,
@@ -77,7 +77,7 @@ func New[T Flaggable](p *T, name string, short string, value T, usage string) *F
 }
 
 // Get gets a [Flag] value.
-func (f *Flag[T]) Get() T {
+func (f Flag[T]) Get() T {
 	if f.value == nil {
 		return *new(T)
 	}
@@ -86,7 +86,7 @@ func (f *Flag[T]) Get() T {
 
 // String implements [fmt.Stringer] for a [Flag], and also implements the String
 // part of [pflag.Value], allowing a flag to print itself.
-func (f *Flag[T]) String() string { //nolint:gocyclo // No other way of doing this realistically
+func (f Flag[T]) String() string { //nolint:gocyclo // No other way of doing this realistically
 	if f.value == nil {
 		return ""
 	}
@@ -140,7 +140,7 @@ func (f *Flag[T]) String() string { //nolint:gocyclo // No other way of doing th
 }
 
 // Type returns a string representation of the type of the Flag.
-func (f *Flag[T]) Type() string { //nolint:gocyclo // No other way of doing this realistically
+func (f Flag[T]) Type() string { //nolint:gocyclo // No other way of doing this realistically
 	if f.value == nil {
 		return ""
 	}
@@ -191,7 +191,7 @@ func (f *Flag[T]) Type() string { //nolint:gocyclo // No other way of doing this
 }
 
 // Set sets a [Flag] value based on string input, i.e. parsing from the command line.
-func (f *Flag[T]) Set(str string) error { //nolint:gocyclo // No other way of doing this realistically
+func (f Flag[T]) Set(str string) error { //nolint:gocyclo // No other way of doing this realistically
 	switch typ := any(f.value).(type) {
 	case pflag.Value:
 		return typ.Set(str)
