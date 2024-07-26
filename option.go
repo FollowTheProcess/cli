@@ -4,6 +4,7 @@ import (
 	"io"
 
 	"github.com/FollowTheProcess/cli/internal/flag"
+	"github.com/spf13/pflag"
 )
 
 // Option is a functional option for configuring a [Command].
@@ -111,12 +112,18 @@ func Allow(validator func(cmd *Command, args []string) error) Option {
 // Flag is an [Option] that adds a flag to a [Command].
 func Flag[T flag.Flaggable](p *T, name string, short string, value T, usage string) Option {
 	return func(cmd *Command) {
-		if short != "" {
-			// We have a short flag e.g --help or -h
-			cmd.Flags().VarP(flag.New(p, name, short, value, usage), name, short, usage)
-		} else {
-			// Long flag only e.g --help
-			cmd.Flags().Var(flag.New(p, name, "", value, usage), name, usage)
+		flag := flag.New(p, name, short, value, usage)
+		var defVal string
+		if flag.Type() == "bool" {
+			defVal = "true"
 		}
+		cmd.Flags().AddFlag(&pflag.Flag{
+			Name:        name,
+			Shorthand:   short,
+			Usage:       usage,
+			Value:       flag,
+			DefValue:    flag.String(),
+			NoOptDefVal: defVal,
+		})
 	}
 }
