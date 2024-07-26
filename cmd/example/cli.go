@@ -53,21 +53,14 @@ func buildSayCommand() *cli.Command {
 					fmt.Fprint(cmd.Stdout(), arg, " ")
 				}
 			}
+			fmt.Printf("Shout: %v\nCount: %v\nThing: %v\n", shout, count, thing)
 			fmt.Fprintln(cmd.Stdout())
 			return nil
 		}),
+		cli.Flag(&shout, "shout", "s", false, "Say the message louder"),
+		cli.Flag(&count, "count", "c", 0, "Count the things"),
+		cli.Flag(&thing, "thing", "t", "", "Name of the thing"),
 	)
-
-	// In pflag
-	say.Flags().BoolVarP(&shout, "shout", "s", false, "Say the message louder")
-	say.Flags().IntVarP(&count, "count", "c", 0, "Count the things")
-	say.Flags().StringVarP(&thing, "thing", "t", "", "The name of a thing")
-
-	// I'd like a generic version where I could do this...
-	// or even better as functional options to the command
-	// flag.New(&shout, "shout", "s", false, "Say the message louder")
-	// flag.New(&count, "count", "c", 0, "Count the things")
-	// flag.New(&something, "something", "s", "word", "Something is a string")
 
 	return say
 }
