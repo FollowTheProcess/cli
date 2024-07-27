@@ -50,9 +50,7 @@ func New(name string, options ...Option) *Command {
 		_ = option.apply(cfg) //nolint:errcheck
 	}
 
-	cmd := cfg.build()
-
-	return cmd
+	return cfg.build()
 }
 
 // Command represents a CLI command. In terms of an example, in the line
