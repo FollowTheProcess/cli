@@ -77,9 +77,10 @@ func TestExecute(t *testing.T) {
 				cli.Flag(&force, "force", "f", false, "Force something"),
 			}
 
-			cmd := cli.New("test", slices.Concat(options, tt.options)...)
+			cmd, err := cli.New("test", slices.Concat(options, tt.options)...)
+			test.Ok(t, err)
 
-			err := cmd.Execute()
+			err = cmd.Execute()
 			test.WantErr(t, err, tt.wantErr)
 
 			test.Equal(t, stdout.String(), tt.stdout)
@@ -130,7 +131,7 @@ func TestSubCommandExecute(t *testing.T) {
 				stderrBuf = &bytes.Buffer{}
 			)
 
-			sub1 := cli.New(
+			sub1, err := cli.New(
 				"sub1",
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					if something == "" {
@@ -150,7 +151,9 @@ func TestSubCommandExecute(t *testing.T) {
 				cli.Flag(&something, "something", "s", "", "Something for sub1"),
 			)
 
-			sub2 := cli.New(
+			test.Ok(t, err)
+
+			sub2, err := cli.New(
 				"sub2",
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintf(
@@ -166,7 +169,9 @@ func TestSubCommandExecute(t *testing.T) {
 				cli.Flag(&number, "number", "n", -1, "Number for sub2"),
 			)
 
-			root := cli.New(
+			test.Ok(t, err)
+
+			root, err := cli.New(
 				"root",
 				cli.SubCommands(sub1, sub2),
 				cli.Stdout(stdoutBuf),
@@ -174,8 +179,10 @@ func TestSubCommandExecute(t *testing.T) {
 				cli.Args(tt.args),
 			)
 
+			test.Ok(t, err)
+
 			// Execute the command, we should see the sub commands get executed based on what args we provide
-			err := root.Execute()
+			err = root.Execute()
 			test.WantErr(t, err, tt.wantErr)
 
 			test.Equal(t, stdoutBuf.String(), tt.stdout)
@@ -185,6 +192,11 @@ func TestSubCommandExecute(t *testing.T) {
 }
 
 func TestHelp(t *testing.T) {
+	sub1, err := cli.New("sub1", cli.Short("Do one thing"))
+	test.Ok(t, err)
+
+	sub2, err := cli.New("sub2", cli.Short("Do another thing"))
+	test.Ok(t, err)
 	tests := []struct {
 		name    string       // Identifier of the test case
 		golden  string       // Name of the file containing expected output
@@ -239,10 +251,7 @@ func TestHelp(t *testing.T) {
 				cli.Args([]string{"--help"}),
 				cli.Short("A cool CLI to do things"),
 				cli.Long("A longer, probably multiline description"),
-				cli.SubCommands(
-					cli.New("sub1", cli.Short("Do one thing")),
-					cli.New("sub2", cli.Short("Do another thing")),
-				),
+				cli.SubCommands(sub1, sub2),
 			},
 			golden:  "subcommands.txt",
 			wantErr: false,
@@ -257,9 +266,11 @@ func TestHelp(t *testing.T) {
 			// Test specific overrides to the options in the table
 			options := []cli.Option{cli.Stdout(stdout), cli.Stderr(stderr)}
 
-			cmd := cli.New("test", slices.Concat(tt.options, options)...)
+			cmd, err := cli.New("test", slices.Concat(tt.options, options)...)
 
-			err := cmd.Execute()
+			test.Ok(t, err)
+
+			err = cmd.Execute()
 			test.WantErr(t, err, tt.wantErr)
 
 			// Should have no output to stdout
@@ -336,9 +347,10 @@ func TestVersion(t *testing.T) {
 			// Test specific overrides to the options in the table
 			options := []cli.Option{cli.Stdout(stdout), cli.Stderr(stderr)}
 
-			cmd := cli.New("version-test", slices.Concat(tt.options, options)...)
+			cmd, err := cli.New("version-test", slices.Concat(tt.options, options)...)
+			test.Ok(t, err)
 
-			err := cmd.Execute()
+			err = cmd.Execute()
 			test.WantErr(t, err, tt.wantErr)
 
 			// Should have no output to stdout
