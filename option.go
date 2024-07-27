@@ -184,6 +184,8 @@ func Long(long string) Option {
 //
 // An arbitrary number of examples can be added to a [Command], and calls to [Example] are additive.
 func Example(comment, command string) Option {
+	// TODO: Make sure both comment and command are not empty, then can ditch the
+	// complexity in example.String()
 	f := func(cfg *config) error {
 		cfg.examples = append(cfg.examples, example{comment: comment, command: command})
 		return nil
