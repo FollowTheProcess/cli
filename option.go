@@ -320,7 +320,11 @@ func Flag[T flag.Flaggable](p *T, name string, short string, value T, usage stri
 			// Shorthand must be a valid ASCII letter
 			char, _ := utf8.DecodeRuneInString(short)
 			if char == utf8.RuneError || char > unicode.MaxASCII || !unicode.IsLetter(char) {
-				return fmt.Errorf("shorthand for flag %q is an invalid character, must be a single ASCII letter, got %q", name, string(char))
+				return fmt.Errorf(
+					"shorthand for flag %q is an invalid character, must be a single ASCII letter, got %q",
+					name,
+					string(char),
+				)
 			}
 		}
 

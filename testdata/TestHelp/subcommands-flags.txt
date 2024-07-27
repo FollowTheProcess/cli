@@ -5,8 +5,8 @@ A longer, probably multiline description
 Usage: test [OPTIONS] COMMAND
 
 Commands:
-  sub1  Do one thing
-  sub2  Do another thing
+  sub1	Do one thing
+  sub2	Do another thing
 
 Options:
       --count int   Count something (default -1)

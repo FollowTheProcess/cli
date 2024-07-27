@@ -274,6 +274,8 @@ func TestHelp(t *testing.T) {
 			stderr := &bytes.Buffer{}
 			stdout := &bytes.Buffer{}
 
+			golden := filepath.Join(test.Data(t), "TestHelp", tt.golden)
+
 			// Test specific overrides to the options in the table
 			options := []cli.Option{cli.Stdout(stdout), cli.Stderr(stderr)}
 
@@ -288,16 +290,17 @@ func TestHelp(t *testing.T) {
 				fmt.Printf("DEBUG\n_____\n\n%s\n", stderr.String())
 			}
 
+			if *update {
+				t.Logf("Updating %s\n", golden)
+				err := os.WriteFile(golden, stderr.Bytes(), os.ModePerm)
+				test.Ok(t, err)
+			}
+
 			// Should have no output to stdout
 			test.Equal(t, stdout.String(), "")
 
 			// --help output should be as per the golden file
 			test.File(t, stderr.String(), filepath.Join("TestHelp", tt.golden))
-
-			if *update {
-				err := os.WriteFile(filepath.Join("TestHelp", tt.golden), stderr.Bytes(), os.ModePerm)
-				test.Ok(t, err)
-			}
 		})
 	}
 }
