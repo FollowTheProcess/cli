@@ -31,7 +31,7 @@ const (
 // and accepting arbitrary positional arguments from [os.Args] (with the command path stripped, equivalent to os.Args[1:]).
 func New(name string, options ...Option) *Command {
 	// Default implementation
-	cmd := &Command{
+	cfg := &config{
 		flags:       pflag.NewFlagSet(name, pflag.ContinueOnError),
 		stdin:       os.Stdin,
 		stdout:      os.Stdout,
@@ -46,12 +46,11 @@ func New(name string, options ...Option) *Command {
 
 	// Apply the options
 	for _, option := range options {
-		option(cmd)
+		// TODO: Handle the error (right now no option returns an error anyway)
+		_ = option.apply(cfg) //nolint:errcheck
 	}
 
-	// Add the built in help and version flags
-	Flag(&cmd.helpRequested, "help", "h", false, fmt.Sprintf("Show help for %s", cmd.name))(cmd)
-	Flag(&cmd.versionRequested, "version", "v", false, fmt.Sprintf("Show version info for %s", cmd.name))(cmd)
+	cmd := cfg.build()
 
 	return cmd
 }
@@ -123,12 +122,6 @@ type Command struct {
 	//
 	// If the command has no subcommands, this slice will be nil.
 	subcommands []*Command
-
-	// helpRequested is whether or not the --help flag was used.
-	helpRequested bool
-
-	// versionRequested is whether or not the --version flag was used.
-	versionRequested bool
 }
 
 // example is a single usage example for a [Command].
@@ -188,8 +181,12 @@ func (c *Command) Execute() error {
 
 	// If -h/--help was called, call the defined helpFunc and exit so that
 	// the run function is never called.
-	if cmd.helpRequested {
-		if err := defaultHelp(cmd); err != nil {
+	helpCalled, err := cmd.flagSet().GetBool("help")
+	if err != nil {
+		return fmt.Errorf("could not parse help flag: %w", err)
+	}
+	if helpCalled {
+		if err = defaultHelp(cmd); err != nil {
 			return fmt.Errorf("help function returned an error: %w", err)
 		}
 		return nil
@@ -197,7 +194,11 @@ func (c *Command) Execute() error {
 
 	// If -v/--version was called, call the defined versionFunc and exit so that
 	// the run function is never called
-	if cmd.versionRequested {
+	versionCalled, err := cmd.flagSet().GetBool("version")
+	if err != nil {
+		return fmt.Errorf("could not parse version flag: %w", err)
+	}
+	if versionCalled {
 		if cmd.versionFunc == nil {
 			return errors.New("versionFunc was nil")
 		}
