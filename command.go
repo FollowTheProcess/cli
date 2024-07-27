@@ -29,6 +29,9 @@ const (
 // Without any options passed, the default implementation returns a [Command] with no subcommands,
 // a -v/--version and a -h/--help flag, hooked up to [os.Stdin], [os.Stdout] and [os.Stderr]
 // and accepting arbitrary positional arguments from [os.Args] (with the command path stripped, equivalent to os.Args[1:]).
+//
+// Options will validate their inputs where possible and return errors which will be bubbled up through New
+// to aid debugging invalid configuration.
 func New(name string, options ...Option) (*Command, error) {
 	// Default implementation
 	if len(os.Args) < 2 { //nolint:mnd // We all know what this refers to
