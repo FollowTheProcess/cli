@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"io"
 
@@ -8,11 +9,10 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// TODO: We now have the ability to handle config errors in options so we should validate where possible
-
 // Option is a functional option for configuring a [Command].
 type Option interface {
-	// Apply the option to the config
+	// Apply the option to the config, returning an error if the
+	// option cannot be applied for whatever reason.
 	apply(*config) error
 }
 
@@ -85,6 +85,9 @@ func (c *config) build() *Command {
 //	cli.New("test", cli.Stdin(os.Stdin))
 func Stdin(stdin io.Reader) Option {
 	f := func(cfg *config) error {
+		if stdin == nil {
+			return errors.New("cannot set Stdin to nil")
+		}
 		cfg.stdin = stdin
 		return nil
 	}
@@ -101,6 +104,9 @@ func Stdin(stdin io.Reader) Option {
 //	cli.New("test", cli.Stdout(buf))
 func Stdout(stdout io.Writer) Option {
 	f := func(cfg *config) error {
+		if stdout == nil {
+			return errors.New("cannot set Stdout to nil")
+		}
 		cfg.stdout = stdout
 		return nil
 	}
@@ -117,6 +123,9 @@ func Stdout(stdout io.Writer) Option {
 //	cli.New("test", cli.Stderr(buf))
 func Stderr(stderr io.Writer) Option {
 	f := func(cfg *config) error {
+		if stderr == nil {
+			return errors.New("cannot set Stderr to nil")
+		}
 		cfg.stderr = stderr
 		return nil
 	}
@@ -204,6 +213,9 @@ func Run(run func(cmd *Command, args []string) error) Option {
 //	cli.New("test", cli.Args([]string{"test", "me"}))
 func Args(args []string) Option {
 	f := func(cfg *config) error {
+		if args == nil {
+			return errors.New("cannot set Args to nil")
+		}
 		cfg.args = args
 		return nil
 	}
@@ -217,6 +229,9 @@ func Args(args []string) Option {
 //	cli.New("test", cli.Version("v1.2.3"))
 func Version(version string) Option {
 	f := func(cfg *config) error {
+		if version == "" {
+			return errors.New("cannot set Version to an empty string")
+		}
 		cfg.version = version
 		return nil
 	}
@@ -232,6 +247,9 @@ func Version(version string) Option {
 // e.g commit hash.
 func VersionFunc(fn func(cmd *Command) error) Option {
 	f := func(cfg *config) error {
+		if fn == nil {
+			return errors.New("cannot set VersionFunc to nil")
+		}
 		cfg.versionFunc = fn
 		return nil
 	}

@@ -17,7 +17,7 @@ func BuildCLI() (*cli.Command, error) {
 		"demo",
 		cli.Short("An example CLI to demonstrate the library and play with it for real."),
 		cli.Example("A basic subcommand", "demo say hello world"),
-		cli.Allow(cli.NoArgs),
+		cli.Allow(cli.NoArgs()),
 		cli.SubCommands(say),
 	)
 	if err != nil {

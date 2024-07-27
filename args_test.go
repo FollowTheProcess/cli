@@ -27,7 +27,7 @@ func TestArgValidators(t *testing.T) {
 					fmt.Fprintln(cmd.Stdout(), "Hello from anyargs")
 					return nil
 				}),
-				cli.Allow(cli.AnyArgs),
+				cli.Allow(cli.AnyArgs()),
 			},
 			wantErr: false,
 			stdout:  "Hello from anyargs\n",
@@ -40,7 +40,7 @@ func TestArgValidators(t *testing.T) {
 					fmt.Fprintln(cmd.Stdout(), "Hello from noargs")
 					return nil
 				}),
-				cli.Allow(cli.NoArgs),
+				cli.Allow(cli.NoArgs()),
 			},
 			wantErr: false,
 			stdout:  "Hello from noargs\n",
@@ -53,7 +53,7 @@ func TestArgValidators(t *testing.T) {
 					fmt.Fprintln(cmd.Stdout(), "Hello from noargs")
 					return nil
 				}),
-				cli.Allow(cli.NoArgs),
+				cli.Allow(cli.NoArgs()),
 			},
 			wantErr: true,
 			errMsg:  "command test accepts no arguments but got [some args here]",
