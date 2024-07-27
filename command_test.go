@@ -219,13 +219,8 @@ func TestHelp(t *testing.T) {
 			cmd: cli.New(
 				"test",
 				cli.Args([]string{"--help"}),
-				cli.Examples(
-					cli.Example{Comment: "Do a thing", Command: "test do thing --now"},
-					cli.Example{
-						Comment: "Do a different thing",
-						Command: "test do thing --different",
-					},
-				),
+				cli.Example("Do a thing", "test do thing --now"),
+				cli.Example("Do a different thing", "test do thing --different"),
 			),
 			golden:  "with-examples.txt",
 			wantErr: false,
@@ -365,44 +360,6 @@ func TestVersion(t *testing.T) {
 
 			// --version output should be as desired
 			test.Equal(t, stderr.String(), tt.stderr)
-		})
-	}
-}
-
-func TestExampleString(t *testing.T) {
-	tests := []struct {
-		name    string
-		example cli.Example
-		want    string
-	}{
-		{
-			name:    "empty",
-			example: cli.Example{},
-			want:    "",
-		},
-		{
-			name:    "only command",
-			example: cli.Example{Command: "run this program --once"},
-			want:    "\n$ run this program --once\n",
-		},
-		{
-			name:    "only comment",
-			example: cli.Example{Comment: "Run the program once"},
-			want:    "\n# Run the program once\n",
-		},
-		{
-			name: "both",
-			example: cli.Example{
-				Comment: "Run the program once",
-				Command: "run this program --once",
-			},
-			want: "\n# Run the program once\n$ run this program --once\n",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			test.Equal(t, tt.example.String(), tt.want)
 		})
 	}
 }

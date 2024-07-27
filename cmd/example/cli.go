@@ -11,12 +11,7 @@ func BuildCLI() *cli.Command {
 	demo := cli.New(
 		"demo",
 		cli.Short("An example CLI to demonstrate the library and play with it for real."),
-		cli.Examples(
-			cli.Example{
-				Comment: "A basic subcommand",
-				Command: "demo say hello world",
-			},
-		),
+		cli.Example("A basic subcommand", "demo say hello world"),
 		cli.Allow(cli.NoArgs),
 		cli.SubCommands(buildSayCommand()),
 	)
@@ -33,16 +28,8 @@ func buildSayCommand() *cli.Command {
 	say := cli.New(
 		"say",
 		cli.Short("Print a message"),
-		cli.Examples(
-			cli.Example{
-				Comment: "Say a well known phrase",
-				Command: "demo say hello world",
-			},
-			cli.Example{
-				Comment: "Now louder",
-				Command: "demo say hello world --shout",
-			},
-		),
+		cli.Example("Say a well known phrase", "demo say hello world"),
+		cli.Example("Now louder", "demo say hello world --shout"),
 		cli.Run(func(cmd *cli.Command, args []string) error {
 			if shout {
 				for _, arg := range args {
