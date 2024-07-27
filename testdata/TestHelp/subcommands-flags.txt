@@ -1,0 +1,17 @@
+A cool CLI to do things
+
+A longer, probably multiline description
+
+Usage: test [OPTIONS] COMMAND
+
+Commands:
+  sub1	Do one thing
+  sub2	Do another thing
+
+Options:
+      --count int   Count something (default -1)
+  -d, --delete      Delete something
+  -h, --help        Show help for test
+  -v, --version     Show version info for test
+
+Use "test [command] -h/--help" for more information about a command.
