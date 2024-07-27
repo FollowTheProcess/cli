@@ -109,8 +109,8 @@ type Command struct {
 	// version is the version of this command, shown when -v/--version is called.
 	version string
 
-	// example is examples of how to use the command.
-	example []Example
+	// examples is examples of how to use the command.
+	examples []example
 
 	// args is the arguments passed to the command, default to [os.Args]
 	// (excluding the command name, so os.Args[1:]), can be overridden using
@@ -131,32 +131,32 @@ type Command struct {
 	versionRequested bool
 }
 
-// Example is a single usage example for a [Command].
+// example is a single usage example for a [Command].
 //
 // The example will be shown in the -h/--help output as follows:
 //
 //	# Comment
 //	$ Command
-type Example struct {
-	Comment string // The comment for the example.
-	Command string // The command string for the example.
+type example struct {
+	comment string // The comment for the example.
+	command string // The command string for the example.
 }
 
 // String implements [fmt.Stringer] for [Example].
-func (e Example) String() string {
+func (e example) String() string {
 	switch {
-	case e.Comment == "" && e.Command == "":
+	case e.comment == "" && e.command == "":
 		// Empty example, return empty string
 		return ""
-	case e.Command == "":
+	case e.command == "":
 		// Empty command, show just the comment
-		return fmt.Sprintf("\n# %s\n", e.Comment)
-	case e.Comment == "":
+		return fmt.Sprintf("\n# %s\n", e.comment)
+	case e.comment == "":
 		// No comment, just show command on it's own
-		return fmt.Sprintf("\n$ %s\n", e.Command)
+		return fmt.Sprintf("\n$ %s\n", e.command)
 	default:
 		// Both passed, show the full example
-		return fmt.Sprintf("\n# %s\n$ %s\n", e.Comment, e.Command)
+		return fmt.Sprintf("\n# %s\n$ %s\n", e.comment, e.command)
 	}
 }
 
@@ -448,9 +448,9 @@ func defaultHelp(cmd *Command) error {
 	}
 
 	// If the user defined some examples, show those
-	if len(cmd.example) != 0 {
+	if len(cmd.examples) != 0 {
 		s.WriteString("\n\nExamples:")
-		for _, example := range cmd.example {
+		for _, example := range cmd.examples {
 			s.WriteString(example.String())
 		}
 	}
@@ -468,7 +468,7 @@ func defaultHelp(cmd *Command) error {
 	}
 
 	// Now options
-	if len(cmd.example) != 0 || len(cmd.subcommands) != 0 {
+	if len(cmd.examples) != 0 || len(cmd.subcommands) != 0 {
 		// If there were examples or subcommands, the last one would have printed a newline
 		s.WriteString("\n")
 	} else {
