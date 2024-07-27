@@ -3,6 +3,7 @@ package cli_test
 import (
 	"bytes"
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,6 +12,11 @@ import (
 
 	"github.com/FollowTheProcess/cli"
 	"github.com/FollowTheProcess/test"
+)
+
+var (
+	debug  = flag.Bool("debug", false, "Print debug output during tests")
+	update = flag.Bool("update", false, "Update golden files")
 )
 
 func TestExecute(t *testing.T) {
@@ -39,16 +45,6 @@ func TestExecute(t *testing.T) {
 				cli.Args([]string{"hello", "there", "--force"}),
 			},
 			wantErr: false,
-		},
-		{
-			name:   "no run and no subcommands",
-			stdout: "",
-			stderr: "",
-			options: []cli.Option{
-				cli.Args([]string{"arg1", "arg2", "arg3"}),
-				cli.Run(nil),
-			},
-			wantErr: true,
 		},
 		{
 			name:   "bad flag",
@@ -258,6 +254,19 @@ func TestHelp(t *testing.T) {
 			golden:  "subcommands.txt",
 			wantErr: false,
 		},
+		{
+			name: "with subcommands and flags",
+			options: []cli.Option{
+				cli.Args([]string{"--help"}),
+				cli.Short("A cool CLI to do things"),
+				cli.Long("A longer, probably multiline description"),
+				cli.SubCommands(sub1, sub2),
+				cli.Flag(new(bool), "delete", "d", false, "Delete something"),
+				cli.Flag(new(int), "count", "", -1, "Count something"),
+			},
+			golden:  "subcommands-flags.txt",
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -275,11 +284,20 @@ func TestHelp(t *testing.T) {
 			err = cmd.Execute()
 			test.WantErr(t, err, tt.wantErr)
 
+			if *debug {
+				fmt.Printf("DEBUG\n_____\n\n%s\n", stderr.String())
+			}
+
 			// Should have no output to stdout
 			test.Equal(t, stdout.String(), "")
 
 			// --help output should be as per the golden file
 			test.File(t, stderr.String(), filepath.Join("TestHelp", tt.golden))
+
+			if *update {
+				err := os.WriteFile(filepath.Join("TestHelp", tt.golden), stderr.Bytes(), os.ModePerm)
+				test.Ok(t, err)
+			}
 		})
 	}
 }
@@ -404,6 +422,39 @@ func TestOptionValidation(t *testing.T) {
 			name:    "nil VersionFunc",
 			options: []cli.Option{cli.VersionFunc(nil)},
 			errMsg:  "cannot set VersionFunc to nil",
+		},
+		{
+			name:    "nil Run",
+			options: []cli.Option{cli.Run(nil)},
+			errMsg:  "cannot set Run to nil",
+		},
+		{
+			name:    "nil ArgValidator",
+			options: []cli.Option{cli.Allow(nil)},
+			errMsg:  "cannot set Allow to a nil ArgValidator",
+		},
+		{
+			name: "flag already exists",
+			options: []cli.Option{
+				cli.Flag(new(int), "count", "c", 0, "Count something"),
+				cli.Flag(new(int), "count", "c", 0, "Count something (again)"),
+			},
+			errMsg: `flag "count" already defined`,
+		},
+		{
+			name:    "short too long",
+			options: []cli.Option{cli.Flag(new(bool), "short", "word", false, "Set something")},
+			errMsg:  `shorthand for flag "short" must be a single ASCII letter, got "word" which has 4 letters`,
+		},
+		{
+			name:    "short is digit",
+			options: []cli.Option{cli.Flag(new(bool), "short", "7", false, "Set something")},
+			errMsg:  `shorthand for flag "short" is an invalid character, must be a single ASCII letter, got "7"`,
+		},
+		{
+			name:    "short is non ascii",
+			options: []cli.Option{cli.Flag(new(bool), "short", "本", false, "Set something")},
+			errMsg:  `shorthand for flag "short" is an invalid character, must be a single ASCII letter, got "本"`,
 		},
 	}
 

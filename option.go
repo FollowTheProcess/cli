@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/FollowTheProcess/cli/internal/flag"
 	"github.com/spf13/pflag"
@@ -196,6 +198,9 @@ func Example(comment, command string) Option {
 // Successive calls overwrite previous ones.
 func Run(run func(cmd *Command, args []string) error) Option {
 	f := func(cfg *config) error {
+		if run == nil {
+			return errors.New("cannot set Run to nil")
+		}
 		cfg.run = run
 		return nil
 	}
@@ -277,9 +282,12 @@ func SubCommands(subcommands ...*Command) Option {
 // Successive calls overwrite previous ones.
 //
 //	// No positional arguments allowed
-//	cli.New("test", cli.Allow(cli.NoArgs))
-func Allow(validator func(cmd *Command, args []string) error) Option {
+//	cli.New("test", cli.Allow(cli.NoArgs()))
+func Allow(validator ArgValidator) Option {
 	f := func(cfg *config) error {
+		if validator == nil {
+			return errors.New("cannot set Allow to a nil ArgValidator")
+		}
 		cfg.allowArgs = validator
 		return nil
 	}
@@ -299,6 +307,24 @@ func Flag[T flag.Flaggable](p *T, name string, short string, value T, usage stri
 	// duplicate flags etc.
 
 	f := func(cfg *config) error {
+		if cfg.flags.Lookup(name) != nil {
+			return fmt.Errorf("flag %q already defined", name)
+		}
+
+		// len(short) > 1 means an error, shorthand must be a single character
+		if length := utf8.RuneCountInString(short); length > 1 {
+			return fmt.Errorf("shorthand for flag %q must be a single ASCII letter, got %q which has %d letters", name, short, length)
+		}
+
+		if short != "" {
+			// Shorthand must be a valid ASCII letter
+			char, _ := utf8.DecodeRuneInString(short)
+			if char == utf8.RuneError || char > unicode.MaxASCII || !unicode.IsLetter(char) {
+				return fmt.Errorf("shorthand for flag %q is an invalid character, must be a single ASCII letter, got %q", name, string(char))
+			}
+		}
+
+		// Short is now either "" or a single letter
 		flag := flag.New(p, name, short, value, usage)
 		var defVal string
 		if flag.Type() == "bool" {
