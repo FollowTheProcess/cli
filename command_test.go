@@ -371,24 +371,39 @@ func TestOptionValidation(t *testing.T) {
 		options []cli.Option // Options to apply to the command
 	}{
 		{
-			name:    "pass nil stdin",
+			name:    "nil stdin",
 			options: []cli.Option{cli.Stdin(nil)},
 			errMsg:  "cannot set Stdin to nil",
 		},
 		{
-			name:    "pass nil stdout",
+			name:    "nil stdout",
 			options: []cli.Option{cli.Stdout(nil)},
 			errMsg:  "cannot set Stdout to nil",
 		},
 		{
-			name:    "pass nil stderr",
+			name:    "nil stderr",
 			options: []cli.Option{cli.Stderr(nil)},
 			errMsg:  "cannot set Stderr to nil",
 		},
 		{
-			name:    "pass nil all three",
+			name:    "nil all three",
 			options: []cli.Option{cli.Stdout(nil), cli.Stderr(nil), cli.Stdin(nil)},
 			errMsg:  "cannot set Stdout to nil\ncannot set Stderr to nil\ncannot set Stdin to nil",
+		},
+		{
+			name:    "nil args",
+			options: []cli.Option{cli.Args(nil)},
+			errMsg:  "cannot set Args to nil",
+		},
+		{
+			name:    "empty version",
+			options: []cli.Option{cli.Version("")},
+			errMsg:  "cannot set Version to an empty string",
+		},
+		{
+			name:    "nil VersionFunc",
+			options: []cli.Option{cli.VersionFunc(nil)},
+			errMsg:  "cannot set VersionFunc to nil",
 		},
 	}
 

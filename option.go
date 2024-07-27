@@ -213,6 +213,9 @@ func Run(run func(cmd *Command, args []string) error) Option {
 //	cli.New("test", cli.Args([]string{"test", "me"}))
 func Args(args []string) Option {
 	f := func(cfg *config) error {
+		if args == nil {
+			return errors.New("cannot set Args to nil")
+		}
 		cfg.args = args
 		return nil
 	}
@@ -226,6 +229,9 @@ func Args(args []string) Option {
 //	cli.New("test", cli.Version("v1.2.3"))
 func Version(version string) Option {
 	f := func(cfg *config) error {
+		if version == "" {
+			return errors.New("cannot set Version to an empty string")
+		}
 		cfg.version = version
 		return nil
 	}
@@ -241,6 +247,9 @@ func Version(version string) Option {
 // e.g commit hash.
 func VersionFunc(fn func(cmd *Command) error) Option {
 	f := func(cfg *config) error {
+		if fn == nil {
+			return errors.New("cannot set VersionFunc to nil")
+		}
 		cfg.versionFunc = fn
 		return nil
 	}
