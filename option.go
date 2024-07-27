@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"io"
 
@@ -8,11 +9,10 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// TODO: We now have the ability to handle config errors in options so we should validate where possible
-
 // Option is a functional option for configuring a [Command].
 type Option interface {
-	// Apply the option to the config
+	// Apply the option to the config, returning an error if the
+	// option cannot be applied for whatever reason.
 	apply(*config) error
 }
 
@@ -85,6 +85,9 @@ func (c *config) build() *Command {
 //	cli.New("test", cli.Stdin(os.Stdin))
 func Stdin(stdin io.Reader) Option {
 	f := func(cfg *config) error {
+		if stdin == nil {
+			return errors.New("cannot set Stdin to nil")
+		}
 		cfg.stdin = stdin
 		return nil
 	}
@@ -101,6 +104,9 @@ func Stdin(stdin io.Reader) Option {
 //	cli.New("test", cli.Stdout(buf))
 func Stdout(stdout io.Writer) Option {
 	f := func(cfg *config) error {
+		if stdout == nil {
+			return errors.New("cannot set Stdout to nil")
+		}
 		cfg.stdout = stdout
 		return nil
 	}
@@ -117,6 +123,9 @@ func Stdout(stdout io.Writer) Option {
 //	cli.New("test", cli.Stderr(buf))
 func Stderr(stderr io.Writer) Option {
 	f := func(cfg *config) error {
+		if stderr == nil {
+			return errors.New("cannot set Stderr to nil")
+		}
 		cfg.stderr = stderr
 		return nil
 	}

@@ -48,7 +48,7 @@ func New(name string, options ...Option) (*Command, error) {
 	}
 
 	// Apply the options, gathering up all the validation errors
-	// to report it one go
+	// to report in one go
 	var errs []error
 	for _, option := range options {
 		err := option.apply(cfg)
