@@ -57,8 +57,12 @@ tasks:
     preconditions:
       - sh: command -v golangci-lint
         msg: golangci-lint not installed, see https://golangci-lint.run/usage/install/#local-installation
+
+      - sh: command -v nilaway
+        msg: nilaway not installed, see https://github.com/uber-go/nilaway
     cmds:
       - golangci-lint run --fix
+      - nilaway ./...
 
   docs:
     desc: Render the pkg docs locally
