@@ -363,3 +363,55 @@ func TestVersion(t *testing.T) {
 		})
 	}
 }
+
+func TestOptionValidation(t *testing.T) {
+	tests := []struct {
+		name    string       // Name of the test case
+		errMsg  string       // If we wanted an error, what should it say
+		options []cli.Option // Options to apply to the command
+	}{
+		{
+			name:    "nil stdin",
+			options: []cli.Option{cli.Stdin(nil)},
+			errMsg:  "cannot set Stdin to nil",
+		},
+		{
+			name:    "nil stdout",
+			options: []cli.Option{cli.Stdout(nil)},
+			errMsg:  "cannot set Stdout to nil",
+		},
+		{
+			name:    "nil stderr",
+			options: []cli.Option{cli.Stderr(nil)},
+			errMsg:  "cannot set Stderr to nil",
+		},
+		{
+			name:    "nil all three",
+			options: []cli.Option{cli.Stdout(nil), cli.Stderr(nil), cli.Stdin(nil)},
+			errMsg:  "cannot set Stdout to nil\ncannot set Stderr to nil\ncannot set Stdin to nil",
+		},
+		{
+			name:    "nil args",
+			options: []cli.Option{cli.Args(nil)},
+			errMsg:  "cannot set Args to nil",
+		},
+		{
+			name:    "empty version",
+			options: []cli.Option{cli.Version("")},
+			errMsg:  "cannot set Version to an empty string",
+		},
+		{
+			name:    "nil VersionFunc",
+			options: []cli.Option{cli.VersionFunc(nil)},
+			errMsg:  "cannot set VersionFunc to nil",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := cli.New("test", tt.options...)
+			test.Err(t, err)
+			test.Equal(t, err.Error(), tt.errMsg)
+		})
+	}
+}
