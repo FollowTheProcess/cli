@@ -5,7 +5,7 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [ ] Replace `pflag.FlagSet` with my own implementation including parsing
 - [x] Make sure `cli.Option` is hidden and a `Command` can only be modified prior to building
 - [x] Ensure/double check that `cli.Option` applications are order independent
-- [ ] Do some validation and maybe return an error from `cli.New` (TBC, might not need it)
+- [x] Do some validation and maybe return an error from `cli.New` (TBC, might not need it)
 - [x] Better document the functional options, e.g. what happens if we call each one multiple times
 - [x] Change `cli.Example` to be one at a time and append rather than pass a slice
 - [x] Rename `cmd.example` to `cmd.examples`
