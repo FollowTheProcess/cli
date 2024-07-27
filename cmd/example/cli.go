@@ -7,25 +7,33 @@ import (
 	"github.com/FollowTheProcess/cli"
 )
 
-func BuildCLI() *cli.Command {
-	demo := cli.New(
+func BuildCLI() (*cli.Command, error) {
+	say, err := buildSayCommand()
+	if err != nil {
+		return nil, err
+	}
+
+	demo, err := cli.New(
 		"demo",
 		cli.Short("An example CLI to demonstrate the library and play with it for real."),
 		cli.Example("A basic subcommand", "demo say hello world"),
 		cli.Allow(cli.NoArgs),
-		cli.SubCommands(buildSayCommand()),
+		cli.SubCommands(say),
 	)
+	if err != nil {
+		return nil, err
+	}
 
-	return demo
+	return demo, nil
 }
 
-func buildSayCommand() *cli.Command {
+func buildSayCommand() (*cli.Command, error) {
 	var (
 		shout bool
 		count int
 		thing string
 	)
-	say := cli.New(
+	say, err := cli.New(
 		"say",
 		cli.Short("Print a message"),
 		cli.Example("Say a well known phrase", "demo say hello world"),
@@ -48,6 +56,9 @@ func buildSayCommand() *cli.Command {
 		cli.Flag(&count, "count", "c", 0, "Count the things"),
 		cli.Flag(&thing, "thing", "t", "", "Name of the thing"),
 	)
+	if err != nil {
+		return nil, err
+	}
 
-	return say
+	return say, nil
 }

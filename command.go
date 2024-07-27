@@ -29,7 +29,7 @@ const (
 // Without any options passed, the default implementation returns a [Command] with no subcommands,
 // a -v/--version and a -h/--help flag, hooked up to [os.Stdin], [os.Stdout] and [os.Stderr]
 // and accepting arbitrary positional arguments from [os.Args] (with the command path stripped, equivalent to os.Args[1:]).
-func New(name string, options ...Option) *Command {
+func New(name string, options ...Option) (*Command, error) {
 	// Default implementation
 	cfg := &config{
 		flags:       pflag.NewFlagSet(name, pflag.ContinueOnError),
@@ -44,13 +44,21 @@ func New(name string, options ...Option) *Command {
 		allowArgs:   AnyArgs,
 	}
 
-	// Apply the options
+	// Apply the options, gathering up all the validation errors
+	// to report it one go
+	var errs []error
 	for _, option := range options {
-		// TODO: Handle the error (right now no option returns an error anyway)
-		_ = option.apply(cfg) //nolint:errcheck
+		err := option.apply(cfg)
+		if err != nil {
+			errs = append(errs, err)
+		}
 	}
 
-	return cfg.build()
+	if len(errs) != 0 {
+		return nil, errors.Join(errs...)
+	}
+
+	return cfg.build(), nil
 }
 
 // Command represents a CLI command. In terms of an example, in the line
@@ -89,10 +97,10 @@ type Command struct {
 	// and has no parent, this will be nil.
 	parent *Command
 
-	// allowArgs is a function that gets called to validate the positional arguments
+	// argValidator is a function that gets called to validate the positional arguments
 	// to the command. It defaults to allowing arbitrary arguments, can be overridden using
 	// the [AllowArgs] option.
-	allowArgs func(cmd *Command, args []string) error
+	argValidator ArgValidator
 
 	// name is the name of the command.
 	name string
@@ -216,7 +224,7 @@ func (c *Command) Execute() error {
 
 	// Validate the arguments using the command's allowedArgs function
 	argsWithoutFlags := cmd.flagSet().Args()
-	if err := cmd.allowArgs(cmd, argsWithoutFlags); err != nil {
+	if err := cmd.argValidator(cmd, argsWithoutFlags); err != nil {
 		return err
 	}
 
