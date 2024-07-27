@@ -248,9 +248,10 @@ func TestArgValidators(t *testing.T) {
 			// Test specific overrides to the options in the table
 			options := []cli.Option{cli.Stdout(stdout), cli.Stderr(stderr)}
 
-			cmd := cli.New("test", slices.Concat(tt.options, options)...)
+			cmd, err := cli.New("test", slices.Concat(tt.options, options)...)
+			test.Ok(t, err)
 
-			err := cmd.Execute()
+			err = cmd.Execute()
 			test.WantErr(t, err, tt.wantErr)
 
 			if tt.wantErr {

@@ -5,6 +5,12 @@ import (
 	"slices"
 )
 
+// ArgValidator is a function responsible for validating the provided positional arguments
+// to a [Command].
+//
+// An ArgValidator should return an error if it thinks the arguments are not valid.
+type ArgValidator func(cmd *Command, args []string) error
+
 // AnyArgs is a positional argument validator that allows any arbitrary args,
 // it never returns an error.
 //
@@ -23,7 +29,7 @@ func NoArgs(cmd *Command, args []string) error {
 }
 
 // MinArgs is a positional argument validator that requires at least n arguments.
-func MinArgs(n int) func(cmd *Command, args []string) error {
+func MinArgs(n int) ArgValidator {
 	return func(cmd *Command, args []string) error {
 		if len(args) < n {
 			return fmt.Errorf(
@@ -39,7 +45,7 @@ func MinArgs(n int) func(cmd *Command, args []string) error {
 }
 
 // MaxArgs is a positional argument validator that returns an error if there are more than n arguments.
-func MaxArgs(n int) func(cmd *Command, args []string) error {
+func MaxArgs(n int) ArgValidator {
 	return func(cmd *Command, args []string) error {
 		if len(args) > n {
 			return fmt.Errorf(
@@ -56,7 +62,7 @@ func MaxArgs(n int) func(cmd *Command, args []string) error {
 
 // ExactArgs is a positional argument validator that allows exactly n args, any more
 // or less will return an error.
-func ExactArgs(n int) func(cmd *Command, args []string) error {
+func ExactArgs(n int) ArgValidator {
 	return func(cmd *Command, args []string) error {
 		if len(args) != n {
 			return fmt.Errorf(
@@ -73,7 +79,7 @@ func ExactArgs(n int) func(cmd *Command, args []string) error {
 
 // BetweenArgs is a positional argument validator that allows between min and max arguments (inclusive),
 // any outside that range will return an error.
-func BetweenArgs(min, max int) func(cmd *Command, args []string) error {
+func BetweenArgs(min, max int) ArgValidator {
 	return func(cmd *Command, args []string) error {
 		nArgs := len(args)
 		if nArgs < min || nArgs > max {
@@ -92,7 +98,7 @@ func BetweenArgs(min, max int) func(cmd *Command, args []string) error {
 
 // ValidArgs is a positional argument validator that only allows arguments that are contained in
 // the valid slice. If any non-valid arguments are seen, an error will be returned.
-func ValidArgs(valid []string) func(cmd *Command, args []string) error {
+func ValidArgs(valid []string) ArgValidator {
 	return func(cmd *Command, args []string) error {
 		for _, arg := range args {
 			if !slices.Contains(valid, arg) {
@@ -111,9 +117,7 @@ func ValidArgs(valid []string) func(cmd *Command, args []string) error {
 // Combine allows multiple positional argument validators to be composed together.
 //
 // The first validator to fail will be the one that returns the error.
-func Combine(
-	validators ...func(cmd *Command, args []string) error,
-) func(cmd *Command, args []string) error {
+func Combine(validators ...ArgValidator) ArgValidator {
 	return func(cmd *Command, args []string) error {
 		for _, validator := range validators {
 			if err := validator(cmd, args); err != nil {
