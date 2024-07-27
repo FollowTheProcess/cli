@@ -25,7 +25,7 @@ func (o option) apply(cfg *config) error {
 	return o(cfg)
 }
 
-// config represents the internal configuratio of a [Command].
+// config represents the internal configuration of a [Command].
 type config struct {
 	stdin       io.Reader
 	stdout      io.Writer
@@ -45,7 +45,7 @@ type config struct {
 }
 
 // build builds an returns a Command from the config.
-func (c config) build() *Command {
+func (c *config) build() *Command {
 	cmd := &Command{
 		stdin:       c.stdin,
 		stdout:      c.stdout,
