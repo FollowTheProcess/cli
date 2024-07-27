@@ -47,21 +47,21 @@ type config struct {
 // build builds an returns a Command from the config.
 func (c *config) build() *Command {
 	cmd := &Command{
-		stdin:       c.stdin,
-		stdout:      c.stdout,
-		stderr:      c.stderr,
-		run:         c.run,
-		flags:       c.flags,
-		versionFunc: c.versionFunc,
-		parent:      c.parent,
-		allowArgs:   c.allowArgs,
-		name:        c.name,
-		short:       c.short,
-		long:        c.long,
-		version:     c.version,
-		examples:    c.examples,
-		args:        c.args,
-		subcommands: c.subcommands,
+		stdin:        c.stdin,
+		stdout:       c.stdout,
+		stderr:       c.stderr,
+		run:          c.run,
+		flags:        c.flags,
+		versionFunc:  c.versionFunc,
+		parent:       c.parent,
+		argValidator: c.allowArgs,
+		name:         c.name,
+		short:        c.short,
+		long:         c.long,
+		version:      c.version,
+		examples:     c.examples,
+		args:         c.args,
+		subcommands:  c.subcommands,
 	}
 
 	// Loop through each subcommand and set this command as their immediate parent

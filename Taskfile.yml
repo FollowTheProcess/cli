@@ -60,7 +60,7 @@ tasks:
     cmds:
       - golangci-lint run --fix
 
-  doc:
+  docs:
     desc: Render the pkg docs locally
     cmds:
       - pkgsite -open
