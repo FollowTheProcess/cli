@@ -9,7 +9,7 @@ Commands:
   sub2	Do another thing
 
 Options:
-  -h, --help      Show help for test
+  -h, --help      Show help for test (default false)
   -v, --version   Show version info for test
 
 Use "test [command] -h/--help" for more information about a command.
