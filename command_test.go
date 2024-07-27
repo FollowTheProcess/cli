@@ -385,6 +385,11 @@ func TestOptionValidation(t *testing.T) {
 			options: []cli.Option{cli.Stderr(nil)},
 			errMsg:  "cannot set Stderr to nil",
 		},
+		{
+			name:    "pass nil all three",
+			options: []cli.Option{cli.Stdout(nil), cli.Stderr(nil), cli.Stdin(nil)},
+			errMsg:  "cannot set Stdout to nil\ncannot set Stderr to nil\ncannot set Stdin to nil",
+		},
 	}
 
 	for _, tt := range tests {
