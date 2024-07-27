@@ -440,3 +440,27 @@ func TestFlagValue(t *testing.T) {
 		)
 	})
 }
+
+func TestFlagNilSafety(t *testing.T) {
+	t.Run("with new", func(t *testing.T) {
+		// Should be impossible to make a nil pointer dereference when using .New
+		var bang *bool
+
+		flag := flag.New(bang, "bang", "b", false, "Nil go bang?")
+		test.False(t, flag.Get())
+		test.Equal(t, flag.String(), "false")
+		test.Equal(t, flag.Type(), "bool")
+	})
+
+	t.Run("composite literal", func(t *testing.T) {
+		// Users doing naughty things, should still be nil safe
+		flag := flag.Flag[bool]{}
+		test.False(t, flag.Get())
+		test.Equal(t, flag.String(), "")
+		test.Equal(t, flag.Type(), "")
+
+		err := flag.Set("true")
+		test.Err(t, err)
+		test.Equal(t, err.Error(), "cannot set value true, flag.value was nil")
+	})
+}

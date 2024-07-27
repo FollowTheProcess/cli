@@ -31,6 +31,9 @@ const (
 // and accepting arbitrary positional arguments from [os.Args] (with the command path stripped, equivalent to os.Args[1:]).
 func New(name string, options ...Option) (*Command, error) {
 	// Default implementation
+	if len(os.Args) < 2 { //nolint:mnd // We all know what this refers to
+		return nil, fmt.Errorf("bad arguments expected [<command> <args>...], got %v", os.Args)
+	}
 	cfg := &config{
 		flags:       pflag.NewFlagSet(name, pflag.ContinueOnError),
 		stdin:       os.Stdin,
