@@ -117,7 +117,7 @@ func Flag[T flag.Flaggable](p *T, name string, short string, value T, usage stri
 		if flag.Type() == "bool" {
 			defVal = "true"
 		}
-		cmd.Flags().AddFlag(&pflag.Flag{
+		cmd.flagSet().AddFlag(&pflag.Flag{
 			Name:        name,
 			Shorthand:   short,
 			Usage:       usage,

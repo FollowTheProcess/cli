@@ -12,13 +12,13 @@ import (
 )
 
 func TestExecute(t *testing.T) {
+	var force bool
 	tests := []struct {
-		cmd        *cli.Command                         // The command under test
-		customiser func(t *testing.T, cmd *cli.Command) // An optional function to customise the command e.g. add flags
-		name       string                               // Identifier of the test case
-		stdout     string                               // Desired output to stdout
-		stderr     string                               // Desired output to stderr
-		wantErr    bool                                 // Whether we want an error
+		cmd     *cli.Command // The command under test
+		name    string       // Identifier of the test case
+		stdout  string       // Desired output to stdout
+		stderr  string       // Desired output to stderr
+		wantErr bool         // Whether we want an error
 	}{
 		{
 			name: "simple",
@@ -39,20 +39,12 @@ func TestExecute(t *testing.T) {
 				"test",
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintf(cmd.Stdout(), "Oooh look, it ran, here are some args: %v\n", args)
-					force, err := cmd.Flags().GetBool("force")
-					if err != nil {
-						return err
-					}
 					fmt.Fprintf(cmd.Stdout(), "--force was: %v\n", force)
 					return nil
 				}),
 				cli.Args([]string{"arg1", "arg2", "--force"}),
+				cli.Flag(&force, "force", "f", false, "Force something"),
 			),
-			customiser: func(t *testing.T, cmd *cli.Command) {
-				// Set flags in the customiser
-				t.Helper()
-				cmd.Flags().BoolP("force", "f", false, "Force something")
-			},
 			stdout:  "Oooh look, it ran, here are some args: [arg1 arg2]\n--force was: true\n",
 			wantErr: false,
 		},
@@ -70,19 +62,12 @@ func TestExecute(t *testing.T) {
 				"test",
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintf(cmd.Stdout(), "Oooh look, it ran, here are some args: %v\n", args)
-					force, err := cmd.Flags().GetBool("force")
-					if err != nil {
-						return err
-					}
 					fmt.Fprintf(cmd.Stdout(), "--force was: %v\n", force)
 					return nil
 				}),
 				cli.Args([]string{"arg1", "arg2", "arg3", "-]force"}),
+				cli.Flag(&force, "force", "f", false, "Force something"),
 			),
-			customiser: func(t *testing.T, cmd *cli.Command) {
-				t.Helper()
-				cmd.Flags().BoolP("force", "f", false, "Force something")
-			},
 			wantErr: true,
 		},
 	}
@@ -95,11 +80,6 @@ func TestExecute(t *testing.T) {
 			cli.Stderr(stderr)(tt.cmd)
 			cli.Stdout(stdout)(tt.cmd)
 
-			// Customise if it's set
-			if tt.customiser != nil {
-				tt.customiser(t, tt.cmd)
-			}
-
 			err := tt.cmd.Execute()
 			test.WantErr(t, err, tt.wantErr)
 
@@ -110,17 +90,15 @@ func TestExecute(t *testing.T) {
 }
 
 func TestSubCommandExecute(t *testing.T) {
+	var (
+		force     bool
+		something string
+		deleteMe  bool
+		number    int
+	)
 	sub1 := cli.New(
 		"sub1",
 		cli.Run(func(cmd *cli.Command, args []string) error {
-			force, err := cmd.Flags().GetBool("force")
-			if err != nil {
-				return err
-			}
-			something, err := cmd.Flags().GetString("something")
-			if err != nil {
-				return err
-			}
 			if something == "" {
 				something = "<empty>"
 			}
@@ -133,33 +111,25 @@ func TestSubCommandExecute(t *testing.T) {
 			)
 			return nil
 		}),
+		cli.Flag(&force, "force", "f", false, "Force for sub1"),
+		cli.Flag(&something, "something", "s", "", "Something for sub1"),
 	)
-	sub1.Flags().BoolP("force", "f", false, "Force for sub1")
-	sub1.Flags().StringP("something", "s", "", "Something for sub1")
 
 	sub2 := cli.New(
 		"sub2",
 		cli.Run(func(cmd *cli.Command, args []string) error {
-			deleteFlag, err := cmd.Flags().GetBool("delete")
-			if err != nil {
-				return err
-			}
-			number, err := cmd.Flags().GetInt("number")
-			if err != nil {
-				return err
-			}
 			fmt.Fprintf(
 				cmd.Stdout(),
 				"Hello from sub2, my args were: %v, delete was %v, number was %d",
 				args,
-				deleteFlag,
+				deleteMe,
 				number,
 			)
 			return nil
 		}),
+		cli.Flag(&deleteMe, "delete", "d", false, "Delete for sub2"),
+		cli.Flag(&number, "number", "n", -1, "Number for sub2"),
 	)
-	sub2.Flags().BoolP("delete", "d", false, "Delete for sub2")
-	sub2.Flags().IntP("number", "n", -1, "Number for sub2")
 
 	root := cli.New(
 		"root",
@@ -210,7 +180,7 @@ func TestSubCommandExecute(t *testing.T) {
 
 			// Execute the command, we should see the sub commands get executed based on what args we provide
 			err := root.Execute()
-			test.Ok(t, err)
+			test.WantErr(t, err, tt.wantErr)
 
 			test.Equal(t, stdout.String(), tt.stdout)
 			test.Equal(t, stderr.String(), tt.stderr)

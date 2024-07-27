@@ -44,15 +44,14 @@ func New(name string, options ...Option) *Command {
 		allowArgs:   AnyArgs,
 	}
 
-	// Add the built in help and version flags
-	// TODO: Replace with our functional options and see if it works still
-	cmd.Flags().BoolP("help", "h", false, fmt.Sprintf("Show help for %s", name))
-	cmd.Flags().BoolP("version", "v", false, fmt.Sprintf("Show version info for %s", name))
-
 	// Apply the options
 	for _, option := range options {
 		option(cmd)
 	}
+
+	// Add the built in help and version flags
+	Flag(&cmd.helpRequested, "help", "h", false, fmt.Sprintf("Show help for %s", cmd.name))(cmd)
+	Flag(&cmd.versionRequested, "version", "v", false, fmt.Sprintf("Show version info for %s", cmd.name))(cmd)
 
 	return cmd
 }
@@ -124,6 +123,12 @@ type Command struct {
 	//
 	// If the command has no subcommands, this slice will be nil.
 	subcommands []*Command
+
+	// helpRequested is whether or not the --help flag was used.
+	helpRequested bool
+
+	// versionRequested is whether or not the --version flag was used.
+	versionRequested bool
 }
 
 // Example is a single usage example for a [Command].
@@ -177,36 +182,22 @@ func (c *Command) Execute() error {
 	// cmd here will be c.
 	cmd, args := findRequestedCommand(c, c.args)
 
-	if err := cmd.Flags().Parse(args); err != nil {
+	if err := cmd.flagSet().Parse(args); err != nil {
 		return fmt.Errorf("failed to parse command flags: %w", err)
-	}
-
-	// Check if we should be responding to -h/--help
-	helpCalled, err := cmd.Flags().GetBool("help")
-	if err != nil {
-		// We shouldn't ever get here because we define a default for help
-		return fmt.Errorf("could not parse help flag: %w", err)
 	}
 
 	// If -h/--help was called, call the defined helpFunc and exit so that
 	// the run function is never called.
-	if helpCalled {
-		if err = defaultHelp(cmd); err != nil {
+	if cmd.helpRequested {
+		if err := defaultHelp(cmd); err != nil {
 			return fmt.Errorf("help function returned an error: %w", err)
 		}
 		return nil
 	}
 
-	// Check if we should be responding to -v/--version
-	versionCalled, err := cmd.Flags().GetBool("version")
-	if err != nil {
-		// Again, shouldn't ever get here
-		return fmt.Errorf("could not parse version flag: %w", err)
-	}
-
 	// If -v/--version was called, call the defined versionFunc and exit so that
 	// the run function is never called
-	if versionCalled {
+	if cmd.versionRequested {
 		if cmd.versionFunc == nil {
 			return errors.New("versionFunc was nil")
 		}
@@ -225,7 +216,7 @@ func (c *Command) Execute() error {
 	}
 
 	// Validate the arguments using the command's allowedArgs function
-	argsWithoutFlags := cmd.Flags().Args()
+	argsWithoutFlags := cmd.flagSet().Args()
 	if err := cmd.allowArgs(cmd, argsWithoutFlags); err != nil {
 		return err
 	}
@@ -244,9 +235,7 @@ func (c *Command) Execute() error {
 }
 
 // Flags returns the set of flags for the command.
-//
-// TODO: Make it so we can add flags via the functional options pattern.
-func (c *Command) Flags() *pflag.FlagSet {
+func (c *Command) flagSet() *pflag.FlagSet {
 	if c == nil {
 		// Only thing to do really, slightly more helpful than a generic
 		// nil pointer dereference
@@ -283,7 +272,7 @@ func (c *Command) root() *Command {
 
 // hasFlag returns whether the command has a flag of the given name defined.
 func (c *Command) hasFlag(name string) bool {
-	flag := c.Flags().Lookup(name)
+	flag := c.flagSet().Lookup(name)
 	if flag == nil {
 		return false
 	}
@@ -296,7 +285,7 @@ func (c *Command) hasShortFlag(name string) bool {
 		return false
 	}
 
-	flag := c.Flags().ShorthandLookup(name[:1])
+	flag := c.flagSet().ShorthandLookup(name[:1])
 	if flag == nil {
 		return false
 	}
@@ -487,7 +476,7 @@ func defaultHelp(cmd *Command) error {
 		s.WriteString("\n\n")
 	}
 	s.WriteString("Options:\n")
-	s.WriteString(cmd.Flags().FlagUsages())
+	s.WriteString(cmd.flagSet().FlagUsages())
 
 	// Subcommand help
 	s.WriteString("\n")
