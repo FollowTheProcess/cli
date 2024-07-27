@@ -45,10 +45,27 @@ func Long(long string) Option {
 	}
 }
 
-// Examples is an [Option] that sets the examples for a [Command].
-func Examples(examples ...Example) Option {
+// Example is an [Option] that adds an example to a [Command].
+//
+// Examples take the form of an explanatory comment and a command
+// showing the command to the CLI, these will show up in the help text.
+//
+// For example, a program called "myrm" that deletes files and directories
+// might have an example declared as follows:
+//
+//	cli.Example("Delete a folder recursively without confirmation", "myrm ./dir --recursive --force")
+//
+// Which would show up in the help text like so:
+//
+//	Examples:
+//	# Delete a folder recursively without confirmation
+//	$ myrm ./dir --recursive --force
+//
+// An arbitrary number of examples can be added to a [Command], each call to Example
+// will add another example.
+func Example(comment, command string) Option {
 	return func(cmd *Command) {
-		cmd.example = examples
+		cmd.examples = append(cmd.examples, example{comment: comment, command: command})
 	}
 }
 
