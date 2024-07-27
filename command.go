@@ -44,7 +44,7 @@ func New(name string, options ...Option) (*Command, error) {
 		version:     "dev",
 		versionFunc: defaultVersion,
 		short:       "A placeholder for something cool",
-		allowArgs:   AnyArgs,
+		allowArgs:   AnyArgs(),
 	}
 
 	// Apply the options, gathering up all the validation errors
