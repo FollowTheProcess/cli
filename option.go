@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"slices"
 	"unicode"
 	"unicode/utf8"
 
@@ -263,12 +264,18 @@ func VersionFunc(fn func(cmd *Command) error) Option {
 
 // SubCommands is an [Option] that attaches 1 or more subcommands to the command being configured.
 func SubCommands(subcommands ...*Command) Option {
-	// TODO: We need to handle some potential misconfigurations here
-	// 1) The user could attempt to add the command itself as a subcommand
-	// 2) The user could try and add a duplicate subcommand, it shouldn't appear in the slice twice
+	// Note: In Cobra the AddCommand method has to protect against a command adding itself
+	// as a subcommand, this is impossible in cli due to the functional options pattern, the
+	// root command will not exist as a variable inside the call to cli.New.
+
 	f := func(cfg *config) error {
 		// Add the subcommands to the command this is being called on
 		cfg.subcommands = append(cfg.subcommands, subcommands...)
+
+		// Any duplicates in the list of subcommands (by name) is an error
+		if name, found := anyDuplicates(cfg.subcommands...); found {
+			return fmt.Errorf("subcommand %q already defined", name)
+		}
 		return nil
 	}
 	return option(f)
@@ -302,10 +309,6 @@ func Allow(validator ArgValidator) Option {
 //	var force bool
 //	cli.New("rm", cli.Flag(&force, "force", "f", false, "Force deletion without confirmation"))
 func Flag[T flag.Flaggable](p *T, name string, short string, value T, usage string) Option {
-	// TODO: Some potential errors here although pflag just panics on most of them
-	// when replacing with my own version, I need to handle the errors properly here like
-	// duplicate flags etc.
-
 	f := func(cfg *config) error {
 		if cfg.flags.Lookup(name) != nil {
 			return fmt.Errorf("flag %q already defined", name)
@@ -345,4 +348,17 @@ func Flag[T flag.Flaggable](p *T, name string, short string, value T, usage stri
 		return nil
 	}
 	return option(f)
+}
+
+// anyDuplicates checks the list of commands for ones with duplicate names, if a duplicate
+// is found, it's name and true are returned, else "", false.
+func anyDuplicates(cmds ...*Command) (string, bool) {
+	seen := make([]string, 0, len(cmds))
+	for _, cmd := range cmds {
+		if slices.Contains(seen, cmd.name) {
+			return cmd.name, true
+		}
+		seen = append(seen, cmd.name)
+	}
+	return "", false
 }

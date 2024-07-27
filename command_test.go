@@ -469,3 +469,22 @@ func TestOptionValidation(t *testing.T) {
 		})
 	}
 }
+
+func TestDuplicateSubCommands(t *testing.T) {
+	sub1, err := cli.New("sub1")
+	test.Ok(t, err)
+
+	sub2, err := cli.New("sub2")
+	test.Ok(t, err)
+
+	sub1Again, err := cli.New("sub1")
+	test.Ok(t, err) // Shouldn't error at this point as it's not joined up
+
+	_, err = cli.New(
+		"root",
+		cli.SubCommands(sub1, sub2, sub1Again), // This should cause the error
+	)
+
+	test.Err(t, err)
+	test.Equal(t, err.Error(), `subcommand "sub1" already defined`)
+}
