@@ -92,8 +92,6 @@ func (f Flag[T]) String() string { //nolint:gocyclo // No other way of doing thi
 	}
 
 	switch typ := any(f.value).(type) {
-	case pflag.Value:
-		return typ.String()
 	case *int:
 		return formatInt(*typ)
 	case *int8:
@@ -145,8 +143,6 @@ func (f Flag[T]) Type() string { //nolint:gocyclo // No other way of doing this 
 		return ""
 	}
 	switch typ := any(f.value).(type) {
-	case pflag.Value:
-		return typ.Type()
 	case *int:
 		return "int"
 	case *int8:
@@ -186,15 +182,16 @@ func (f Flag[T]) Type() string { //nolint:gocyclo // No other way of doing this 
 	case *net.IP:
 		return "ip"
 	default:
-		return fmt.Sprintf("%T", *f.value)
+		return fmt.Sprintf("%T", typ)
 	}
 }
 
 // Set sets a [Flag] value based on string input, i.e. parsing from the command line.
 func (f Flag[T]) Set(str string) error { //nolint:gocyclo // No other way of doing this realistically
+	if f.value == nil {
+		return fmt.Errorf("cannot set value %s, flag.value was nil", str)
+	}
 	switch typ := any(f.value).(type) {
-	case pflag.Value:
-		return typ.Set(str)
 	case *int:
 		val, err := parseInt[int](0)(str)
 		if err != nil {

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"slices"
 	"testing"
@@ -26,6 +27,7 @@ func TestExecute(t *testing.T) {
 			stderr: "",
 			options: []cli.Option{
 				cli.Args([]string{"hello", "there"}),
+				cli.Stdin(os.Stdin), // Set stdin for the lols
 			},
 			wantErr: false,
 		},
