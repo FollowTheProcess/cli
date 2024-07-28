@@ -281,6 +281,11 @@ func VersionFunc(fn func(cmd *Command) error) Option {
 }
 
 // SubCommands is an [Option] that attaches 1 or more subcommands to the command being configured.
+//
+// Sub commands must have unique names, any duplicates will result in an error.
+//
+// This option is additive and can be called as many times as desired, subcommands are
+// effectively appended on every call.
 func SubCommands(subcommands ...*Command) Option {
 	// Note: In Cobra the AddCommand method has to protect against a command adding itself
 	// as a subcommand, this is impossible in cli due to the functional options pattern, the
@@ -323,6 +328,8 @@ func Allow(validator ArgValidator) Option {
 //
 // The variable is set when the flag is parsed during command execution. The value provided
 // in the call to [Flag] is used as the default value.
+//
+// To add a long flag only (e.g. --delete with no -d option), simply pass "" for short.
 //
 //	// Add a force flag
 //	var force bool
