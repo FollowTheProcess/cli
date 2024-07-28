@@ -116,6 +116,27 @@ func TestSubCommandExecute(t *testing.T) {
 			args:    []string{"sub1", "my", "subcommand", "args", "--force", "--something", "here"},
 			wantErr: false,
 		},
+		{
+			name:    "invoke sub1 with arg terminator",
+			stdout:  "Hello from sub1, my args were: [my subcommand args more args here], force was true, something was here",
+			stderr:  "",
+			args:    []string{"sub1", "my", "subcommand", "args", "--force", "--something", "here", "--", "more", "args", "here"},
+			wantErr: false,
+		},
+		{
+			name:    "invoke sub1 with sub1 in the arg list",
+			stdout:  "Hello from sub1, my args were: [my sub1 args sub1 more args here], force was true, something was here",
+			stderr:  "",
+			args:    []string{"sub1", "my", "sub1", "args", "sub1", "--force", "--something", "here", "--", "more", "args", "here"},
+			wantErr: false,
+		},
+		{
+			name:    "invoke sub1 with sub1 as a flag value",
+			stdout:  "Hello from sub1, my args were: [my subcommand args more args here], force was true, something was sub2",
+			stderr:  "",
+			args:    []string{"sub1", "my", "subcommand", "args", "--force", "--something", "sub2", "more", "args", "here"},
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {

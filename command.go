@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"strings"
 	"text/tabwriter"
 
@@ -316,7 +317,7 @@ func findRequestedCommand(cmd *Command, args []string) (*Command, []string) {
 	// the right arguments
 	next := findSubCommand(cmd, nextSubCommand)
 	if next != nil {
-		return findRequestedCommand(next, argsMinusFirstX(cmd, args, nextSubCommand))
+		return findRequestedCommand(next, argsMinusFirstX(args, nextSubCommand))
 	}
 
 	// Found it
@@ -325,35 +326,12 @@ func findRequestedCommand(cmd *Command, args []string) (*Command, []string) {
 
 // argsMinusFirstX removes only the first x from args.  Otherwise, commands that look like
 // openshift admin policy add-role-to-user admin my-user, lose the admin argument (arg[4]).
-// Special care needs to be taken not to remove a flag value.
-func argsMinusFirstX(cmd *Command, args []string, x string) []string {
-	if len(args) == 0 {
-		return args
-	}
-
-Loop:
-	for pos := 0; pos < len(args); pos++ {
-		s := args[pos]
-		switch {
-		case s == "--":
-			// -- means we have reached the end of the parseable args. Break out of the loop now.
-			break Loop
-		case strings.HasPrefix(s, "--") && !strings.Contains(s, "=") && !cmd.hasFlag(s[2:]):
-			fallthrough
-		case strings.HasPrefix(s, "-") && !strings.Contains(s, "=") && len(s) == 2 && !cmd.hasShortFlag(s[1:]):
-			// This is a flag without a default value, and an equal sign is not used. Increment pos in order to skip
-			// over the next arg, because that is the value of this flag.
-			pos++
-			continue
-		case !strings.HasPrefix(s, "-"):
-			// This is not a flag or a flag value. Check to see if it matches what we're looking for, and if so,
-			// return the args, excluding the one at this position.
-			if s == x {
-				ret := make([]string, 0, len(args)-1)
-				ret = append(ret, args[:pos]...)
-				ret = append(ret, args[pos+1:]...)
-				return ret
-			}
+func argsMinusFirstX(args []string, x string) []string {
+	// Note: this is borrowed from Cobra but ours is a lot simpler because we don't support
+	// persistent flags
+	for i, arg := range args {
+		if arg == x {
+			return slices.Delete(args, i, i+1)
 		}
 	}
 	return args
@@ -380,28 +358,26 @@ func stripFlags(cmd *Command, args []string) []string {
 
 	argsWithoutFlags := []string{}
 
-Loop:
 	for len(args) > 0 {
 		arg := args[0]
 		args = args[1:]
 		switch {
 		case arg == "--":
 			// "--" terminates the flags
-			break Loop
+			return argsWithoutFlags
 		case strings.HasPrefix(arg, "--") && !strings.Contains(arg, "=") && !cmd.hasFlag(arg[2:]):
-			// If '--flag arg' then
-			// delete arg from args.
+			// If '--flag arg' then delete arg from args
 			fallthrough // (do the same as below)
 		case strings.HasPrefix(arg, "-") && !strings.Contains(arg, "=") && len(arg) == 2 && !cmd.hasShortFlag(arg[1:]):
-			// If '-f arg' then
-			// delete 'arg' from args or break the loop if len(args) <= 1.
+			// If '-f arg' then delete 'arg' from args or break the loop if len(args) <= 1.
 			if len(args) <= 1 {
-				break Loop
+				return argsWithoutFlags
 			} else {
 				args = args[1:]
 				continue
 			}
 		case arg != "" && !strings.HasPrefix(arg, "-"):
+			// We have a valid positional arg
 			argsWithoutFlags = append(argsWithoutFlags, arg)
 		}
 	}
