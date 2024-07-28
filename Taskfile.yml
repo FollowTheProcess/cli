@@ -4,6 +4,7 @@ version: "3"
 
 vars:
   COV_DATA: coverage.out
+  PACKAGE: github.com/FollowTheProcess/cli
 
 tasks:
   default:
@@ -62,7 +63,7 @@ tasks:
         msg: nilaway not installed, see https://github.com/uber-go/nilaway
     cmds:
       - golangci-lint run --fix
-      - nilaway -include-pkgs="github.com/FollowTheProcess/cli" ./...
+      - nilaway -include-pkgs="{{.PACKAGE}}" ./...
 
   docs:
     desc: Render the pkg docs locally
