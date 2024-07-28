@@ -1,3 +1,5 @@
+A placeholder for something cool
+
 Usage: test [OPTIONS] ARGS...
 
 Options:
