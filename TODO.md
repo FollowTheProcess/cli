@@ -9,9 +9,9 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [x] Better document the functional options, e.g. what happens if we call each one multiple times
 - [x] Change `cli.Example` to be one at a time and append rather than pass a slice
 - [x] Rename `cmd.example` to `cmd.examples`
-- [ ] Clean up/rewrite some of the functions borrowed from Cobra e.g. `argsMinusFirstX`
+- [x] Clean up/rewrite some of the functions borrowed from Cobra e.g. `argsMinusFirstX`
 - [ ] Clean up and optimise the parsing logic
-- [ ] Remove the `Loop` tag from parsing functions
+- [x] Remove the `Loop` tag from parsing functions
 - [ ] More full test programs as integration tests
 - [ ] Write a package example doc
 - [ ] Make the help output as pretty as possible, see [clap] for inspiration as their help is so nice

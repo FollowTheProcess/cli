@@ -137,6 +137,13 @@ func TestSubCommandExecute(t *testing.T) {
 			args:    []string{"sub1", "my", "subcommand", "args", "--force", "--something", "sub2", "more", "args", "here"},
 			wantErr: false,
 		},
+		{
+			name:    "invoke root with no args",
+			stdout:  "",
+			stderr:  "",
+			args:    []string{},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -204,8 +211,10 @@ func TestSubCommandExecute(t *testing.T) {
 			err = root.Execute()
 			test.WantErr(t, err, tt.wantErr)
 
-			test.Equal(t, stdoutBuf.String(), tt.stdout)
-			test.Equal(t, stderrBuf.String(), tt.stderr)
+			if !tt.wantErr {
+				test.Equal(t, stdoutBuf.String(), tt.stdout)
+				test.Equal(t, stderrBuf.String(), tt.stderr)
+			}
 		})
 	}
 }
@@ -531,4 +540,20 @@ func TestDuplicateSubCommands(t *testing.T) {
 
 	test.Err(t, err)
 	test.Equal(t, err.Error(), `subcommand "sub1" already defined`)
+}
+
+func TestCommandNoRunNoSub(t *testing.T) {
+	root, err := cli.New("root")
+	test.Ok(t, err)
+
+	err = root.Execute()
+	if err != nil {
+		test.Equal(
+			t,
+			err.Error(),
+			"command root has no subcommands and no run function, a command must either be runnable or have subcommands",
+		)
+	} else {
+		test.Err(t, err)
+	}
 }
