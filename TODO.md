@@ -15,5 +15,6 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [ ] More full test programs as integration tests
 - [ ] Write a package example doc
 - [ ] Make the help output as pretty as possible, see [clap] for inspiration as their help is so nice
+- [ ] Implement something nice to do the whole `-- <bonus args>` thing, maybe `ExtraArgs`?
 
 [clap]: https://github.com/clap-rs/clap
