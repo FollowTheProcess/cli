@@ -33,34 +33,37 @@ const (
 // Options will validate their inputs where possible and return errors which will be bubbled up through New
 // to aid debugging invalid configuration.
 func New(name string, options ...Option) (*Command, error) {
-	// Default implementation
+	// This was actually a nilaway thing
 	if len(os.Args) < 2 { //nolint:mnd // We all know what this refers to
 		return nil, fmt.Errorf("bad arguments expected [<command> <args>...], got %v", os.Args)
 	}
-	cfg := &config{
-		flags:       pflag.NewFlagSet(name, pflag.ContinueOnError),
-		stdin:       os.Stdin,
-		stdout:      os.Stdout,
-		stderr:      os.Stderr,
-		args:        os.Args[1:],
-		name:        name,
-		version:     "dev",
-		versionFunc: defaultVersion,
-		short:       "A placeholder for something cool",
-		allowArgs:   AnyArgs(),
+
+	// Default implementation
+	cfg := config{
+		flags:        pflag.NewFlagSet(name, pflag.ContinueOnError),
+		stdin:        os.Stdin,
+		stdout:       os.Stdout,
+		stderr:       os.Stderr,
+		args:         os.Args[1:],
+		name:         name,
+		version:      "dev",
+		versionFunc:  defaultVersion,
+		short:        "A placeholder for something cool",
+		argValidator: AnyArgs(),
 	}
 
 	// Apply the options, gathering up all the validation errors
-	// to report in one go
-	var errs []error
+	// to report in one go. Each option returns only one error
+	// so this can be pre-allocated.
+	errs := make([]error, 0, len(options))
 	for _, option := range options {
-		err := option.apply(cfg)
+		err := option.apply(&cfg)
 		if err != nil {
 			errs = append(errs, err)
 		}
 	}
 
-	if len(errs) != 0 {
+	if len(errs) > 0 {
 		return nil, errors.Join(errs...)
 	}
 
@@ -149,20 +152,7 @@ type example struct {
 
 // String implements [fmt.Stringer] for [Example].
 func (e example) String() string {
-	switch {
-	case e.comment == "" && e.command == "":
-		// Empty example, return empty string
-		return ""
-	case e.command == "":
-		// Empty command, show just the comment
-		return fmt.Sprintf("\n# %s\n", e.comment)
-	case e.comment == "":
-		// No comment, just show command on it's own
-		return fmt.Sprintf("\n$ %s\n", e.command)
-	default:
-		// Both passed, show the full example
-		return fmt.Sprintf("\n# %s\n$ %s\n", e.comment, e.command)
-	}
+	return fmt.Sprintf("\n# %s\n$ %s\n", e.comment, e.command)
 }
 
 // Execute parses the flags and arguments, and invokes the Command's Run
