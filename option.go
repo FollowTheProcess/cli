@@ -30,21 +30,21 @@ func (o option) apply(cfg *config) error {
 
 // config represents the internal configuration of a [Command].
 type config struct {
-	stdin       io.Reader
-	stdout      io.Writer
-	stderr      io.Writer
-	run         func(cmd *Command, args []string) error
-	flags       *pflag.FlagSet
-	versionFunc func(cmd *Command) error
-	parent      *Command
-	allowArgs   func(cmd *Command, args []string) error
-	name        string
-	short       string
-	long        string
-	version     string
-	examples    []example
-	args        []string
-	subcommands []*Command
+	stdin        io.Reader
+	stdout       io.Writer
+	stderr       io.Writer
+	run          func(cmd *Command, args []string) error
+	flags        *pflag.FlagSet
+	versionFunc  func(cmd *Command) error
+	parent       *Command
+	argValidator ArgValidator
+	name         string
+	short        string
+	long         string
+	version      string
+	examples     []example
+	args         []string
+	subcommands  []*Command
 }
 
 // build builds an returns a Command from the config.
@@ -57,7 +57,7 @@ func (c *config) build() *Command {
 		flags:        c.flags,
 		versionFunc:  c.versionFunc,
 		parent:       c.parent,
-		argValidator: c.allowArgs,
+		argValidator: c.argValidator,
 		name:         c.name,
 		short:        c.short,
 		long:         c.long,
@@ -145,6 +145,9 @@ func Stderr(stderr io.Writer) Option {
 //	cli.New("rm", cli.Short("Delete files and directories"))
 func Short(short string) Option {
 	f := func(cfg *config) error {
+		if short == "" {
+			return errors.New("cannot set command short description to an empty string")
+		}
 		cfg.short = short
 		return nil
 	}
@@ -160,6 +163,9 @@ func Short(short string) Option {
 //	cli.New("rm", cli.Long("... lots of text here"))
 func Long(long string) Option {
 	f := func(cfg *config) error {
+		if long == "" {
+			return errors.New("cannot set command long description to an empty string")
+		}
 		cfg.long = long
 		return nil
 	}
@@ -187,6 +193,16 @@ func Example(comment, command string) Option {
 	// TODO: Make sure both comment and command are not empty, then can ditch the
 	// complexity in example.String()
 	f := func(cfg *config) error {
+		errs := make([]error, 0, 2) //nolint:mnd // 2 here is because we have two arguments
+		if comment == "" {
+			errs = append(errs, errors.New("example comment cannot be empty"))
+		}
+		if command == "" {
+			errs = append(errs, errors.New("example command cannot be empty"))
+		}
+		if len(errs) > 0 {
+			return errors.Join(errs...)
+		}
 		cfg.examples = append(cfg.examples, example{comment: comment, command: command})
 		return nil
 	}
@@ -288,7 +304,7 @@ func SubCommands(subcommands ...*Command) Option {
 // You provide a validator function that returns an error if it encounters invalid arguments, and it will
 // be run for you, passing in the non-flag arguments to the [Command] that was called.
 //
-// Successive calls overwrite previous ones.
+// Successive calls overwrite previous ones, use [Combine] to compose multiple validators.
 //
 //	// No positional arguments allowed
 //	cli.New("test", cli.Allow(cli.NoArgs()))
@@ -297,7 +313,7 @@ func Allow(validator ArgValidator) Option {
 		if validator == nil {
 			return errors.New("cannot set Allow to a nil ArgValidator")
 		}
-		cfg.allowArgs = validator
+		cfg.argValidator = validator
 		return nil
 	}
 	return option(f)
@@ -305,7 +321,8 @@ func Allow(validator ArgValidator) Option {
 
 // Flag is an [Option] that adds a flag to a [Command], storing its value in a variable.
 //
-// The variable is set when the flag is parsed during command execution.
+// The variable is set when the flag is parsed during command execution. The value provided
+// in the call to [Flag] is used as the default value.
 //
 //	// Add a force flag
 //	var force bool
@@ -339,6 +356,9 @@ func Flag[T flag.Flaggable](p *T, name string, short string, value T, usage stri
 		if flag.Type() == "bool" {
 			defVal = "true"
 		}
+
+		// Annoyingly pflag does the same checks we've done above but will panic on error, hopefully
+		// the above checks will come in handy when I implement my own flag parsing
 		cfg.flags.AddFlag(&pflag.Flag{
 			Name:        name,
 			Shorthand:   short,
@@ -357,6 +377,9 @@ func Flag[T flag.Flaggable](p *T, name string, short string, value T, usage stri
 func anyDuplicates(cmds ...*Command) (string, bool) {
 	seen := make([]string, 0, len(cmds))
 	for _, cmd := range cmds {
+		if cmd == nil {
+			continue
+		}
 		if slices.Contains(seen, cmd.name) {
 			return cmd.name, true
 		}

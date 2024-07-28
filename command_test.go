@@ -237,8 +237,6 @@ func TestHelp(t *testing.T) {
 			name: "with no description",
 			options: []cli.Option{
 				cli.Args([]string{"--help"}),
-				cli.Short(""),
-				cli.Long(""),
 			},
 			golden:  "no-about.txt",
 			wantErr: false,
@@ -458,6 +456,31 @@ func TestOptionValidation(t *testing.T) {
 			name:    "short is non ascii",
 			options: []cli.Option{cli.Flag(new(bool), "short", "本", false, "Set something")},
 			errMsg:  `shorthand for flag "short" is an invalid character, must be a single ASCII letter, got "本"`,
+		},
+		{
+			name:    "example comment empty",
+			options: []cli.Option{cli.Example("", "command here")},
+			errMsg:  "example comment cannot be empty",
+		},
+		{
+			name:    "example command empty",
+			options: []cli.Option{cli.Example("comment here", "")},
+			errMsg:  "example command cannot be empty",
+		},
+		{
+			name:    "example both empty",
+			options: []cli.Option{cli.Example("", "")},
+			errMsg:  "example comment cannot be empty\nexample command cannot be empty",
+		},
+		{
+			name:    "empty short description",
+			options: []cli.Option{cli.Short("")},
+			errMsg:  "cannot set command short description to an empty string",
+		},
+		{
+			name:    "empty long description",
+			options: []cli.Option{cli.Long("")},
+			errMsg:  "cannot set command long description to an empty string",
 		},
 	}
 
