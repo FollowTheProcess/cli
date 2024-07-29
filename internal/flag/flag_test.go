@@ -515,7 +515,7 @@ func TestFlagValue(t *testing.T) {
 	})
 }
 
-func TestFlagNameValidation(t *testing.T) {
+func TestFlagValidation(t *testing.T) {
 	tests := []struct {
 		name     string // Name of the test case
 		flagName string // Input flag name
@@ -527,6 +527,12 @@ func TestFlagNameValidation(t *testing.T) {
 			name:     "short is uppercase",
 			flagName: "delete",
 			short:    'D',
+			wantErr:  false,
+		},
+		{
+			name:     "no shorthand",
+			flagName: "delete",
+			short:    flag.NoShortHand,
 			wantErr:  false,
 		},
 		{
