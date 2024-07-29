@@ -3,7 +3,7 @@ package cli_test
 import (
 	"bytes"
 	"errors"
-	"flag"
+	goflag "flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,12 +11,13 @@ import (
 	"testing"
 
 	"github.com/FollowTheProcess/cli"
+	"github.com/FollowTheProcess/cli/internal/flag"
 	"github.com/FollowTheProcess/test"
 )
 
 var (
-	debug  = flag.Bool("debug", false, "Print debug output during tests")
-	update = flag.Bool("update", false, "Update golden files")
+	debug  = goflag.Bool("debug", false, "Print debug output during tests")
+	update = goflag.Bool("update", false, "Update golden files")
 )
 
 func TestExecute(t *testing.T) {
@@ -72,7 +73,7 @@ func TestExecute(t *testing.T) {
 					fmt.Fprintf(cmd.Stdout(), "My arguments were: %v\nForce was: %v\n", args, force)
 					return nil
 				}),
-				cli.Flag(&force, "force", "f", false, "Force something"),
+				cli.Flag(&force, "force", 'f', false, "Force something"),
 			}
 
 			cmd, err := cli.New("test", slices.Concat(options, tt.options)...)
@@ -173,8 +174,8 @@ func TestSubCommandExecute(t *testing.T) {
 					return nil
 				}),
 
-				cli.Flag(&force, "force", "f", false, "Force for sub1"),
-				cli.Flag(&something, "something", "s", "", "Something for sub1"),
+				cli.Flag(&force, "force", 'f', false, "Force for sub1"),
+				cli.Flag(&something, "something", 's', "", "Something for sub1"),
 			)
 
 			test.Ok(t, err)
@@ -191,8 +192,8 @@ func TestSubCommandExecute(t *testing.T) {
 					)
 					return nil
 				}),
-				cli.Flag(&deleteMe, "delete", "d", false, "Delete for sub2"),
-				cli.Flag(&number, "number", "n", -1, "Number for sub2"),
+				cli.Flag(&deleteMe, "delete", 'd', false, "Delete for sub2"),
+				cli.Flag(&number, "number", 'n', -1, "Number for sub2"),
 			)
 
 			test.Ok(t, err)
@@ -289,8 +290,8 @@ func TestHelp(t *testing.T) {
 				cli.Short("A cool CLI to do things"),
 				cli.Long("A longer, probably multiline description"),
 				cli.SubCommands(sub1, sub2),
-				cli.Flag(new(bool), "delete", "d", false, "Delete something"),
-				cli.Flag(new(int), "count", "", -1, "Count something"),
+				cli.Flag(new(bool), "delete", 'd', false, "Delete something"),
+				cli.Flag(new(int), "count", flag.NoShortHand, -1, "Count something"),
 			},
 			golden:  "subcommands-flags.txt",
 			wantErr: false,
@@ -467,8 +468,8 @@ func TestOptionValidation(t *testing.T) {
 		{
 			name: "flag already exists",
 			options: []cli.Option{
-				cli.Flag(new(int), "count", "c", 0, "Count something"),
-				cli.Flag(new(int), "count", "c", 0, "Count something (again)"),
+				cli.Flag(new(int), "count", 'c', 0, "Count something"),
+				cli.Flag(new(int), "count", 'c', 0, "Count something (again)"),
 			},
 			errMsg: `flag "count" already defined`,
 		},
