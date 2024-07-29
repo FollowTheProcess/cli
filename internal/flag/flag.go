@@ -20,6 +20,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 	"unsafe"
 
 	"github.com/spf13/pflag"
@@ -60,7 +62,14 @@ type Flag[T Flaggable] struct {
 //
 //	var force bool
 //	flag.New(&force, "force", "f", false, "Force deletion without confirmation")
-func New[T Flaggable](p *T, name string, short string, value T, usage string) Flag[T] {
+func New[T Flaggable](p *T, name string, short string, value T, usage string) (Flag[T], error) {
+	if err := validateFlagName(name); err != nil {
+		return Flag[T]{}, fmt.Errorf("invalid flag name: %w", err)
+	}
+	if err := validateFlagShort(short); err != nil {
+		return Flag[T]{}, fmt.Errorf("invalid shorthand for flag %q: %w", name, err)
+	}
+
 	if p == nil {
 		p = new(T)
 	}
@@ -73,7 +82,7 @@ func New[T Flaggable](p *T, name string, short string, value T, usage string) Fl
 		short: short,
 	}
 
-	return flag
+	return flag, nil
 }
 
 // Get gets a [Flag] value.
@@ -349,4 +358,58 @@ func (f Flag[T]) Set(str string) error { //nolint:gocyclo // No other way of doi
 // compiler to be equivalent.
 func cast[T2 any, T1 any](v *T1) *T2 {
 	return (*T2)(unsafe.Pointer(v))
+}
+
+// validateFlagName ensures a flag name is valid, returning an error if it's not.
+//
+// Flags names must be all lower case ASCII letters, a hypen separator is allowed e.g. "set-default"
+// but this must be in between letters, not leading or trailing.
+func validateFlagName(name string) error {
+	if name == "" {
+		return errors.New("must not be empty")
+	}
+	before, after, found := strings.Cut(name, "-")
+
+	// Hyphen must be in between "words" like "set-default"
+	// we can't have "-default" or "default-"
+	if found && after == "" {
+		return fmt.Errorf("trailing hyphen: %q", name)
+	}
+
+	if found && before == "" {
+		return fmt.Errorf("leading hyphen: %q", name)
+	}
+	for _, char := range name {
+		// Only ASCII characters allowed
+		if char > unicode.MaxASCII {
+			return fmt.Errorf("non ascii character: %q", string(char))
+		}
+		// Only non-letter character allowed is a hyphen
+		if !unicode.IsLetter(char) && char != '-' {
+			return fmt.Errorf("not ascii letter: %q", string(char))
+		}
+		// Any upper case letters are not allowed
+		if unicode.IsLetter(char) && !unicode.IsLower(char) {
+			return fmt.Errorf("upper case character %q", string(char))
+		}
+	}
+
+	return nil
+}
+
+func validateFlagShort(short string) error {
+	// len(short) > 1 means an error, shorthand must be a single character
+	if length := utf8.RuneCountInString(short); length > 1 {
+		return fmt.Errorf("must be a single ASCII letter, got %q which has %d letters", short, length)
+	}
+
+	if short != "" {
+		// Shorthand must be a valid ASCII letter
+		char, _ := utf8.DecodeRuneInString(short)
+		if char == utf8.RuneError || char > unicode.MaxASCII || !unicode.IsLetter(char) {
+			return fmt.Errorf("invalid character, must be a single ASCII letter, got %q", string(char))
+		}
+	}
+
+	return nil
 }
