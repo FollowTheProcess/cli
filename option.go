@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"io"
 	"slices"
-	"strings"
-	"unicode"
-	"unicode/utf8"
 
 	"github.com/FollowTheProcess/cli/internal/flag"
 	"github.com/spf13/pflag"
@@ -337,35 +334,16 @@ func Allow(validator ArgValidator) Option {
 //	cli.New("rm", cli.Flag(&force, "force", "f", false, "Force deletion without confirmation"))
 func Flag[T flag.Flaggable](p *T, name string, short string, value T, usage string) Option {
 	f := func(cfg *config) error {
-		if name == "" {
-			return errors.New("flag names must not be empty")
-		}
-		if err := validateFlagName(name); err != nil {
-			return fmt.Errorf("invalid flag name: %w", err)
-		}
 		if cfg.flags.Lookup(name) != nil {
 			return fmt.Errorf("flag %q already defined", name)
 		}
 
-		// len(short) > 1 means an error, shorthand must be a single character
-		if length := utf8.RuneCountInString(short); length > 1 {
-			return fmt.Errorf("shorthand for flag %q must be a single ASCII letter, got %q which has %d letters", name, short, length)
-		}
-
-		if short != "" {
-			// Shorthand must be a valid ASCII letter
-			char, _ := utf8.DecodeRuneInString(short)
-			if char == utf8.RuneError || char > unicode.MaxASCII || !unicode.IsLetter(char) {
-				return fmt.Errorf(
-					"shorthand for flag %q is an invalid character, must be a single ASCII letter, got %q",
-					name,
-					string(char),
-				)
-			}
-		}
-
 		// Short is now either "" or a single letter
-		flag := flag.New(p, name, short, value, usage)
+		flag, err := flag.New(p, name, short, value, usage)
+		if err != nil {
+			return err
+		}
+
 		var defVal string
 		if flag.Type() == "bool" {
 			defVal = "true"
@@ -400,38 +378,4 @@ func anyDuplicates(cmds ...*Command) (string, bool) {
 		seen = append(seen, cmd.name)
 	}
 	return "", false
-}
-
-// validateFlagName ensures a flag name is valid, returning an error if it's not.
-//
-// Flags names must be all lower case ASCII letters, a hypen separator is allowed e.g. "set-default"
-// but this must be in between letters, not leading or trailing.
-func validateFlagName(name string) error {
-	before, after, found := strings.Cut(name, "-")
-
-	// Hyphen must be in between "words" like "set-default"
-	// we can't have "-default" or "default-"
-	if found && after == "" {
-		return fmt.Errorf("trailing hyphen: %q", name)
-	}
-
-	if found && before == "" {
-		return fmt.Errorf("leading hyphen: %q", name)
-	}
-	for _, char := range name {
-		// Only ASCII characters allowed
-		if char > unicode.MaxASCII {
-			return fmt.Errorf("non ascii character: %q", string(char))
-		}
-		// Only non-letter character allowed is a hyphen
-		if !unicode.IsLetter(char) && char != '-' {
-			return fmt.Errorf("not ascii letter: %q", string(char))
-		}
-		// Any upper case letters are not allowed
-		if unicode.IsLetter(char) && !unicode.IsLower(char) {
-			return fmt.Errorf("upper case character %q", string(char))
-		}
-	}
-
-	return nil
 }

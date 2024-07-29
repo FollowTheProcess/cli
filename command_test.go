@@ -473,21 +473,6 @@ func TestOptionValidation(t *testing.T) {
 			errMsg: `flag "count" already defined`,
 		},
 		{
-			name:    "short too long",
-			options: []cli.Option{cli.Flag(new(bool), "short", "word", false, "Set something")},
-			errMsg:  `shorthand for flag "short" must be a single ASCII letter, got "word" which has 4 letters`,
-		},
-		{
-			name:    "short is digit",
-			options: []cli.Option{cli.Flag(new(bool), "short", "7", false, "Set something")},
-			errMsg:  `shorthand for flag "short" is an invalid character, must be a single ASCII letter, got "7"`,
-		},
-		{
-			name:    "short is non ascii",
-			options: []cli.Option{cli.Flag(new(bool), "short", "本", false, "Set something")},
-			errMsg:  `shorthand for flag "short" is an invalid character, must be a single ASCII letter, got "本"`,
-		},
-		{
 			name:    "example comment empty",
 			options: []cli.Option{cli.Example("", "command here")},
 			errMsg:  "example comment cannot be empty",
@@ -511,46 +496,6 @@ func TestOptionValidation(t *testing.T) {
 			name:    "empty long description",
 			options: []cli.Option{cli.Long("")},
 			errMsg:  "cannot set command long description to an empty string",
-		},
-		{
-			name:    "flag name empty",
-			options: []cli.Option{cli.Flag(new(bool), "", "", false, "Empty flag not allowed")},
-			errMsg:  "flag names must not be empty",
-		},
-		{
-			name:    "flag name mixed case",
-			options: []cli.Option{cli.Flag(new(bool), "HeLlO", "", false, "Flag must be lower case")},
-			errMsg:  `invalid flag name: upper case character "H"`,
-		},
-		{
-			name:    "flag name underscore",
-			options: []cli.Option{cli.Flag(new(int), "some_underscore", "", 0, "Underscores not allowed")},
-			errMsg:  `invalid flag name: not ascii letter: "_"`,
-		},
-		{
-			name:    "flag name digits",
-			options: []cli.Option{cli.Flag(new(int), "some-06digit", "", 0, "Digits not allowed either")},
-			errMsg:  `invalid flag name: not ascii letter: "0"`,
-		},
-		{
-			name:    "flag name just hyphen",
-			options: []cli.Option{cli.Flag(new(int), "-", "", 0, "Only hyphen")},
-			errMsg:  `invalid flag name: trailing hyphen: "-"`,
-		},
-		{
-			name:    "flag name leading hyphen",
-			options: []cli.Option{cli.Flag(new(int), "-something", "", 0, "Leading hyphen")},
-			errMsg:  `invalid flag name: leading hyphen: "-something"`,
-		},
-		{
-			name:    "flag name trailing hyphen",
-			options: []cli.Option{cli.Flag(new(int), "something-", "", 0, "Trailing hyphen")},
-			errMsg:  `invalid flag name: trailing hyphen: "something-"`,
-		},
-		{
-			name:    "flag name non ascii",
-			options: []cli.Option{cli.Flag(new(int), "語ç日ð本", "", 0, "Wat")},
-			errMsg:  `invalid flag name: non ascii character: "語"`,
 		},
 	}
 
