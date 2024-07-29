@@ -10,6 +10,10 @@ import (
 	"github.com/spf13/pflag"
 )
 
+// NoShortHand should be passed as the "short" argument to [Flag] if the desired flag
+// should be the long hand version only e.g. --count, not -c/--count.
+const NoShortHand = flag.NoShortHand
+
 // Option is a functional option for configuring a [Command].
 type Option interface {
 	// Apply the option to the config, returning an error if the
@@ -327,14 +331,12 @@ func Allow(validator ArgValidator) Option {
 // The variable is set when the flag is parsed during command execution. The value provided
 // in the call to [Flag] is used as the default value.
 //
-// To add a long flag only (e.g. --delete with no -d option), pass [flag.NoShortHand] for "short".
+// To add a long flag only (e.g. --delete with no -d option), pass [NoShortHand] for "short".
 //
 //	// Add a force flag
 //	var force bool
 //	cli.New("rm", cli.Flag(&force, "force", 'f', false, "Force deletion without confirmation"))
 func Flag[T flag.Flaggable](p *T, name string, short rune, value T, usage string) Option {
-	// TODO: Currently flag is internal, which means users couldn't pass flag.NoShortHand if they wanted to
-	// once flag is ready with our own parsing stuff, make it part of the public package and remove spf13/pflag
 	f := func(cfg *config) error {
 		if cfg.flags.Lookup(name) != nil {
 			return fmt.Errorf("flag %q already defined", name)
@@ -353,7 +355,7 @@ func Flag[T flag.Flaggable](p *T, name string, short rune, value T, usage string
 		// If we've been told we don't want a shorthand, set it to "" which tells pflag
 		// not to give it one, otherwise use what we've been given
 		var shortHand string
-		if short == flag.NoShortHand {
+		if short == NoShortHand {
 			shortHand = ""
 		} else {
 			shortHand = string(short)
