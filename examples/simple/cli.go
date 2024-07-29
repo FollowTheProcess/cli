@@ -41,9 +41,9 @@ func buildSayCommand() (*cli.Command, error) {
 		cli.Example("Say a well known phrase", "demo say hello world"),
 		cli.Example("Now louder", "demo say hello world --shout"),
 		cli.Run(runSay(&options)),
-		cli.Flag(&options.shout, "shout", "s", false, "Say the message louder"),
-		cli.Flag(&options.count, "count", "c", 0, "Count the things"),
-		cli.Flag(&options.thing, "thing", "t", "", "Name of the thing"),
+		cli.Flag(&options.shout, "shout", 's', false, "Say the message louder"),
+		cli.Flag(&options.count, "count", 'c', 0, "Count the things"),
+		cli.Flag(&options.thing, "thing", 't', "", "Name of the thing"),
 	)
 	if err != nil {
 		return nil, err
