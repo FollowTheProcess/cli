@@ -401,6 +401,10 @@ func validateFlagName(name string) error {
 	return nil
 }
 
+// validateFlagShort ensures a flag's shorthand is valid, returning an error if it's not.
+//
+// Flag shorthands must be a single ASCII letter, we use rune as the type here rather than string because
+// it enforces only a single character, so all we have to do is make sure it's a valid ASCII character.
 func validateFlagShort(short rune) error {
 	// If it's the marker for long hand only, this is fine
 	if short == NoShortHand {
