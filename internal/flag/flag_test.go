@@ -16,7 +16,7 @@ func TestFlagValue(t *testing.T) {
 	// so strap in for a bunch of copy pasta
 	t.Run("int valid", func(t *testing.T) {
 		var i int
-		intFlag, err := flag.New(&i, "int", "i", 0, "Set an int value")
+		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("42")
@@ -28,7 +28,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("int invalid", func(t *testing.T) {
 		var i int
-		intFlag, err := flag.New(&i, "int", "i", 0, "Set an int value")
+		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("word")
@@ -42,7 +42,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("int8 valid", func(t *testing.T) {
 		var i int8
-		intFlag, err := flag.New(&i, "int", "i", 0, "Set an int8 value")
+		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int8 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("42")
@@ -54,7 +54,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("int8 invalid", func(t *testing.T) {
 		var i int8
-		intFlag, err := flag.New(&i, "int", "i", 0, "Set an int8 value")
+		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int8 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("word")
@@ -68,7 +68,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("int16 valid", func(t *testing.T) {
 		var i int16
-		intFlag, err := flag.New(&i, "int", "i", 0, "Set an int16 value")
+		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int16 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("42")
@@ -80,7 +80,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("int16 invalid", func(t *testing.T) {
 		var i int16
-		intFlag, err := flag.New(&i, "int", "i", 0, "Set an int16 value")
+		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int16 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("word")
@@ -94,7 +94,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("int32 valid", func(t *testing.T) {
 		var i int32
-		intFlag, err := flag.New(&i, "int", "i", 0, "Set an int32 value")
+		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int32 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("42")
@@ -106,7 +106,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("int32 invalid", func(t *testing.T) {
 		var i int32
-		intFlag, err := flag.New(&i, "int", "i", 0, "Set an int32 value")
+		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int32 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("word")
@@ -120,7 +120,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("int64 valid", func(t *testing.T) {
 		var i int64
-		intFlag, err := flag.New(&i, "int", "i", 0, "Set an int64 value")
+		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int64 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("42")
@@ -132,7 +132,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("int64 invalid", func(t *testing.T) {
 		var i int64
-		intFlag, err := flag.New(&i, "int", "i", 0, "Set an int64 value")
+		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int64 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("word")
@@ -146,7 +146,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("uint valid", func(t *testing.T) {
 		var i uint
-		intFlag, err := flag.New(&i, "uint", "i", 0, "Set a uint value")
+		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("42")
@@ -158,7 +158,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("uint invalid", func(t *testing.T) {
 		var i uint
-		intFlag, err := flag.New(&i, "uint", "i", 0, "Set a uint value")
+		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("word")
@@ -172,7 +172,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("uint8 valid", func(t *testing.T) {
 		var i uint8
-		intFlag, err := flag.New(&i, "uint", "i", 0, "Set a uint8 value")
+		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint8 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("42")
@@ -184,7 +184,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("uint8 invalid", func(t *testing.T) {
 		var i uint8
-		intFlag, err := flag.New(&i, "uint", "i", 0, "Set a uint8 value")
+		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint8 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("word")
@@ -198,7 +198,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("uint16 valid", func(t *testing.T) {
 		var i uint16
-		intFlag, err := flag.New(&i, "uint", "i", 0, "Set a uint16 value")
+		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint16 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("42")
@@ -210,7 +210,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("uint16 invalid", func(t *testing.T) {
 		var i uint16
-		intFlag, err := flag.New(&i, "uint", "i", 0, "Set a uint16 value")
+		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint16 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("word")
@@ -224,7 +224,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("uint32 valid", func(t *testing.T) {
 		var i uint32
-		intFlag, err := flag.New(&i, "uint", "i", 0, "Set a uint32 value")
+		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint32 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("42")
@@ -236,7 +236,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("uint32 invalid", func(t *testing.T) {
 		var i uint32
-		intFlag, err := flag.New(&i, "uint", "i", 0, "Set a uint32 value")
+		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint32 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("word")
@@ -250,7 +250,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("uint64 valid", func(t *testing.T) {
 		var i uint64
-		intFlag, err := flag.New(&i, "uint", "i", 0, "Set a uint64 value")
+		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint64 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("42")
@@ -262,7 +262,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("uint64 invalid", func(t *testing.T) {
 		var i uint64
-		intFlag, err := flag.New(&i, "uint", "i", 0, "Set a uint64 value")
+		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint64 value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("word")
@@ -276,7 +276,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("uintptr valid", func(t *testing.T) {
 		var i uintptr
-		intFlag, err := flag.New(&i, "uintptr", "i", 0, "Set a uintptr value")
+		intFlag, err := flag.New(&i, "uintptr", 'i', 0, "Set a uintptr value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("42")
@@ -288,7 +288,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("uintptr invalid", func(t *testing.T) {
 		var i uintptr
-		intFlag, err := flag.New(&i, "uintptr", "i", 0, "Set a uintptr value")
+		intFlag, err := flag.New(&i, "uintptr", 'i', 0, "Set a uintptr value")
 		test.Ok(t, err)
 
 		err = intFlag.Set("word")
@@ -302,7 +302,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("float32 valid", func(t *testing.T) {
 		var f float32
-		floatFlag, err := flag.New(&f, "float", "f", 0, "Set a float32 value")
+		floatFlag, err := flag.New(&f, "float", 'f', 0, "Set a float32 value")
 		test.Ok(t, err)
 
 		err = floatFlag.Set("3.14159")
@@ -314,7 +314,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("float32 invalid", func(t *testing.T) {
 		var f float32
-		floatFlag, err := flag.New(&f, "float", "f", 0, "Set a float32 value")
+		floatFlag, err := flag.New(&f, "float", 'f', 0, "Set a float32 value")
 		test.Ok(t, err)
 
 		err = floatFlag.Set("word")
@@ -328,7 +328,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("float64 valid", func(t *testing.T) {
 		var f float64
-		floatFlag, err := flag.New(&f, "float", "f", 0, "Set a float64 value")
+		floatFlag, err := flag.New(&f, "float", 'f', 0, "Set a float64 value")
 		test.Ok(t, err)
 
 		err = floatFlag.Set("3.14159")
@@ -340,7 +340,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("float64 invalid", func(t *testing.T) {
 		var f float64
-		floatFlag, err := flag.New(&f, "float", "f", 0, "Set a float64 value")
+		floatFlag, err := flag.New(&f, "float", 'f', 0, "Set a float64 value")
 		test.Ok(t, err)
 
 		err = floatFlag.Set("word")
@@ -354,7 +354,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("bool valid", func(t *testing.T) {
 		var b bool
-		boolFlag, err := flag.New(&b, "bool", "b", false, "Set a bool value")
+		boolFlag, err := flag.New(&b, "bool", 'b', false, "Set a bool value")
 		test.Ok(t, err)
 
 		err = boolFlag.Set("true")
@@ -366,7 +366,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("bool invalid", func(t *testing.T) {
 		var b bool
-		boolFlag, err := flag.New(&b, "bool", "b", false, "Set a bool value")
+		boolFlag, err := flag.New(&b, "bool", 'b', false, "Set a bool value")
 		test.Ok(t, err)
 
 		err = boolFlag.Set("word")
@@ -382,7 +382,7 @@ func TestFlagValue(t *testing.T) {
 	// getting an error here
 	t.Run("string", func(t *testing.T) {
 		var str string
-		strFlag, err := flag.New(&str, "string", "s", "", "Set a string value")
+		strFlag, err := flag.New(&str, "string", 's', "", "Set a string value")
 		test.Ok(t, err)
 
 		err = strFlag.Set("newvalue")
@@ -394,7 +394,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("byte slice valid", func(t *testing.T) {
 		var byt []byte
-		byteFlag, err := flag.New(&byt, "byte", "b", []byte(""), "Set a byte slice value")
+		byteFlag, err := flag.New(&byt, "byte", 'b', []byte(""), "Set a byte slice value")
 		test.Ok(t, err)
 
 		err = byteFlag.Set("5e")
@@ -406,7 +406,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("byte slice invalid", func(t *testing.T) {
 		var byt []byte
-		byteFlag, err := flag.New(&byt, "byte", "b", []byte(""), "Set a byte slice value")
+		byteFlag, err := flag.New(&byt, "byte", 'b', []byte(""), "Set a byte slice value")
 		test.Ok(t, err)
 
 		err = byteFlag.Set("0xF")
@@ -420,7 +420,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("time.Time valid", func(t *testing.T) {
 		var tyme time.Time
-		timeFlag, err := flag.New(&tyme, "time", "t", time.Now(), "Set a time value")
+		timeFlag, err := flag.New(&tyme, "time", 't', time.Now(), "Set a time value")
 		test.Ok(t, err)
 
 		err = timeFlag.Set("2024-07-17T07:38:05Z")
@@ -435,7 +435,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("time.Time invalid", func(t *testing.T) {
 		var tyme time.Time
-		timeFlag, err := flag.New(&tyme, "time", "t", time.Now(), "Set a time value")
+		timeFlag, err := flag.New(&tyme, "time", 't', time.Now(), "Set a time value")
 		test.Ok(t, err)
 
 		err = timeFlag.Set("not a time")
@@ -452,7 +452,7 @@ func TestFlagValue(t *testing.T) {
 		durationFlag, err := flag.New(
 			&duration,
 			"duration",
-			"d",
+			'd',
 			time.Duration(0),
 			"Set a duration value",
 		)
@@ -473,7 +473,7 @@ func TestFlagValue(t *testing.T) {
 		durationFlag, err := flag.New(
 			&duration,
 			"duration",
-			"d",
+			'd',
 			time.Duration(0),
 			"Set a duration value",
 		)
@@ -490,7 +490,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("ip valid", func(t *testing.T) {
 		var ip net.IP
-		ipFlag, err := flag.New(&ip, "ip", "i", nil, "Set an IP address")
+		ipFlag, err := flag.New(&ip, "ip", 'i', nil, "Set an IP address")
 		test.Ok(t, err)
 
 		err = ipFlag.Set("192.0.2.1")
@@ -502,7 +502,7 @@ func TestFlagValue(t *testing.T) {
 
 	t.Run("ip invalid", func(t *testing.T) {
 		var ip net.IP
-		ipFlag, err := flag.New(&ip, "ip", "i", nil, "Set an IP address")
+		ipFlag, err := flag.New(&ip, "ip", 'i', nil, "Set an IP address")
 		test.Ok(t, err)
 
 		err = ipFlag.Set("not an ip")
@@ -515,14 +515,32 @@ func TestFlagValue(t *testing.T) {
 	})
 }
 
-func TestFlagNameValidation(t *testing.T) {
+func TestFlagValidation(t *testing.T) {
 	tests := []struct {
 		name     string // Name of the test case
 		flagName string // Input flag name
-		short    string // Flag shorthand
 		errMsg   string // If we wanted an error, what should it say
+		short    rune   // Flag shorthand
 		wantErr  bool   // Whether we want an error
 	}{
+		{
+			name:     "short is uppercase",
+			flagName: "delete",
+			short:    'D',
+			wantErr:  false,
+		},
+		{
+			name:     "valid short",
+			flagName: "delete",
+			short:    'd',
+			wantErr:  false,
+		},
+		{
+			name:     "no shorthand",
+			flagName: "delete",
+			short:    flag.NoShortHand,
+			wantErr:  false,
+		},
 		{
 			name:     "empty name",
 			flagName: "",
@@ -572,23 +590,16 @@ func TestFlagNameValidation(t *testing.T) {
 			errMsg:   `invalid flag name: non ascii character: "語"`,
 		},
 		{
-			name:     "short too long",
-			flagName: "delete",
-			short:    "word",
-			wantErr:  true,
-			errMsg:   `invalid shorthand for flag "delete": must be a single ASCII letter, got "word" which has 4 letters`,
-		},
-		{
 			name:     "short is digit",
 			flagName: "delete",
-			short:    "7",
+			short:    '7',
 			wantErr:  true,
 			errMsg:   `invalid shorthand for flag "delete": invalid character, must be a single ASCII letter, got "7"`,
 		},
 		{
 			name:     "short is non ascii",
 			flagName: "delete",
-			short:    "本",
+			short:    '本',
 			wantErr:  true,
 			errMsg:   `invalid shorthand for flag "delete": invalid character, must be a single ASCII letter, got "本"`,
 		},
@@ -611,7 +622,7 @@ func TestFlagNilSafety(t *testing.T) {
 		// Should be impossible to make a nil pointer dereference when using .New
 		var bang *bool
 
-		flag, err := flag.New(bang, "bang", "b", false, "Nil go bang?")
+		flag, err := flag.New(bang, "bang", 'b', false, "Nil go bang?")
 		test.Ok(t, err)
 
 		test.False(t, flag.Get())
