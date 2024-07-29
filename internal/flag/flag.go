@@ -35,6 +35,10 @@ const (
 	bits64             // 64 bit integer
 )
 
+// NoShortHand should be passed as the "short" argument to [New] if the desired flag
+// should be the long hand version only e.g. --count, not -c/--count.
+const NoShortHand = rune(-1)
+
 var _ pflag.Value = Flag[string]{} // This will fail if we violate pflag.Value.
 
 // Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
@@ -50,7 +54,7 @@ type Flag[T Flaggable] struct {
 	value *T     // The actual stored value
 	name  string // The name of the flag as appears on the command line, e.g. "force" for a --force flag
 	usage string // One line description of the flag, e.g. "Force deletion without confirmation"
-	short string // Optional shorthand version of the flag, e.g. "f" for a -f flag
+	short rune   // Optional shorthand version of the flag, e.g. "f" for a -f flag
 }
 
 // New constructs and returns a new [Flag].
@@ -61,8 +65,8 @@ type Flag[T Flaggable] struct {
 // If you want the flag to be longhand only, pass "" for short.
 //
 //	var force bool
-//	flag.New(&force, "force", "f", false, "Force deletion without confirmation")
-func New[T Flaggable](p *T, name string, short string, value T, usage string) (Flag[T], error) {
+//	flag.New(&force, "force", 'f', false, "Force deletion without confirmation")
+func New[T Flaggable](p *T, name string, short rune, value T, usage string) (Flag[T], error) {
 	if err := validateFlagName(name); err != nil {
 		return Flag[T]{}, fmt.Errorf("invalid flag name: %w", err)
 	}
@@ -336,6 +340,18 @@ func (f Flag[T]) Set(str string) error { //nolint:gocyclo // No other way of doi
 	}
 }
 
+// signed is the same as constraints.Signed but we don't have to depend
+// on golang/x/exp.
+type signed interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64
+}
+
+// unsigned is the same as constraints.Unsigned but we don't hve to depend
+// on golang/x/exp.
+type unsigned interface {
+	~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr
+}
+
 // cast converts a *T1 to a *T2, we use it here when we know (via generics and compile time checks)
 // that e.g. the Flag.value is a string, but we can't directly do Flag.value = "value" because
 // we can't assign a string to a generic 'T', but we *know* that the value *is* a string because when
@@ -397,19 +413,90 @@ func validateFlagName(name string) error {
 	return nil
 }
 
-func validateFlagShort(short string) error {
-	// len(short) > 1 means an error, shorthand must be a single character
-	if length := utf8.RuneCountInString(short); length > 1 {
-		return fmt.Errorf("must be a single ASCII letter, got %q which has %d letters", short, length)
+// validateFlagShort ensures a flag's shorthand is valid, returning an error if it's not.
+//
+// Flag shorthands must be a single ASCII letter, we use rune as the type here rather than string because
+// it enforces only a single character, so all we have to do is make sure it's a valid ASCII character.
+func validateFlagShort(short rune) error {
+	// If it's the marker for long hand only, this is fine
+	if short == NoShortHand {
+		return nil
 	}
-
-	if short != "" {
-		// Shorthand must be a valid ASCII letter
-		char, _ := utf8.DecodeRuneInString(short)
-		if char == utf8.RuneError || char > unicode.MaxASCII || !unicode.IsLetter(char) {
-			return fmt.Errorf("invalid character, must be a single ASCII letter, got %q", string(char))
-		}
+	// Shorthand must be a valid ASCII letter
+	if short == utf8.RuneError || short > unicode.MaxASCII || !unicode.IsLetter(short) {
+		return fmt.Errorf("invalid character, must be a single ASCII letter, got %q", string(short))
 	}
 
 	return nil
+}
+
+// errParse is a helper to quickly return a consistent error in the face of flag
+// value parsing errors.
+func errParse[T any](name, str string, typ *T, err error) error {
+	return fmt.Errorf(
+		"flag %s received invalid value %q (expected %T), detail: %w",
+		name,
+		str,
+		*typ,
+		err,
+	)
+}
+
+// parseInt is a generic helper to parse all signed integers, given a bit size.
+//
+// It returns the parsed value or an error.
+func parseInt[T signed](bits int) func(str string) (T, error) {
+	return func(str string) (T, error) {
+		val, err := strconv.ParseInt(str, 0, bits)
+		if err != nil {
+			return 0, err
+		}
+
+		return T(val), nil
+	}
+}
+
+// parseUint is a generic helper to parse all signed integers, given a bit size.
+//
+// It returns the parsed value or an error.
+func parseUint[T unsigned](bits int) func(str string) (T, error) {
+	return func(str string) (T, error) {
+		val, err := strconv.ParseUint(str, 0, bits)
+		if err != nil {
+			return 0, err
+		}
+
+		return T(val), nil
+	}
+}
+
+// parseFloat is a generic helper to parse floating point numbers, given a bit size.
+//
+// It returns the parsed value or an error.
+func parseFloat[T ~float32 | ~float64](bits int) func(str string) (T, error) {
+	return func(str string) (T, error) {
+		val, err := strconv.ParseFloat(str, bits)
+		if err != nil {
+			return 0, err
+		}
+
+		return T(val), nil
+	}
+}
+
+// formatInt is a generic helper to return a string representation of any signed integer.
+func formatInt[T signed](in T) string {
+	return strconv.FormatInt(int64(in), 10)
+}
+
+// formatUint is a generic helper to return a string representation of any unsigned integer.
+func formatUint[T unsigned](in T) string {
+	return strconv.FormatUint(uint64(in), 10)
+}
+
+// formatFloat is a generic helper to return a string representation of any floating point digit.
+func formatFloat[T ~float32 | ~float64](bits int) func(T) string {
+	return func(in T) string {
+		return strconv.FormatFloat(float64(in), 'g', -1, bits)
+	}
 }

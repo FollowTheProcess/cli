@@ -327,36 +327,46 @@ func Allow(validator ArgValidator) Option {
 // The variable is set when the flag is parsed during command execution. The value provided
 // in the call to [Flag] is used as the default value.
 //
-// To add a long flag only (e.g. --delete with no -d option), simply pass "" for short.
+// To add a long flag only (e.g. --delete with no -d option), pass [flag.NoShortHand] for "short".
 //
 //	// Add a force flag
 //	var force bool
-//	cli.New("rm", cli.Flag(&force, "force", "f", false, "Force deletion without confirmation"))
-func Flag[T flag.Flaggable](p *T, name string, short string, value T, usage string) Option {
+//	cli.New("rm", cli.Flag(&force, "force", 'f', false, "Force deletion without confirmation"))
+func Flag[T flag.Flaggable](p *T, name string, short rune, value T, usage string) Option {
+	// TODO: Currently flag is internal, which means users couldn't pass flag.NoShortHand if they wanted to
+	// once flag is ready with our own parsing stuff, make it part of the public package and remove spf13/pflag
 	f := func(cfg *config) error {
 		if cfg.flags.Lookup(name) != nil {
 			return fmt.Errorf("flag %q already defined", name)
 		}
 
-		// Short is now either "" or a single letter
-		flag, err := flag.New(p, name, short, value, usage)
+		f, err := flag.New(p, name, short, value, usage)
 		if err != nil {
 			return err
 		}
 
 		var defVal string
-		if flag.Type() == "bool" {
+		if f.Type() == "bool" {
 			defVal = "true"
+		}
+
+		// If we've been told we don't want a shorthand, set it to "" which tells pflag
+		// not to give it one, otherwise use what we've been given
+		var shortHand string
+		if short == flag.NoShortHand {
+			shortHand = ""
+		} else {
+			shortHand = string(short)
 		}
 
 		// Annoyingly pflag does the same checks we've done above but will panic on error, hopefully
 		// the above checks will come in handy when I implement my own flag parsing
 		cfg.flags.AddFlag(&pflag.Flag{
 			Name:        name,
-			Shorthand:   short,
+			Shorthand:   shortHand,
 			Usage:       usage,
-			Value:       flag,
-			DefValue:    flag.String(),
+			Value:       f,
+			DefValue:    f.String(),
 			NoOptDefVal: defVal,
 		})
 		return nil
