@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/FollowTheProcess/cli"
-	"github.com/FollowTheProcess/cli/internal/flag"
 	"github.com/FollowTheProcess/test"
 )
 
@@ -291,7 +290,7 @@ func TestHelp(t *testing.T) {
 				cli.Long("A longer, probably multiline description"),
 				cli.SubCommands(sub1, sub2),
 				cli.Flag(new(bool), "delete", 'd', false, "Delete something"),
-				cli.Flag(new(int), "count", flag.NoShortHand, -1, "Count something"),
+				cli.Flag(new(int), "count", cli.NoShortHand, -1, "Count something"),
 			},
 			golden:  "subcommands-flags.txt",
 			wantErr: false,

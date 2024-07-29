@@ -118,7 +118,7 @@ And if you don't want a shorthand? i.e. just `--delete` with no `-d` option:
 
 ```go
 var delete bool
-cli.New("demo", cli.Flag(&delete, "delete", flag.NoShortHand, false, "Delete something"))
+cli.New("demo", cli.Flag(&delete, "delete", cli.NoShortHand, false, "Delete something"))
 ```
 
 ## Installation
