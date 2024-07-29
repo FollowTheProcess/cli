@@ -512,6 +512,46 @@ func TestOptionValidation(t *testing.T) {
 			options: []cli.Option{cli.Long("")},
 			errMsg:  "cannot set command long description to an empty string",
 		},
+		{
+			name:    "flag name empty",
+			options: []cli.Option{cli.Flag(new(bool), "", "", false, "Empty flag not allowed")},
+			errMsg:  "flag names must not be empty",
+		},
+		{
+			name:    "flag name mixed case",
+			options: []cli.Option{cli.Flag(new(bool), "HeLlO", "", false, "Flag must be lower case")},
+			errMsg:  `invalid flag name: upper case character "H"`,
+		},
+		{
+			name:    "flag name underscore",
+			options: []cli.Option{cli.Flag(new(int), "some_underscore", "", 0, "Underscores not allowed")},
+			errMsg:  `invalid flag name: not ascii letter: "_"`,
+		},
+		{
+			name:    "flag name digits",
+			options: []cli.Option{cli.Flag(new(int), "some-06digit", "", 0, "Digits not allowed either")},
+			errMsg:  `invalid flag name: not ascii letter: "0"`,
+		},
+		{
+			name:    "flag name just hyphen",
+			options: []cli.Option{cli.Flag(new(int), "-", "", 0, "Only hyphen")},
+			errMsg:  `invalid flag name: trailing hyphen: "-"`,
+		},
+		{
+			name:    "flag name leading hyphen",
+			options: []cli.Option{cli.Flag(new(int), "-something", "", 0, "Leading hyphen")},
+			errMsg:  `invalid flag name: leading hyphen: "-something"`,
+		},
+		{
+			name:    "flag name trailing hyphen",
+			options: []cli.Option{cli.Flag(new(int), "something-", "", 0, "Trailing hyphen")},
+			errMsg:  `invalid flag name: trailing hyphen: "something-"`,
+		},
+		{
+			name:    "flag name non ascii",
+			options: []cli.Option{cli.Flag(new(int), "語ç日ð本", "", 0, "Wat")},
+			errMsg:  `invalid flag name: non ascii character: "語"`,
+		},
 	}
 
 	for _, tt := range tests {

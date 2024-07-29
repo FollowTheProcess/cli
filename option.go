@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"slices"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 
@@ -336,6 +337,12 @@ func Allow(validator ArgValidator) Option {
 //	cli.New("rm", cli.Flag(&force, "force", "f", false, "Force deletion without confirmation"))
 func Flag[T flag.Flaggable](p *T, name string, short string, value T, usage string) Option {
 	f := func(cfg *config) error {
+		if name == "" {
+			return errors.New("flag names must not be empty")
+		}
+		if err := validateFlagName(name); err != nil {
+			return fmt.Errorf("invalid flag name: %w", err)
+		}
 		if cfg.flags.Lookup(name) != nil {
 			return fmt.Errorf("flag %q already defined", name)
 		}
@@ -393,4 +400,38 @@ func anyDuplicates(cmds ...*Command) (string, bool) {
 		seen = append(seen, cmd.name)
 	}
 	return "", false
+}
+
+// validateFlagName ensures a flag name is valid, returning an error if it's not.
+//
+// Flags names must be all lower case ASCII letters, a hypen separator is allowed e.g. "set-default"
+// but this must be in between letters, not leading or trailing.
+func validateFlagName(name string) error {
+	before, after, found := strings.Cut(name, "-")
+
+	// Hyphen must be in between "words" like "set-default"
+	// we can't have "-default" or "default-"
+	if found && after == "" {
+		return fmt.Errorf("trailing hyphen: %q", name)
+	}
+
+	if found && before == "" {
+		return fmt.Errorf("leading hyphen: %q", name)
+	}
+	for _, char := range name {
+		// Only ASCII characters allowed
+		if char > unicode.MaxASCII {
+			return fmt.Errorf("non ascii character: %q", string(char))
+		}
+		// Only non-letter character allowed is a hyphen
+		if !unicode.IsLetter(char) && char != '-' {
+			return fmt.Errorf("not ascii letter: %q", string(char))
+		}
+		// Any upper case letters are not allowed
+		if unicode.IsLetter(char) && !unicode.IsLower(char) {
+			return fmt.Errorf("upper case character %q", string(char))
+		}
+	}
+
+	return nil
 }
