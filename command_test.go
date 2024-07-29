@@ -473,21 +473,6 @@ func TestOptionValidation(t *testing.T) {
 			errMsg: `flag "count" already defined`,
 		},
 		{
-			name:    "short too long",
-			options: []cli.Option{cli.Flag(new(bool), "short", "word", false, "Set something")},
-			errMsg:  `shorthand for flag "short" must be a single ASCII letter, got "word" which has 4 letters`,
-		},
-		{
-			name:    "short is digit",
-			options: []cli.Option{cli.Flag(new(bool), "short", "7", false, "Set something")},
-			errMsg:  `shorthand for flag "short" is an invalid character, must be a single ASCII letter, got "7"`,
-		},
-		{
-			name:    "short is non ascii",
-			options: []cli.Option{cli.Flag(new(bool), "short", "本", false, "Set something")},
-			errMsg:  `shorthand for flag "short" is an invalid character, must be a single ASCII letter, got "本"`,
-		},
-		{
 			name:    "example comment empty",
 			options: []cli.Option{cli.Example("", "command here")},
 			errMsg:  "example comment cannot be empty",
