@@ -22,6 +22,7 @@ Tiny, simple, but powerful CLI framework for modern Go 🚀
       - [👨🏻‍🔬 Use Modern Techniques](#-use-modern-techniques)
       - [🥹 A Beautiful API](#-a-beautiful-api)
       - [🔐 Immutable State](#-immutable-state)
+      - [🚧 Good Libraries are Hard to Misuse](#-good-libraries-are-hard-to-misuse)
   - [Installation](#installation)
   - [Quickstart](#quickstart)
     - [Credits](#credits)
@@ -60,7 +61,7 @@ One example is generics, consider how you define a flag:
 
 ```go
 var force bool
-cli.New("demo", cli.Flag(&force, "force", "f", false, "Force something"))
+cli.New("demo", cli.Flag(&force, "force", 'f', false, "Force something"))
 ```
 
 Note the type `bool` is inferred by `cli.Flag`. No more `flag.BoolStringSliceVarP` 🎉
@@ -79,7 +80,7 @@ cmd, err := cli.New(
     cli.Allow(cli.MinArgs(1)),
     cli.Stdout(os.Stdout),
     cli.Example("Do a thing", "test run thing --now"),
-    cli.Flag(&count, "count", "c", 0, "Count the things"),
+    cli.Flag(&count, "count", 'c', 0, "Count the things"),
 )
 ```
 
@@ -90,6 +91,35 @@ Typically, these sorts of things are implemented with a big struct with lots of 
 What *is* different though is that this large struct can **only** be configured with `cli.New`. Once you've built your command, it can't be modified.
 
 This eliminates a whole class of bugs and prevents misconfiguration and footguns 🔫
+
+#### 🚧 Good Libraries are Hard to Misuse
+
+Everything in `cli` is (hopefully) clear, intuitive, and well-documented. There's a tonne of strict validation in a bunch of places and wherever possible, misuse results in a compilation error.
+
+Consider the following example of a bad shorthand value:
+
+```go
+var delete bool
+
+// Note: bad shorthand, it's two letters
+cli.New("demo", cli.Flag(&delete, "delete", "de", false, "Delete something"))
+```
+
+In `cli` this is impossible as we use `rune` as the type for a flag shorthand, so the above example would not compile. Instead you must specify a valid rune:
+
+```go
+var delete bool
+
+// Ahhh, that's better
+cli.New("demo", cli.Flag(&delete, "delete", 'd', false, "Delete something"))
+```
+
+And if you don't want a shorthand? i.e. just `--delete` with no `-d` option:
+
+```go
+var delete bool
+cli.New("demo", cli.Flag(&delete, "delete", flag.NoShortHand, false, "Delete something"))
+```
 
 ## Installation
 
