@@ -35,6 +35,10 @@ const (
 	bits64             // 64 bit integer
 )
 
+// NoShortHand should be passed as the "short" argument to [New] if the desired flag
+// should be the long hand version only e.g. --count, not -c/--count.
+const NoShortHand = rune(-1)
+
 var _ pflag.Value = Flag[string]{} // This will fail if we violate pflag.Value.
 
 // Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
@@ -50,7 +54,7 @@ type Flag[T Flaggable] struct {
 	value *T     // The actual stored value
 	name  string // The name of the flag as appears on the command line, e.g. "force" for a --force flag
 	usage string // One line description of the flag, e.g. "Force deletion without confirmation"
-	short string // Optional shorthand version of the flag, e.g. "f" for a -f flag
+	short rune   // Optional shorthand version of the flag, e.g. "f" for a -f flag
 }
 
 // New constructs and returns a new [Flag].
@@ -61,8 +65,8 @@ type Flag[T Flaggable] struct {
 // If you want the flag to be longhand only, pass "" for short.
 //
 //	var force bool
-//	flag.New(&force, "force", "f", false, "Force deletion without confirmation")
-func New[T Flaggable](p *T, name string, short string, value T, usage string) (Flag[T], error) {
+//	flag.New(&force, "force", 'f', false, "Force deletion without confirmation")
+func New[T Flaggable](p *T, name string, short rune, value T, usage string) (Flag[T], error) {
 	if err := validateFlagName(name); err != nil {
 		return Flag[T]{}, fmt.Errorf("invalid flag name: %w", err)
 	}
@@ -397,18 +401,14 @@ func validateFlagName(name string) error {
 	return nil
 }
 
-func validateFlagShort(short string) error {
-	// len(short) > 1 means an error, shorthand must be a single character
-	if length := utf8.RuneCountInString(short); length > 1 {
-		return fmt.Errorf("must be a single ASCII letter, got %q which has %d letters", short, length)
+func validateFlagShort(short rune) error {
+	// If it's the marker for long hand only, this is fine
+	if short == NoShortHand {
+		return nil
 	}
-
-	if short != "" {
-		// Shorthand must be a valid ASCII letter
-		char, _ := utf8.DecodeRuneInString(short)
-		if char == utf8.RuneError || char > unicode.MaxASCII || !unicode.IsLetter(char) {
-			return fmt.Errorf("invalid character, must be a single ASCII letter, got %q", string(char))
-		}
+	// Shorthand must be a valid ASCII letter
+	if short == utf8.RuneError || short > unicode.MaxASCII || !unicode.IsLetter(short) {
+		return fmt.Errorf("invalid character, must be a single ASCII letter, got %q", string(short))
 	}
 
 	return nil
