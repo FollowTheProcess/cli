@@ -34,8 +34,8 @@ const (
 // Options will validate their inputs where possible and return errors which will be bubbled up through New
 // to aid debugging invalid configuration.
 func New(name string, options ...Option) (*Command, error) {
-	// This was actually a nilaway thing
-	if len(os.Args) < 2 { //nolint:mnd // We all know what this refers to
+	// This was actually a nilaway thing, indexing into os.Args without knowing the length
+	if len(os.Args) < 1 {
 		return nil, fmt.Errorf("bad arguments expected [<command> <args>...], got %v", os.Args)
 	}
 
