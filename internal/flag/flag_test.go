@@ -530,6 +530,12 @@ func TestFlagValidation(t *testing.T) {
 			wantErr:  false,
 		},
 		{
+			name:     "valid short",
+			flagName: "delete",
+			short:    'd',
+			wantErr:  false,
+		},
+		{
 			name:     "no shorthand",
 			flagName: "delete",
 			short:    flag.NoShortHand,
