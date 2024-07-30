@@ -14,6 +14,12 @@ import (
 // should be the long hand version only e.g. --count, not -c/--count.
 const NoShortHand = flag.NoShortHand
 
+// Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
+//
+// It's worth noting that the complete set of supported types is wider than this constraint appears
+// as e.g. a [time.Duration] is actually just an int64 underneath, likewise a [net.IP] is actually just []byte.
+type Flaggable = flag.Flaggable
+
 // Option is a functional option for configuring a [Command].
 type Option interface {
 	// Apply the option to the config, returning an error if the
@@ -336,7 +342,7 @@ func Allow(validator ArgValidator) Option {
 //	// Add a force flag
 //	var force bool
 //	cli.New("rm", cli.Flag(&force, "force", 'f', false, "Force deletion without confirmation"))
-func Flag[T flag.Flaggable](p *T, name string, short rune, value T, usage string) Option {
+func Flag[T Flaggable](p *T, name string, short rune, value T, usage string) Option {
 	f := func(cfg *config) error {
 		if cfg.flags.Lookup(name) != nil {
 			return fmt.Errorf("flag %q already defined", name)
