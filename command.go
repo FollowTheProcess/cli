@@ -10,6 +10,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/FollowTheProcess/cli/internal/flag"
 	"github.com/spf13/pflag"
 )
 
@@ -42,6 +43,7 @@ func New(name string, options ...Option) (*Command, error) {
 	// Default implementation
 	cfg := config{
 		flags:        pflag.NewFlagSet(name, pflag.ContinueOnError),
+		xflags:       flag.NewSet(),
 		stdin:        os.Stdin,
 		stdout:       os.Stdout,
 		stderr:       os.Stderr,
@@ -96,6 +98,9 @@ type Command struct {
 
 	// flags is the set of flags for this command.
 	flags *pflag.FlagSet
+
+	// xflags is my experimental flagset.
+	xflags *flag.Set
 
 	// versionFunc is the function thatgets called when the user calls -v/--version.
 	//

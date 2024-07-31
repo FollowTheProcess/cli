@@ -43,6 +43,7 @@ type config struct {
 	stderr       io.Writer
 	run          func(cmd *Command, args []string) error
 	flags        *pflag.FlagSet
+	xflags       *flag.Set
 	versionFunc  func(cmd *Command) error
 	parent       *Command
 	argValidator ArgValidator
@@ -63,6 +64,7 @@ func (c *config) build() *Command {
 		stderr:       c.stderr,
 		run:          c.run,
 		flags:        c.flags,
+		xflags:       c.xflags,
 		versionFunc:  c.versionFunc,
 		parent:       c.parent,
 		argValidator: c.argValidator,
@@ -198,8 +200,6 @@ func Long(long string) Option {
 //
 // An arbitrary number of examples can be added to a [Command], and calls to [Example] are additive.
 func Example(comment, command string) Option {
-	// TODO: Make sure both comment and command are not empty, then can ditch the
-	// complexity in example.String()
 	f := func(cfg *config) error {
 		errs := make([]error, 0, 2) //nolint:mnd // 2 here is because we have two arguments
 		if comment == "" {
@@ -351,6 +351,12 @@ func Flag[T Flaggable](p *T, name string, short rune, value T, usage string) Opt
 		f, err := flag.New(p, name, short, value, usage)
 		if err != nil {
 			return err
+		}
+
+		// Experimental flags
+		if err := cfg.xflags.Add(name, usage, short, f); err != nil {
+			// TODO: This error message is just for me debugging for now, make it more user friendly
+			return fmt.Errorf("xflags.Add: %w", err)
 		}
 
 		var defVal string
