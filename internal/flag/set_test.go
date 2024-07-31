@@ -72,7 +72,47 @@ func TestParse(t *testing.T) {
 			},
 			args:    []string{"--"},
 			wantErr: true,
-			errMsg:  "invalid flag syntax: empty flag name",
+			errMsg:  `invalid flag name "": must not be empty`,
+		},
+		{
+			name: "bad syntax extra hyphen",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return flag.NewSet()
+			},
+			args:    []string{"---"},
+			wantErr: true,
+			errMsg:  `invalid flag name "-": trailing hyphen`,
+		},
+		{
+			name: "bad syntax leading whitespace",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return flag.NewSet()
+			},
+			args:    []string{"-- delete"},
+			wantErr: true,
+			errMsg:  `invalid flag name " delete": cannot contain whitespace`,
+		},
+		{
+			name: "bad syntax trailing whitespace",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return flag.NewSet()
+			},
+			args:    []string{"--delete "},
+			wantErr: true,
+			errMsg:  `invalid flag name "delete ": cannot contain whitespace`,
+		},
+		{
+			name: "bad syntax internal whitespace",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return flag.NewSet()
+			},
+			args:    []string{"--de lete"},
+			wantErr: true,
+			errMsg:  `invalid flag name "de lete": cannot contain whitespace`,
 		},
 		{
 			name: "valid long",
