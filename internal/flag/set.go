@@ -94,6 +94,11 @@ func (s *Set) parseLongFlag(long string, rest []string) (remaining []string, err
 	// Could either be "flag" or "flag=value"
 	name := strings.TrimPrefix(long, "--")
 
+	// TODO: A proper validation function like validateFlagName
+	if name == "" {
+		return nil, errors.New("invalid flag syntax: empty flag name")
+	}
+
 	// name will either be the entire string or the name before the "="
 	name, equalsValue, containsEquals := strings.Cut(name, "=")
 	flag, exists := s.flags[name]
