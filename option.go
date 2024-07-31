@@ -354,7 +354,7 @@ func Flag[T Flaggable](p *T, name string, short rune, value T, usage string) Opt
 		}
 
 		// Experimental flags
-		if err := cfg.xflags.Add(name, short, usage, f); err != nil {
+		if err := flag.AddToSet(cfg.xflags, f); err != nil {
 			// TODO: This error message is just for me debugging for now, make it more user friendly
 			return fmt.Errorf("xflags.Add: %w", err)
 		}
