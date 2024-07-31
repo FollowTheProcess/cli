@@ -21,11 +21,11 @@ func NewSet() *Set {
 	}
 }
 
-// Add adds a flag to the Set.
-func (s *Set) Add(name string, shorthand rune, usage string, flag Value) error {
-	_, exists := s.flags[name]
+// AddToSet adds a flag to the given Set.
+func AddToSet[T Flaggable](set *Set, flag Flag[T]) error {
+	_, exists := set.flags[flag.name]
 	if exists {
-		return fmt.Errorf("flag %q already defined", name)
+		return fmt.Errorf("flag %q already defined", flag.name)
 	}
 	var defaultValueNoArg string
 	if flag.Type() == "bool" {
@@ -34,17 +34,17 @@ func (s *Set) Add(name string, shorthand rune, usage string, flag Value) error {
 	}
 	entry := flagEntry{
 		value:             flag,
-		name:              name,
-		usage:             usage,
+		name:              flag.name,
+		usage:             flag.usage,
 		defaultValue:      flag.String(),
 		defaultValueNoArg: defaultValueNoArg,
-		shorthand:         shorthand,
+		shorthand:         flag.short,
 	}
-	s.flags[name] = entry
+	set.flags[flag.name] = entry
 
 	// Only add the shorthand if it wasn't opted out of
-	if shorthand != NoShortHand {
-		s.shorthands[shorthand] = entry
+	if flag.short != NoShortHand {
+		set.shorthands[flag.short] = entry
 	}
 
 	return nil

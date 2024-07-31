@@ -122,7 +122,7 @@ func TestParse(t *testing.T) {
 				f, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
 				test.Ok(t, err)
 
-				err = set.Add("delete", 'd', "Delete something", f)
+				err = flag.AddToSet(set, f)
 				test.Ok(t, err)
 
 				return set
@@ -146,7 +146,7 @@ func TestParse(t *testing.T) {
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
 
-				err = set.Add("count", 'c', "Count something", f)
+				err = flag.AddToSet(set, f)
 				test.Ok(t, err)
 
 				return set
@@ -170,7 +170,7 @@ func TestParse(t *testing.T) {
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
 
-				err = set.Add("count", 'c', "Count something", f)
+				err = flag.AddToSet(set, f)
 				test.Ok(t, err)
 
 				return set
