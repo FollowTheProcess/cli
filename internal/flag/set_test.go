@@ -65,6 +65,16 @@ func TestParse(t *testing.T) {
 			errMsg:  "unrecognised flag: --unknown",
 		},
 		{
+			name: "bad syntax empty name",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return flag.NewSet()
+			},
+			args:    []string{"--"},
+			wantErr: true,
+			errMsg:  "invalid flag syntax: empty flag name",
+		},
+		{
 			name: "valid long",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
