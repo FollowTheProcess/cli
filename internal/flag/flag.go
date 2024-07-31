@@ -71,7 +71,7 @@ type Flag[T Flaggable] struct {
 //	flag.New(&force, "force", 'f', false, "Force deletion without confirmation")
 func New[T Flaggable](p *T, name string, short rune, value T, usage string) (Flag[T], error) {
 	if err := validateFlagName(name); err != nil {
-		return Flag[T]{}, fmt.Errorf("invalid flag name: %w", err)
+		return Flag[T]{}, fmt.Errorf("invalid flag name %q: %w", name, err)
 	}
 	if err := validateFlagShort(short); err != nil {
 		return Flag[T]{}, fmt.Errorf("invalid shorthand for flag %q: %w", name, err)
@@ -392,24 +392,28 @@ func validateFlagName(name string) error {
 	// Hyphen must be in between "words" like "set-default"
 	// we can't have "-default" or "default-"
 	if found && after == "" {
-		return fmt.Errorf("trailing hyphen: %q", name)
+		return errors.New("trailing hyphen")
 	}
 
 	if found && before == "" {
-		return fmt.Errorf("leading hyphen: %q", name)
+		return errors.New("leading hyphen")
 	}
 	for _, char := range name {
+		// No whitespace
+		if unicode.IsSpace(char) {
+			return errors.New("cannot contain whitespace")
+		}
 		// Only ASCII characters allowed
 		if char > unicode.MaxASCII {
-			return fmt.Errorf("non ascii character: %q", string(char))
+			return fmt.Errorf("contains non ascii character: %q", string(char))
 		}
 		// Only non-letter character allowed is a hyphen
 		if !unicode.IsLetter(char) && char != '-' {
-			return fmt.Errorf("not ascii letter: %q", string(char))
+			return fmt.Errorf("contains non ascii letter: %q", string(char))
 		}
 		// Any upper case letters are not allowed
 		if unicode.IsLetter(char) && !unicode.IsLower(char) {
-			return fmt.Errorf("upper case character %q", string(char))
+			return fmt.Errorf("contains upper case character %q", string(char))
 		}
 	}
 
