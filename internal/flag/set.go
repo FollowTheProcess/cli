@@ -160,6 +160,7 @@ func (s *Set) parseLongFlag(long string, rest []string) (remaining []string, err
 		return rest[1:], nil
 	default:
 		// --flag (value was required)
+		// Do we ever hit this? Idk when a flag would be required
 		return nil, fmt.Errorf("flag --%s requires an argument", name)
 	}
 }
