@@ -224,6 +224,9 @@ func (s *Set) parseShortFlag(short string, rest []string) (remaining []string, e
 		if !exists {
 			return nil, fmt.Errorf("unrecognised shorthand flag: -%s", string(char))
 		}
+		// BUG: This is actually wrong, the value should be interpreted as a count or something
+		// imagine a verbosity flag and -vvv should mean "increase verbosity to 3" but none of that
+		// is implemented yet
 		if err := flag.value.Set(value); err != nil {
 			return nil, err
 		}
