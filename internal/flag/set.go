@@ -187,6 +187,7 @@ func (s *Set) parseShortFlag(short string, rest []string) (remaining []string, e
 	if err := validateFlagName(shorthand); err != nil {
 		return nil, fmt.Errorf("invalid flag name %q: %w", shorthand, err)
 	}
+
 	if containsEquals {
 		// Yes, it is. If the thing on the left of the equals is > 1 char it's an error
 		if len(shorthand) != 1 {
@@ -224,6 +225,9 @@ func (s *Set) parseShortFlag(short string, rest []string) (remaining []string, e
 		if !exists {
 			return nil, fmt.Errorf("unrecognised shorthand flag: -%s", string(char))
 		}
+		// BUG: This is actually wrong, the value should be interpreted as a count or something
+		// imagine a verbosity flag and -vvv should mean "increase verbosity to 3" but none of that
+		// is implemented yet
 		if err := flag.value.Set(value); err != nil {
 			return nil, err
 		}
