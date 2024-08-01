@@ -187,6 +187,7 @@ func (s *Set) parseShortFlag(short string, rest []string) (remaining []string, e
 	if err := validateFlagName(shorthand); err != nil {
 		return nil, fmt.Errorf("invalid flag name %q: %w", shorthand, err)
 	}
+
 	if containsEquals {
 		// Yes, it is. If the thing on the left of the equals is > 1 char it's an error
 		if len(shorthand) != 1 {

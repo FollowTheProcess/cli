@@ -8,6 +8,8 @@ import (
 	"github.com/FollowTheProcess/test"
 )
 
+// TODO: Test cases where we use NoShorthand but pass shorthands, should return unrecognised flag error
+
 func TestParse(t *testing.T) {
 	tests := []struct {
 		name    string                            // The name of the test case
@@ -226,6 +228,16 @@ func TestParse(t *testing.T) {
 				return flag.NewSet()
 			},
 			args:    []string{"-Ê"},
+			wantErr: true,
+			errMsg:  `invalid flag name "Ê": contains non ascii character: "Ê"`,
+		},
+		{
+			name: "bad syntax short non utf8 equals",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return flag.NewSet()
+			},
+			args:    []string{"-Ê=something"},
 			wantErr: true,
 			errMsg:  `invalid flag name "Ê": contains non ascii character: "Ê"`,
 		},
