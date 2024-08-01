@@ -8,6 +8,8 @@ import (
 	"github.com/FollowTheProcess/test"
 )
 
+// TODO: Test cases where we use NoShorthand but pass shorthands, should return unrecognised flag error
+
 func TestParse(t *testing.T) {
 	tests := []struct {
 		name    string                            // The name of the test case
@@ -208,6 +210,46 @@ func TestParse(t *testing.T) {
 			args:    []string{"-d "},
 			wantErr: true,
 			errMsg:  `invalid flag name "d ": cannot contain whitespace`,
+		},
+		{
+			name: "bad syntax short more than 1 char equals",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return flag.NewSet()
+			},
+			args:    []string{"-dfv=something"},
+			wantErr: true,
+			errMsg:  "invalid shorthand syntax: expected e.g. -f=<value> got -dfv=something",
+		},
+		{
+			name: "bad syntax short non utf8",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return flag.NewSet()
+			},
+			args:    []string{"-Ê"},
+			wantErr: true,
+			errMsg:  `invalid flag name "Ê": contains non ascii character: "Ê"`,
+		},
+		{
+			name: "bad syntax short non utf8 equals",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return flag.NewSet()
+			},
+			args:    []string{"-Ê=something"},
+			wantErr: true,
+			errMsg:  `invalid flag name "Ê": contains non ascii character: "Ê"`,
+		},
+		{
+			name: "bad syntax short multiple non utf8",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return flag.NewSet()
+			},
+			args:    []string{"-本¼語"},
+			wantErr: true,
+			errMsg:  `invalid flag name "本¼語": contains non ascii character: "本"`,
 		},
 		{
 			name: "bad syntax long internal whitespace",
