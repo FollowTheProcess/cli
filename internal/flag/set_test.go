@@ -237,6 +237,30 @@ func TestParse(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "valid long with args",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				value, exists := set.Get("delete")
+				test.True(t, exists)
+
+				test.Equal(t, value.Type(), "bool")
+				test.Equal(t, value.String(), "true")
+			},
+			args:    []string{"some", "subcommand", "--delete"},
+			wantErr: false,
+		},
+		{
 			name: "valid short",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
@@ -261,6 +285,30 @@ func TestParse(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "valid short with args",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				value, exists := set.Get("delete")
+				test.True(t, exists)
+
+				test.Equal(t, value.Type(), "bool")
+				test.Equal(t, value.String(), "true")
+			},
+			args:    []string{"some", "arg", "-d"},
+			wantErr: false,
+		},
+		{
 			name: "valid long value",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
@@ -282,6 +330,30 @@ func TestParse(t *testing.T) {
 				test.Equal(t, value.String(), "1")
 			},
 			args:    []string{"--count", "1"},
+			wantErr: false,
+		},
+		{
+			name: "valid long value with args",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				value, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, value.Type(), "int")
+				test.Equal(t, value.String(), "1")
+			},
+			args:    []string{"some", "arg", "--count", "1", "more", "args"},
 			wantErr: false,
 		},
 		{
@@ -334,6 +406,30 @@ func TestParse(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "valid short value with args",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				value, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, value.Type(), "int")
+				test.Equal(t, value.String(), "1")
+			},
+			args:    []string{"args", "-c", "1", "more", "args"},
+			wantErr: false,
+		},
+		{
 			name: "invalid short value",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
@@ -380,6 +476,30 @@ func TestParse(t *testing.T) {
 				test.Equal(t, value.String(), "1")
 			},
 			args:    []string{"--count=1"},
+			wantErr: false,
+		},
+		{
+			name: "valid long equals value with args",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				value, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, value.Type(), "int")
+				test.Equal(t, value.String(), "1")
+			},
+			args:    []string{"args", "--count=1", "more", "args"},
 			wantErr: false,
 		},
 		{
@@ -432,7 +552,7 @@ func TestParse(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "valid short equals value",
+			name: "valid short equals value with args",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
 				set := flag.NewSet()
@@ -452,7 +572,7 @@ func TestParse(t *testing.T) {
 				test.Equal(t, value.Type(), "int")
 				test.Equal(t, value.String(), "1")
 			},
-			args:    []string{"-c=1"},
+			args:    []string{"args", "-c=1", "more", "args"},
 			wantErr: false,
 		},
 	}
