@@ -441,7 +441,7 @@ func validateFlagShort(short rune) error {
 // value parsing errors.
 func errParse[T any](name, str string, typ *T, err error) error {
 	return fmt.Errorf(
-		"flag %s received invalid value %q (expected %T), detail: %w",
+		"flag %q received invalid value %q (expected %T), detail: %w",
 		name,
 		str,
 		*typ,
