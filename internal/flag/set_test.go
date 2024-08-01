@@ -1,6 +1,7 @@
 package flag_test
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/FollowTheProcess/cli/internal/flag"
@@ -27,6 +28,8 @@ func TestParse(t *testing.T) {
 				f, exists := set.Get("something")
 				test.False(t, exists)
 				test.Equal(t, f, nil)
+
+				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
 			args:    []string{},
 			wantErr: false,
@@ -42,6 +45,8 @@ func TestParse(t *testing.T) {
 				f, exists := set.Get("something")
 				test.False(t, exists)
 				test.Equal(t, f, nil)
+
+				test.EqualFunc(t, set.Args(), []string{"some", "args", "here", "no", "flags"}, slices.Equal)
 			},
 			args:    []string{"some", "args", "here", "no", "flags"},
 			wantErr: false,
@@ -57,6 +62,8 @@ func TestParse(t *testing.T) {
 				f, exists := set.Get("flag")
 				test.False(t, exists)
 				test.Equal(t, f, nil)
+
+				test.EqualFunc(t, set.Args(), []string{"some", "args", "here"}, slices.Equal)
 			},
 			args:    []string{"some", "args", "here", "--flag", "-s"},
 			wantErr: true,
@@ -232,6 +239,8 @@ func TestParse(t *testing.T) {
 
 				test.Equal(t, value.Type(), "bool")
 				test.Equal(t, value.String(), "true")
+
+				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
 			args:    []string{"--delete"},
 			wantErr: false,
@@ -256,6 +265,8 @@ func TestParse(t *testing.T) {
 
 				test.Equal(t, value.Type(), "bool")
 				test.Equal(t, value.String(), "true")
+
+				test.EqualFunc(t, set.Args(), []string{"some", "subcommand"}, slices.Equal)
 			},
 			args:    []string{"some", "subcommand", "--delete"},
 			wantErr: false,
@@ -280,6 +291,8 @@ func TestParse(t *testing.T) {
 
 				test.Equal(t, value.Type(), "bool")
 				test.Equal(t, value.String(), "true")
+
+				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
 			args:    []string{"-d"},
 			wantErr: false,
@@ -304,6 +317,8 @@ func TestParse(t *testing.T) {
 
 				test.Equal(t, value.Type(), "bool")
 				test.Equal(t, value.String(), "true")
+
+				test.EqualFunc(t, set.Args(), []string{"some", "arg"}, slices.Equal)
 			},
 			args:    []string{"some", "arg", "-d"},
 			wantErr: false,
@@ -328,6 +343,8 @@ func TestParse(t *testing.T) {
 
 				test.Equal(t, value.Type(), "int")
 				test.Equal(t, value.String(), "1")
+
+				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
 			args:    []string{"--count", "1"},
 			wantErr: false,
@@ -352,6 +369,8 @@ func TestParse(t *testing.T) {
 
 				test.Equal(t, value.Type(), "int")
 				test.Equal(t, value.String(), "1")
+
+				test.EqualFunc(t, set.Args(), []string{"some", "arg", "more", "args"}, slices.Equal)
 			},
 			args:    []string{"some", "arg", "--count", "1", "more", "args"},
 			wantErr: false,
@@ -401,6 +420,8 @@ func TestParse(t *testing.T) {
 
 				test.Equal(t, value.Type(), "int")
 				test.Equal(t, value.String(), "1")
+
+				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
 			args:    []string{"-c", "1"},
 			wantErr: false,
@@ -425,6 +446,8 @@ func TestParse(t *testing.T) {
 
 				test.Equal(t, value.Type(), "int")
 				test.Equal(t, value.String(), "1")
+
+				test.EqualFunc(t, set.Args(), []string{"args", "more", "args"}, slices.Equal)
 			},
 			args:    []string{"args", "-c", "1", "more", "args"},
 			wantErr: false,
@@ -498,6 +521,8 @@ func TestParse(t *testing.T) {
 
 				test.Equal(t, value.Type(), "int")
 				test.Equal(t, value.String(), "1")
+
+				test.EqualFunc(t, set.Args(), []string{"args", "more", "args"}, slices.Equal)
 			},
 			args:    []string{"args", "--count=1", "more", "args"},
 			wantErr: false,
@@ -571,6 +596,8 @@ func TestParse(t *testing.T) {
 
 				test.Equal(t, value.Type(), "int")
 				test.Equal(t, value.String(), "1")
+
+				test.EqualFunc(t, set.Args(), []string{"args", "more", "args"}, slices.Equal)
 			},
 			args:    []string{"args", "-c=1", "more", "args"},
 			wantErr: false,
