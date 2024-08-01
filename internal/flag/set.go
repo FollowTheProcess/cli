@@ -68,6 +68,12 @@ func (s *Set) Get(name string) (Value, bool) {
 	return entry.value, true
 }
 
+// Args returns a slice of all the non-flag arguments.
+func (s *Set) Args() []string {
+	// TODO: Handle nil safety
+	return s.args
+}
+
 // Parse parses flags and their values from the command line.
 func (s *Set) Parse(args []string) (err error) {
 	if s == nil {
