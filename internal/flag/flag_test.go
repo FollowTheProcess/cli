@@ -36,7 +36,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag int received invalid value "word" (expected int), detail: strconv.ParseInt: parsing "word": invalid syntax`,
+			`flag "int" received invalid value "word" (expected int), detail: strconv.ParseInt: parsing "word": invalid syntax`,
 		)
 	})
 
@@ -62,7 +62,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag int received invalid value "word" (expected int8), detail: strconv.ParseInt: parsing "word": invalid syntax`,
+			`flag "int" received invalid value "word" (expected int8), detail: strconv.ParseInt: parsing "word": invalid syntax`,
 		)
 	})
 
@@ -88,7 +88,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag int received invalid value "word" (expected int16), detail: strconv.ParseInt: parsing "word": invalid syntax`,
+			`flag "int" received invalid value "word" (expected int16), detail: strconv.ParseInt: parsing "word": invalid syntax`,
 		)
 	})
 
@@ -114,7 +114,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag int received invalid value "word" (expected int32), detail: strconv.ParseInt: parsing "word": invalid syntax`,
+			`flag "int" received invalid value "word" (expected int32), detail: strconv.ParseInt: parsing "word": invalid syntax`,
 		)
 	})
 
@@ -140,7 +140,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag int received invalid value "word" (expected int64), detail: strconv.ParseInt: parsing "word": invalid syntax`,
+			`flag "int" received invalid value "word" (expected int64), detail: strconv.ParseInt: parsing "word": invalid syntax`,
 		)
 	})
 
@@ -166,7 +166,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag uint received invalid value "word" (expected uint), detail: strconv.ParseUint: parsing "word": invalid syntax`,
+			`flag "uint" received invalid value "word" (expected uint), detail: strconv.ParseUint: parsing "word": invalid syntax`,
 		)
 	})
 
@@ -192,7 +192,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag uint received invalid value "word" (expected uint8), detail: strconv.ParseUint: parsing "word": invalid syntax`,
+			`flag "uint" received invalid value "word" (expected uint8), detail: strconv.ParseUint: parsing "word": invalid syntax`,
 		)
 	})
 
@@ -218,7 +218,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag uint received invalid value "word" (expected uint16), detail: strconv.ParseUint: parsing "word": invalid syntax`,
+			`flag "uint" received invalid value "word" (expected uint16), detail: strconv.ParseUint: parsing "word": invalid syntax`,
 		)
 	})
 
@@ -244,7 +244,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag uint received invalid value "word" (expected uint32), detail: strconv.ParseUint: parsing "word": invalid syntax`,
+			`flag "uint" received invalid value "word" (expected uint32), detail: strconv.ParseUint: parsing "word": invalid syntax`,
 		)
 	})
 
@@ -270,7 +270,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag uint received invalid value "word" (expected uint64), detail: strconv.ParseUint: parsing "word": invalid syntax`,
+			`flag "uint" received invalid value "word" (expected uint64), detail: strconv.ParseUint: parsing "word": invalid syntax`,
 		)
 	})
 
@@ -296,7 +296,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag uintptr received invalid value "word" (expected uintptr), detail: strconv.ParseUint: parsing "word": invalid syntax`,
+			`flag "uintptr" received invalid value "word" (expected uintptr), detail: strconv.ParseUint: parsing "word": invalid syntax`,
 		)
 	})
 
@@ -322,7 +322,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag float received invalid value "word" (expected float32), detail: strconv.ParseFloat: parsing "word": invalid syntax`,
+			`flag "float" received invalid value "word" (expected float32), detail: strconv.ParseFloat: parsing "word": invalid syntax`,
 		)
 	})
 
@@ -348,7 +348,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag float received invalid value "word" (expected float64), detail: strconv.ParseFloat: parsing "word": invalid syntax`,
+			`flag "float" received invalid value "word" (expected float64), detail: strconv.ParseFloat: parsing "word": invalid syntax`,
 		)
 	})
 
@@ -374,7 +374,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag bool received invalid value "word" (expected bool), detail: strconv.ParseBool: parsing "word": invalid syntax`,
+			`flag "bool" received invalid value "word" (expected bool), detail: strconv.ParseBool: parsing "word": invalid syntax`,
 		)
 	})
 
@@ -414,7 +414,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag byte received invalid value "0xF" (expected []uint8), detail: encoding/hex: invalid byte: U+0078 'x'`,
+			`flag "byte" received invalid value "0xF" (expected []uint8), detail: encoding/hex: invalid byte: U+0078 'x'`,
 		)
 	})
 
@@ -443,7 +443,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag time received invalid value "not a time" (expected time.Time), detail: parsing time "not a time" as "2006-01-02T15:04:05Z07:00": cannot parse "not a time" as "2006"`,
+			`flag "time" received invalid value "not a time" (expected time.Time), detail: parsing time "not a time" as "2006-01-02T15:04:05Z07:00": cannot parse "not a time" as "2006"`,
 		)
 	})
 
@@ -484,7 +484,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag duration received invalid value "not a duration" (expected time.Duration), detail: time: invalid duration "not a duration"`,
+			`flag "duration" received invalid value "not a duration" (expected time.Duration), detail: time: invalid duration "not a duration"`,
 		)
 	})
 
@@ -510,7 +510,7 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(
 			t,
 			err.Error(),
-			`flag ip received invalid value "not an ip" (expected net.IP), detail: invalid IP address`,
+			`flag "ip" received invalid value "not an ip" (expected net.IP), detail: invalid IP address`,
 		)
 	})
 }
