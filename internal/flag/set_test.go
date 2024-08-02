@@ -328,7 +328,15 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
+				// Get by name
 				entry, exists := set.Get("delete")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "bool")
+				test.Equal(t, entry.Value.String(), "true")
+
+				// Get by short
+				entry, exists = set.Get("delete")
 				test.True(t, exists)
 
 				test.Equal(t, entry.Value.Type(), "bool")
@@ -354,7 +362,15 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
+				// Get by name
 				entry, exists := set.Get("delete")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "bool")
+				test.Equal(t, entry.Value.String(), "true")
+
+				// Get by short
+				entry, exists = set.Get("delete")
 				test.True(t, exists)
 
 				test.Equal(t, entry.Value.Type(), "bool")
@@ -457,7 +473,15 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
+				// Get by name
 				entry, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
+
+				// Get by short
+				entry, exists = set.GetShort('c')
 				test.True(t, exists)
 
 				test.Equal(t, entry.Value.Type(), "int")
@@ -483,7 +507,15 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
+				// Get by name
 				entry, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
+
+				// Get by short
+				entry, exists = set.GetShort('c')
 				test.True(t, exists)
 
 				test.Equal(t, entry.Value.Type(), "int")
@@ -609,7 +641,15 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
+				// Get by name
 				entry, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
+
+				// Get by short
+				entry, exists = set.GetShort('c')
 				test.True(t, exists)
 
 				test.Equal(t, entry.Value.Type(), "int")
@@ -633,7 +673,15 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
+				// Get by name
 				entry, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
+
+				// Get by short
+				entry, exists = set.GetShort('c')
 				test.True(t, exists)
 
 				test.Equal(t, entry.Value.Type(), "int")
@@ -691,6 +739,19 @@ func TestFlagSet(t *testing.T) {
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
 				f, exists := set.Get("missing")
+				test.False(t, exists)
+				test.Equal(t, f, flag.Entry{})
+			},
+		},
+		{
+			name: "nil safe get short",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return nil // uh oh
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				f, exists := set.GetShort('m')
 				test.False(t, exists)
 				test.Equal(t, f, flag.Entry{})
 			},

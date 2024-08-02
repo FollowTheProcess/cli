@@ -68,6 +68,19 @@ func (s *Set) Get(name string) (Entry, bool) {
 	return entry, true
 }
 
+// GetShort gets a flag [Entry] from the Set by it's shorthand and a boolean to indicate
+// whether it was present.
+func (s *Set) GetShort(short rune) (Entry, bool) {
+	if s == nil {
+		return Entry{}, false
+	}
+	entry, ok := s.shorthands[short]
+	if !ok {
+		return Entry{}, false
+	}
+	return entry, true
+}
+
 // Help returns whether the [Set] has a boolean flag named "help" and what the value
 // of that flag is currently set to, it simplifies checking for --help.
 func (s *Set) Help() (value, ok bool) {
