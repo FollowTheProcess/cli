@@ -93,11 +93,12 @@ func TestSubCommandExecute(t *testing.T) {
 		stdout  string   // Expected stdout
 		stderr  string   // Expected stderr
 		args    []string // Args passed to root command
+		extra   []string // Extra args after "--" if present
 		wantErr bool     // Whether or not we wanted an error
 	}{
 		{
 			name:    "invoke sub1 no flags",
-			stdout:  "Hello from sub1, my args were: [my subcommand args], force was false, something was <empty>",
+			stdout:  "Hello from sub1, my args were: [my subcommand args], force was false, something was <empty>, extra args: []",
 			stderr:  "",
 			args:    []string{"sub1", "my", "subcommand", "args"},
 			wantErr: false,
@@ -111,28 +112,28 @@ func TestSubCommandExecute(t *testing.T) {
 		},
 		{
 			name:    "invoke sub1 with flags",
-			stdout:  "Hello from sub1, my args were: [my subcommand args], force was true, something was here",
+			stdout:  "Hello from sub1, my args were: [my subcommand args], force was true, something was here, extra args: []",
 			stderr:  "",
 			args:    []string{"sub1", "my", "subcommand", "args", "--force", "--something", "here"},
 			wantErr: false,
 		},
 		{
 			name:    "invoke sub1 with arg terminator",
-			stdout:  "Hello from sub1, my args were: [my subcommand args more args here], force was true, something was here",
+			stdout:  "Hello from sub1, my args were: [my subcommand args more args here], force was true, something was here, extra args: [more args here]",
 			stderr:  "",
 			args:    []string{"sub1", "my", "subcommand", "args", "--force", "--something", "here", "--", "more", "args", "here"},
 			wantErr: false,
 		},
 		{
 			name:    "invoke sub1 with sub1 in the arg list",
-			stdout:  "Hello from sub1, my args were: [my sub1 args sub1 more args here], force was true, something was here",
+			stdout:  "Hello from sub1, my args were: [my sub1 args sub1 more args here], force was true, something was here, extra args: []",
 			stderr:  "",
-			args:    []string{"sub1", "my", "sub1", "args", "sub1", "--force", "--something", "here", "--", "more", "args", "here"},
+			args:    []string{"sub1", "my", "sub1", "args", "sub1", "--force", "--something", "here", "more", "args", "here"},
 			wantErr: false,
 		},
 		{
 			name:    "invoke sub1 with sub1 as a flag value",
-			stdout:  "Hello from sub1, my args were: [my subcommand args more args here], force was true, something was sub2",
+			stdout:  "Hello from sub1, my args were: [my subcommand args more args here], force was true, something was sub2, extra args: []",
 			stderr:  "",
 			args:    []string{"sub1", "my", "subcommand", "args", "--force", "--something", "sub2", "more", "args", "here"},
 			wantErr: false,
@@ -165,10 +166,11 @@ func TestSubCommandExecute(t *testing.T) {
 					}
 					fmt.Fprintf(
 						cmd.Stdout(),
-						"Hello from sub1, my args were: %v, force was %v, something was %s",
+						"Hello from sub1, my args were: %v, force was %v, something was %s, extra args: %v",
 						args,
 						force,
 						something,
+						cmd.ExtraArgs(),
 					)
 					return nil
 				}),

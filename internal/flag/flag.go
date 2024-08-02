@@ -23,8 +23,6 @@ import (
 	"unicode"
 	"unicode/utf8"
 	"unsafe"
-
-	"github.com/spf13/pflag"
 )
 
 const (
@@ -66,10 +64,7 @@ const (
 // should be the long hand version only e.g. --count, not -c/--count.
 const NoShortHand = rune(-1)
 
-var (
-	_ pflag.Value = Flag[string]{} // This will fail if we violate pflag.Value
-	_ Value       = Flag[string]{} // This one will fail if we violate our own Value interface
-)
+var _ Value = Flag[string]{} // This will fail if we violate our Value interface
 
 // Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
 //
