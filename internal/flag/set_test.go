@@ -1,11 +1,20 @@
 package flag_test
 
 import (
+	goflag "flag"
+	"fmt"
+	"os"
+	"path/filepath"
 	"slices"
 	"testing"
 
 	"github.com/FollowTheProcess/cli/internal/flag"
 	"github.com/FollowTheProcess/test"
+)
+
+var (
+	debug  = goflag.Bool("debug", false, "Print debug output during tests")
+	update = goflag.Bool("update", false, "Update golden files")
 )
 
 // TODO: Test cases where we use NoShorthand but pass shorthands, should return unrecognised flag error
@@ -29,7 +38,7 @@ func TestParse(t *testing.T) {
 				t.Helper()
 				f, exists := set.Get("something")
 				test.False(t, exists)
-				test.Equal(t, f, nil)
+				test.Equal(t, f, flag.Entry{})
 
 				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
@@ -46,7 +55,7 @@ func TestParse(t *testing.T) {
 				t.Helper()
 				f, exists := set.Get("something")
 				test.False(t, exists)
-				test.Equal(t, f, nil)
+				test.Equal(t, f, flag.Entry{})
 
 				test.EqualFunc(t, set.Args(), []string{"some", "args", "here", "no", "flags"}, slices.Equal)
 			},
@@ -63,7 +72,7 @@ func TestParse(t *testing.T) {
 				t.Helper()
 				f, exists := set.Get("flag")
 				test.False(t, exists)
-				test.Equal(t, f, nil)
+				test.Equal(t, f, flag.Entry{})
 
 				test.EqualFunc(t, set.Args(), []string{"some", "args", "here"}, slices.Equal)
 			},
@@ -276,11 +285,11 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
-				value, exists := set.Get("delete")
+				entry, exists := set.Get("delete")
 				test.True(t, exists)
 
-				test.Equal(t, value.Type(), "bool")
-				test.Equal(t, value.String(), "true")
+				test.Equal(t, entry.Value.Type(), "bool")
+				test.Equal(t, entry.Value.String(), "true")
 
 				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
@@ -302,11 +311,11 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
-				value, exists := set.Get("delete")
+				entry, exists := set.Get("delete")
 				test.True(t, exists)
 
-				test.Equal(t, value.Type(), "bool")
-				test.Equal(t, value.String(), "true")
+				test.Equal(t, entry.Value.Type(), "bool")
+				test.Equal(t, entry.Value.String(), "true")
 
 				test.EqualFunc(t, set.Args(), []string{"some", "subcommand"}, slices.Equal)
 			},
@@ -328,11 +337,19 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
-				value, exists := set.Get("delete")
+				// Get by name
+				entry, exists := set.Get("delete")
 				test.True(t, exists)
 
-				test.Equal(t, value.Type(), "bool")
-				test.Equal(t, value.String(), "true")
+				test.Equal(t, entry.Value.Type(), "bool")
+				test.Equal(t, entry.Value.String(), "true")
+
+				// Get by short
+				entry, exists = set.Get("delete")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "bool")
+				test.Equal(t, entry.Value.String(), "true")
 
 				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
@@ -354,11 +371,19 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
-				value, exists := set.Get("delete")
+				// Get by name
+				entry, exists := set.Get("delete")
 				test.True(t, exists)
 
-				test.Equal(t, value.Type(), "bool")
-				test.Equal(t, value.String(), "true")
+				test.Equal(t, entry.Value.Type(), "bool")
+				test.Equal(t, entry.Value.String(), "true")
+
+				// Get by short
+				entry, exists = set.Get("delete")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "bool")
+				test.Equal(t, entry.Value.String(), "true")
 
 				test.EqualFunc(t, set.Args(), []string{"some", "arg"}, slices.Equal)
 			},
@@ -380,11 +405,11 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
-				value, exists := set.Get("count")
+				entry, exists := set.Get("count")
 				test.True(t, exists)
 
-				test.Equal(t, value.Type(), "int")
-				test.Equal(t, value.String(), "1")
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
 
 				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
@@ -406,11 +431,11 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
-				value, exists := set.Get("count")
+				entry, exists := set.Get("count")
 				test.True(t, exists)
 
-				test.Equal(t, value.Type(), "int")
-				test.Equal(t, value.String(), "1")
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
 
 				test.EqualFunc(t, set.Args(), []string{"some", "arg", "more", "args"}, slices.Equal)
 			},
@@ -432,11 +457,11 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
-				value, exists := set.Get("number")
+				entry, exists := set.Get("number")
 				test.True(t, exists)
 
-				test.Equal(t, value.Type(), "uint")
-				test.Equal(t, value.String(), "0") // Shouldn't have been set
+				test.Equal(t, entry.Value.Type(), "uint")
+				test.Equal(t, entry.Value.String(), "0") // Shouldn't have been set
 			},
 			args:    []string{"--number", "-8"}, // Trying to set a uint flag to negative number
 			wantErr: true,
@@ -457,11 +482,19 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
-				value, exists := set.Get("count")
+				// Get by name
+				entry, exists := set.Get("count")
 				test.True(t, exists)
 
-				test.Equal(t, value.Type(), "int")
-				test.Equal(t, value.String(), "1")
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
+
+				// Get by short
+				entry, exists = set.GetShort('c')
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
 
 				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
@@ -483,11 +516,19 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
-				value, exists := set.Get("count")
+				// Get by name
+				entry, exists := set.Get("count")
 				test.True(t, exists)
 
-				test.Equal(t, value.Type(), "int")
-				test.Equal(t, value.String(), "1")
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
+
+				// Get by short
+				entry, exists = set.GetShort('c')
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
 
 				test.EqualFunc(t, set.Args(), []string{"args", "more", "args"}, slices.Equal)
 			},
@@ -509,11 +550,11 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
-				value, exists := set.Get("number")
+				entry, exists := set.Get("number")
 				test.True(t, exists)
 
-				test.Equal(t, value.Type(), "uint")
-				test.Equal(t, value.String(), "0") // Shouldn't have been set
+				test.Equal(t, entry.Value.Type(), "uint")
+				test.Equal(t, entry.Value.String(), "0") // Shouldn't have been set
 			},
 			args:    []string{"-n", "-8"}, // Trying to set a uint flag to negative number
 			wantErr: true,
@@ -534,11 +575,11 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
-				value, exists := set.Get("count")
+				entry, exists := set.Get("count")
 				test.True(t, exists)
 
-				test.Equal(t, value.Type(), "int")
-				test.Equal(t, value.String(), "1")
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
 			},
 			args:    []string{"--count=1"},
 			wantErr: false,
@@ -558,11 +599,11 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
-				value, exists := set.Get("count")
+				entry, exists := set.Get("count")
 				test.True(t, exists)
 
-				test.Equal(t, value.Type(), "int")
-				test.Equal(t, value.String(), "1")
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
 
 				test.EqualFunc(t, set.Args(), []string{"args", "more", "args"}, slices.Equal)
 			},
@@ -584,11 +625,11 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
-				value, exists := set.Get("number")
+				entry, exists := set.Get("number")
 				test.True(t, exists)
 
-				test.Equal(t, value.Type(), "uint")
-				test.Equal(t, value.String(), "0") // Shouldn't have been set
+				test.Equal(t, entry.Value.Type(), "uint")
+				test.Equal(t, entry.Value.String(), "0") // Shouldn't have been set
 			},
 			args:    []string{"--number=-8"}, // Trying to set a uint flag to negative number
 			wantErr: true,
@@ -609,11 +650,19 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
-				value, exists := set.Get("count")
+				// Get by name
+				entry, exists := set.Get("count")
 				test.True(t, exists)
 
-				test.Equal(t, value.Type(), "int")
-				test.Equal(t, value.String(), "1")
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
+
+				// Get by short
+				entry, exists = set.GetShort('c')
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
 			},
 			args:    []string{"-c=1"},
 			wantErr: false,
@@ -633,11 +682,19 @@ func TestParse(t *testing.T) {
 			},
 			test: func(t *testing.T, set *flag.Set) {
 				t.Helper()
-				value, exists := set.Get("count")
+				// Get by name
+				entry, exists := set.Get("count")
 				test.True(t, exists)
 
-				test.Equal(t, value.Type(), "int")
-				test.Equal(t, value.String(), "1")
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
+
+				// Get by short
+				entry, exists = set.GetShort('c')
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
 
 				test.EqualFunc(t, set.Args(), []string{"args", "more", "args"}, slices.Equal)
 			},
@@ -679,7 +736,7 @@ func TestFlagSet(t *testing.T) {
 				t.Helper()
 				f, exists := set.Get("missing")
 				test.False(t, exists)
-				test.Equal(t, f, nil)
+				test.Equal(t, f, flag.Entry{})
 			},
 		},
 		{
@@ -692,7 +749,20 @@ func TestFlagSet(t *testing.T) {
 				t.Helper()
 				f, exists := set.Get("missing")
 				test.False(t, exists)
-				test.Equal(t, f, nil)
+				test.Equal(t, f, flag.Entry{})
+			},
+		},
+		{
+			name: "nil safe get short",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return nil // uh oh
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				f, exists := set.GetShort('m')
+				test.False(t, exists)
+				test.Equal(t, f, flag.Entry{})
 			},
 		},
 		{
@@ -781,6 +851,87 @@ func TestFlagSet(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			set := tt.newSet(t)
 			tt.test(t, set)
+		})
+	}
+}
+
+func TestUsage(t *testing.T) {
+	tests := []struct {
+		newSet func(t *testing.T) *flag.Set // Function to build the flag set under test
+		name   string                       // Name of the test case
+		golden string                       // Name of the file containing expected output
+	}{
+		{
+			name: "simple",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				help, err := flag.New(new(bool), "help", 'h', false, "Show help for test")
+				test.Ok(t, err)
+
+				version, err := flag.New(new(bool), "version", 'v', false, "Show version info for test")
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+
+				err = flag.AddToSet(set, help)
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, version)
+				test.Ok(t, err)
+
+				return set
+			},
+			golden: "simple.txt",
+		},
+		{
+			name: "no shorthand",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				help, err := flag.New(new(bool), "help", 'h', false, "Show help for test")
+				test.Ok(t, err)
+
+				version, err := flag.New(new(bool), "version", 'v', false, "Show version info for test")
+				test.Ok(t, err)
+
+				up, err := flag.New(new(bool), "update", flag.NoShortHand, false, "Update something")
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+
+				err = flag.AddToSet(set, help)
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, version)
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, up)
+				test.Ok(t, err)
+
+				return set
+			},
+			golden: "no-shorthand.txt",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			set := tt.newSet(t)
+			golden := filepath.Join(test.Data(t), "TestUsage", tt.golden)
+
+			got, err := set.Usage()
+			test.Ok(t, err)
+
+			if *debug {
+				fmt.Printf("DEBUG\n_____\n\n%s\n", got)
+			}
+
+			if *update {
+				t.Logf("Updating %s\n", golden)
+				err := os.WriteFile(golden, []byte(got), os.ModePerm)
+				test.Ok(t, err)
+			}
+
+			test.File(t, got, filepath.Join("TestUsage", tt.golden))
 		})
 	}
 }

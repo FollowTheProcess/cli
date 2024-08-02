@@ -17,7 +17,7 @@ import (
 // TableWriter config, used for showing subcommands in help.
 const (
 	minWidth = 0    // Min cell width
-	tabWidth = 8    // Tab width in spaces
+	tabWidth = 4    // Tab width in spaces
 	padding  = 1    // Padding
 	padChar  = '\t' // Char to pad with
 )
