@@ -9,16 +9,16 @@ import (
 
 // Set is a set of command line flags.
 type Set struct {
-	flags      map[string]flagEntry // The actual stored flags, can lookup by name
-	shorthands map[rune]flagEntry   // The flags by shorthand
-	args       []string             // Arguments minus flags or flag values
+	flags      map[string]Entry // The actual stored flags, can lookup by name
+	shorthands map[rune]Entry   // The flags by shorthand
+	args       []string         // Arguments minus flags or flag values
 }
 
 // NewSet builds and returns a new set of flags.
 func NewSet() *Set {
 	return &Set{
-		flags:      make(map[string]flagEntry),
-		shorthands: make(map[rune]flagEntry),
+		flags:      make(map[string]Entry),
+		shorthands: make(map[rune]Entry),
 	}
 }
 
@@ -33,17 +33,17 @@ func AddToSet[T Flaggable](set *Set, flag Flag[T]) error {
 		return fmt.Errorf("flag %q already defined", flag.name)
 	}
 	var defaultValueNoArg string
-	if flag.Type() == "bool" {
+	if flag.Type() == typeBool {
 		// Boolean flags imply passing true, "--force" vs "--force true"
-		defaultValueNoArg = "true"
+		defaultValueNoArg = boolTrue
 	}
-	entry := flagEntry{
-		value:             flag,
-		name:              flag.name,
-		usage:             flag.usage,
-		defaultValue:      flag.String(),
-		defaultValueNoArg: defaultValueNoArg,
-		shorthand:         flag.short,
+	entry := Entry{
+		Value:             flag,
+		Name:              flag.name,
+		Usage:             flag.usage,
+		DefaultValue:      flag.String(),
+		DefaultValueNoArg: defaultValueNoArg,
+		Shorthand:         flag.short,
 	}
 	set.flags[flag.name] = entry
 
@@ -55,17 +55,51 @@ func AddToSet[T Flaggable](set *Set, flag Flag[T]) error {
 	return nil
 }
 
-// Get gets a flag Value from the Set by name and a boolean to indicate
+// Get gets a flag [Entry] from the Set by name and a boolean to indicate
 // whether it was present.
-func (s *Set) Get(name string) (Value, bool) {
+func (s *Set) Get(name string) (Entry, bool) {
 	if s == nil {
-		return nil, false
+		return Entry{}, false
 	}
 	entry, ok := s.flags[name]
 	if !ok {
-		return nil, false
+		return Entry{}, false
 	}
-	return entry.value, true
+	return entry, true
+}
+
+// Help returns whether the [Set] has a boolean flag named "help" and what the value
+// of that flag is currently set to, it simplifies checking for --help.
+func (s *Set) Help() (value, ok bool) {
+	entry, exists := s.Get("help")
+	if !exists {
+		// No help defined
+		return false, false
+	}
+	// Is it a bool flag?
+	if entry.Value.Type() != typeBool {
+		return false, false
+	}
+	// It is there, we can infer from the string value what it's set to
+	// to avoid unnecessary type conversions
+	return entry.Value.String() == boolTrue, true
+}
+
+// Verion returns whether the [Set] has a boolean flag named "version" and what the value
+// of that flag is currently set to, it simplifies checking for --version.
+func (s *Set) Version() (value, ok bool) {
+	entry, exists := s.Get("version")
+	if !exists {
+		// No help defined
+		return false, false
+	}
+	// Is it a bool flag?
+	if entry.Value.Type() != typeBool {
+		return false, false
+	}
+	// It is there, we can infer from the string value what it's set to
+	// to avoid unnecessary type conversions
+	return entry.Value.String() == boolTrue, true
 }
 
 // Args returns a slice of all the non-flag arguments.
@@ -105,14 +139,14 @@ func (s *Set) Parse(args []string) (err error) {
 	return nil
 }
 
-// flagEntry represents a single flag in the set.
-type flagEntry struct {
-	value             Value  // The actual Flag[T]
-	name              string // The full name of the flag e.g. "delete"
-	usage             string // The flag's usage message
-	defaultValue      string // String representation of the default flag value
-	defaultValueNoArg string // String representation of the default flag value if used without an arg, e.g. boolean flags "--force" implies "--force true"
-	shorthand         rune   // The optional shorthand e.g. 'd' or [NoShortHand]
+// Entry represents a single flag in the set, as stored.
+type Entry struct {
+	Value             Value  // The actual Flag[T]
+	Name              string // The full name of the flag e.g. "delete"
+	Usage             string // The flag's usage message
+	DefaultValue      string // String representation of the default flag value
+	DefaultValueNoArg string // String representation of the default flag value if used without an arg, e.g. boolean flags "--force" implies "--force true"
+	Shorthand         rune   // The optional shorthand e.g. 'd' or [NoShortHand]
 }
 
 // parseLongFlag parses a single long flag e.g. --delete. It is passed
@@ -136,7 +170,7 @@ func (s *Set) parseLongFlag(long string, rest []string) (remaining []string, err
 
 	if containsEquals {
 		// Must be "flag=value"
-		err := flag.value.Set(value)
+		err := flag.Value.Set(value)
 		if err != nil {
 			return nil, err
 		}
@@ -147,9 +181,9 @@ func (s *Set) parseLongFlag(long string, rest []string) (remaining []string, err
 
 	// Must now either be --flag (boolean) or --flag value
 	switch {
-	case flag.defaultValueNoArg != "":
+	case flag.DefaultValueNoArg != "":
 		// --flag (boolean)
-		err := flag.value.Set(flag.defaultValueNoArg)
+		err := flag.Value.Set(flag.DefaultValueNoArg)
 		if err != nil {
 			return nil, err
 		}
@@ -158,7 +192,7 @@ func (s *Set) parseLongFlag(long string, rest []string) (remaining []string, err
 	case len(rest) > 0:
 		// --flag value
 		value := rest[0]
-		err := flag.value.Set(value)
+		err := flag.Value.Set(value)
 		if err != nil {
 			return nil, err
 		}
@@ -204,7 +238,7 @@ func (s *Set) parseShortFlag(short string, rest []string) (remaining []string, e
 			return nil, fmt.Errorf("unrecognised shorthand flag: -%s", string(char))
 		}
 
-		if err := flag.value.Set(value); err != nil {
+		if err := flag.Value.Set(value); err != nil {
 			return nil, err
 		}
 
@@ -228,7 +262,7 @@ func (s *Set) parseShortFlag(short string, rest []string) (remaining []string, e
 		// BUG: This is actually wrong, the value should be interpreted as a count or something
 		// imagine a verbosity flag and -vvv should mean "increase verbosity to 3" but none of that
 		// is implemented yet
-		if err := flag.value.Set(value); err != nil {
+		if err := flag.Value.Set(value); err != nil {
 			return nil, err
 		}
 
@@ -248,7 +282,7 @@ func (s *Set) parseShortFlag(short string, rest []string) (remaining []string, e
 		if !exists {
 			return nil, fmt.Errorf("unrecognised shorthand flag: -%s", string(char))
 		}
-		if err := flag.value.Set(value); err != nil {
+		if err := flag.Value.Set(value); err != nil {
 			return nil, err
 		}
 
@@ -264,8 +298,8 @@ func (s *Set) parseShortFlag(short string, rest []string) (remaining []string, e
 		}
 
 		// -f (boolean flag)
-		if flag.defaultValueNoArg != "" {
-			err := flag.value.Set(flag.defaultValueNoArg)
+		if flag.DefaultValueNoArg != "" {
+			err := flag.Value.Set(flag.DefaultValueNoArg)
 			if err != nil {
 				return nil, err
 			}
