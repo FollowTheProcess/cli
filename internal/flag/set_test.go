@@ -1103,6 +1103,46 @@ func TestUsage(t *testing.T) {
 			},
 			golden: "no-shorthand.txt",
 		},
+		{
+			name: "full",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				help, err := flag.New(new(bool), "help", 'h', false, "Show help for test")
+				test.Ok(t, err)
+
+				version, err := flag.New(new(bool), "version", 'v', false, "Show version info for test")
+				test.Ok(t, err)
+
+				up, err := flag.New(new(bool), "update", flag.NoShortHand, false, "Update something")
+				test.Ok(t, err)
+
+				count, err := flag.New(new(int), "count", 'c', 0, "Count things")
+				test.Ok(t, err)
+
+				thing, err := flag.New(new(string), "thing", 't', "", "Name the thing")
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+
+				err = flag.AddToSet(set, help)
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, version)
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, up)
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, count)
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, thing)
+				test.Ok(t, err)
+
+				return set
+			},
+			golden: "full.txt",
+		},
 	}
 
 	for _, tt := range tests {
@@ -1114,7 +1154,7 @@ func TestUsage(t *testing.T) {
 			test.Ok(t, err)
 
 			if *debug {
-				fmt.Printf("DEBUG\n_____\n\n%s\n", got)
+				fmt.Printf("DEBUG (%s)\n_____\n\n%s\n", tt.name, got)
 			}
 
 			if *update {

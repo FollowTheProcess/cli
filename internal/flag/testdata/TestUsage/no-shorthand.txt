@@ -1,3 +1,4 @@
-  -h	--help		bool	Show help for test
-  		--update	bool	Update something
-  -v	--version	bool	Show version info for test
+Short	Long		Type	Default	Usage
+-h		--help		bool	false	Show help for test
+N/A		--update	bool	false	Update something
+-v		--version	bool	false	Show version info for test
