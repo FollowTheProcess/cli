@@ -1,0 +1,3 @@
+  -h	--help		bool	Show help for test
+  		--update	bool	Update something
+  -v	--version	bool	Show version info for test
