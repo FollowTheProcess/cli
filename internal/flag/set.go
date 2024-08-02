@@ -184,7 +184,7 @@ func (s *Set) Usage() (string, error) {
 		if entry.Shorthand != NoShortHand {
 			shorthand = fmt.Sprintf("-%s", string(entry.Shorthand))
 		} else {
-			shorthand = ""
+			shorthand = "N/A"
 		}
 
 		var defaultValue string
