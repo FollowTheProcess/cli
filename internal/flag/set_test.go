@@ -1,11 +1,20 @@
 package flag_test
 
 import (
+	goflag "flag"
+	"fmt"
+	"os"
+	"path/filepath"
 	"slices"
 	"testing"
 
 	"github.com/FollowTheProcess/cli/internal/flag"
 	"github.com/FollowTheProcess/test"
+)
+
+var (
+	debug  = goflag.Bool("debug", false, "Print debug output during tests")
+	update = goflag.Bool("update", false, "Update golden files")
 )
 
 // TODO: Test cases where we use NoShorthand but pass shorthands, should return unrecognised flag error
@@ -842,6 +851,87 @@ func TestFlagSet(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			set := tt.newSet(t)
 			tt.test(t, set)
+		})
+	}
+}
+
+func TestUsage(t *testing.T) {
+	tests := []struct {
+		newSet func(t *testing.T) *flag.Set // Function to build the flag set under test
+		name   string                       // Name of the test case
+		golden string                       // Name of the file containing expected output
+	}{
+		{
+			name: "simple",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				help, err := flag.New(new(bool), "help", 'h', false, "Show help for test")
+				test.Ok(t, err)
+
+				version, err := flag.New(new(bool), "version", 'v', false, "Show version info for test")
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+
+				err = flag.AddToSet(set, help)
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, version)
+				test.Ok(t, err)
+
+				return set
+			},
+			golden: "simple.txt",
+		},
+		{
+			name: "no shorthand",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				help, err := flag.New(new(bool), "help", 'h', false, "Show help for test")
+				test.Ok(t, err)
+
+				version, err := flag.New(new(bool), "version", 'v', false, "Show version info for test")
+				test.Ok(t, err)
+
+				up, err := flag.New(new(bool), "update", flag.NoShortHand, false, "Update something")
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+
+				err = flag.AddToSet(set, help)
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, version)
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, up)
+				test.Ok(t, err)
+
+				return set
+			},
+			golden: "no-shorthand.txt",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			set := tt.newSet(t)
+			golden := filepath.Join(test.Data(t), "TestUsage", tt.golden)
+
+			got, err := set.Usage()
+			test.Ok(t, err)
+
+			if *debug {
+				fmt.Printf("DEBUG\n_____\n\n%s\n", got)
+			}
+
+			if *update {
+				t.Logf("Updating %s\n", golden)
+				err := os.WriteFile(golden, []byte(got), os.ModePerm)
+				test.Ok(t, err)
+			}
+
+			test.File(t, got, filepath.Join("TestUsage", tt.golden))
 		})
 	}
 }

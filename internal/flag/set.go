@@ -1,10 +1,21 @@
 package flag
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
+	"text/tabwriter"
 	"unicode/utf8"
+)
+
+// TableWriter config, used for showing subcommands in help.
+const (
+	minWidth = 0    // Min cell width
+	tabWidth = 4    // Tab width in spaces
+	padding  = 1    // Padding
+	padChar  = '\t' // Char to pad with
 )
 
 // Set is a set of command line flags.
@@ -150,6 +161,34 @@ func (s *Set) Parse(args []string) (err error) {
 	}
 
 	return nil
+}
+
+// Usage returns a string containing the usage info of all flags in the set.
+func (s *Set) Usage() (string, error) {
+	buf := &bytes.Buffer{}
+
+	// Flags should be sorted alphabetically
+	names := make([]string, 0, len(s.flags))
+	for name := range s.flags {
+		names = append(names, name)
+	}
+	slices.Sort(names)
+
+	tab := tabwriter.NewWriter(buf, minWidth, tabWidth, padding, padChar, tabwriter.AlignRight)
+	for _, name := range names {
+		entry := s.flags[name]
+		if entry.Shorthand == NoShortHand {
+			fmt.Fprintf(tab, "  \t--%s\t%s\t%s\n", entry.Name, entry.Value.Type(), entry.Usage)
+		} else {
+			fmt.Fprintf(tab, "  -%s\t--%s\t%s\t%s\n", string(entry.Shorthand), entry.Name, entry.Value.Type(), entry.Usage)
+		}
+	}
+
+	if err := tab.Flush(); err != nil {
+		return "", fmt.Errorf("could not format flags: %w", err)
+	}
+
+	return buf.String(), nil
 }
 
 // Entry represents a single flag in the set, as stored.
