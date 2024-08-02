@@ -9,15 +9,15 @@ import (
 	"slices"
 	"strings"
 	"text/tabwriter"
+	"unicode/utf8"
 
 	"github.com/FollowTheProcess/cli/internal/flag"
-	"github.com/spf13/pflag"
 )
 
 // TableWriter config, used for showing subcommands in help.
 const (
-	minWidth = 0    // Min cell width
-	tabWidth = 4    // Tab width in spaces
+	minWidth = 2    // Min cell width
+	tabWidth = 8    // Tab width in spaces
 	padding  = 1    // Padding
 	padChar  = '\t' // Char to pad with
 )
@@ -42,8 +42,7 @@ func New(name string, options ...Option) (*Command, error) {
 
 	// Default implementation
 	cfg := config{
-		flags:        pflag.NewFlagSet(name, pflag.ContinueOnError),
-		xflags:       flag.NewSet(),
+		flags:        flag.NewSet(),
 		stdin:        os.Stdin,
 		stdout:       os.Stdout,
 		stderr:       os.Stderr,
@@ -55,11 +54,19 @@ func New(name string, options ...Option) (*Command, error) {
 		argValidator: AnyArgs(),
 	}
 
+	// Ensure we always have at least help and version flags
+	defaultOptions := []Option{
+		Flag(&cfg.helpCalled, "help", 'h', false, fmt.Sprintf("Show help for %s", name)),
+		Flag(&cfg.versionCalled, "version", 'v', false, fmt.Sprintf("Show version info for %s", name)),
+	}
+
+	toApply := slices.Concat(options, defaultOptions)
+
 	// Apply the options, gathering up all the validation errors
 	// to report in one go. Each option returns only one error
 	// so this can be pre-allocated.
-	errs := make([]error, 0, len(options))
-	for _, option := range options {
+	errs := make([]error, 0, len(toApply))
+	for _, option := range toApply {
 		err := option.apply(&cfg)
 		if err != nil {
 			errs = append(errs, err)
@@ -97,10 +104,7 @@ type Command struct {
 	run func(cmd *Command, args []string) error
 
 	// flags is the set of flags for this command.
-	flags *pflag.FlagSet
-
-	// xflags is my experimental flagset.
-	xflags *flag.Set
+	flags *flag.Set
 
 	// versionFunc is the function thatgets called when the user calls -v/--version.
 	//
@@ -143,6 +147,12 @@ type Command struct {
 	//
 	// If the command has no subcommands, this slice will be nil.
 	subcommands []*Command
+
+	// helpCalled is whether or not the --help flag was used.
+	helpCalled bool
+
+	// versionCalled is whether or not the --version flag was used.
+	versionCalled bool
 }
 
 // example is a single usage example for a [Command].
@@ -189,12 +199,13 @@ func (c *Command) Execute() error {
 
 	// If -h/--help was called, call the defined helpFunc and exit so that
 	// the run function is never called.
-	helpCalled, err := cmd.flagSet().GetBool("help")
-	if err != nil {
-		return fmt.Errorf("could not parse help flag: %w", err)
+	helpCalled, ok := cmd.flagSet().Help()
+	if !ok {
+		// Should never get here as we define a default help
+		return errors.New("help flag not defined")
 	}
 	if helpCalled {
-		if err = defaultHelp(cmd); err != nil {
+		if err := defaultHelp(cmd); err != nil {
 			return fmt.Errorf("help function returned an error: %w", err)
 		}
 		return nil
@@ -202,9 +213,10 @@ func (c *Command) Execute() error {
 
 	// If -v/--version was called, call the defined versionFunc and exit so that
 	// the run function is never called
-	versionCalled, err := cmd.flagSet().GetBool("version")
-	if err != nil {
-		return fmt.Errorf("could not parse version flag: %w", err)
+	versionCalled, ok := cmd.flagSet().Version()
+	if !ok {
+		// Again, should be unreachable
+		return errors.New("version flag not defined")
 	}
 	if versionCalled {
 		if cmd.versionFunc == nil {
@@ -244,14 +256,14 @@ func (c *Command) Execute() error {
 }
 
 // Flags returns the set of flags for the command.
-func (c *Command) flagSet() *pflag.FlagSet {
+func (c *Command) flagSet() *flag.Set {
 	if c == nil {
 		// Only thing to do really, slightly more helpful than a generic
 		// nil pointer dereference
 		panic("Flags called on a nil Command")
 	}
 	if c.flags == nil {
-		return pflag.NewFlagSet(c.name, pflag.ContinueOnError)
+		return flag.NewSet()
 	}
 	return c.flags
 }
@@ -271,6 +283,14 @@ func (c *Command) Stdin() io.Reader {
 	return c.root().stdin
 }
 
+// ExtraArgs returns any additional arguments following a "--", this is useful for when you want to
+// implement argument pass through in your commands.
+//
+// If there were no extra arguments, it will return nil.
+func (c *Command) ExtraArgs() []string {
+	return c.flagSet().ExtraArgs()
+}
+
 // root returns the root of the command tree.
 func (c *Command) root() *Command {
 	if c.parent != nil {
@@ -281,24 +301,31 @@ func (c *Command) root() *Command {
 
 // hasFlag returns whether the command has a flag of the given name defined.
 func (c *Command) hasFlag(name string) bool {
-	flag := c.flagSet().Lookup(name)
-	if flag == nil {
+	if name == "" {
 		return false
 	}
-	return flag.NoOptDefVal != ""
+	flag, ok := c.flagSet().Get(name)
+	if !ok {
+		return false
+	}
+
+	return flag.DefaultValueNoArg != ""
 }
 
 // hasShortFlag returns whether the command has a shorthand flag of the given name defined.
 func (c *Command) hasShortFlag(name string) bool {
-	if len(name) == 0 {
+	if name == "" {
 		return false
 	}
 
-	flag := c.flagSet().ShorthandLookup(name[:1])
-	if flag == nil {
+	char, _ := utf8.DecodeRuneInString(name)
+
+	flag, ok := c.flagSet().GetShort(char)
+	if !ok {
 		return false
 	}
-	return flag.NoOptDefVal != ""
+
+	return flag.DefaultValueNoArg != ""
 }
 
 // findRequestedCommand uses the raw arguments and the command tree to determine what
@@ -395,6 +422,11 @@ func defaultHelp(cmd *Command) error {
 	if cmd == nil {
 		return errors.New("defaultHelp called on a nil Command")
 	}
+	usage, err := cmd.flagSet().Usage()
+	if err != nil {
+		return fmt.Errorf("could not write usage: %w", err)
+	}
+
 	// Note: The decision to not use text/template here is intentional, template calls
 	// reflect.Value.MethodByName() and/or reflect.Type.MethodByName() which disables dead
 	// code elimination in the compiler, meaning any application that uses cli for it's
@@ -460,7 +492,7 @@ func defaultHelp(cmd *Command) error {
 		s.WriteString("\n\n")
 	}
 	s.WriteString("Options:\n")
-	s.WriteString(cmd.flagSet().FlagUsages())
+	s.WriteString(usage)
 
 	// Subcommand help
 	s.WriteString("\n")

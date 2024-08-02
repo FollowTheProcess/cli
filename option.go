@@ -7,7 +7,6 @@ import (
 	"slices"
 
 	"github.com/FollowTheProcess/cli/internal/flag"
-	"github.com/spf13/pflag"
 )
 
 // NoShortHand should be passed as the "short" argument to [Flag] if the desired flag
@@ -38,53 +37,51 @@ func (o option) apply(cfg *config) error {
 
 // config represents the internal configuration of a [Command].
 type config struct {
-	stdin        io.Reader
-	stdout       io.Writer
-	stderr       io.Writer
-	run          func(cmd *Command, args []string) error
-	flags        *pflag.FlagSet
-	xflags       *flag.Set
-	versionFunc  func(cmd *Command) error
-	parent       *Command
-	argValidator ArgValidator
-	name         string
-	short        string
-	long         string
-	version      string
-	examples     []example
-	args         []string
-	subcommands  []*Command
+	stdin         io.Reader
+	stdout        io.Writer
+	stderr        io.Writer
+	run           func(cmd *Command, args []string) error
+	flags         *flag.Set
+	versionFunc   func(cmd *Command) error
+	parent        *Command
+	argValidator  ArgValidator
+	name          string
+	short         string
+	long          string
+	version       string
+	examples      []example
+	args          []string
+	subcommands   []*Command
+	helpCalled    bool
+	versionCalled bool
 }
 
 // build builds an returns a Command from the config.
 func (c *config) build() *Command {
 	cmd := &Command{
-		stdin:        c.stdin,
-		stdout:       c.stdout,
-		stderr:       c.stderr,
-		run:          c.run,
-		flags:        c.flags,
-		xflags:       c.xflags,
-		versionFunc:  c.versionFunc,
-		parent:       c.parent,
-		argValidator: c.argValidator,
-		name:         c.name,
-		short:        c.short,
-		long:         c.long,
-		version:      c.version,
-		examples:     c.examples,
-		args:         c.args,
-		subcommands:  c.subcommands,
+		stdin:         c.stdin,
+		stdout:        c.stdout,
+		stderr:        c.stderr,
+		run:           c.run,
+		flags:         c.flags,
+		versionFunc:   c.versionFunc,
+		parent:        c.parent,
+		argValidator:  c.argValidator,
+		name:          c.name,
+		short:         c.short,
+		long:          c.long,
+		version:       c.version,
+		examples:      c.examples,
+		args:          c.args,
+		subcommands:   c.subcommands,
+		helpCalled:    c.helpCalled,
+		versionCalled: c.versionCalled,
 	}
 
 	// Loop through each subcommand and set this command as their immediate parent
 	for _, subcommand := range cmd.subcommands {
 		subcommand.parent = cmd
 	}
-
-	// Add the help and version flags
-	cmd.flagSet().BoolP("help", "h", false, fmt.Sprintf("Show help for %s", cmd.name))
-	cmd.flagSet().BoolP("version", "v", false, fmt.Sprintf("Show version info for %s", cmd.name))
 
 	return cmd
 }
@@ -344,7 +341,7 @@ func Allow(validator ArgValidator) Option {
 //	cli.New("rm", cli.Flag(&force, "force", 'f', false, "Force deletion without confirmation"))
 func Flag[T Flaggable](p *T, name string, short rune, value T, usage string) Option {
 	f := func(cfg *config) error {
-		if cfg.flags.Lookup(name) != nil {
+		if _, ok := cfg.flags.Get(name); ok {
 			return fmt.Errorf("flag %q already defined", name)
 		}
 
@@ -354,35 +351,11 @@ func Flag[T Flaggable](p *T, name string, short rune, value T, usage string) Opt
 		}
 
 		// Experimental flags
-		if err := flag.AddToSet(cfg.xflags, f); err != nil {
+		if err := flag.AddToSet(cfg.flags, f); err != nil {
 			// TODO: This error message is just for me debugging for now, make it more user friendly
 			return fmt.Errorf("xflags.Add: %w", err)
 		}
 
-		var defVal string
-		if f.Type() == "bool" {
-			defVal = "true"
-		}
-
-		// If we've been told we don't want a shorthand, set it to "" which tells pflag
-		// not to give it one, otherwise use what we've been given
-		var shortHand string
-		if short == NoShortHand {
-			shortHand = ""
-		} else {
-			shortHand = string(short)
-		}
-
-		// Annoyingly pflag does the same checks we've done above but will panic on error, hopefully
-		// the above checks will come in handy when I implement my own flag parsing
-		cfg.flags.AddFlag(&pflag.Flag{
-			Name:        name,
-			Shorthand:   shortHand,
-			Usage:       usage,
-			Value:       f,
-			DefValue:    f.String(),
-			NoOptDefVal: defVal,
-		})
 		return nil
 	}
 	return option(f)

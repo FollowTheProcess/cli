@@ -13,7 +13,7 @@ import (
 // TableWriter config, used for showing subcommands in help.
 const (
 	minWidth = 0    // Min cell width
-	tabWidth = 4    // Tab width in spaces
+	tabWidth = 8    // Tab width in spaces
 	padding  = 1    // Padding
 	padChar  = '\t' // Char to pad with
 )
@@ -23,6 +23,7 @@ type Set struct {
 	flags      map[string]Entry // The actual stored flags, can lookup by name
 	shorthands map[rune]Entry   // The flags by shorthand
 	args       []string         // Arguments minus flags or flag values
+	extra      []string         // Arguments after "--" was hit
 }
 
 // NewSet builds and returns a new set of flags.
@@ -126,7 +127,8 @@ func (s *Set) Version() (value, ok bool) {
 	return entry.Value.String() == boolTrue, true
 }
 
-// Args returns a slice of all the non-flag arguments.
+// Args returns a slice of all the non-flag arguments, including any
+// following a "--" terminator.
 func (s *Set) Args() []string {
 	if s == nil {
 		return nil
@@ -134,7 +136,18 @@ func (s *Set) Args() []string {
 	return s.args
 }
 
+// ExtraArgs returns any arguments after a "--" was encountered, or nil
+// if there were none.
+func (s *Set) ExtraArgs() []string {
+	if s == nil {
+		return nil
+	}
+	return s.extra
+}
+
 // Parse parses flags and their values from the command line.
+//
+// TODO: Currently thinks arg terminator "--" is just an empty flag.
 func (s *Set) Parse(args []string) (err error) {
 	if s == nil {
 		return errors.New("Parse called on a nil set")
@@ -142,6 +155,14 @@ func (s *Set) Parse(args []string) (err error) {
 	for len(args) > 0 {
 		arg := args[0]  // The argument we're currently inspecting
 		args = args[1:] // Remainder
+
+		if arg == "--" {
+			// "--" terminates the flags
+			terminatorIndex := len(s.args)
+			s.args = append(s.args, args...)
+			s.extra = s.args[terminatorIndex:]
+			return nil
+		}
 
 		switch {
 		case strings.HasPrefix(arg, "--"):
@@ -188,8 +209,8 @@ func (s *Set) Usage() (string, error) {
 		}
 
 		var defaultValue string
-		if entry.Value.String() != "" {
-			defaultValue = entry.Value.String()
+		if entry.DefaultValue != "" {
+			defaultValue = entry.DefaultValue
 		} else {
 			defaultValue = `""`
 		}
@@ -280,6 +301,11 @@ func (s *Set) parseShortFlag(short string, rest []string) (remaining []string, e
 
 	// Could either be "f", "vfg" or "f=value"
 	shorthands := strings.TrimPrefix(short, "-")
+
+	// go test inserts flags like "-test.testlogfile"
+	if strings.HasPrefix(shorthands, "test.") {
+		return rest, nil
+	}
 
 	// Is it e.g. f=value
 	shorthand, value, containsEquals := strings.Cut(shorthands, "=")
