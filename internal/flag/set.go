@@ -176,14 +176,25 @@ func (s *Set) Usage() (string, error) {
 	}
 	slices.Sort(names)
 
-	tab := tabwriter.NewWriter(buf, minWidth, tabWidth, padding, padChar, tabwriter.AlignRight)
+	tab := tabwriter.NewWriter(buf, minWidth, tabWidth, padding, padChar, tabwriter.TabIndent)
+	fmt.Fprintln(tab, "Short\tLong\tType\tDefault\tUsage")
 	for _, name := range names {
 		entry := s.flags[name]
-		if entry.Shorthand == NoShortHand {
-			fmt.Fprintf(tab, "  \t--%s\t%s\t%s\n", entry.Name, entry.Value.Type(), entry.Usage)
+		var shorthand string
+		if entry.Shorthand != NoShortHand {
+			shorthand = fmt.Sprintf("-%s", string(entry.Shorthand))
 		} else {
-			fmt.Fprintf(tab, "  -%s\t--%s\t%s\t%s\n", string(entry.Shorthand), entry.Name, entry.Value.Type(), entry.Usage)
+			shorthand = "N/A"
 		}
+
+		var defaultValue string
+		if entry.Value.String() != "" {
+			defaultValue = entry.Value.String()
+		} else {
+			defaultValue = `""`
+		}
+
+		fmt.Fprintf(tab, "%s\t--%s\t%s\t%s\t%s\n", shorthand, entry.Name, entry.Value.Type(), defaultValue, entry.Usage)
 	}
 
 	if err := tab.Flush(); err != nil {
