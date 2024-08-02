@@ -63,6 +63,24 @@ func TestParse(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "empty set args with terminator",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return flag.NewSet()
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				f, exists := set.Get("something")
+				test.False(t, exists)
+				test.Equal(t, f, flag.Entry{})
+
+				test.EqualFunc(t, set.Args(), []string{"some", "args", "here", "no", "flags", "extra", "args"}, slices.Equal)
+				test.EqualFunc(t, set.ExtraArgs(), []string{"extra", "args"}, slices.Equal)
+			},
+			args:    []string{"some", "args", "here", "no", "flags", "--", "extra", "args"},
+			wantErr: false,
+		},
+		{
 			name: "empty set with flags",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
@@ -149,16 +167,6 @@ func TestParse(t *testing.T) {
 			args:    []string{"-uvalue"},
 			wantErr: true,
 			errMsg:  "unrecognised shorthand flag: -u",
-		},
-		{
-			name: "bad syntax long empty name",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-				return flag.NewSet()
-			},
-			args:    []string{"--"},
-			wantErr: true,
-			errMsg:  `invalid flag name "": must not be empty`,
 		},
 		{
 			name: "bad syntax short empty name",
@@ -317,9 +325,10 @@ func TestParse(t *testing.T) {
 				test.Equal(t, entry.Value.Type(), "bool")
 				test.Equal(t, entry.Value.String(), "true")
 
-				test.EqualFunc(t, set.Args(), []string{"some", "subcommand"}, slices.Equal)
+				test.EqualFunc(t, set.Args(), []string{"some", "subcommand", "extra", "args"}, slices.Equal)
+				test.EqualFunc(t, set.ExtraArgs(), []string{"extra", "args"}, slices.Equal)
 			},
-			args:    []string{"some", "subcommand", "--delete"},
+			args:    []string{"some", "subcommand", "--delete", "--", "extra", "args"},
 			wantErr: false,
 		},
 		{
