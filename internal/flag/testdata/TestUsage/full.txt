@@ -1,6 +1,6 @@
 Short	Long		Type	Default	Usage
--c		--count		int		0		Count things
--h		--help		bool	false	Show help for test
--t		--thing		string	""		Name the thing
-N/A		--update	bool	false	Update something
--v		--version	bool	false	Show version info for test
+-c	--count		int	0	Count things
+-h	--help		bool	false	Show help for test
+-t	--thing		string	""	Name the thing
+N/A	--update	bool	false	Update something
+-v	--version	bool	false	Show version info for test
