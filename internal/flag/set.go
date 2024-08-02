@@ -176,7 +176,7 @@ func (s *Set) Usage() (string, error) {
 	}
 	slices.Sort(names)
 
-	tab := tabwriter.NewWriter(buf, minWidth, tabWidth, padding, padChar, tabwriter.DiscardEmptyColumns)
+	tab := tabwriter.NewWriter(buf, minWidth, tabWidth, padding, padChar, tabwriter.TabIndent)
 	fmt.Fprintln(tab, "Short\tLong\tType\tDefault\tUsage")
 	for _, name := range names {
 		entry := s.flags[name]
