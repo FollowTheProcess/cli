@@ -2,5 +2,3 @@ github.com/FollowTheProcess/test v0.11.1 h1:f4peMzlID2+ZEbPzb4pITYLoicwqZc2J6iZF
 github.com/FollowTheProcess/test v0.11.1/go.mod h1:oIqlUoS8wKFmKBFBMJH/+asP7lQXE2D3YFhmUEubTUw=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
-github.com/spf13/pflag v1.0.5 h1:iy+VFUOCP1a+8yFto/drg2CJ5u0yRoB7fZw3DKv/JXA=
-github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=

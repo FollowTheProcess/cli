@@ -9,9 +9,10 @@ Commands:
   sub2	Do another thing
 
 Options:
-      --count int   Count something (default -1)
-  -d, --delete      Delete something
-  -h, --help        Show help for test
-  -v, --version     Show version info for test
+Short	Long		Type	Default	Usage
+N/A	--count		int	-1	Count something
+-d	--delete	bool	false	Delete something
+-h	--help		bool	false	Show help for test
+-v	--version	bool	false	Show version info for test
 
 Use "test [command] -h/--help" for more information about a command.

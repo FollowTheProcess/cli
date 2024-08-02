@@ -3,7 +3,8 @@ A placeholder for something cool
 Usage: test [OPTIONS] ARGS...
 
 Options:
-  -h, --help      Show help for test
-  -v, --version   Show version info for test
+Short	Long		Type	Default	Usage
+-h	--help		bool	false	Show help for test
+-v	--version	bool	false	Show version info for test
 
 Use "test [command] -h/--help" for more information about a command.

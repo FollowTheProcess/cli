@@ -2,7 +2,7 @@
 
 Things I want to do to make this library as good as it can be and a better, simpler, more intuitive alternative to e.g. Cobra:
 
-- [ ] Replace `pflag.FlagSet` with my own implementation including parsing
+- [x] Replace `pflag.FlagSet` with my own implementation including parsing
 - [x] Make sure `cli.Option` is hidden and a `Command` can only be modified prior to building
 - [x] Ensure/double check that `cli.Option` applications are order independent
 - [x] Do some validation and maybe return an error from `cli.New` (TBC, might not need it)
@@ -15,6 +15,7 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [ ] More full test programs as integration tests
 - [ ] Write a package example doc
 - [ ] Make the help output as pretty as possible, see [clap] for inspiration as their help is so nice
-- [ ] Implement something nice to do the whole `-- <bonus args>` thing, maybe `ExtraArgs`?
+- [x] Implement something nice to do the whole `-- <bonus args>` thing, maybe `ExtraArgs`?
+- [ ] Thin wrapper around tabwriter to keep it consistent
 
 [clap]: https://github.com/clap-rs/clap
