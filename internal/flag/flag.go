@@ -35,6 +35,33 @@ const (
 	bits64             // 64 bit integer
 )
 
+const (
+	typeInt      = "int"
+	typeInt8     = "int8"
+	typeInt16    = "int16"
+	typeInt32    = "int32"
+	typeInt64    = "int64"
+	typeUint     = "uint"
+	typeUint8    = "uint8"
+	typeUint16   = "uint16"
+	typeUint32   = "uint32"
+	typeUint64   = "uint64"
+	typeUintptr  = "uintptr"
+	typeFloat32  = "float32"
+	typeFloat64  = "float64"
+	typeString   = "string"
+	typeBool     = "bool"
+	typeBytesHex = "bytesHex"
+	typeTime     = "time"
+	typeDuration = "duration"
+	typeIP       = "ip"
+)
+
+const (
+	boolTrue  = "true"
+	boolFalse = "false"
+)
+
 // NoShortHand should be passed as the "short" argument to [New] if the desired flag
 // should be the long hand version only e.g. --count, not -c/--count.
 const NoShortHand = rune(-1)
@@ -160,43 +187,43 @@ func (f Flag[T]) Type() string { //nolint:gocyclo // No other way of doing this 
 	}
 	switch typ := any(f.value).(type) {
 	case *int:
-		return "int"
+		return typeInt
 	case *int8:
-		return "int8"
+		return typeInt8
 	case *int16:
-		return "int16"
+		return typeInt16
 	case *int32:
-		return "int32"
+		return typeInt32
 	case *int64:
-		return "int64"
+		return typeInt64
 	case *uint:
-		return "uint"
+		return typeUint
 	case *uint8:
-		return "uint8"
+		return typeUint8
 	case *uint16:
-		return "uint16"
+		return typeUint16
 	case *uint32:
-		return "uint32"
+		return typeUint32
 	case *uint64:
-		return "uint64"
+		return typeUint64
 	case *uintptr:
-		return "uintptr"
+		return typeUintptr
 	case *float32:
-		return "float32"
+		return typeFloat32
 	case *float64:
-		return "float64"
+		return typeFloat64
 	case *string:
-		return "string"
+		return typeString
 	case *bool:
-		return "bool"
+		return typeBool
 	case *[]byte:
-		return "bytesHex"
+		return typeBytesHex
 	case *time.Time:
-		return "time"
+		return typeTime
 	case *time.Duration:
-		return "duration"
+		return typeDuration
 	case *net.IP:
-		return "ip"
+		return typeIP
 	default:
 		return fmt.Sprintf("%T", typ)
 	}
