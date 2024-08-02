@@ -740,6 +740,19 @@ func TestFlagSet(t *testing.T) {
 			},
 		},
 		{
+			name: "empty short",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return flag.NewSet()
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				f, exists := set.GetShort('d')
+				test.False(t, exists)
+				test.Equal(t, f, flag.Entry{})
+			},
+		},
+		{
 			name: "nil safe get",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
@@ -799,6 +812,17 @@ func TestFlagSet(t *testing.T) {
 			},
 		},
 		{
+			name: "nil safe args",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return nil // uh oh
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				test.EqualFunc(t, set.Args(), nil, slices.Equal)
+			},
+		},
+		{
 			name: "duplicate flag added",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
@@ -843,6 +867,174 @@ func TestFlagSet(t *testing.T) {
 				if err != nil {
 					test.Equal(t, err.Error(), `flag "count" already defined`)
 				}
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			set := tt.newSet(t)
+			tt.test(t, set)
+		})
+	}
+}
+
+func TestHelpVersion(t *testing.T) {
+	tests := []struct {
+		newSet func(t *testing.T) *flag.Set      // Function to build the flag set under test
+		test   func(t *testing.T, set *flag.Set) // Function to test the set
+		name   string                            // Name of the test case
+	}{
+		{
+			name: "empty help",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return flag.NewSet()
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				help, ok := set.Help()
+				test.False(t, help)
+				test.False(t, ok)
+			},
+		},
+		{
+			name: "empty version",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return flag.NewSet()
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				version, ok := set.Version()
+				test.False(t, version)
+				test.False(t, ok)
+			},
+		},
+		{
+			name: "help false",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+
+				f, err := flag.New(new(bool), "help", 'h', false, "Show help")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				help, ok := set.Help()
+				test.True(t, ok)    // It should exist
+				test.False(t, help) // But not true
+			},
+		},
+		{
+			name: "help non bool",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+
+				f, err := flag.New(new(int), "help", 'h', 0, "Show help")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				help, ok := set.Help()
+				test.False(t, ok)   // It should not exist
+				test.False(t, help) // And be false because it's not a bool
+			},
+		},
+		{
+			name: "help true",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+
+				f, err := flag.New(new(bool), "help", 'h', true, "Show help")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				help, ok := set.Help()
+				test.True(t, ok)   // It should exist
+				test.True(t, help) // And be true
+			},
+		},
+		{
+			name: "version false",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+
+				f, err := flag.New(new(bool), "version", 'v', false, "Show version")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				version, ok := set.Version()
+				test.True(t, ok)       // It should exist
+				test.False(t, version) // But not true
+			},
+		},
+		{
+			name: "version non bool",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+
+				f, err := flag.New(new(int), "version", 'v', 0, "Show version")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				version, ok := set.Version()
+				test.False(t, ok)      // It should not exist
+				test.False(t, version) // And be false because it's not a bool
+			},
+		},
+		{
+			name: "version true",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+
+				f, err := flag.New(new(bool), "version", 'v', true, "Show version")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				version, ok := set.Version()
+				test.True(t, ok)      // It should exist
+				test.True(t, version) // And be true
 			},
 		},
 	}

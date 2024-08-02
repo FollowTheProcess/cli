@@ -109,7 +109,7 @@ func (s *Set) Help() (value, ok bool) {
 	return entry.Value.String() == boolTrue, true
 }
 
-// Verion returns whether the [Set] has a boolean flag named "version" and what the value
+// Version returns whether the [Set] has a boolean flag named "version" and what the value
 // of that flag is currently set to, it simplifies checking for --version.
 func (s *Set) Version() (value, ok bool) {
 	entry, exists := s.Get("version")
@@ -128,7 +128,9 @@ func (s *Set) Version() (value, ok bool) {
 
 // Args returns a slice of all the non-flag arguments.
 func (s *Set) Args() []string {
-	// TODO: Handle nil safety
+	if s == nil {
+		return nil
+	}
 	return s.args
 }
 
