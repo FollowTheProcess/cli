@@ -20,5 +20,7 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [x] Implement something nice to do the whole `-- <bonus args>` thing, maybe `ExtraArgs`?
 - [x] Thin wrapper around tabwriter to keep it consistent
 - [ ] Try this on some of my CLI tools to work out the bugs in real world programs
+- [ ] Wrap long description at certain line limit
+- [ ] Test that shuffles the order of options and ensures the command we get is the same every time
 
 [clap]: https://github.com/clap-rs/clap
