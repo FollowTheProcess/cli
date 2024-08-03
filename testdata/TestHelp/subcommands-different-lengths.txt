@@ -5,8 +5,9 @@ A longer, probably multiline description
 Usage: test [OPTIONS] COMMAND
 
 Commands:
-  sub1  Do one thing
-  sub2  Do another thing
+  sub1                  Do one thing
+  sub2                  Do another thing
+  very-long-subcommand  Wow so long
 
 Options:
   -h  --help     bool  Show help for test

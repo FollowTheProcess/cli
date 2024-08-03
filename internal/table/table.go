@@ -10,10 +10,11 @@ import (
 
 // TableWriter config, used for showing subcommands in help.
 const (
-	minWidth = 2    // Min cell width
-	tabWidth = 8    // Tab width in spaces
-	padding  = 1    // Padding
-	padChar  = '\t' // Char to pad with
+	minWidth = 1   // Min cell width
+	tabWidth = 8   // Tab width in spaces
+	padding  = 2   // Padding
+	padChar  = ' ' // Char to pad with
+	flags    = 0   // Config flags
 )
 
 // Table is a text table.
@@ -23,7 +24,7 @@ type Table struct {
 
 // New returns a new [Table], writing to w.
 func New(w io.Writer) Table {
-	tw := tabwriter.NewWriter(w, minWidth, tabWidth, padding, padChar, tabwriter.TabIndent)
+	tw := tabwriter.NewWriter(w, minWidth, tabWidth, padding, padChar, flags)
 	return Table{tw: tw}
 }
 
