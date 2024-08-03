@@ -227,6 +227,10 @@ func TestHelp(t *testing.T) {
 
 	sub2, err := cli.New("sub2", cli.Short("Do another thing"))
 	test.Ok(t, err)
+
+	sub3, err := cli.New("very-long-subcommand", cli.Short("Wow so long"))
+	test.Ok(t, err)
+
 	tests := []struct {
 		name    string       // Identifier of the test case
 		golden  string       // Name of the file containing expected output
@@ -282,6 +286,17 @@ func TestHelp(t *testing.T) {
 				cli.SubCommands(sub1, sub2),
 			},
 			golden:  "subcommands.txt",
+			wantErr: false,
+		},
+		{
+			name: "subcommands different lengths",
+			options: []cli.Option{
+				cli.Args([]string{"--help"}),
+				cli.Short("A cool CLI to do things"),
+				cli.Long("A longer, probably multiline description"),
+				cli.SubCommands(sub1, sub2, sub3),
+			},
+			golden:  "subcommands-different-lengths.txt",
 			wantErr: false,
 		},
 		{
@@ -530,7 +545,7 @@ func TestDuplicateSubCommands(t *testing.T) {
 }
 
 func TestCommandNoRunNoSub(t *testing.T) {
-	root, err := cli.New("root")
+	root, err := cli.New("root", cli.Args([]string{}))
 	test.Ok(t, err)
 
 	err = root.Execute()
