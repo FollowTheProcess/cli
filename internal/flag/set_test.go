@@ -1156,6 +1156,8 @@ func TestUsage(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Force no colour in tests
+			t.Setenv("NO_COLOR", "true")
 			set := tt.newSet(t)
 			golden := filepath.Join(test.Data(t), "TestUsage", tt.golden)
 
