@@ -10,6 +10,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/FollowTheProcess/cli/internal/colour"
 	"github.com/FollowTheProcess/cli/internal/flag"
 	"github.com/FollowTheProcess/cli/internal/table"
 )
@@ -441,23 +442,23 @@ func defaultHelp(cmd *Command) error {
 
 	// TODO: See if we can be clever about dynamically generating the syntax for e.g. variadic args
 	// required args, flags etc. based on what the command has defined.
+	s.WriteString(colour.Title("Usage:"))
+	s.WriteString(" ")
+	s.WriteString(colour.Bold(cmd.name))
 	if len(cmd.subcommands) == 0 {
 		// We don't have any subcommands so usage will be:
 		// "Usage: {name} [OPTIONS] ARGS..."
-		s.WriteString("Usage: ")
-		s.WriteString(cmd.name)
 		s.WriteString(" [OPTIONS] ARGS...")
 	} else {
 		// We do have subcommands, so usage will instead be:
 		// "Usage: {name} [OPTIONS] COMMAND"
-		s.WriteString("Usage: ")
-		s.WriteString(cmd.name)
 		s.WriteString(" [OPTIONS] COMMAND")
 	}
 
 	// If the user defined some examples, show those
 	if len(cmd.examples) != 0 {
-		s.WriteString("\n\nExamples:")
+		s.WriteString("\n\n")
+		s.WriteString(colour.Title("Examples:"))
 		for _, example := range cmd.examples {
 			s.WriteString(example.String())
 		}
@@ -465,10 +466,12 @@ func defaultHelp(cmd *Command) error {
 
 	// Now show subcommands
 	if len(cmd.subcommands) != 0 {
-		s.WriteString("\n\nCommands:\n")
+		s.WriteString("\n\n")
+		s.WriteString(colour.Title("Commands:"))
+		s.WriteString("\n")
 		tab := table.New(s)
 		for _, subcommand := range cmd.subcommands {
-			tab.Row("  %s\t%s\n", subcommand.name, subcommand.short)
+			tab.Row("  %s\t%s\n", colour.Bold(subcommand.name), subcommand.short)
 		}
 		if err := tab.Flush(); err != nil {
 			return fmt.Errorf("could not format subcommands: %w", err)
@@ -483,7 +486,8 @@ func defaultHelp(cmd *Command) error {
 		// If there weren't, we need some more space
 		s.WriteString("\n\n")
 	}
-	s.WriteString("Options:\n")
+	s.WriteString(colour.Title("Options:"))
+	s.WriteString("\n")
 	s.WriteString(usage)
 
 	// Subcommand help
