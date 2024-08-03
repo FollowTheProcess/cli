@@ -6,16 +6,9 @@ import (
 	"fmt"
 	"slices"
 	"strings"
-	"text/tabwriter"
 	"unicode/utf8"
-)
 
-// TableWriter config, used for showing subcommands in help.
-const (
-	minWidth = 0    // Min cell width
-	tabWidth = 8    // Tab width in spaces
-	padding  = 1    // Padding
-	padChar  = '\t' // Char to pad with
+	"github.com/FollowTheProcess/cli/internal/table"
 )
 
 // Set is a set of command line flags.
@@ -197,8 +190,9 @@ func (s *Set) Usage() (string, error) {
 	}
 	slices.Sort(names)
 
-	tab := tabwriter.NewWriter(buf, minWidth, tabWidth, padding, padChar, tabwriter.TabIndent)
-	fmt.Fprintln(tab, "Short\tLong\tType\tDefault\tUsage")
+	tab := table.New(buf)
+	tab.Row("Short\tLong\tType\tDefault\tUsage\n")
+
 	for _, name := range names {
 		entry := s.flags[name]
 		var shorthand string
@@ -215,7 +209,7 @@ func (s *Set) Usage() (string, error) {
 			defaultValue = `""`
 		}
 
-		fmt.Fprintf(tab, "%s\t--%s\t%s\t%s\t%s\n", shorthand, entry.Name, entry.Value.Type(), defaultValue, entry.Usage)
+		tab.Row("%s\t--%s\t%s\t%s\t%s\n", shorthand, entry.Name, entry.Value.Type(), defaultValue, entry.Usage)
 	}
 
 	if err := tab.Flush(); err != nil {

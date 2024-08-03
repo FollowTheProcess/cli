@@ -8,18 +8,10 @@ import (
 	"os"
 	"slices"
 	"strings"
-	"text/tabwriter"
 	"unicode/utf8"
 
 	"github.com/FollowTheProcess/cli/internal/flag"
-)
-
-// TableWriter config, used for showing subcommands in help.
-const (
-	minWidth = 2    // Min cell width
-	tabWidth = 8    // Tab width in spaces
-	padding  = 1    // Padding
-	padChar  = '\t' // Char to pad with
+	"github.com/FollowTheProcess/cli/internal/table"
 )
 
 // New builds and returns a new [Command].
@@ -474,9 +466,9 @@ func defaultHelp(cmd *Command) error {
 	// Now show subcommands
 	if len(cmd.subcommands) != 0 {
 		s.WriteString("\n\nCommands:\n")
-		tab := tabwriter.NewWriter(s, minWidth, tabWidth, padding, padChar, tabwriter.AlignRight)
+		tab := table.New(s)
 		for _, subcommand := range cmd.subcommands {
-			fmt.Fprintf(tab, "  %s\t%s\n", subcommand.name, subcommand.short)
+			tab.Row("  %s\t%s\n", subcommand.name, subcommand.short)
 		}
 		if err := tab.Flush(); err != nil {
 			return fmt.Errorf("could not format subcommands: %w", err)
