@@ -222,13 +222,34 @@ func TestSubCommandExecute(t *testing.T) {
 }
 
 func TestHelp(t *testing.T) {
-	sub1, err := cli.New("sub1", cli.Short("Do one thing"))
+	sub1, err := cli.New(
+		"sub1",
+		cli.Short("Do one thing"),
+		cli.Run(func(cmd *cli.Command, args []string) error {
+			fmt.Fprintln(cmd.Stdout(), "Hello from sub1")
+			return nil
+		}),
+	)
 	test.Ok(t, err)
 
-	sub2, err := cli.New("sub2", cli.Short("Do another thing"))
+	sub2, err := cli.New(
+		"sub2",
+		cli.Short("Do another thing"),
+		cli.Run(func(cmd *cli.Command, args []string) error {
+			fmt.Fprintln(cmd.Stdout(), "Hello from sub2")
+			return nil
+		}),
+	)
 	test.Ok(t, err)
 
-	sub3, err := cli.New("very-long-subcommand", cli.Short("Wow so long"))
+	sub3, err := cli.New(
+		"very-long-subcommand",
+		cli.Short("Wow so long"),
+		cli.Run(func(cmd *cli.Command, args []string) error {
+			fmt.Fprintln(cmd.Stdout(), "Hello from sub3")
+			return nil
+		}),
+	)
 	test.Ok(t, err)
 
 	tests := []struct {
@@ -238,14 +259,20 @@ func TestHelp(t *testing.T) {
 		wantErr bool         // Whether we want an error
 	}{
 		{
-			name:    "default long",
-			options: []cli.Option{cli.Args([]string{"--help"})},
+			name: "default long",
+			options: []cli.Option{
+				cli.Args([]string{"--help"}),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+			},
 			golden:  "default-help.txt",
 			wantErr: false,
 		},
 		{
-			name:    "default.short",
-			options: []cli.Option{cli.Args([]string{"-h"})},
+			name: "default.short",
+			options: []cli.Option{
+				cli.Args([]string{"-h"}),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+			},
 			golden:  "default-help.txt",
 			wantErr: false,
 		},
@@ -255,6 +282,7 @@ func TestHelp(t *testing.T) {
 				cli.Args([]string{"--help"}),
 				cli.Example("Do a thing", "test do thing --now"),
 				cli.Example("Do a different thing", "test do thing --different"),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			golden:  "with-examples.txt",
 			wantErr: false,
@@ -265,6 +293,7 @@ func TestHelp(t *testing.T) {
 				cli.Args([]string{"--help"}),
 				cli.Short("A cool CLI to do things"),
 				cli.Long("A longer, probably multiline description"),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			golden:  "full.txt",
 			wantErr: false,
@@ -273,6 +302,7 @@ func TestHelp(t *testing.T) {
 			name: "with no description",
 			options: []cli.Option{
 				cli.Args([]string{"--help"}),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			golden:  "no-about.txt",
 			wantErr: false,
@@ -326,8 +356,9 @@ func TestHelp(t *testing.T) {
 
 			// Test specific overrides to the options in the table
 			options := []cli.Option{cli.Stdout(stdout), cli.Stderr(stderr)}
+			options = append(options, tt.options...)
 
-			cmd, err := cli.New("test", slices.Concat(tt.options, options)...)
+			cmd, err := cli.New("test", options...)
 
 			test.Ok(t, err)
 
@@ -364,6 +395,7 @@ func TestVersion(t *testing.T) {
 			name: "default long",
 			options: []cli.Option{
 				cli.Args([]string{"--version"}),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			stderr:  "version-test, version: dev\n",
 			wantErr: false,
@@ -372,6 +404,7 @@ func TestVersion(t *testing.T) {
 			name: "default short",
 			options: []cli.Option{
 				cli.Args([]string{"-v"}),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			stderr:  "version-test, version: dev\n",
 			wantErr: false,
@@ -381,6 +414,7 @@ func TestVersion(t *testing.T) {
 			options: []cli.Option{
 				cli.Args([]string{"--version"}),
 				cli.Version("v1.2.3"),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			stderr:  "version-test, version: v1.2.3\n",
 			wantErr: false,
@@ -393,6 +427,7 @@ func TestVersion(t *testing.T) {
 					fmt.Fprintln(cmd.Stderr(), "Do something custom here")
 					return nil
 				}),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			stderr:  "Do something custom here\n",
 			wantErr: false,
@@ -404,6 +439,7 @@ func TestVersion(t *testing.T) {
 				cli.VersionFunc(func(cmd *cli.Command) error {
 					return errors.New("Uh oh!")
 				}),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			stderr:  "",
 			wantErr: true,
@@ -529,13 +565,22 @@ func TestOptionValidation(t *testing.T) {
 }
 
 func TestDuplicateSubCommands(t *testing.T) {
-	sub1, err := cli.New("sub1")
+	sub1, err := cli.New(
+		"sub1",
+		cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+	)
 	test.Ok(t, err)
 
-	sub2, err := cli.New("sub2")
+	sub2, err := cli.New(
+		"sub2",
+		cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+	)
 	test.Ok(t, err)
 
-	sub1Again, err := cli.New("sub1")
+	sub1Again, err := cli.New(
+		"sub1",
+		cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+	)
 	test.Ok(t, err) // Shouldn't error at this point as it's not joined up
 
 	_, err = cli.New(
@@ -548,17 +593,10 @@ func TestDuplicateSubCommands(t *testing.T) {
 }
 
 func TestCommandNoRunNoSub(t *testing.T) {
-	root, err := cli.New("root", cli.Args([]string{}))
-	test.Ok(t, err)
-
-	err = root.Execute()
-	if err != nil {
-		test.Equal(
-			t,
-			err.Error(),
-			"command root has no subcommands and no run function, a command must either be runnable or have subcommands",
-		)
-	} else {
-		test.Err(t, err)
-	}
+	_, err := cli.New(
+		"root",
+		cli.Args([]string{}),
+		// Run function missing and no subcommand
+	)
+	test.Err(t, err)
 }
