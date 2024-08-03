@@ -8,6 +8,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/FollowTheProcess/cli/internal/colour"
 	"github.com/FollowTheProcess/cli/internal/table"
 )
 
@@ -201,7 +202,7 @@ func (s *Set) Usage() (string, error) {
 			shorthand = "N/A"
 		}
 
-		tab.Row("  %s\t--%s\t%s\t%s\n", shorthand, entry.Name, entry.Value.Type(), entry.Usage)
+		tab.Row("  %s\t--%s\t%s\t%s\n", colour.Bold(shorthand), colour.Bold(entry.Name), entry.Value.Type(), entry.Usage)
 	}
 
 	if err := tab.Flush(); err != nil {

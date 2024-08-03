@@ -53,7 +53,7 @@ func MaxArgs(n int) ArgValidator {
 	return func(cmd *Command, args []string) error {
 		if len(args) > n {
 			return fmt.Errorf(
-				"command %s has a limit of %d arguments, but got %d: %v",
+				"command %s has a limit of %d argument(s), but got %d: %v",
 				cmd.name,
 				n,
 				len(args),
