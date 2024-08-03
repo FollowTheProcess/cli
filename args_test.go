@@ -108,7 +108,7 @@ func TestArgValidators(t *testing.T) {
 				cli.Allow(cli.MaxArgs(3)),
 			},
 			wantErr: true,
-			errMsg:  "command test has a limit of 3 arguments, but got 7: [loads of args here wow so many]",
+			errMsg:  "command test has a limit of 3 argument(s), but got 7: [loads of args here wow so many]",
 		},
 		{
 			name: "exactargs pass",

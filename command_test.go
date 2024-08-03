@@ -316,6 +316,9 @@ func TestHelp(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Force no colour in tests
+			t.Setenv("NO_COLOR", "true")
+
 			stderr := &bytes.Buffer{}
 			stdout := &bytes.Buffer{}
 
