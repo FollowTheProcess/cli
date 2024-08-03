@@ -56,7 +56,8 @@ type config struct {
 	versionCalled bool
 }
 
-// build builds an returns a Command from the config.
+// build builds an returns a Command from the config, applying validation
+// to the whole thing.
 func (c *config) build() *Command {
 	cmd := &Command{
 		stdin:         c.stdin,

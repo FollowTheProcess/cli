@@ -70,6 +70,15 @@ func New(name string, options ...Option) (*Command, error) {
 		return nil, errors.Join(errs...)
 	}
 
+	// Additional validation that can't be done per-option
+	// A command cannot have no subcommands and no run function, it must define one or the other
+	if cfg.run == nil && len(cfg.subcommands) == 0 {
+		return nil, fmt.Errorf(
+			"command %s has no subcommands and no run function, a command must either be runnable or have subcommands",
+			cfg.name,
+		)
+	}
+
 	return cfg.build(), nil
 }
 
@@ -219,16 +228,6 @@ func (c *Command) Execute() error {
 			return fmt.Errorf("version function returned an error: %w", err)
 		}
 		return nil
-	}
-
-	// A command cannot have no subcommands and no run function, it must define one or the other
-	// TODO: We can do this at build time, if a command has no run function and no subcommands
-	// then return the error from [New].
-	if cmd.run == nil && len(cmd.subcommands) == 0 {
-		return fmt.Errorf(
-			"command %s has no subcommands and no run function, a command must either be runnable or have subcommands",
-			cmd.name,
-		)
 	}
 
 	// Validate the arguments using the command's allowedArgs function
