@@ -191,7 +191,6 @@ func (s *Set) Usage() (string, error) {
 	slices.Sort(names)
 
 	tab := table.New(buf)
-	tab.Row("Short\tLong\tType\tDefault\tUsage\n")
 
 	for _, name := range names {
 		entry := s.flags[name]
@@ -202,14 +201,7 @@ func (s *Set) Usage() (string, error) {
 			shorthand = "N/A"
 		}
 
-		var defaultValue string
-		if entry.DefaultValue != "" {
-			defaultValue = entry.DefaultValue
-		} else {
-			defaultValue = `""`
-		}
-
-		tab.Row("%s\t--%s\t%s\t%s\t%s\n", shorthand, entry.Name, entry.Value.Type(), defaultValue, entry.Usage)
+		tab.Row("  %s\t--%s\t%s\t%s\n", shorthand, entry.Name, entry.Value.Type(), entry.Usage)
 	}
 
 	if err := tab.Flush(); err != nil {
