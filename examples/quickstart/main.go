@@ -15,11 +15,17 @@ func main() {
 }
 
 func run() error {
+	var count int
 	cmd, err := cli.New(
-		"quickstart",
-		cli.Allow(cli.AnyArgs()),
-		cli.Short("quick demo CLI to show the library"),
-		cli.Run(runQuickstart),
+		"demo",
+		cli.Short("Short description of your command"),
+		cli.Long("Much longer text..."),
+		cli.Version("v1.2.3"),
+		cli.Allow(cli.MinArgs(1)), // Must have at least one argument
+		cli.Stdout(os.Stdout),
+		cli.Example("Do a thing", "test run thing --now"),
+		cli.Flag(&count, "count", 'c', 0, "Count the things"),
+		cli.Run(runQuickstart(&count)),
 	)
 	if err != nil {
 		return err
@@ -28,7 +34,9 @@ func run() error {
 	return cmd.Execute()
 }
 
-func runQuickstart(cmd *cli.Command, args []string) error {
-	fmt.Fprintln(cmd.Stdout(), "Hello from quickstart!")
-	return nil
+func runQuickstart(count *int) func(cmd *cli.Command, args []string) error {
+	return func(cmd *cli.Command, args []string) error {
+		fmt.Fprintf(cmd.Stdout(), "Hello from quickstart!, count was %d\n", *count)
+		return nil
+	}
 }
