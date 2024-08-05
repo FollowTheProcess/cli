@@ -5,6 +5,7 @@ import (
 	"errors"
 	goflag "flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"slices"
@@ -624,5 +625,57 @@ func TestExecuteNonRootCommand(t *testing.T) {
 	test.Err(t, err)
 	if err != nil {
 		test.Equal(t, err.Error(), "Execute must be called on the root of the command tree, was called on sub")
+	}
+}
+
+func BenchmarkExecuteHelp(b *testing.B) {
+	sub1, err := cli.New(
+		"sub1",
+		cli.Short("Do one thing"),
+		cli.Run(func(cmd *cli.Command, args []string) error {
+			fmt.Fprintln(cmd.Stdout(), "Hello from sub1")
+			return nil
+		}),
+	)
+	test.Ok(b, err)
+
+	sub2, err := cli.New(
+		"sub2",
+		cli.Short("Do another thing"),
+		cli.Run(func(cmd *cli.Command, args []string) error {
+			fmt.Fprintln(cmd.Stdout(), "Hello from sub2")
+			return nil
+		}),
+	)
+	test.Ok(b, err)
+
+	sub3, err := cli.New(
+		"very-long-subcommand",
+		cli.Short("Wow so long"),
+		cli.Run(func(cmd *cli.Command, args []string) error {
+			fmt.Fprintln(cmd.Stdout(), "Hello from sub3")
+			return nil
+		}),
+	)
+	test.Ok(b, err)
+
+	cmd, err := cli.New(
+		"bench-help",
+		cli.Short("A helpful benchmark command"),
+		cli.Long("Much longer text..."),
+		cli.Example("Do a thing", "bench-help very-long-subcommand --flag"),
+		cli.SubCommands(sub1, sub2, sub3),
+		cli.Args([]string{"--help"}),
+		cli.Stderr(io.Discard),
+		cli.Stdout(io.Discard),
+	)
+	test.Ok(b, err)
+
+	b.ResetTimer()
+	for range b.N {
+		err := cmd.Execute()
+		if err != nil {
+			b.Fatalf("Execute returned an error: %v", err)
+		}
 	}
 }

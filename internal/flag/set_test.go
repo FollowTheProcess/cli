@@ -1205,3 +1205,34 @@ func TestUsage(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkParse(b *testing.B) {
+	set := flag.NewSet()
+	f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+	test.Ok(b, err)
+
+	f2, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
+	test.Ok(b, err)
+
+	f3, err := flag.New(new(string), "name", 'n', "", "Name something")
+	test.Ok(b, err)
+
+	err = flag.AddToSet(set, f)
+	test.Ok(b, err)
+
+	err = flag.AddToSet(set, f2)
+	test.Ok(b, err)
+
+	err = flag.AddToSet(set, f3)
+	test.Ok(b, err)
+
+	args := []string{"some", "args", "here", "--delete", "--count", "10", "--name", "John"}
+
+	b.ResetTimer()
+	for range b.N {
+		err := set.Parse(args)
+		if err != nil {
+			b.Fatalf("Parse returned an error: %v", err)
+		}
+	}
+}
