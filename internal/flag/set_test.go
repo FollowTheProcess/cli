@@ -426,6 +426,33 @@ func TestParse(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "valid long missing value",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				entry, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "0")
+
+				test.EqualFunc(t, set.Args(), nil, slices.Equal)
+			},
+			args:    []string{"--count"}, // Count needs an argument
+			wantErr: true,
+			errMsg:  "flag --count requires an argument",
+		},
+		{
 			name: "valid long value with args",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
