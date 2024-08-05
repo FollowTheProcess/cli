@@ -600,3 +600,29 @@ func TestCommandNoRunNoSub(t *testing.T) {
 	)
 	test.Err(t, err)
 }
+
+func TestExecuteNonRootCommand(t *testing.T) {
+	sub, err := cli.New(
+		"sub",
+		cli.Args([]string{"hello"}),
+		cli.Run(func(cmd *cli.Command, args []string) error {
+			fmt.Fprintln(cmd.Stdout(), "Hello from sub")
+			return nil
+		}),
+	)
+	test.Ok(t, err)
+
+	_, err = cli.New(
+		"root",
+		cli.Args([]string{"sub"}),
+		cli.SubCommands(sub),
+	)
+	test.Ok(t, err)
+
+	// Call sub's Execute, we should get an error
+	err = sub.Execute()
+	test.Err(t, err)
+	if err != nil {
+		test.Equal(t, err.Error(), "Execute must be called on the root of the command tree, was called on sub")
+	}
+}
