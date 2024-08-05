@@ -10,17 +10,72 @@
 Tiny, simple, but powerful CLI framework for modern Go 🚀
 
 <p align="center">
-<img src="./img/demo.png" alt="demo">
+<img src="./docs/img/demo.png" alt="demo">
 </p>
 
 > [!WARNING]
 > **CLI is in early development and is not yet ready for use**
 
-![caution](img/caution.png)
-
 ## Project Description
 
 `cli` is a simple, minimalist, yet functional and powerful CLI framework for Go. Inspired by things like [spf13/cobra] and [urfave/cli], but building on lessons learned and using modern Go techniques and idioms.
+
+## Installation
+
+```shell
+go get github.com/FollowTheProcess/cli@latest
+```
+
+## Quickstart
+
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/FollowTheProcess/cli"
+)
+
+func main() {
+	if err := run(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
+	var count int
+	cmd, err := cli.New(
+		"demo",
+		cli.Short("Short description of your command"),
+		cli.Long("Much longer text..."),
+		cli.Version("v1.2.3"),
+		cli.Allow(cli.MinArgs(1)), // Must have at least one argument
+		cli.Stdout(os.Stdout),
+		cli.Example("Do a thing", "test run thing --now"),
+		cli.Flag(&count, "count", 'c', 0, "Count the things"),
+		cli.Run(runQuickstart(&count)),
+	)
+	if err != nil {
+		return err
+	}
+
+	return cmd.Execute()
+}
+
+func runQuickstart(count *int) func(cmd *cli.Command, args []string) error {
+	return func(cmd *cli.Command, args []string) error {
+		fmt.Fprintf(cmd.Stdout(), "Hello from quickstart!, count was %d\n", *count)
+		return nil
+	}
+}
+```
+
+Will get you the following:
+
+![quickstart](./docs/img/quickstart.gif)
 
 ### Core Principles
 
@@ -111,65 +166,6 @@ And if you don't want a shorthand? i.e. just `--delete` with no `-d` option:
 var delete bool
 cli.New("demo", cli.Flag(&delete, "delete", cli.NoShortHand, false, "Delete something"))
 ```
-
-## Installation
-
-Convinced? I hope so...
-
-```shell
-go get github.com/FollowTheProcess/cli@latest
-```
-
-## Quickstart
-
-```go
-package main
-
-import (
-	"fmt"
-	"os"
-
-	"github.com/FollowTheProcess/cli"
-)
-
-func main() {
-	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
-}
-
-func run() error {
-	var count int
-	cmd, err := cli.New(
-		"demo",
-		cli.Short("Short description of your command"),
-		cli.Long("Much longer text..."),
-		cli.Version("v1.2.3"),
-		cli.Allow(cli.MinArgs(1)), // Must have at least one argument
-		cli.Stdout(os.Stdout),
-		cli.Example("Do a thing", "test run thing --now"),
-		cli.Flag(&count, "count", 'c', 0, "Count the things"),
-		cli.Run(runQuickstart(&count)),
-	)
-	if err != nil {
-		return err
-	}
-
-	return cmd.Execute()
-}
-
-func runQuickstart(count *int) func(cmd *cli.Command, args []string) error {
-	return func(cmd *cli.Command, args []string) error {
-		fmt.Fprintf(cmd.Stdout(), "Hello from quickstart!, count was %d\n", *count)
-		return nil
-	}
-}
-```
-
-Will get you the following:
-
-![quickstart](./img/quickstart.gif)
 
 ### Credits
 
