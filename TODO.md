@@ -20,7 +20,16 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [x] Implement something nice to do the whole `-- <bonus args>` thing, maybe `ExtraArgs`?
 - [x] Thin wrapper around tabwriter to keep it consistent
 - [ ] Try this on some of my CLI tools to work out the bugs in real world programs
-- [ ] Wrap long description at certain line limit
 - [ ] Test that shuffles the order of options and ensures the command we get is the same every time
+- [ ] Use [vhs] to make a nice demo gif
+
+## Ideas
+
+Things that might be good but not committed to doing yet and/or haven't decided if they are worth it.
+
+- [ ] Wrap long description at a sensible limit
+- [ ] Named arguments e.g. `git clone REPO` could retrieve an arg by name and would be good for the help text
+- [ ] Make a CLI cli (lol) like cobra-cli to generate CLI apps?
 
 [clap]: https://github.com/clap-rs/clap
+[vhs]: https://github.com/charmbracelet/vhs
