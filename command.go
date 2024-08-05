@@ -187,7 +187,7 @@ func (c *Command) Execute() error {
 	// that when we use the arguments to go and find the subcommand to run (if needed), then we
 	// at the root of the command tree.
 	if c.parent != nil {
-		return c.root().Execute()
+		return fmt.Errorf("Execute must be called on the root of the command tree, was called on %s", c.name)
 	}
 
 	// Use the raw arguments and the command tree to determine which subcommand (if any)
