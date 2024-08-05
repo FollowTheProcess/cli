@@ -648,3 +648,17 @@ func TestFlagNilSafety(t *testing.T) {
 		test.Equal(t, err.Error(), "cannot set value true, flag.value was nil")
 	})
 }
+
+func BenchmarkFlagSet(b *testing.B) {
+	var count int
+	flag, err := flag.New(&count, "count", 'c', 0, "Count things")
+	test.Ok(b, err)
+
+	b.ResetTimer()
+	for range b.N {
+		err := flag.Set("42")
+		if err != nil {
+			b.Fatalf("flag.Set returned an error: %v", err)
+		}
+	}
+}
