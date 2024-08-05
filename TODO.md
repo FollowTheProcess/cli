@@ -21,7 +21,7 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [x] Thin wrapper around tabwriter to keep it consistent
 - [ ] Try this on some of my CLI tools to work out the bugs in real world programs
 - [ ] Test that shuffles the order of options and ensures the command we get is the same every time
-- [ ] Use [vhs] to make a nice demo gif
+- [x] Use [vhs] to make a nice demo gif
 
 ## Ideas
 
