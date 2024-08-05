@@ -73,6 +73,16 @@ tasks:
       - sh: command -v pkgsite
         msg: pkgsite not installed, run go install golang.org/x/pkgsite/cmd/pkgsite@latest
 
+  demo:
+    desc: Render the demo gifs
+    sources:
+      - ./docs/src/*.tape
+    preconditions:
+      - sh: command -v vhs
+        msg: vhs not installed, see https://github.com/charmbracelet/vhs
+    cmds:
+      - vhs ./docs/src/quickstart.tape
+
   cov:
     desc: Calculate test coverage and render the html
     cmds:
