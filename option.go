@@ -164,7 +164,8 @@ func Short(short string) Option {
 
 // Long is an [Option] that sets the full description for a [Command].
 //
-// The long description will appear in the help text for a command.
+// The long description will appear in the help text for a command. Users
+// are responsible for wrapping the text at a sensible width.
 //
 // Successive calls will simply overwrite any previous calls.
 //
