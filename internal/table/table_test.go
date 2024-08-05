@@ -41,5 +41,5 @@ func TestTable(t *testing.T) {
 		test.Ok(t, err)
 	}
 
-	test.File(t, buf.String(), "table.txt")
+	test.File(t, buf.String(), file)
 }
