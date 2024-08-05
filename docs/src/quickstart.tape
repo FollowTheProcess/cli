@@ -89,6 +89,10 @@ Sleep 2s
 
 Type "./quickstart something --count 3" Sleep 500ms Enter
 
+Sleep 2s
+
+Type "./quickstart" Sleep 500ms Enter
+
 Sleep 4s
 
 # Cleanup
