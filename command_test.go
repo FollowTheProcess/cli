@@ -379,7 +379,7 @@ func TestHelp(t *testing.T) {
 			test.Equal(t, stdout.String(), "")
 
 			// --help output should be as per the golden file
-			test.File(t, stderr.String(), filepath.Join("TestHelp", tt.golden))
+			test.File(t, stderr.String(), golden)
 		})
 	}
 }

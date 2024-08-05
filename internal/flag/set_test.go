@@ -1174,7 +1174,7 @@ func TestUsage(t *testing.T) {
 				test.Ok(t, err)
 			}
 
-			test.File(t, got, filepath.Join("TestUsage", tt.golden))
+			test.File(t, got, golden)
 		})
 	}
 }
