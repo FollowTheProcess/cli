@@ -17,8 +17,6 @@ var (
 	update = goflag.Bool("update", false, "Update golden files")
 )
 
-// TODO: Test cases where we use NoShorthand but pass shorthands, should return unrecognised flag error
-
 func TestParse(t *testing.T) {
 	tests := []struct {
 		name    string                            // The name of the test case
@@ -736,6 +734,65 @@ func TestParse(t *testing.T) {
 			},
 			args:    []string{"args", "-c=1", "more", "args"},
 			wantErr: false,
+		},
+		{
+			name: "no shorthand use long",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(int), "count", flag.NoShortHand, 0, "Count something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				// Get by name
+				entry, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "1")
+
+				// Get by short
+				entry, exists = set.GetShort('c')
+				test.False(t, exists) // Short shouldn't exist
+			},
+			args:    []string{"--count", "1"},
+			wantErr: false,
+		},
+		{
+			name: "no shorthand use short",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(int), "count", flag.NoShortHand, 0, "Count something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				// Get by name
+				entry, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "0")
+
+				// Get by short
+				entry, exists = set.GetShort('c')
+				test.False(t, exists) // Short shouldn't exist
+			},
+			args:    []string{"-c", "1"},
+			wantErr: true,
+			errMsg:  "unrecognised shorthand flag: -c",
 		},
 	}
 
