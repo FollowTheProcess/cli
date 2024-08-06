@@ -277,12 +277,17 @@ func (c *Command) Stdin() io.Reader {
 	return c.root().stdin
 }
 
-// ExtraArgs returns any additional arguments following a "--", this is useful for when you want to
-// implement argument pass through in your commands.
+// ExtraArgs returns any additional arguments following a "--", and a boolean indicating
+// whether or not they were present. This is useful for when you want to implement argument
+// pass through in your commands.
 //
-// If there were no extra arguments, it will return nil.
-func (c *Command) ExtraArgs() []string {
-	return c.flagSet().ExtraArgs()
+// If there were no extra arguments, it will return nil, false.
+func (c *Command) ExtraArgs() (args []string, ok bool) {
+	extra := c.flagSet().ExtraArgs()
+	if len(extra) > 0 {
+		return extra, true
+	}
+	return nil, false
 }
 
 // root returns the root of the command tree.

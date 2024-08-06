@@ -165,13 +165,17 @@ func TestSubCommandExecute(t *testing.T) {
 					if something == "" {
 						something = "<empty>"
 					}
+					extra, ok := cmd.ExtraArgs()
+					if !ok {
+						extra = []string{}
+					}
 					fmt.Fprintf(
 						cmd.Stdout(),
 						"Hello from sub1, my args were: %v, force was %v, something was %s, extra args: %v",
 						args,
 						force,
 						something,
-						cmd.ExtraArgs(),
+						extra,
 					)
 					return nil
 				}),
