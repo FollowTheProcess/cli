@@ -6,6 +6,7 @@ import (
 	goflag "flag"
 	"fmt"
 	"io"
+	"math/rand/v2"
 	"os"
 	"path/filepath"
 	"slices"
@@ -632,6 +633,97 @@ func TestExecuteNonRootCommand(t *testing.T) {
 	}
 }
 
+// The order in which we apply options shouldn't matter, this test
+// shuffles the order of the options and asserts the Command we get
+// out behaves the same as a baseline.
+func TestCommandOptionOrder(t *testing.T) {
+	baseLineStdout := &bytes.Buffer{}
+	baseLineStderr := &bytes.Buffer{}
+
+	shuffleStdout := &bytes.Buffer{}
+	shuffleStderr := &bytes.Buffer{}
+
+	var (
+		f     bool
+		count int
+	)
+
+	sub, err := cli.New(
+		"sub",
+		cli.Run(func(cmd *cli.Command, args []string) error {
+			fmt.Fprintln(cmd.Stdout(), "Hello from sub")
+			return nil
+		}),
+	)
+	test.Ok(t, err)
+
+	options := []cli.Option{
+		cli.Args([]string{"some", "args", "here", "--flag", "--count", "10"}),
+		cli.Short("Short description"),
+		cli.Long("Long description"),
+		cli.Example("Do a thing", "demo run something --flag"),
+		cli.Run(func(cmd *cli.Command, args []string) error {
+			fmt.Fprintf(cmd.Stdout(), "args: %v, flag: %v, count: %v\n", args, f, count)
+			return nil
+		}),
+		cli.Version("v1.2.3"),
+		cli.VersionFunc(func(cmd *cli.Command) error {
+			fmt.Println(cmd.Stderr(), "versionFunc")
+			return nil
+		}),
+		cli.Allow(cli.AnyArgs()),
+		cli.SubCommands(sub),
+		cli.Flag(&f, "flag", 'f', false, "Set a bool flag"),
+		cli.Flag(&count, "count", 'c', 0, "Count a thing"),
+	}
+
+	baseLineOptions := slices.Concat(
+		options,
+		[]cli.Option{
+			cli.Stderr(baseLineStderr), // Set output streams specific to the baseline
+			cli.Stdout(baseLineStdout),
+		})
+
+	baseline, err := cli.New("baseline", baseLineOptions...)
+	test.Ok(t, err)
+
+	err = baseline.Execute()
+	test.Ok(t, err)
+
+	// Make sure the baseline is behaving as expected
+	test.Equal(t, baseLineStdout.String(), "args: [some args here], flag: true, count: 10\n")
+	test.Equal(t, baseLineStderr.String(), "")
+
+	// Shuffley shuffle, 100 permutations should do it
+	for range 100 {
+		shuffled := shuffle(options)
+
+		// Set output streams specific to the shuffled command
+		shuffleOptions := slices.Concat(
+			shuffled,
+			[]cli.Option{
+				cli.Stderr(shuffleStderr),
+				cli.Stdout(shuffleStdout),
+			},
+		)
+
+		// Make a Command with the randomly ordered options
+		shuffle, err := cli.New("shuffle", shuffleOptions...)
+		test.Ok(t, err)
+
+		// The two commands should behave equivalently
+		err = shuffle.Execute()
+		test.Ok(t, err)
+
+		test.Equal(t, shuffleStdout.String(), baseLineStdout.String())
+		test.Equal(t, shuffleStderr.String(), baseLineStderr.String())
+
+		// Clear the buffers for the next loop
+		shuffleStderr.Reset()
+		shuffleStdout.Reset()
+	}
+}
+
 func BenchmarkExecuteHelp(b *testing.B) {
 	sub1, err := cli.New(
 		"sub1",
@@ -682,4 +774,15 @@ func BenchmarkExecuteHelp(b *testing.B) {
 			b.Fatalf("Execute returned an error: %v", err)
 		}
 	}
+}
+
+// shuffle returns a randomly ordered copy of items.
+func shuffle[T any](items []T) []T {
+	shuffled := slices.Clone(items)
+
+	rand.Shuffle(len(shuffled), func(i, j int) {
+		shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
+	})
+
+	return shuffled
 }
