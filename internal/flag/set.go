@@ -33,7 +33,6 @@ func AddToSet[T Flaggable](set *Set, flag Flag[T]) error {
 	if set == nil {
 		return errors.New("cannot add flag to a nil set")
 	}
-	// TODO: Would this be better as a method on Flag[T]?
 	_, exists := set.flags[flag.name]
 	if exists {
 		return fmt.Errorf("flag %q already defined", flag.name)
@@ -140,8 +139,6 @@ func (s *Set) ExtraArgs() []string {
 }
 
 // Parse parses flags and their values from the command line.
-//
-// TODO: Currently thinks arg terminator "--" is just an empty flag.
 func (s *Set) Parse(args []string) (err error) {
 	if s == nil {
 		return errors.New("Parse called on a nil set")

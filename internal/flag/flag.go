@@ -461,10 +461,7 @@ func validateFlagShort(short rune) error {
 
 // errParse is a helper to quickly return a consistent error in the face of flag
 // value parsing errors.
-//
-// TODO: A proper error type and use errors.Is/As during testing rather
-// than comparing string contents.
-func errParse[T any](name, str string, typ *T, err error) error {
+func errParse[T Flaggable](name, str string, typ *T, err error) error {
 	return fmt.Errorf(
 		"flag %q received invalid value %q (expected %T), detail: %w",
 		name,
