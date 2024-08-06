@@ -23,7 +23,8 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [ ] Test that shuffles the order of options and ensures the command we get is the same every time
 - [x] Use [vhs] to make a nice demo gif
 - [ ] Implement a count flag type so that `-vvv` sets the `verbose` flag to 3
-- [ ] Make `ExtraArgs` return `([]string, bool)`
+- [x] Make `ExtraArgs` return `([]string, bool)`
+- [ ] Figure out if/how we support setting custom flag types e.g. implement `Value`. Try this out in an example, does it work with `Flaggable`, how do we make it work?
 
 ## Ideas
 
