@@ -33,6 +33,9 @@ const (
 	bits64             // 64 bit integer
 )
 
+// TODO: Add a custom Count type based on uint but who's default value with no arg is +1
+// that way flag.Set() on a Count will just increment value, meaning we can implement e.g. -vvv
+// for level 3 verbosity.
 const (
 	typeInt      = "int"
 	typeInt8     = "int8"
