@@ -284,6 +284,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocyclo // No other way of doi
 		// can increment it
 		current, ok := any(*f.value).(Count)
 		if !ok {
+			// This basically shouldn't ever happen but it's easy enough to handle nicely
 			return fmt.Errorf("bad current count value %v, could not cast to Count", *f.value)
 		}
 

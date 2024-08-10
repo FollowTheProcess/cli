@@ -37,10 +37,15 @@ func AddToSet[T Flaggable](set *Set, flag Flag[T]) error {
 		return fmt.Errorf("flag %q already defined", flag.name)
 	}
 	var defaultValueNoArg string
-	if flag.Type() == typeBool {
+	switch flag.Type() {
+	case typeBool:
 		// Boolean flags imply passing true, "--force" vs "--force true"
 		defaultValueNoArg = boolTrue
+	case typeCount:
+		// Count flags imply passing 1, "--count --count" or "-cc" should inc by 2
+		defaultValueNoArg = "1"
 	}
+
 	entry := Entry{
 		Value:             flag,
 		Name:              flag.name,
@@ -363,6 +368,6 @@ func (s *Set) parseSingleShortFlag(shorthands string, rest []string) (string, []
 		}
 	}
 
-	// Didn't match any of our rules, pass it through
-	return shorthands, rest, nil
+	// Didn't match any of our rules, must be invalid short flag syntax
+	return "", nil, fmt.Errorf("invalid short flag syntax: %s", shorthands)
 }

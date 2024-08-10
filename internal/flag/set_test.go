@@ -360,7 +360,7 @@ func TestParse(t *testing.T) {
 				test.Equal(t, entry.Value.String(), "true")
 
 				// Get by short
-				entry, exists = set.Get("delete")
+				entry, exists = set.GetShort('d')
 				test.True(t, exists)
 
 				test.Equal(t, entry.Value.Type(), "bool")
@@ -369,6 +369,38 @@ func TestParse(t *testing.T) {
 				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
 			args:    []string{"-d"},
+			wantErr: false,
+		},
+		{
+			name: "valid shortvalue",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(int), "number", 'n', 0, "Number of something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				// Get by name
+				entry, exists := set.Get("number")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "42")
+
+				// Get by short
+				entry, exists = set.GetShort('n')
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "42")
+			},
+			args:    []string{"-n42"},
 			wantErr: false,
 		},
 		{
@@ -457,6 +489,33 @@ func TestParse(t *testing.T) {
 			args:    []string{"--count"}, // Count needs an argument
 			wantErr: true,
 			errMsg:  "flag --count requires an argument",
+		},
+		{
+			name: "valid short missing value",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				entry, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "0")
+
+				test.EqualFunc(t, set.Args(), nil, slices.Equal)
+			},
+			args:    []string{"-c"}, // Count needs an argument
+			wantErr: true,
+			errMsg:  `flag count needs an argument: "c" in -c`,
 		},
 		{
 			name: "valid long value with args",
@@ -801,6 +860,78 @@ func TestParse(t *testing.T) {
 			args:    []string{"-c", "1"},
 			wantErr: true,
 			errMsg:  `unrecognised shorthand flag: "c" in -c`,
+		},
+		{
+			name: "valid count long",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(flag.Count), "count", 'c', 0, "Count something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				entry, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "count")
+				test.Equal(t, entry.Value.String(), "2") // Should be incremented by 2
+			},
+			args:    []string{"--count", "--count"},
+			wantErr: false,
+		},
+		{
+			name: "valid count short",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(flag.Count), "count", 'c', 0, "Count something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				entry, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "count")
+				test.Equal(t, entry.Value.String(), "2") // Should be incremented by 2
+			},
+			args:    []string{"-c", "-c"},
+			wantErr: false,
+		},
+		{
+			name: "valid count super short",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(flag.Count), "count", 'c', 0, "Count something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				entry, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "count")
+				test.Equal(t, entry.Value.String(), "3") // Should be incremented by 3
+			},
+			args:    []string{"-ccc"},
+			wantErr: false,
 		},
 	}
 
