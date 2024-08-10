@@ -641,6 +641,15 @@ func TestExecuteNonRootCommand(t *testing.T) {
 	}
 }
 
+func TestExecuteNilCommand(t *testing.T) {
+	var cmd *cli.Command
+	err := cmd.Execute()
+	test.Err(t, err)
+	if err != nil {
+		test.Equal(t, err.Error(), "Execute called on a nil Command")
+	}
+}
+
 // The order in which we apply options shouldn't matter, this test
 // shuffles the order of the options and asserts the Command we get
 // out behaves the same as a baseline.
