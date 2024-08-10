@@ -59,8 +59,9 @@ func buildSayCommand() (*cli.Command, error) {
 }
 
 type doOptions struct {
-	count int
-	fast  bool
+	count     int
+	fast      bool
+	verbosity cli.FlagCount
 }
 
 func buildDoCommand() (*cli.Command, error) {
@@ -73,6 +74,7 @@ func buildDoCommand() (*cli.Command, error) {
 		cli.Allow(cli.MaxArgs(1)), // Only allowed to do one thing
 		cli.Flag(&options.count, "count", 'c', 1, "Number of times to do the thing"),
 		cli.Flag(&options.fast, "fast", 'f', false, "Do the thing quickly"),
+		cli.Flag(&options.verbosity, "verbosity", 'V', 0, "Increase the verbosity level"),
 		cli.Run(runDo(&options)),
 	)
 	if err != nil {
@@ -106,6 +108,8 @@ func runDo(options *doOptions) func(cmd *cli.Command, args []string) error {
 		} else {
 			fmt.Fprintf(cmd.Stdout(), "Doing %s %d times\n", args[0], options.count)
 		}
+
+		fmt.Fprintf(cmd.Stdout(), "Verbosity level was %d\n", options.verbosity)
 
 		return nil
 	}
