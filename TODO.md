@@ -10,7 +10,7 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [x] Change `cli.Example` to be one at a time and append rather than pass a slice
 - [x] Rename `cmd.example` to `cmd.examples`
 - [x] Clean up/rewrite some of the functions borrowed from Cobra e.g. `argsMinusFirstX`
-- [ ] Clean up and optimise the parsing logic
+- [x] Clean up and optimise the parsing logic
 - [x] Do some benchmarking and see where we can improve
 - [x] Remove the `Loop` tag from parsing functions
 - [ ] More full test programs as integration tests
