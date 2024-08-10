@@ -36,6 +36,14 @@ func AddToSet[T Flaggable](set *Set, flag Flag[T]) error {
 	if exists {
 		return fmt.Errorf("flag %q already defined", flag.name)
 	}
+
+	if flag.short != NoShortHand {
+		f, exists := set.shorthands[flag.short]
+		if exists {
+			return fmt.Errorf("shorthand %q already in use for flag %q", string(flag.short), f.Name)
+		}
+	}
+
 	var defaultValueNoArg string
 	switch flag.Type() {
 	case typeBool:

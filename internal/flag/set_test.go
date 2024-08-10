@@ -1087,7 +1087,7 @@ func TestFlagSet(t *testing.T) {
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
 
-				f2, err := flag.New(new(uint), "count", 'C', 0, "Count something 2")
+				f2, err := flag.New(new(uint), "count", 'c', 0, "Count something 2")
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -1098,6 +1098,31 @@ func TestFlagSet(t *testing.T) {
 				test.Err(t, err)
 				if err != nil {
 					test.Equal(t, err.Error(), `flag "count" already defined`)
+				}
+			},
+		},
+		{
+			name: "different flag same short added",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				return flag.NewSet()
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				test.Ok(t, err)
+
+				f2, err := flag.New(new(string), "config", 'c', "", "Choose a config file")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				// Add the different flag with the same na,e
+				err = flag.AddToSet(set, f2)
+				test.Err(t, err)
+				if err != nil {
+					test.Equal(t, err.Error(), `shorthand "c" already in use for flag "count"`)
 				}
 			},
 		},
