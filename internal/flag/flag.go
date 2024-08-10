@@ -42,6 +42,7 @@ const (
 	typeInt16    = "int16"
 	typeInt32    = "int32"
 	typeInt64    = "int64"
+	typeCount    = "count"
 	typeUint     = "uint"
 	typeUint8    = "uint8"
 	typeUint16   = "uint16"
@@ -68,6 +69,10 @@ const (
 const NoShortHand = rune(-1)
 
 var _ Value = Flag[string]{} // This will fail if we violate our Value interface
+
+// Count is a type used for a flag who's job is to increment a counter, e.g. a "verbosity"
+// flag may be passed "-vvv" which should increase the verbosity level to 3.
+type Count uint
 
 // Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
 //
@@ -143,6 +148,8 @@ func (f Flag[T]) String() string { //nolint:gocyclo // No other way of doing thi
 		return formatInt(*typ)
 	case *int64:
 		return formatInt(*typ)
+	case *Count:
+		return formatUint(*typ)
 	case *uint:
 		return formatUint(*typ)
 	case *uint8:
@@ -194,6 +201,8 @@ func (f Flag[T]) Type() string { //nolint:gocyclo // No other way of doing this 
 		return typeInt32
 	case *int64:
 		return typeInt64
+	case *Count:
+		return typeCount
 	case *uint:
 		return typeUint
 	case *uint8:
@@ -267,6 +276,26 @@ func (f Flag[T]) Set(str string) error { //nolint:gocyclo // No other way of doi
 			return errParse(f.name, str, typ, err)
 		}
 		*f.value = *cast[T](&val)
+		return nil
+	case *Count:
+		// We have to do a bit of custom stuff here as an incremement is a read and write op
+
+		// First read the current value of the flag and cast it to a Count so we
+		// can increment it
+		current, ok := any(*f.value).(Count)
+		if !ok {
+			return fmt.Errorf("bad current count value %v, could not cast to Count", *f.value)
+		}
+
+		// Parse the given value which will be the flag's default value of "1"
+		// for 'increment by one'
+		val, err := parseUint[uint](0)(str)
+		if err != nil {
+			return errParse(f.name, str, typ, err)
+		}
+		// Increment the count and store it back
+		newValue := current + Count(val)
+		*f.value = *cast[T](&newValue)
 		return nil
 	case *uint:
 		val, err := parseUint[uint](0)(str)
