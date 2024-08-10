@@ -446,8 +446,6 @@ func defaultHelp(cmd *Command) error {
 		s.WriteString("\n\n")
 	}
 
-	// TODO: See if we can be clever about dynamically generating the syntax for e.g. variadic args
-	// required args, flags etc. based on what the command has defined.
 	s.WriteString(colour.Title("Usage:"))
 	s.WriteString(" ")
 	s.WriteString(colour.Bold(cmd.name))

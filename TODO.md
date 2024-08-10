@@ -26,6 +26,8 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [x] Make `ExtraArgs` return `([]string, bool)`
 - [ ] Figure out if/how we support setting custom flag types e.g. implement `Value`. Try this out in an example, does it work with `Flaggable`, how do we make it work?
 - [x] How to handle conflicting flags e.g. `--version` has a short of `-v`, what if we want `-v` to mean verbosity, should be an error if there's a conflicting flag
+- [ ] Cleverly look at what `cli.Allow` is set to to dynamically render the usage info
+- [ ] Use the default values in the flag usages somehow, maybe if the default is not the zero value for the type?
 
 ## Ideas
 
