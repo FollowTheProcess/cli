@@ -144,6 +144,39 @@ func TestFlagValue(t *testing.T) {
 		)
 	})
 
+	t.Run("count valid", func(t *testing.T) {
+		var c flag.Count
+		countFlag, err := flag.New(&c, "count", 'c', 0, "Count something")
+		test.Ok(t, err)
+
+		err = countFlag.Set("1")
+		test.Ok(t, err)
+		test.Equal(t, countFlag.Get(), flag.Count(1))
+		test.Equal(t, countFlag.Type(), "count")
+		test.Equal(t, countFlag.String(), "1")
+
+		// Setting it again should increment to 2
+		err = countFlag.Set("1")
+		test.Ok(t, err)
+		test.Equal(t, countFlag.Get(), flag.Count(2))
+		test.Equal(t, countFlag.Type(), "count")
+		test.Equal(t, countFlag.String(), "2")
+	})
+
+	t.Run("count invalid", func(t *testing.T) {
+		var c flag.Count
+		countFlag, err := flag.New(&c, "count", 'c', 0, "Count something")
+		test.Ok(t, err)
+
+		err = countFlag.Set("word")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "count" received invalid value "word" (expected flag.Count), detail: strconv.ParseUint: parsing "word": invalid syntax`,
+		)
+	})
+
 	t.Run("uint valid", func(t *testing.T) {
 		var i uint
 		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint value")

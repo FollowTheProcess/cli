@@ -134,7 +134,7 @@ func TestParse(t *testing.T) {
 			},
 			args:    []string{"-u", "value"},
 			wantErr: true,
-			errMsg:  "unrecognised shorthand flag: -u",
+			errMsg:  `unrecognised shorthand flag: "u" in -u`,
 		},
 		{
 			name: "undefined flag long equals value",
@@ -154,7 +154,7 @@ func TestParse(t *testing.T) {
 			},
 			args:    []string{"-u=value"},
 			wantErr: true,
-			errMsg:  "unrecognised shorthand flag: -u",
+			errMsg:  `unrecognised shorthand flag: "u" in -u=value`,
 		},
 		{
 			name: "undefined flag shortvalue",
@@ -164,7 +164,7 @@ func TestParse(t *testing.T) {
 			},
 			args:    []string{"-uvalue"},
 			wantErr: true,
-			errMsg:  "unrecognised shorthand flag: -u",
+			errMsg:  `unrecognised shorthand flag: "u" in -uvalue`,
 		},
 		{
 			name: "bad syntax short empty name",
@@ -204,7 +204,7 @@ func TestParse(t *testing.T) {
 			},
 			args:    []string{"- d"},
 			wantErr: true,
-			errMsg:  `invalid flag name " d": cannot contain whitespace`,
+			errMsg:  `invalid flag shorthand " ": cannot contain whitespace`,
 		},
 		{
 			name: "bad syntax long trailing whitespace",
@@ -220,11 +220,19 @@ func TestParse(t *testing.T) {
 			name: "bad syntax short trailing whitespace",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
-				return flag.NewSet()
+				f, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
 			},
 			args:    []string{"-d "},
 			wantErr: true,
-			errMsg:  `invalid flag name "d ": cannot contain whitespace`,
+			errMsg:  `invalid flag shorthand " ": cannot contain whitespace`,
 		},
 		{
 			name: "bad syntax short more than 1 char equals",
@@ -234,7 +242,7 @@ func TestParse(t *testing.T) {
 			},
 			args:    []string{"-dfv=something"},
 			wantErr: true,
-			errMsg:  "invalid shorthand syntax: expected e.g. -f=<value> got -dfv=something",
+			errMsg:  `unrecognised shorthand flag: "d" in -dfv=something`,
 		},
 		{
 			name: "bad syntax short non utf8",
@@ -244,7 +252,7 @@ func TestParse(t *testing.T) {
 			},
 			args:    []string{"-Ê"},
 			wantErr: true,
-			errMsg:  `invalid flag name "Ê": contains non ascii character: "Ê"`,
+			errMsg:  `invalid flag shorthand "Ê": invalid character, must be a single ASCII letter, got "Ê"`,
 		},
 		{
 			name: "bad syntax short non utf8 equals",
@@ -254,7 +262,7 @@ func TestParse(t *testing.T) {
 			},
 			args:    []string{"-Ê=something"},
 			wantErr: true,
-			errMsg:  `invalid flag name "Ê": contains non ascii character: "Ê"`,
+			errMsg:  `invalid flag shorthand "Ê": invalid character, must be a single ASCII letter, got "Ê"`,
 		},
 		{
 			name: "bad syntax short multiple non utf8",
@@ -264,7 +272,7 @@ func TestParse(t *testing.T) {
 			},
 			args:    []string{"-本¼語"},
 			wantErr: true,
-			errMsg:  `invalid flag name "本¼語": contains non ascii character: "本"`,
+			errMsg:  `invalid flag shorthand "本": invalid character, must be a single ASCII letter, got "本"`,
 		},
 		{
 			name: "bad syntax long internal whitespace",
@@ -352,7 +360,7 @@ func TestParse(t *testing.T) {
 				test.Equal(t, entry.Value.String(), "true")
 
 				// Get by short
-				entry, exists = set.Get("delete")
+				entry, exists = set.GetShort('d')
 				test.True(t, exists)
 
 				test.Equal(t, entry.Value.Type(), "bool")
@@ -361,6 +369,38 @@ func TestParse(t *testing.T) {
 				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
 			args:    []string{"-d"},
+			wantErr: false,
+		},
+		{
+			name: "valid shortvalue",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(int), "number", 'n', 0, "Number of something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				// Get by name
+				entry, exists := set.Get("number")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "42")
+
+				// Get by short
+				entry, exists = set.GetShort('n')
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "42")
+			},
+			args:    []string{"-n42"},
 			wantErr: false,
 		},
 		{
@@ -449,6 +489,33 @@ func TestParse(t *testing.T) {
 			args:    []string{"--count"}, // Count needs an argument
 			wantErr: true,
 			errMsg:  "flag --count requires an argument",
+		},
+		{
+			name: "valid short missing value",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				entry, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "int")
+				test.Equal(t, entry.Value.String(), "0")
+
+				test.EqualFunc(t, set.Args(), nil, slices.Equal)
+			},
+			args:    []string{"-c"}, // Count needs an argument
+			wantErr: true,
+			errMsg:  `flag count needs an argument: "c" in -c`,
 		},
 		{
 			name: "valid long value with args",
@@ -792,7 +859,79 @@ func TestParse(t *testing.T) {
 			},
 			args:    []string{"-c", "1"},
 			wantErr: true,
-			errMsg:  "unrecognised shorthand flag: -c",
+			errMsg:  `unrecognised shorthand flag: "c" in -c`,
+		},
+		{
+			name: "valid count long",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(flag.Count), "count", 'c', 0, "Count something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				entry, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "count")
+				test.Equal(t, entry.Value.String(), "2") // Should be incremented by 2
+			},
+			args:    []string{"--count", "--count"},
+			wantErr: false,
+		},
+		{
+			name: "valid count short",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(flag.Count), "count", 'c', 0, "Count something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				entry, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "count")
+				test.Equal(t, entry.Value.String(), "2") // Should be incremented by 2
+			},
+			args:    []string{"-c", "-c"},
+			wantErr: false,
+		},
+		{
+			name: "valid count super short",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Helper()
+				set := flag.NewSet()
+				f, err := flag.New(new(flag.Count), "count", 'c', 0, "Count something")
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				t.Helper()
+				entry, exists := set.Get("count")
+				test.True(t, exists)
+
+				test.Equal(t, entry.Value.Type(), "count")
+				test.Equal(t, entry.Value.String(), "3") // Should be incremented by 3
+			},
+			args:    []string{"-ccc"},
+			wantErr: false,
 		},
 	}
 
