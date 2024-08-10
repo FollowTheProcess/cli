@@ -19,6 +19,10 @@ const NoShortHand = flag.NoShortHand
 // as e.g. a [time.Duration] is actually just an int64 underneath, likewise a [net.IP] is actually just []byte.
 type Flaggable = flag.Flaggable
 
+// FlagCount is a type used for a flag who's job is to increment a counter, e.g. a "verbosity"
+// flag may be passed "-vvv" which should increase the verbosity level to 3.
+type FlagCount = flag.Count
+
 // Option is a functional option for configuring a [Command].
 type Option interface {
 	// Apply the option to the config, returning an error if the
