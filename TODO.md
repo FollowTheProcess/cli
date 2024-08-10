@@ -10,7 +10,7 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [x] Change `cli.Example` to be one at a time and append rather than pass a slice
 - [x] Rename `cmd.example` to `cmd.examples`
 - [x] Clean up/rewrite some of the functions borrowed from Cobra e.g. `argsMinusFirstX`
-- [ ] Clean up and optimise the parsing logic
+- [x] Clean up and optimise the parsing logic
 - [x] Do some benchmarking and see where we can improve
 - [x] Remove the `Loop` tag from parsing functions
 - [ ] More full test programs as integration tests
@@ -25,7 +25,7 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [x] Implement a count flag type so that `-vvv` sets the `verbose` flag to 3
 - [x] Make `ExtraArgs` return `([]string, bool)`
 - [ ] Figure out if/how we support setting custom flag types e.g. implement `Value`. Try this out in an example, does it work with `Flaggable`, how do we make it work?
-- [ ] How to handle conflicting flags e.g. `--version` has a short of `-v`, what if we want `-v` to mean verbosity, should be an error if there's a conflicting flag
+- [x] How to handle conflicting flags e.g. `--version` has a short of `-v`, what if we want `-v` to mean verbosity, should be an error if there's a conflicting flag
 
 ## Ideas
 

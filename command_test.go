@@ -535,6 +535,14 @@ func TestOptionValidation(t *testing.T) {
 			errMsg: `flag "count" already defined`,
 		},
 		{
+			name: "flag short already exists",
+			options: []cli.Option{
+				cli.Flag(new(int), "count", 'c', 0, "Count something"),
+				cli.Flag(new(string), "config", 'c', "", "Path to config file"),
+			},
+			errMsg: `could not add flag "config" to command "test": shorthand "c" already in use for flag "count"`,
+		},
+		{
 			name:    "example comment empty",
 			options: []cli.Option{cli.Example("", "command here")},
 			errMsg:  "example comment cannot be empty",

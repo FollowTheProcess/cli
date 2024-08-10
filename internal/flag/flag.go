@@ -1,15 +1,6 @@
-// Package flag provides an experimental command line flag definition and parsing library.
-//
-// CLI currently uses [spf13/pflag] for flag parsing (like Cobra), this package is an attempt at defining
-// a new approach with some of the tools we now have in modern Go. It is not intended to be backwards compatible
-// with pflag or the std lib flag package.
-//
-// Note: I'm using [spf13/pflag] here underneath as a gateway for now as it provides a lot of helpful functionality whilst I
-// figure out what I want this to look like. So for now Flag implements pflag.Value so it can be used as a drop in.
+// Package flag provides a command line flag definition and parsing library.
 //
 // Flag is intentionally internal so the only interraction is via the Flag option on a command.
-//
-// [spf13/pflag]: https://github.com/spf13/pflag
 package flag
 
 import (
@@ -33,9 +24,6 @@ const (
 	bits64             // 64 bit integer
 )
 
-// TODO: Add a custom Count type based on uint but who's default value with no arg is +1
-// that way flag.Set() on a Count will just increment value, meaning we can implement e.g. -vvv
-// for level 3 verbosity.
 const (
 	typeInt      = "int"
 	typeInt8     = "int8"
