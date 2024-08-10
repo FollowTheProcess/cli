@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"slices"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/FollowTheProcess/cli/internal/colour"
 	"github.com/FollowTheProcess/cli/internal/table"
@@ -283,125 +282,87 @@ func (s *Set) parseShortFlag(short string, rest []string) (remaining []string, e
 	// Could either be "f", "vfg" or "f=value"
 	shorthands := strings.TrimPrefix(short, "-")
 
+	if len(shorthands) == 0 {
+		return nil, fmt.Errorf("invalid flag name %q: must not be empty", shorthands)
+	}
+
 	// go test inserts flags like "-test.testlogfile"
 	if strings.HasPrefix(shorthands, "test.") {
 		return rest, nil
 	}
 
-	// Is it e.g. f=value
-	shorthand, value, containsEquals := strings.Cut(shorthands, "=")
-	if err := validateFlagName(shorthand); err != nil {
-		return nil, fmt.Errorf("invalid flag name %q: %w", shorthand, err)
-	}
-
-	switch {
-	case containsEquals:
-		// Yes, it is. If the thing on the left of the equals is > 1 char it's an error
-		return s.parseShortFlagEqualsValue(shorthand, value, rest)
-
-	case len(shorthands) > 1:
-		// It must be e.g. -fvalue and 'shorthands' here refers to the string "fvalue"
-		return s.parseShortFlagValue(shorthands, rest)
-
-	case len(rest) > 0:
-		// It must be "f value" and value is the next argument in rest
-		return s.parseShortFlagArgValue(shorthands, rest)
-
-	default:
-		// If we get here, it must be the "-vvv" form
-		for _, char := range shorthands {
-			flag, exists := s.shorthands[char]
-			if !exists {
-				return nil, fmt.Errorf("unrecognised shorthand flag: %q in -%s", string(char), shorthands)
-			}
-
-			// -f (boolean flag)
-			if flag.DefaultValueNoArg != "" {
-				err := flag.Value.Set(flag.DefaultValueNoArg)
-				if err != nil {
-					return nil, err
-				}
-			}
+	for len(shorthands) > 0 {
+		shorthands, rest, err = s.parseSingleShortFlag(shorthands, rest)
+		if err != nil {
+			return nil, err
 		}
-		return rest, nil
 	}
-}
-
-// parseShortFlagEqualsValue parses a -f=value style short flag.
-//
-// It is passed the 'short' which is the left hand side of the equals sign (minus the '-'), the 'value' which is the right
-// and the remaining args 'rest'. It returns the remaining args after it's finished parsing and any error.
-func (s *Set) parseShortFlagEqualsValue(short string, value string, rest []string) ([]string, error) {
-	// Yes, it is. If the thing on the left of the equals is > 1 char it's an error
-	if utf8.RuneCountInString(short) > 1 {
-		return nil, fmt.Errorf("invalid shorthand syntax: expected e.g. -f=<value> got -%s=%s", short, value)
-	}
-
-	char, _ := utf8.DecodeRuneInString(short)
-	if err := validateFlagShort(char); err != nil {
-		return nil, fmt.Errorf("invalid flag shorthand %q: %w", string(char), err)
-	}
-
-	flag, exists := s.shorthands[char]
-	if !exists {
-		return nil, fmt.Errorf("unrecognised shorthand flag: -%s", string(char))
-	}
-
-	if err := flag.Value.Set(value); err != nil {
-		return nil, err
-	}
-
-	// We're done, nothing to trim off as "-f=value" is all 1 arg
 	return rest, nil
 }
 
-// parseShortFlagValue parses a -fvalue style short flag.
-//
-// It is passed the 'shorthands' which is the entire string following the '-', so in our example it would be
-// "fvalue", and the remaining args 'rest'. It returns the remaining args after it's finished parsing
-// and any error.
-func (s *Set) parseShortFlagValue(shorthands string, rest []string) ([]string, error) {
-	char, _ := utf8.DecodeRuneInString(shorthands)
-	if err := validateFlagShort(char); err != nil {
-		return nil, fmt.Errorf("invalid flag shorthand %q: %w", string(char), err)
-	}
-	value := shorthands[1:]
-	flag, exists := s.shorthands[char]
-	if !exists {
-		return nil, fmt.Errorf("unrecognised shorthand flag: -%s", string(char))
+// parseSingleShortFlag parses a single short flag entry.
+func (s *Set) parseSingleShortFlag(shorthands string, rest []string) (string, []string, error) {
+	for _, char := range shorthands {
+		if err := validateFlagShort(char); err != nil {
+			return "", nil, fmt.Errorf("invalid flag shorthand %q: %w", string(char), err)
+		}
+		flag, exists := s.shorthands[char]
+		if !exists {
+			return "", nil, fmt.Errorf("unrecognised shorthand flag: %q in -%s", string(char), shorthands)
+		}
+
+		switch {
+		case len(shorthands) > 2 && shorthands[1] == '=':
+			// '-f=value'
+			value := shorthands[2:]
+			err := flag.Value.Set(value)
+			if err != nil {
+				return "", nil, err
+			}
+			// No more shorthands to parse as we got given a value
+			// Nothing to trim off the arguments as "-f=value" is all 1 arg
+			return "", rest, nil
+
+		case flag.DefaultValueNoArg != "":
+			// -f with implied value e.g. boolean or count
+			err := flag.Value.Set(flag.DefaultValueNoArg)
+			if err != nil {
+				return "", nil, err
+			}
+
+			// We've consumed a single short from the string so trim that off
+			return shorthands[1:], rest, nil
+
+		case len(shorthands) > 1:
+			// '-fvalue'
+			value := shorthands[1:]
+			err := flag.Value.Set(value)
+			if err != nil {
+				return "", nil, err
+			}
+
+			// No more shorthands to parse as we got given a value
+			// Nothing to trim off as "-fvalue" is all 1 arg
+			return "", rest, nil
+
+		case len(rest) > 0:
+			// '-f value'
+			value := rest[0]
+			err := flag.Value.Set(value)
+			if err != nil {
+				return "", nil, err
+			}
+
+			// We've consumed an argument from rest as it was the value to this flag
+			// as well as a shorthand
+			return shorthands[1:], rest[1:], nil
+
+		default:
+			// '-f' with required value
+			return "", nil, fmt.Errorf("flag %s needs an argument: %q in -%s", flag.Name, string(char), shorthands)
+		}
 	}
 
-	// TODO: The parsing "-vvv" logic also belongs here, the switch should be if the
-	// flag needs a value or not. If the flag is a boolean or a count it's ok to do a
-	// -vvv, otherwise the flag needs an argument so this would be an error
-
-	if err := flag.Value.Set(value); err != nil {
-		return nil, err
-	}
-
-	// We're done, nothing to trim off as "-fvalue" is all 1 arg
-	return rest, nil
-}
-
-// parseShortFlagArgValue parses an -f value style short flag.
-//
-// It is passed the 'shorthands' which is the entire string following the '-', which for this flag style
-// should just be a single char "f", and the remaining args 'rest'.
-// It returns the remaining args after it's finished parsing and any error.
-func (s *Set) parseShortFlagArgValue(shorthands string, rest []string) ([]string, error) {
-	char, _ := utf8.DecodeRuneInString(shorthands)
-	if err := validateFlagShort(char); err != nil {
-		return nil, fmt.Errorf("invalid flag shorthand %q: %w", string(char), err)
-	}
-	value := rest[0]
-	flag, exists := s.shorthands[char]
-	if !exists {
-		return nil, fmt.Errorf("unrecognised shorthand flag: -%s", string(char))
-	}
-	if err := flag.Value.Set(value); err != nil {
-		return nil, err
-	}
-
-	// We've consumed "value" from rest so trim it off
-	return rest[1:], nil
+	// Didn't match any of our rules, pass it through
+	return shorthands, rest, nil
 }

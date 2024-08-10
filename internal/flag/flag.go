@@ -454,6 +454,9 @@ func validateFlagShort(short rune) error {
 	if short == NoShortHand {
 		return nil
 	}
+	if unicode.IsSpace(short) {
+		return errors.New("cannot contain whitespace")
+	}
 	// Shorthand must be a valid ASCII letter
 	if short == utf8.RuneError || short > unicode.MaxASCII || !unicode.IsLetter(short) {
 		return fmt.Errorf("invalid character, must be a single ASCII letter, got %q", string(short))
