@@ -356,7 +356,6 @@ func Flag[T Flaggable](p *T, name string, short rune, value T, usage string) Opt
 			return err
 		}
 
-		// Experimental flags
 		if err := flag.AddToSet(cfg.flags, f); err != nil {
 			return fmt.Errorf("could not add flag %q to command %q: %w", name, cfg.name, err)
 		}
