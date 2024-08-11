@@ -241,12 +241,12 @@ func (c *Command) Execute() error {
 		return cmd.run(cmd, argsWithoutFlags)
 	}
 
-	// This basically only happens when we have subcommands defined but pass no args to the root command
-	// in which case we'll just show the help text and error
+	// The only way we get here is if the command has subcommands defined but got no arguments given to it
+	// so just show the usage and error
 	if err := defaultHelp(cmd); err != nil {
 		return err
 	}
-	return errors.New("invalid arguments")
+	return fmt.Errorf("command %q expected arguments (subcommands) but got none", cmd.name)
 }
 
 // Flags returns the set of flags for the command.
@@ -254,7 +254,7 @@ func (c *Command) flagSet() *flag.Set {
 	if c == nil {
 		// Only thing to do really, slightly more helpful than a generic
 		// nil pointer dereference
-		panic("Flags called on a nil Command")
+		panic("flagSet called on a nil Command")
 	}
 	if c.flags == nil {
 		return flag.NewSet()

@@ -10,7 +10,7 @@
 Tiny, simple, but powerful CLI framework for modern Go 🚀
 
 <p align="center">
-<img src="./docs/img/demo.png" alt="demo">
+<img src="https://github.com/FollowTheProcess/cli/raw/main/docs/img/demo.png" alt="demo">
 </p>
 
 > [!WARNING]
@@ -77,7 +77,10 @@ func runQuickstart(count *int) func(cmd *cli.Command, args []string) error {
 
 Will get you the following:
 
-![quickstart](./docs/img/quickstart.gif)
+![quickstart](https://github.com/FollowTheProcess/cli/raw/main/docs/img/quickstart.gif)
+
+> [!TIP]
+> See more examples under [`./examples`](https://github.com/FollowTheProcess/cli/tree/main/examples)
 
 ### Core Principles
 
@@ -85,17 +88,18 @@ Will get you the following:
 
 `cli` validates heavily and returns errors for you to handle. By contrast [spf13/cobra] (and [spf13/pflag]) panic in a number of conditions including:
 
-- Duplicate subcommand being added
+- Duplicate subcommand added
+- Command adding itself as a subcommand
 - Duplicate flag added
 - Invalid shorthand flag letter
 
 The design of `cli` is such that commands are instantiated with `cli.New` and a number of [functional options]. These options are in charge of configuring your command and each will perform validation prior to applying the setting.
 
-These errors are joined and bubbled up to you in one go via `cli.New` so you don't have to play error whack-a-mole.
+These errors are joined and bubbled up to you in one go via `cli.New` so you don't have to play error whack-a-mole, and more importantly your application won't panic!
 
 #### 🧘🏻 Keep it Simple
 
-`cli` has a tiny public interface and gives you only what you need to build amazing CLI apps, no more confusing options and hundreds of struct fields.
+`cli` has an intentionally tiny public interface and gives you only what you need to build amazing CLI apps, no more confusing options and hundreds of struct fields.
 
 There is one and only one way to do things (and that is *usually* to use an option in `cli.New`)
 
@@ -112,7 +116,7 @@ var force bool
 cli.New("demo", cli.Flag(&force, "force", 'f', false, "Force something"))
 ```
 
-Note the type `bool` is inferred by `cli.Flag`. No more `flag.BoolStringSliceVarP` 🎉
+Note the type `bool` is inferred by `cli.Flag`. This will work with any type allowed by the `Flaggable` generic constraint so you'll get compile time feedback if you've got it wrong. No more `flag.BoolStringSliceVarP` 🎉
 
 #### 🥹 A Beautiful API
 
@@ -134,7 +138,7 @@ cmd, err := cli.New(
 
 #### 🔐 Immutable State
 
-Typically, these sorts of things are implemented with a big struct with lots of fields. `cli` is no different in this regard.
+Typically, commands are implemented as a big struct with lots of fields. `cli` is no different in this regard.
 
 What *is* different though is that this large struct can **only** be configured with `cli.New`. Once you've built your command, it can't be modified.
 
@@ -149,7 +153,7 @@ Consider the following example of a bad shorthand value:
 ```go
 var delete bool
 
-// Note: bad shorthand, it's two letters
+// Note: "de" is a bad shorthand, it's two letters
 cli.New("demo", cli.Flag(&delete, "delete", "de", false, "Delete something"))
 ```
 
@@ -169,12 +173,6 @@ var delete bool
 cli.New("demo", cli.Flag(&delete, "delete", cli.NoShortHand, false, "Delete something"))
 ```
 
-### Credits
-
-This package was created with [copier] and the [FollowTheProcess/go_copier] project template.
-
-[copier]: https://copier.readthedocs.io/en/stable/
-[FollowTheProcess/go_copier]: https://github.com/FollowTheProcess/go_copier
 [spf13/cobra]: https://github.com/spf13/cobra
 [spf13/pflag]: https://github.com/spf13/pflag
 [urfave/cli]: https://github.com/urfave/cli
