@@ -26,8 +26,6 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [x] Make `ExtraArgs` return `([]string, bool)`
 - [ ] Figure out if/how we support setting custom flag types e.g. implement `Value`. Try this out in an example, does it work with `Flaggable`, how do we make it work?
 - [x] How to handle conflicting flags e.g. `--version` has a short of `-v`, what if we want `-v` to mean verbosity, should be an error if there's a conflicting flag
-- [ ] Cleverly look at what `cli.Allow` is set to to dynamically render the usage info
-- [ ] Add example tests for some of the public functions
 
 ## Ideas
 
@@ -36,6 +34,7 @@ Things that might be good but not committed to doing yet and/or haven't decided 
 - [ ] Wrap long description at a sensible limit
 - [ ] Named arguments e.g. `git clone REPO` could retrieve an arg by name and would be good for the help text
 - [ ] Make a CLI cli (lol) like cobra-cli to generate CLI apps?
+- [ ] Cleverly look at what `cli.Allow` is set to to dynamically render the usage info
 
 [clap]: https://github.com/clap-rs/clap
 [vhs]: https://github.com/charmbracelet/vhs
