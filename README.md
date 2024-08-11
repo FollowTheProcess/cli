@@ -10,7 +10,7 @@
 Tiny, simple, but powerful CLI framework for modern Go 🚀
 
 <p align="center">
-<img src="./docs/img/demo.png" alt="demo">
+<img src="https://github.com/FollowTheProcess/msg/raw/main/docs/img/demo.png" alt="demo">
 </p>
 
 > [!WARNING]
@@ -77,7 +77,7 @@ func runQuickstart(count *int) func(cmd *cli.Command, args []string) error {
 
 Will get you the following:
 
-![quickstart](./docs/img/quickstart.gif)
+![quickstart](https://github.com/FollowTheProcess/msg/raw/main/docs/img/quickstart.gif)
 
 > [!TIP]
 > See more examples under [`./examples`](https://github.com/FollowTheProcess/cli/tree/main/examples)
