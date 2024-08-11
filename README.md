@@ -14,7 +14,7 @@ Tiny, simple, but powerful CLI framework for modern Go 🚀
 </p>
 
 > [!WARNING]
-> **CLI is in early development and is not yet ready for use**
+> **CLI is still in early development and is not yet stable**
 
 ## Project Description
 
