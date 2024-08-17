@@ -21,6 +21,9 @@ func BuildCLI() (*cli.Command, error) {
 	demo, err := cli.New(
 		"demo",
 		cli.Short("An example CLI to demonstrate the library and play with it for real."),
+		cli.Version("dev"),
+		cli.Commit("5ecb7caefacb12a75db4deebaa3cafcfd9d5c7c2"),
+		cli.BuildDate("2024-08-17T10:37:30Z"),
 		cli.Example("A basic subcommand", "demo say hello world"),
 		cli.Example("Can do things", "demo do something --count 3"),
 		cli.Allow(cli.NoArgs()),
