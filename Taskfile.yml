@@ -63,7 +63,7 @@ tasks:
         msg: nilaway not installed, see https://github.com/uber-go/nilaway
     cmds:
       - golangci-lint run --fix
-      - nilaway -include-pkgs="{{.PACKAGE}}" ./...
+      # - nilaway -include-pkgs="{{.PACKAGE}}" ./... # nilaway doesn't work with go 1.23 yet
 
   docs:
     desc: Render the pkg docs locally
