@@ -14,7 +14,6 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [x] Do some benchmarking and see where we can improve
 - [x] Remove the `Loop` tag from parsing functions
 - [ ] More full test programs as integration tests
-- [ ] Write a package example doc
 - [ ] Write some fully formed examples under `./examples` for people to see as inspiration
 - [x] Make the help output as pretty as possible, see [clap] for inspiration as their help is so nice
 - [x] Implement something nice to do the whole `-- <bonus args>` thing, maybe `ExtraArgs`?
@@ -26,7 +25,7 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [x] Make `ExtraArgs` return `([]string, bool)`
 - [ ] Figure out if/how we support setting custom flag types e.g. implement `Value`. Try this out in an example, does it work with `Flaggable`, how do we make it work?
 - [x] How to handle conflicting flags e.g. `--version` has a short of `-v`, what if we want `-v` to mean verbosity, should be an error if there's a conflicting flag
-- [ ] Make it easier to do ldflags with version info etc. Should support commit hash, version/tag number, build date, built by
+- [x] Make it easier to do ldflags with version info etc. Should support commit hash, version/tag number, build date
 
 ## Ideas
 

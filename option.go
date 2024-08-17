@@ -53,6 +53,8 @@ type config struct {
 	short         string
 	long          string
 	version       string
+	commit        string
+	buildDate     string
 	examples      []example
 	args          []string
 	subcommands   []*Command
@@ -76,6 +78,8 @@ func (c *config) build() *Command {
 		short:         c.short,
 		long:          c.long,
 		version:       c.version,
+		commit:        c.commit,
+		buildDate:     c.buildDate,
 		examples:      c.examples,
 		args:          c.args,
 		subcommands:   c.subcommands,
@@ -268,6 +272,50 @@ func Version(version string) Option {
 			return errors.New("cannot set Version to an empty string")
 		}
 		cfg.version = version
+		return nil
+	}
+	return option(f)
+}
+
+// Commit is an [Option] that sets the commit hash for a binary built with CLI. It is particularly
+// useful for embedding rich version info into a binary using [ldflags].
+//
+// Without this option, the commit hash is simply omitted from the version info
+// shown when -v/--version is called.
+//
+// If set to a non empty string, the commit hash will be shown.
+//
+//	cli.New("test", cli.Commit("b43fd2c"))
+//
+// [ldflags]: https://www.digitalocean.com/community/tutorials/using-ldflags-to-set-version-information-for-go-applications
+func Commit(commit string) Option {
+	f := func(cfg *config) error {
+		if commit == "" {
+			return errors.New("cannot set Commit to an empty string")
+		}
+		cfg.commit = commit
+		return nil
+	}
+	return option(f)
+}
+
+// BuildDate is an [Option] that sets the build date for a binary built with CLI. It is particularly
+// useful for embedding rich version info into a binary using [ldflags]
+//
+// Without this option, the build date is simply omitted from the version info
+// shown when -v/--version is called.
+//
+// If set to a non empty string, the build date will be shown.
+//
+//	cli.New("test", cli.BuildDate("2024-07-06T10:37:30Z"))
+//
+// [ldflags]: https://www.digitalocean.com/community/tutorials/using-ldflags-to-set-version-information-for-go-applications
+func BuildDate(date string) Option {
+	f := func(cfg *config) error {
+		if date == "" {
+			return errors.New("cannot set BuildDate to an empty string")
+		}
+		cfg.buildDate = date
 		return nil
 	}
 	return option(f)
