@@ -81,7 +81,11 @@ Sleep 1s
 
 Type "./quickstart --help" Sleep 500ms  Enter
 
-Sleep 2s
+Sleep 4s
+
+Type "clear" Sleep 500ms Enter
+
+Sleep 1s
 
 Type "./quickstart --version" Sleep 500ms Enter
 
