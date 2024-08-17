@@ -52,6 +52,8 @@ func run() error {
 		cli.Short("Short description of your command"),
 		cli.Long("Much longer text..."),
 		cli.Version("v1.2.3"),
+		cli.Commit("7bcac896d5ab67edc5b58632c821ec67251da3b8"),
+		cli.BuildDate("2024-08-17T10:37:30Z"),
 		cli.Allow(cli.MinArgs(1)), // Must have at least one argument
 		cli.Stdout(os.Stdout),
 		cli.Example("Do a thing", "quickstart something"),

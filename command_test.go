@@ -403,7 +403,7 @@ func TestVersion(t *testing.T) {
 				cli.Args([]string{"--version"}),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
-			stderr:  "version-test, version: dev\n",
+			stderr:  "version-test\n\nVersion: dev\n",
 			wantErr: false,
 		},
 		{
@@ -412,17 +412,60 @@ func TestVersion(t *testing.T) {
 				cli.Args([]string{"-v"}),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
-			stderr:  "version-test, version: dev\n",
+			stderr:  "version-test\n\nVersion: dev\n",
 			wantErr: false,
 		},
 		{
-			name: "custom version",
+			name: "with version",
 			options: []cli.Option{
 				cli.Args([]string{"--version"}),
-				cli.Version("v1.2.3"),
+				cli.Version("v3.1.7"),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
-			stderr:  "version-test, version: v1.2.3\n",
+			stderr:  "version-test\n\nVersion: v3.1.7\n",
+			wantErr: false,
+		},
+		{
+			name: "with commit",
+			options: []cli.Option{
+				cli.Args([]string{"--version"}),
+				cli.Commit("eedb45b"),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+			},
+			stderr:  "version-test\n\nVersion: dev\nCommit: eedb45b\n",
+			wantErr: false,
+		},
+		{
+			name: "with build date",
+			options: []cli.Option{
+				cli.Args([]string{"--version"}),
+				cli.BuildDate("2024-04-11T02:23:42Z"),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+			},
+			stderr:  "version-test\n\nVersion: dev\nBuildDate: 2024-04-11T02:23:42Z\n",
+			wantErr: false,
+		},
+		{
+			name: "with version and commit",
+			options: []cli.Option{
+				cli.Args([]string{"--version"}),
+				cli.Version("v8.17.6"),
+				cli.Commit("b9aaafd"),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+			},
+			stderr:  "version-test\n\nVersion: v8.17.6\nCommit: b9aaafd\n",
+			wantErr: false,
+		},
+		{
+			name: "with all",
+			options: []cli.Option{
+				cli.Args([]string{"--version"}),
+				cli.Version("v8.17.6"),
+				cli.Commit("b9aaafd"),
+				cli.BuildDate("2024-08-17T10:37:30Z"),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+			},
+			stderr:  "version-test\n\nVersion: v8.17.6\nCommit: b9aaafd\nBuildDate: 2024-08-17T10:37:30Z\n",
 			wantErr: false,
 		},
 		{
@@ -454,6 +497,9 @@ func TestVersion(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// Force no colour in tests
+			t.Setenv("NO_COLOR", "true")
+
 			stderr := &bytes.Buffer{}
 			stdout := &bytes.Buffer{}
 
@@ -510,6 +556,16 @@ func TestOptionValidation(t *testing.T) {
 			name:    "empty version",
 			options: []cli.Option{cli.Version("")},
 			errMsg:  "cannot set Version to an empty string",
+		},
+		{
+			name:    "empty commit",
+			options: []cli.Option{cli.Commit("")},
+			errMsg:  "cannot set Commit to an empty string",
+		},
+		{
+			name:    "empty build date",
+			options: []cli.Option{cli.BuildDate("")},
+			errMsg:  "cannot set BuildDate to an empty string",
 		},
 		{
 			name:    "nil VersionFunc",

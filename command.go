@@ -135,6 +135,12 @@ type Command struct {
 	// version is the version of this command, shown when -v/--version is called.
 	version string
 
+	// commit is the commit hash of the binary, if passed shown when -v/--version is called
+	commit string
+
+	// buildDate is the date the release binary was built on, if passed shown when -v/--version is called
+	buildDate string
+
 	// examples is examples of how to use the command.
 	examples []example
 
@@ -513,6 +519,28 @@ func defaultVersion(cmd *Command) error {
 	if cmd == nil {
 		return errors.New("defaultVersion called on a nil Command")
 	}
-	fmt.Fprintf(cmd.Stderr(), "%s, version: %s\n", cmd.name, cmd.version)
+	s := &strings.Builder{}
+	s.WriteString(colour.Title(cmd.name))
+	s.WriteString("\n\n")
+	s.WriteString(colour.Bold("Version:"))
+	s.WriteString(" ")
+	s.WriteString(cmd.version)
+	s.WriteString("\n")
+
+	if cmd.commit != "" {
+		s.WriteString(colour.Bold("Commit:"))
+		s.WriteString(" ")
+		s.WriteString(cmd.commit)
+		s.WriteString("\n")
+	}
+
+	if cmd.buildDate != "" {
+		s.WriteString(colour.Bold("BuildDate:"))
+		s.WriteString(" ")
+		s.WriteString(cmd.buildDate)
+		s.WriteString("\n")
+	}
+
+	fmt.Fprint(cmd.stderr, s.String())
 	return nil
 }
