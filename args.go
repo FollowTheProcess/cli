@@ -83,6 +83,8 @@ func ExactArgs(n int) ArgValidator {
 
 // BetweenArgs is a positional argument validator that allows between min and max arguments (inclusive),
 // any outside that range will return an error.
+//
+//nolint:predeclared // min has same name as min function but we don't use it here and the clarity is worth it
 func BetweenArgs(min, max int) ArgValidator {
 	return func(cmd *Command, args []string) error {
 		nArgs := len(args)
