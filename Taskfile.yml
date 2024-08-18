@@ -83,7 +83,7 @@ tasks:
         msg: vhs not installed, see https://github.com/charmbracelet/vhs
     cmds:
       - vhs ./docs/src/*.tape
-      - silicon examples/cover/main.go --output docs/img/demo.png --background "#7983FF" --language go --shadow-blur-radius 10 --window-title github.com/FollowTheProcess/cli
+      - silicon ./examples/cover/main.go --output ./docs/img/demo.png --background "#7983FF" --language go --shadow-blur-radius 10 --window-title github.com/FollowTheProcess/cli
 
   cov:
     desc: Calculate test coverage and render the html
