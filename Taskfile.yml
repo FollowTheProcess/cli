@@ -39,14 +39,14 @@ tasks:
       - "**/*.go"
       - testdata/**/*.txt
     cmds:
-      - go test -race ./... {{ .CLI_ARGS }}
+      - go test -race ./... {{.CLI_ARGS}}
 
   bench:
     desc: Run all project benchmarks
     sources:
       - "**/*.go"
     cmds:
-      - go test ./... -run None -benchmem -bench . {{ .CLI_ARGS }}
+      - go test ./... -run None -benchmem -bench . {{.CLI_ARGS}}
 
   lint:
     desc: Run the linters and auto-fix if possible
@@ -83,13 +83,13 @@ tasks:
         msg: vhs not installed, see https://github.com/charmbracelet/vhs
     cmds:
       - vhs ./docs/src/*.tape
-      - silicon ./examples/cover/main.go --output ./docs/img/demo.png --background "#7983FF" --language go --shadow-blur-radius 10 --window-title github.com/FollowTheProcess/cli
+      - silicon ./examples/cover/main.go --output ./docs/img/demo.png --background "#7983FF" --language go --shadow-blur-radius 10 --window-title {{.PACKAGE}}
 
   cov:
     desc: Calculate test coverage and render the html
     cmds:
-      - go test -race -cover -covermode atomic -coverprofile {{ .COV_DATA }} ./...
-      - go tool cover -html {{ .COV_DATA }}
+      - go test -race -cover -covermode atomic -coverprofile {{.COV_DATA}} ./...
+      - go tool cover -html {{.COV_DATA}}
 
   check:
     desc: Run tests and linting in one
@@ -106,4 +106,4 @@ tasks:
     desc: Remove build artifacts and other clutter
     cmds:
       - go clean ./...
-      - rm -rf {{ .COV_DATA }}
+      - rm -rf {{.COV_DATA}}
