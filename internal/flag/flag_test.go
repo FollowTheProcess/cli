@@ -575,6 +575,12 @@ func TestFlagValidation(t *testing.T) {
 			wantErr:  false,
 		},
 		{
+			name:     "hyphen separated",
+			flagName: "dry-run",
+			short:    'd',
+			wantErr:  false,
+		},
+		{
 			name:     "empty name",
 			flagName: "",
 			wantErr:  true,
