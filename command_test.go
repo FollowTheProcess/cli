@@ -160,50 +160,50 @@ func TestSubCommandExecute(t *testing.T) {
 				stderrBuf = &bytes.Buffer{}
 			)
 
-			sub1, err := cli.New(
-				"sub1",
-				cli.Run(func(cmd *cli.Command, args []string) error {
-					if something == "" {
-						something = "<empty>"
-					}
-					extra, ok := cmd.ExtraArgs()
-					if !ok {
-						extra = []string{}
-					}
-					fmt.Fprintf(
-						cmd.Stdout(),
-						"Hello from sub1, my args were: %v, force was %v, something was %s, extra args: %v",
-						args,
-						force,
-						something,
-						extra,
-					)
-					return nil
-				}),
+			sub1 := func() (*cli.Command, error) {
+				return cli.New(
+					"sub1",
+					cli.Run(func(cmd *cli.Command, args []string) error {
+						if something == "" {
+							something = "<empty>"
+						}
+						extra, ok := cmd.ExtraArgs()
+						if !ok {
+							extra = []string{}
+						}
+						fmt.Fprintf(
+							cmd.Stdout(),
+							"Hello from sub1, my args were: %v, force was %v, something was %s, extra args: %v",
+							args,
+							force,
+							something,
+							extra,
+						)
+						return nil
+					}),
 
-				cli.Flag(&force, "force", 'f', false, "Force for sub1"),
-				cli.Flag(&something, "something", 's', "", "Something for sub1"),
-			)
+					cli.Flag(&force, "force", 'f', false, "Force for sub1"),
+					cli.Flag(&something, "something", 's', "", "Something for sub1"),
+				)
+			}
 
-			test.Ok(t, err)
-
-			sub2, err := cli.New(
-				"sub2",
-				cli.Run(func(cmd *cli.Command, args []string) error {
-					fmt.Fprintf(
-						cmd.Stdout(),
-						"Hello from sub2, my args were: %v, delete was %v, number was %d",
-						args,
-						deleteMe,
-						number,
-					)
-					return nil
-				}),
-				cli.Flag(&deleteMe, "delete", 'd', false, "Delete for sub2"),
-				cli.Flag(&number, "number", 'n', -1, "Number for sub2"),
-			)
-
-			test.Ok(t, err)
+			sub2 := func() (*cli.Command, error) {
+				return cli.New(
+					"sub2",
+					cli.Run(func(cmd *cli.Command, args []string) error {
+						fmt.Fprintf(
+							cmd.Stdout(),
+							"Hello from sub2, my args were: %v, delete was %v, number was %d",
+							args,
+							deleteMe,
+							number,
+						)
+						return nil
+					}),
+					cli.Flag(&deleteMe, "delete", 'd', false, "Delete for sub2"),
+					cli.Flag(&number, "number", 'n', -1, "Number for sub2"),
+				)
+			}
 
 			root, err := cli.New(
 				"root",
@@ -228,35 +228,37 @@ func TestSubCommandExecute(t *testing.T) {
 }
 
 func TestHelp(t *testing.T) {
-	sub1, err := cli.New(
-		"sub1",
-		cli.Short("Do one thing"),
-		cli.Run(func(cmd *cli.Command, args []string) error {
-			fmt.Fprintln(cmd.Stdout(), "Hello from sub1")
-			return nil
-		}),
-	)
-	test.Ok(t, err)
+	sub1 := func() (*cli.Command, error) {
+		return cli.New(
+			"sub1",
+			cli.Short("Do one thing"),
+			cli.Run(func(cmd *cli.Command, args []string) error {
+				fmt.Fprintln(cmd.Stdout(), "Hello from sub1")
+				return nil
+			}))
+	}
 
-	sub2, err := cli.New(
-		"sub2",
-		cli.Short("Do another thing"),
-		cli.Run(func(cmd *cli.Command, args []string) error {
-			fmt.Fprintln(cmd.Stdout(), "Hello from sub2")
-			return nil
-		}),
-	)
-	test.Ok(t, err)
+	sub2 := func() (*cli.Command, error) {
+		return cli.New(
+			"sub2",
+			cli.Short("Do another thing"),
+			cli.Run(func(cmd *cli.Command, args []string) error {
+				fmt.Fprintln(cmd.Stdout(), "Hello from sub2")
+				return nil
+			}),
+		)
+	}
 
-	sub3, err := cli.New(
-		"very-long-subcommand",
-		cli.Short("Wow so long"),
-		cli.Run(func(cmd *cli.Command, args []string) error {
-			fmt.Fprintln(cmd.Stdout(), "Hello from sub3")
-			return nil
-		}),
-	)
-	test.Ok(t, err)
+	sub3 := func() (*cli.Command, error) {
+		return cli.New(
+			"very-long-subcommand",
+			cli.Short("Wow so long"),
+			cli.Run(func(cmd *cli.Command, args []string) error {
+				fmt.Fprintln(cmd.Stdout(), "Hello from sub3")
+				return nil
+			}),
+		)
+	}
 
 	tests := []struct {
 		name    string       // Identifier of the test case
@@ -635,25 +637,28 @@ func TestOptionValidation(t *testing.T) {
 }
 
 func TestDuplicateSubCommands(t *testing.T) {
-	sub1, err := cli.New(
-		"sub1",
-		cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
-	)
-	test.Ok(t, err)
+	sub1 := func() (*cli.Command, error) {
+		return cli.New(
+			"sub1",
+			cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+		)
+	}
 
-	sub2, err := cli.New(
-		"sub2",
-		cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
-	)
-	test.Ok(t, err)
+	sub2 := func() (*cli.Command, error) {
+		return cli.New(
+			"sub2",
+			cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+		)
+	}
 
-	sub1Again, err := cli.New(
-		"sub1",
-		cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
-	)
-	test.Ok(t, err) // Shouldn't error at this point as it's not joined up
+	sub1Again := func() (*cli.Command, error) {
+		return cli.New(
+			"sub1",
+			cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+		)
+	}
 
-	_, err = cli.New(
+	_, err := cli.New(
 		"root",
 		cli.SubCommands(sub1, sub2, sub1Again), // This should cause the error
 	)
@@ -669,32 +674,6 @@ func TestCommandNoRunNoSub(t *testing.T) {
 		// Run function missing and no subcommand
 	)
 	test.Err(t, err)
-}
-
-func TestExecuteNonRootCommand(t *testing.T) {
-	sub, err := cli.New(
-		"sub",
-		cli.Args([]string{"hello"}),
-		cli.Run(func(cmd *cli.Command, args []string) error {
-			fmt.Fprintln(cmd.Stdout(), "Hello from sub")
-			return nil
-		}),
-	)
-	test.Ok(t, err)
-
-	_, err = cli.New(
-		"root",
-		cli.Args([]string{"sub"}),
-		cli.SubCommands(sub),
-	)
-	test.Ok(t, err)
-
-	// Call sub's Execute, we should get an error
-	err = sub.Execute()
-	test.Err(t, err)
-	if err != nil {
-		test.Equal(t, err.Error(), "Execute must be called on the root of the command tree, was called on sub")
-	}
 }
 
 func TestExecuteNilCommand(t *testing.T) {
@@ -721,14 +700,15 @@ func TestCommandOptionOrder(t *testing.T) {
 		count int
 	)
 
-	sub, err := cli.New(
-		"sub",
-		cli.Run(func(cmd *cli.Command, args []string) error {
-			fmt.Fprintln(cmd.Stdout(), "Hello from sub")
-			return nil
-		}),
-	)
-	test.Ok(t, err)
+	sub := func() (*cli.Command, error) {
+		return cli.New(
+			"sub",
+			cli.Run(func(cmd *cli.Command, args []string) error {
+				fmt.Fprintln(cmd.Stdout(), "Hello from sub")
+				return nil
+			}),
+		)
+	}
 
 	options := []cli.Option{
 		cli.Args([]string{"some", "args", "here", "--flag", "--count", "10"}),
@@ -798,35 +778,38 @@ func TestCommandOptionOrder(t *testing.T) {
 }
 
 func BenchmarkExecuteHelp(b *testing.B) {
-	sub1, err := cli.New(
-		"sub1",
-		cli.Short("Do one thing"),
-		cli.Run(func(cmd *cli.Command, args []string) error {
-			fmt.Fprintln(cmd.Stdout(), "Hello from sub1")
-			return nil
-		}),
-	)
-	test.Ok(b, err)
+	sub1 := func() (*cli.Command, error) {
+		return cli.New(
+			"sub1",
+			cli.Short("Do one thing"),
+			cli.Run(func(cmd *cli.Command, args []string) error {
+				fmt.Fprintln(cmd.Stdout(), "Hello from sub1")
+				return nil
+			}),
+		)
+	}
 
-	sub2, err := cli.New(
-		"sub2",
-		cli.Short("Do another thing"),
-		cli.Run(func(cmd *cli.Command, args []string) error {
-			fmt.Fprintln(cmd.Stdout(), "Hello from sub2")
-			return nil
-		}),
-	)
-	test.Ok(b, err)
+	sub2 := func() (*cli.Command, error) {
+		return cli.New(
+			"sub2",
+			cli.Short("Do another thing"),
+			cli.Run(func(cmd *cli.Command, args []string) error {
+				fmt.Fprintln(cmd.Stdout(), "Hello from sub2")
+				return nil
+			}),
+		)
+	}
 
-	sub3, err := cli.New(
-		"very-long-subcommand",
-		cli.Short("Wow so long"),
-		cli.Run(func(cmd *cli.Command, args []string) error {
-			fmt.Fprintln(cmd.Stdout(), "Hello from sub3")
-			return nil
-		}),
-	)
-	test.Ok(b, err)
+	sub3 := func() (*cli.Command, error) {
+		return cli.New(
+			"very-long-subcommand",
+			cli.Short("Wow so long"),
+			cli.Run(func(cmd *cli.Command, args []string) error {
+				fmt.Fprintln(cmd.Stdout(), "Hello from sub3")
+				return nil
+			}),
+		)
+	}
 
 	cmd, err := cli.New(
 		"bench-help",
