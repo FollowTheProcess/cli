@@ -23,6 +23,10 @@ type Flaggable = flag.Flaggable
 // flag may be passed "-vvv" which should increase the verbosity level to 3.
 type FlagCount = flag.Count
 
+// Builder is a function that constructs and returns a [Command], it makes constructing
+// complex command trees easier as they can be passed directly to [SubCommands].
+type Builder func() (*Command, error)
+
 // Option is a functional option for configuring a [Command].
 type Option interface {
 	// Apply the option to the config, returning an error if the
@@ -345,14 +349,20 @@ func VersionFunc(fn func(cmd *Command) error) Option {
 //
 // This option is additive and can be called as many times as desired, subcommands are
 // effectively appended on every call.
-func SubCommands(subcommands ...*Command) Option {
+func SubCommands(builders ...Builder) Option {
 	// Note: In Cobra the AddCommand method has to protect against a command adding itself
 	// as a subcommand, this is impossible in cli due to the functional options pattern, the
 	// root command will not exist as a variable inside the call to cli.New.
 
 	f := func(cfg *config) error {
 		// Add the subcommands to the command this is being called on
-		cfg.subcommands = append(cfg.subcommands, subcommands...)
+		for _, builder := range builders {
+			subcommand, err := builder()
+			if err != nil {
+				return fmt.Errorf("could not build subcommand: %w", err)
+			}
+			cfg.subcommands = append(cfg.subcommands, subcommand)
+		}
 
 		// Any duplicates in the list of subcommands (by name) is an error
 		if name, found := anyDuplicates(cfg.subcommands...); found {
