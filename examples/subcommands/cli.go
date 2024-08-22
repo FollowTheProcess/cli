@@ -8,16 +8,6 @@ import (
 )
 
 func BuildCLI() (*cli.Command, error) {
-	say, err := buildSayCommand()
-	if err != nil {
-		return nil, err
-	}
-
-	do, err := buildDoCommand()
-	if err != nil {
-		return nil, err
-	}
-
 	demo, err := cli.New(
 		"demo",
 		cli.Short("An example CLI to demonstrate the library and play with it for real."),
@@ -27,7 +17,7 @@ func BuildCLI() (*cli.Command, error) {
 		cli.Example("A basic subcommand", "demo say hello world"),
 		cli.Example("Can do things", "demo do something --count 3"),
 		cli.Allow(cli.NoArgs()),
-		cli.SubCommands(say, do),
+		cli.SubCommands(buildSayCommand, buildDoCommand),
 	)
 	if err != nil {
 		return nil, err
@@ -91,11 +81,11 @@ func runSay(options *sayOptions) func(cmd *cli.Command, args []string) error {
 	return func(cmd *cli.Command, args []string) error {
 		if options.shout {
 			for _, arg := range args {
-				fmt.Fprint(cmd.Stdout(), strings.ToUpper(arg), " ")
+				fmt.Fprintln(cmd.Stdout(), strings.ToUpper(arg), " ")
 			}
 		} else {
 			for _, arg := range args {
-				fmt.Fprint(cmd.Stdout(), arg, " ")
+				fmt.Fprintln(cmd.Stdout(), arg, " ")
 			}
 		}
 		fmt.Printf("Shout: %v\nCount: %v\nThing: %v\n", options.shout, options.count, options.thing)
