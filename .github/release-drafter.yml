@@ -6,7 +6,9 @@ categories:
     label: breaking
 
   - title: ":rocket: Features"
-    label: enhancement
+    labels:
+      - feature
+      - enhancement
 
   - title: ":fire: Removals and Deprecations"
     label: removal
