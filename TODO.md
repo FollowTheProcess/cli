@@ -26,7 +26,7 @@ Things I want to do to make this library as good as it can be and a better, simp
 - [ ] Figure out if/how we support setting custom flag types e.g. implement `Value`. Try this out in an example, does it work with `Flaggable`, how do we make it work?
 - [x] How to handle conflicting flags e.g. `--version` has a short of `-v`, what if we want `-v` to mean verbosity, should be an error if there's a conflicting flag
 - [x] Make it easier to do ldflags with version info etc. Should support commit hash, version/tag number, build date
-- [ ] `cli.Subcommands` should take a list of `func() (*cli.Command, error)` which makes complex command trees way easier to build
+- [x] `cli.Subcommands` should take a list of `func() (*cli.Command, error)` which makes complex command trees way easier to build
 
 [clap]: https://github.com/clap-rs/clap
 [vhs]: https://github.com/charmbracelet/vhs
