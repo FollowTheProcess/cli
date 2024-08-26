@@ -18,23 +18,36 @@ const (
 //
 // If $NO_COLOR is set, text will be returned unmodified.
 func Title(text string) string {
-	if noColour() {
-		return text
-	}
-	return CodeTitle + text + CodeReset
+	return sprint(CodeTitle, text)
 }
 
 // Bold returns the given text in bold white.
 //
 // If $NO_COLOR is set, text will be returned unmodified.
 func Bold(text string) string {
-	if noColour() {
-		return text
-	}
-	return CodeBold + text + CodeReset
+	return sprint(CodeBold, text)
 }
 
-// noColour returns whether the $NO_COLOR env var was set.
-func noColour() bool {
-	return os.Getenv("NO_COLOR") != ""
+// sprint returns a string with a given colour and the reset code.
+//
+// It handles checking for NO_COLOR and FORCE_COLOR.
+func sprint(code, text string) string {
+	// TODO(@FollowTheProcess): I don't like checking *every* time but doing it
+	// via e.g. sync.Once means that tests are annoying unless we ensure env vars are
+	// set at the process level
+	noColor := os.Getenv("NO_COLOR") != ""
+	forceColor := os.Getenv("FORCE_COLOR") != ""
+
+	// $FORCE_COLOR overrides $NO_COLOR
+	if forceColor {
+		return code + text + CodeReset
+	}
+
+	// $NO_COLOR is next
+	if noColor {
+		return text
+	}
+
+	// Normal
+	return code + text + CodeReset
 }
