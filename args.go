@@ -26,6 +26,15 @@ func AnyArgs() ArgValidator {
 func NoArgs() ArgValidator {
 	return func(cmd *Command, args []string) error {
 		if len(args) > 0 {
+			if len(cmd.subcommands) > 0 {
+				// Maybe it's a typo of a subcommand
+				return fmt.Errorf(
+					"unknown subcommand %q for command %q, available subcommands: %v",
+					args[0],
+					cmd.name,
+					cmd.subcommandNames(),
+				)
+			}
 			return fmt.Errorf("command %s accepts no arguments but got %v", cmd.name, args)
 		}
 		return nil

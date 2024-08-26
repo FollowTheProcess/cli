@@ -333,6 +333,15 @@ func (c *Command) hasShortFlag(name string) bool {
 	return flag.DefaultValueNoArg != ""
 }
 
+// subcommandNames returns a list of all the names of the current command's registered subcommands.
+func (c *Command) subcommandNames() []string {
+	names := make([]string, 0, len(c.subcommands))
+	for _, sub := range c.subcommands {
+		names = append(names, sub.name)
+	}
+	return names
+}
+
 // findRequestedCommand uses the raw arguments and the command tree to determine what
 // (if any) subcommand is being requested and return that command along with the arguments
 // that were meant for it.
