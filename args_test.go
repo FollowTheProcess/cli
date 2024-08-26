@@ -59,6 +59,27 @@ func TestArgValidators(t *testing.T) {
 			errMsg:  "command test accepts no arguments but got [some args here]",
 		},
 		{
+			name: "noargs subcommand",
+			options: []cli.Option{
+				cli.Args([]string{"subb", "args", "here"}), // Note: subb is typo of sub
+				cli.Run(func(cmd *cli.Command, args []string) error {
+					fmt.Fprintln(cmd.Stdout(), "Hello from noargs")
+					return nil
+				}),
+				cli.Allow(cli.NoArgs()),
+				cli.SubCommands(
+					func() (*cli.Command, error) {
+						return cli.New(
+							"sub",
+							cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+						)
+					},
+				),
+			},
+			wantErr: true,
+			errMsg:  `unknown subcommand "subb" for command "test", available subcommands: [sub]`,
+		},
+		{
 			name: "minargs pass",
 			options: []cli.Option{
 				cli.Args([]string{"loads", "more", "args", "here"}),
