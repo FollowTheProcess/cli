@@ -106,4 +106,4 @@ tasks:
     desc: Remove build artifacts and other clutter
     cmds:
       - go clean ./...
-      - rm -rf {{.COV_DATA}}
+      - rm -rf *.out
