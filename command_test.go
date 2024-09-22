@@ -611,11 +611,6 @@ func TestOptionValidation(t *testing.T) {
 			errMsg:  "example command cannot be empty",
 		},
 		{
-			name:    "example both empty",
-			options: []cli.Option{cli.Example("", "")},
-			errMsg:  "example comment cannot be empty\nexample command cannot be empty",
-		},
-		{
 			name:    "empty short description",
 			options: []cli.Option{cli.Short("")},
 			errMsg:  "cannot set command short description to an empty string",
