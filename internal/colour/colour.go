@@ -10,8 +10,8 @@ import "os"
 // alignment of [text/tabwriter].
 const (
 	CodeReset = "\x1b[000000m" // Reset all attributes
-	CodeTitle = "\x1b[1;37;4m" // Bold, white & underlined
-	CodeBold  = "\x1b[1;0037m" // Bold & white
+	CodeTitle = "\x1b[1;39;4m" // Bold, white & underlined
+	CodeBold  = "\x1b[1;0039m" // Bold & white
 )
 
 // Title returns the given text in a title style, bold white and underlined.
