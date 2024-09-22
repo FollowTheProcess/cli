@@ -13,6 +13,8 @@ import (
 
 // Set is a set of command line flags.
 type Set struct {
+	// TODO(@FollowTheProcess): Figure out a way so that we don't have to store 2 maps
+	// as it's very memory wasteful
 	flags      map[string]Entry // The actual stored flags, can lookup by name
 	shorthands map[rune]Entry   // The flags by shorthand
 	args       []string         // Arguments minus flags or flag values

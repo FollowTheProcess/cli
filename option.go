@@ -212,15 +212,11 @@ func Long(long string) Option {
 // An arbitrary number of examples can be added to a [Command], and calls to [Example] are additive.
 func Example(comment, command string) Option {
 	f := func(cfg *config) error {
-		errs := make([]error, 0, 2) //nolint:mnd // 2 here is because we have two arguments
 		if comment == "" {
-			errs = append(errs, errors.New("example comment cannot be empty"))
+			return errors.New("example comment cannot be empty")
 		}
 		if command == "" {
-			errs = append(errs, errors.New("example command cannot be empty"))
-		}
-		if len(errs) > 0 {
-			return errors.Join(errs...)
+			return errors.New("example command cannot be empty")
 		}
 		cfg.examples = append(cfg.examples, example{comment: comment, command: command})
 		return nil
