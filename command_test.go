@@ -832,6 +832,24 @@ func BenchmarkExecuteHelp(b *testing.B) {
 	}
 }
 
+// Benchmarks calling New to build a typical CLI.
+func BenchmarkNew(b *testing.B) {
+	for range b.N {
+		_, err := cli.New(
+			"benchy",
+			cli.Short("A typical CLI to benchmark calling cli.New"),
+			cli.Version("dev"),
+			cli.Commit("dfdddaf"),
+			cli.Example("An example", "bench --help"),
+			cli.Allow(cli.AnyArgs()),
+			cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+		)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
 // shuffle returns a randomly ordered copy of items.
 func shuffle[T any](items []T) []T {
 	shuffled := slices.Clone(items)
