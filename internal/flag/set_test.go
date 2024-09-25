@@ -1317,7 +1317,7 @@ func TestUsage(t *testing.T) {
 				help, err := flag.New(new(bool), "help", 'h', false, "Show help for test")
 				test.Ok(t, err)
 
-				version, err := flag.New(new(bool), "version", 'v', false, "Show version info for test")
+				version, err := flag.New(new(bool), "version", 'V', false, "Show version info for test")
 				test.Ok(t, err)
 
 				set := flag.NewSet()
@@ -1339,7 +1339,7 @@ func TestUsage(t *testing.T) {
 				help, err := flag.New(new(bool), "help", 'h', false, "Show help for test")
 				test.Ok(t, err)
 
-				version, err := flag.New(new(bool), "version", 'v', false, "Show version info for test")
+				version, err := flag.New(new(bool), "version", 'V', false, "Show version info for test")
 				test.Ok(t, err)
 
 				up, err := flag.New(new(bool), "update", flag.NoShortHand, false, "Update something")
@@ -1367,7 +1367,7 @@ func TestUsage(t *testing.T) {
 				help, err := flag.New(new(bool), "help", 'h', false, "Show help for test")
 				test.Ok(t, err)
 
-				version, err := flag.New(new(bool), "version", 'v', false, "Show version info for test")
+				version, err := flag.New(new(bool), "version", 'V', false, "Show version info for test")
 				test.Ok(t, err)
 
 				up, err := flag.New(new(bool), "update", flag.NoShortHand, false, "Update something")

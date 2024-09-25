@@ -11,6 +11,6 @@ $ test do thing --different
 
 Options:
   -h  --help     bool  Show help for test
-  -v  --version  bool  Show version info for test
+  -V  --version  bool  Show version info for test
 
 Use "test [command] -h/--help" for more information about a command.

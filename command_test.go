@@ -411,7 +411,7 @@ func TestVersion(t *testing.T) {
 		{
 			name: "default short",
 			options: []cli.Option{
-				cli.Args([]string{"-v"}),
+				cli.Args([]string{"-V"}),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: dev\n",
