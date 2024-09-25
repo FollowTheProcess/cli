@@ -241,7 +241,8 @@ func Run(run func(cmd *Command, args []string) error) Option {
 	return option(f)
 }
 
-// Args is an [Option] that sets the arguments for a [Command].
+// OverrideArgs is an [Option] that sets the arguments for a [Command], overriding
+// any arguments parsed from the command line.
 //
 // Without this option, the command will default to os.Args[1:], this option is particularly
 // useful for testing.
@@ -249,8 +250,8 @@ func Run(run func(cmd *Command, args []string) error) Option {
 // Successive calls override previous ones.
 //
 //	// Override arguments for testing
-//	cli.New("test", cli.Args([]string{"test", "me"}))
-func Args(args []string) Option {
+//	cli.New("test", cli.OverrideArgs([]string{"test", "me"}))
+func OverrideArgs(args []string) Option {
 	f := func(cfg *config) error {
 		if args == nil {
 			return errors.New("cannot set Args to nil")
