@@ -50,7 +50,7 @@ func New(name string, options ...Option) (*Command, error) {
 	// Ensure we always have at least help and version flags
 	defaultOptions := []Option{
 		Flag(&cfg.helpCalled, "help", 'h', false, fmt.Sprintf("Show help for %s", name)),
-		Flag(&cfg.versionCalled, "version", 'v', false, fmt.Sprintf("Show version info for %s", name)),
+		Flag(&cfg.versionCalled, "version", 'V', false, fmt.Sprintf("Show version info for %s", name)),
 	}
 
 	toApply := slices.Concat(options, defaultOptions)
