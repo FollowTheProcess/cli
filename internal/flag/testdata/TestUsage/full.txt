@@ -2,4 +2,4 @@
   -h   --help     bool    Show help for test
   -t   --thing    string  Name the thing
   N/A  --update   bool    Update something
-  -v   --version  bool    Show version info for test
+  -V   --version  bool    Show version info for test
