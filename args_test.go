@@ -22,7 +22,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "anyargs",
 			options: []cli.Option{
-				cli.Args([]string{"some", "args", "here"}),
+				cli.OverrideArgs([]string{"some", "args", "here"}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from anyargs")
 					return nil
@@ -35,7 +35,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "noargs pass",
 			options: []cli.Option{
-				cli.Args([]string{}),
+				cli.OverrideArgs([]string{}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from noargs")
 					return nil
@@ -48,7 +48,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "noargs fail",
 			options: []cli.Option{
-				cli.Args([]string{"some", "args", "here"}),
+				cli.OverrideArgs([]string{"some", "args", "here"}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from noargs")
 					return nil
@@ -61,7 +61,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "noargs subcommand",
 			options: []cli.Option{
-				cli.Args([]string{"subb", "args", "here"}), // Note: subb is typo of sub
+				cli.OverrideArgs([]string{"subb", "args", "here"}), // Note: subb is typo of sub
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from noargs")
 					return nil
@@ -82,7 +82,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "minargs pass",
 			options: []cli.Option{
-				cli.Args([]string{"loads", "more", "args", "here"}),
+				cli.OverrideArgs([]string{"loads", "more", "args", "here"}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from minargs")
 					return nil
@@ -95,7 +95,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "minargs fail",
 			options: []cli.Option{
-				cli.Args([]string{"only", "two"}),
+				cli.OverrideArgs([]string{"only", "two"}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from minargs")
 					return nil
@@ -108,7 +108,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "maxargs pass",
 			options: []cli.Option{
-				cli.Args([]string{"two", "args"}),
+				cli.OverrideArgs([]string{"two", "args"}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from maxargs")
 					return nil
@@ -121,7 +121,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "maxargs fail",
 			options: []cli.Option{
-				cli.Args([]string{"loads", "of", "args", "here", "wow", "so", "many"}),
+				cli.OverrideArgs([]string{"loads", "of", "args", "here", "wow", "so", "many"}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from maxargs")
 					return nil
@@ -134,7 +134,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "exactargs pass",
 			options: []cli.Option{
-				cli.Args([]string{"two", "args"}),
+				cli.OverrideArgs([]string{"two", "args"}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from exactargs")
 					return nil
@@ -147,7 +147,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "exactargs fail",
 			options: []cli.Option{
-				cli.Args([]string{"not", "three", "but", "four"}),
+				cli.OverrideArgs([]string{"not", "three", "but", "four"}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from exactargs")
 					return nil
@@ -160,7 +160,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "betweenargs pass",
 			options: []cli.Option{
-				cli.Args([]string{"two", "args"}),
+				cli.OverrideArgs([]string{"two", "args"}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from betweenargs")
 					return nil
@@ -173,7 +173,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "betweenargs fail high",
 			options: []cli.Option{
-				cli.Args([]string{"not", "three", "but", "more", "than", "four"}),
+				cli.OverrideArgs([]string{"not", "three", "but", "more", "than", "four"}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from betweenargs")
 					return nil
@@ -186,7 +186,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "betweenargs fail low",
 			options: []cli.Option{
-				cli.Args([]string{"not", "three"}),
+				cli.OverrideArgs([]string{"not", "three"}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from betweenargs")
 					return nil
@@ -199,7 +199,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "validargs pass",
 			options: []cli.Option{
-				cli.Args([]string{"valid", "args", "only"}),
+				cli.OverrideArgs([]string{"valid", "args", "only"}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from validargs")
 					return nil
@@ -213,7 +213,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "validargs fail",
 			options: []cli.Option{
-				cli.Args([]string{"valid", "args", "only", "bad"}),
+				cli.OverrideArgs([]string{"valid", "args", "only", "bad"}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from validargs")
 					return nil
@@ -226,7 +226,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "combine pass",
 			options: []cli.Option{
-				cli.Args([]string{"four", "args", "all", "valid"}),
+				cli.OverrideArgs([]string{"four", "args", "all", "valid"}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from combine")
 					return nil
@@ -244,7 +244,7 @@ func TestArgValidators(t *testing.T) {
 		{
 			name: "combine fail",
 			options: []cli.Option{
-				cli.Args([]string{"valid", "args", "only", "bad", "five"}),
+				cli.OverrideArgs([]string{"valid", "args", "only", "bad", "five"}),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from combine")
 					return nil

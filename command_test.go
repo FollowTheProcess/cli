@@ -34,7 +34,7 @@ func TestExecute(t *testing.T) {
 			stdout: "My arguments were: [hello there]\nForce was: false\n",
 			stderr: "",
 			options: []cli.Option{
-				cli.Args([]string{"hello", "there"}),
+				cli.OverrideArgs([]string{"hello", "there"}),
 				cli.Stdin(os.Stdin), // Set stdin for the lols
 			},
 			wantErr: false,
@@ -44,7 +44,7 @@ func TestExecute(t *testing.T) {
 			stdout: "My arguments were: [hello there]\nForce was: true\n",
 			stderr: "",
 			options: []cli.Option{
-				cli.Args([]string{"hello", "there", "--force"}),
+				cli.OverrideArgs([]string{"hello", "there", "--force"}),
 			},
 			wantErr: false,
 		},
@@ -53,7 +53,7 @@ func TestExecute(t *testing.T) {
 			stdout: "",
 			stderr: "",
 			options: []cli.Option{
-				cli.Args([]string{"arg1", "arg2", "arg3", "-]force"}),
+				cli.OverrideArgs([]string{"arg1", "arg2", "arg3", "-]force"}),
 			},
 			wantErr: true,
 		},
@@ -210,7 +210,7 @@ func TestSubCommandExecute(t *testing.T) {
 				cli.SubCommands(sub1, sub2),
 				cli.Stdout(stdoutBuf),
 				cli.Stderr(stderrBuf),
-				cli.Args(tt.args),
+				cli.OverrideArgs(tt.args),
 			)
 
 			test.Ok(t, err)
@@ -269,7 +269,7 @@ func TestHelp(t *testing.T) {
 		{
 			name: "default long",
 			options: []cli.Option{
-				cli.Args([]string{"--help"}),
+				cli.OverrideArgs([]string{"--help"}),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			golden:  "default-help.txt",
@@ -278,7 +278,7 @@ func TestHelp(t *testing.T) {
 		{
 			name: "default.short",
 			options: []cli.Option{
-				cli.Args([]string{"-h"}),
+				cli.OverrideArgs([]string{"-h"}),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			golden:  "default-help.txt",
@@ -287,7 +287,7 @@ func TestHelp(t *testing.T) {
 		{
 			name: "with examples",
 			options: []cli.Option{
-				cli.Args([]string{"--help"}),
+				cli.OverrideArgs([]string{"--help"}),
 				cli.Example("Do a thing", "test do thing --now"),
 				cli.Example("Do a different thing", "test do thing --different"),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
@@ -298,7 +298,7 @@ func TestHelp(t *testing.T) {
 		{
 			name: "with full description",
 			options: []cli.Option{
-				cli.Args([]string{"--help"}),
+				cli.OverrideArgs([]string{"--help"}),
 				cli.Short("A cool CLI to do things"),
 				cli.Long("A longer, probably multiline description"),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
@@ -309,7 +309,7 @@ func TestHelp(t *testing.T) {
 		{
 			name: "with no description",
 			options: []cli.Option{
-				cli.Args([]string{"--help"}),
+				cli.OverrideArgs([]string{"--help"}),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			golden:  "no-about.txt",
@@ -318,7 +318,7 @@ func TestHelp(t *testing.T) {
 		{
 			name: "with subcommands",
 			options: []cli.Option{
-				cli.Args([]string{"--help"}),
+				cli.OverrideArgs([]string{"--help"}),
 				cli.Short("A cool CLI to do things"),
 				cli.Long("A longer, probably multiline description"),
 				cli.SubCommands(sub1, sub2),
@@ -329,7 +329,7 @@ func TestHelp(t *testing.T) {
 		{
 			name: "subcommands different lengths",
 			options: []cli.Option{
-				cli.Args([]string{"--help"}),
+				cli.OverrideArgs([]string{"--help"}),
 				cli.Short("A cool CLI to do things"),
 				cli.Long("A longer, probably multiline description"),
 				cli.SubCommands(sub1, sub2, sub3),
@@ -340,7 +340,7 @@ func TestHelp(t *testing.T) {
 		{
 			name: "with subcommands and flags",
 			options: []cli.Option{
-				cli.Args([]string{"--help"}),
+				cli.OverrideArgs([]string{"--help"}),
 				cli.Short("A cool CLI to do things"),
 				cli.Long("A longer, probably multiline description"),
 				cli.SubCommands(sub1, sub2),
@@ -402,7 +402,7 @@ func TestVersion(t *testing.T) {
 		{
 			name: "default long",
 			options: []cli.Option{
-				cli.Args([]string{"--version"}),
+				cli.OverrideArgs([]string{"--version"}),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: dev\n",
@@ -411,7 +411,7 @@ func TestVersion(t *testing.T) {
 		{
 			name: "default short",
 			options: []cli.Option{
-				cli.Args([]string{"-V"}),
+				cli.OverrideArgs([]string{"-V"}),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: dev\n",
@@ -420,7 +420,7 @@ func TestVersion(t *testing.T) {
 		{
 			name: "with version",
 			options: []cli.Option{
-				cli.Args([]string{"--version"}),
+				cli.OverrideArgs([]string{"--version"}),
 				cli.Version("v3.1.7"),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
@@ -430,7 +430,7 @@ func TestVersion(t *testing.T) {
 		{
 			name: "with commit",
 			options: []cli.Option{
-				cli.Args([]string{"--version"}),
+				cli.OverrideArgs([]string{"--version"}),
 				cli.Commit("eedb45b"),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
@@ -440,7 +440,7 @@ func TestVersion(t *testing.T) {
 		{
 			name: "with build date",
 			options: []cli.Option{
-				cli.Args([]string{"--version"}),
+				cli.OverrideArgs([]string{"--version"}),
 				cli.BuildDate("2024-04-11T02:23:42Z"),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
@@ -450,7 +450,7 @@ func TestVersion(t *testing.T) {
 		{
 			name: "with version and commit",
 			options: []cli.Option{
-				cli.Args([]string{"--version"}),
+				cli.OverrideArgs([]string{"--version"}),
 				cli.Version("v8.17.6"),
 				cli.Commit("b9aaafd"),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
@@ -461,7 +461,7 @@ func TestVersion(t *testing.T) {
 		{
 			name: "with all",
 			options: []cli.Option{
-				cli.Args([]string{"--version"}),
+				cli.OverrideArgs([]string{"--version"}),
 				cli.Version("v8.17.6"),
 				cli.Commit("b9aaafd"),
 				cli.BuildDate("2024-08-17T10:37:30Z"),
@@ -473,7 +473,7 @@ func TestVersion(t *testing.T) {
 		{
 			name: "custom versionFunc",
 			options: []cli.Option{
-				cli.Args([]string{"--version"}),
+				cli.OverrideArgs([]string{"--version"}),
 				cli.VersionFunc(func(cmd *cli.Command) error {
 					fmt.Fprintln(cmd.Stderr(), "Do something custom here")
 					return nil
@@ -486,7 +486,7 @@ func TestVersion(t *testing.T) {
 		{
 			name: "return error",
 			options: []cli.Option{
-				cli.Args([]string{"--version"}),
+				cli.OverrideArgs([]string{"--version"}),
 				cli.VersionFunc(func(cmd *cli.Command) error {
 					return errors.New("Uh oh!")
 				}),
@@ -551,7 +551,7 @@ func TestOptionValidation(t *testing.T) {
 		},
 		{
 			name:    "nil args",
-			options: []cli.Option{cli.Args(nil)},
+			options: []cli.Option{cli.OverrideArgs(nil)},
 			errMsg:  "cannot set Args to nil",
 		},
 		{
@@ -665,7 +665,7 @@ func TestDuplicateSubCommands(t *testing.T) {
 func TestCommandNoRunNoSub(t *testing.T) {
 	_, err := cli.New(
 		"root",
-		cli.Args([]string{}),
+		cli.OverrideArgs([]string{}),
 		// Run function missing and no subcommand
 	)
 	test.Err(t, err)
@@ -706,7 +706,7 @@ func TestCommandOptionOrder(t *testing.T) {
 	}
 
 	options := []cli.Option{
-		cli.Args([]string{"some", "args", "here", "--flag", "--count", "10"}),
+		cli.OverrideArgs([]string{"some", "args", "here", "--flag", "--count", "10"}),
 		cli.Short("Short description"),
 		cli.Long("Long description"),
 		cli.Example("Do a thing", "demo run something --flag"),
@@ -812,7 +812,7 @@ func BenchmarkExecuteHelp(b *testing.B) {
 		cli.Long("Much longer text..."),
 		cli.Example("Do a thing", "bench-help very-long-subcommand --flag"),
 		cli.SubCommands(sub1, sub2, sub3),
-		cli.Args([]string{"--help"}),
+		cli.OverrideArgs([]string{"--help"}),
 		cli.Stderr(io.Discard),
 		cli.Stdout(io.Discard),
 	)
