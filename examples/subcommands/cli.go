@@ -67,7 +67,7 @@ func buildDoCommand() (*cli.Command, error) {
 		cli.Allow(cli.MaxArgs(1)), // Only allowed to do one thing
 		cli.Flag(&options.count, "count", 'c', 1, "Number of times to do the thing"),
 		cli.Flag(&options.fast, "fast", 'f', false, "Do the thing quickly"),
-		cli.Flag(&options.verbosity, "verbosity", 'V', 0, "Increase the verbosity level"),
+		cli.Flag(&options.verbosity, "verbosity", 'v', 0, "Increase the verbosity level"),
 		cli.Run(runDo(&options)),
 	)
 	if err != nil {
