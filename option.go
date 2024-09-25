@@ -17,15 +17,11 @@ const NoShortHand = flag.NoShortHand
 //
 // It's worth noting that the complete set of supported types is wider than this constraint appears
 // as e.g. a [time.Duration] is actually just an int64 underneath, likewise a [net.IP] is actually just []byte.
-type Flaggable = flag.Flaggable
+type Flaggable flag.Flaggable
 
 // FlagCount is a type used for a flag who's job is to increment a counter, e.g. a "verbosity"
 // flag may be passed "-vvv" which should increase the verbosity level to 3.
-type FlagCount = flag.Count
-
-// Builder is a function that constructs and returns a [Command], it makes constructing
-// complex command trees easier as they can be passed directly to [SubCommands].
-type Builder func() (*Command, error)
+type FlagCount flag.Count
 
 // Option is a functional option for configuring a [Command].
 type Option interface {

@@ -15,6 +15,10 @@ import (
 	"github.com/FollowTheProcess/cli/internal/table"
 )
 
+// Builder is a function that constructs and returns a [Command], it makes constructing
+// complex command trees easier as they can be passed directly to the [SubCommands] option.
+type Builder func() (*Command, error)
+
 // New builds and returns a new [Command].
 //
 // The command can be customised by passing in a number of options enabling you to
