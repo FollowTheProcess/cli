@@ -41,50 +41,52 @@ func (o option) apply(cfg *config) error {
 
 // config represents the internal configuration of a [Command].
 type config struct {
-	stdin         io.Reader
-	stdout        io.Writer
-	stderr        io.Writer
-	run           func(cmd *Command, args []string) error
-	flags         *flag.Set
-	versionFunc   func(cmd *Command) error
-	parent        *Command
-	argValidator  ArgValidator
-	name          string
-	short         string
-	long          string
-	version       string
-	commit        string
-	buildDate     string
-	examples      []example
-	args          []string
-	subcommands   []*Command
-	helpCalled    bool
-	versionCalled bool
+	stdin          io.Reader
+	stdout         io.Writer
+	stderr         io.Writer
+	run            func(cmd *Command, args []string) error
+	flags          *flag.Set
+	versionFunc    func(cmd *Command) error
+	parent         *Command
+	argValidator   ArgValidator
+	name           string
+	short          string
+	long           string
+	version        string
+	commit         string
+	buildDate      string
+	examples       []example
+	args           []string
+	positionalArgs []positionalArg
+	subcommands    []*Command
+	helpCalled     bool
+	versionCalled  bool
 }
 
 // build builds an returns a Command from the config, applying validation
 // to the whole thing.
 func (c *config) build() *Command {
 	cmd := &Command{
-		stdin:         c.stdin,
-		stdout:        c.stdout,
-		stderr:        c.stderr,
-		run:           c.run,
-		flags:         c.flags,
-		versionFunc:   c.versionFunc,
-		parent:        c.parent,
-		argValidator:  c.argValidator,
-		name:          c.name,
-		short:         c.short,
-		long:          c.long,
-		version:       c.version,
-		commit:        c.commit,
-		buildDate:     c.buildDate,
-		examples:      c.examples,
-		args:          c.args,
-		subcommands:   c.subcommands,
-		helpCalled:    c.helpCalled,
-		versionCalled: c.versionCalled,
+		stdin:          c.stdin,
+		stdout:         c.stdout,
+		stderr:         c.stderr,
+		run:            c.run,
+		flags:          c.flags,
+		versionFunc:    c.versionFunc,
+		parent:         c.parent,
+		argValidator:   c.argValidator,
+		name:           c.name,
+		short:          c.short,
+		long:           c.long,
+		version:        c.version,
+		commit:         c.commit,
+		buildDate:      c.buildDate,
+		examples:       c.examples,
+		args:           c.args,
+		positionalArgs: c.positionalArgs,
+		subcommands:    c.subcommands,
+		helpCalled:     c.helpCalled,
+		versionCalled:  c.versionCalled,
 	}
 
 	// Loop through each subcommand and set this command as their immediate parent
@@ -413,6 +415,42 @@ func Flag[T Flaggable](p *T, name string, short rune, value T, usage string) Opt
 
 		return nil
 	}
+	return option(f)
+}
+
+// Arg is an [Option] that adds a named positional argument to a [Command].
+//
+// A named argument is given a name, description and a default value, a default of ""
+// marks the argument as required.
+//
+// If an argument without a default is provided on the command line, the provided value is used, if
+// it doesn't have a default and the value isn't given on the command line, [Command.Execute] will
+// return an informative error saying which one is missing.
+//
+// This is the only [Option] for which the order of calls matter, each call to Arg effectively appends a
+// named positional argument so the following:
+//
+//	cli.New("cp", cli.Arg("src", "The file to copy", ""))
+//	cli.New("cp", cli.Arg("dest", "Where to copy to", ""))
+//
+// results in a command that will expect the following args *in order*
+//
+//	cp src.txt dest.txt
+//
+// Arguments added to the command with Arg may be retrieved by name from within command logic with [Command.Arg].
+func Arg(name, description, value string) Option {
+	// TODO(@FollowTheProcess): Not entirely happy with the "" meaning required
+	// I wonder if we should have Arg and ArgWithDefault?
+	f := func(cfg *config) error {
+		arg := positionalArg{
+			name:         name,
+			description:  description,
+			defaultValue: value,
+		}
+		cfg.positionalArgs = append(cfg.positionalArgs, arg)
+		return nil
+	}
+
 	return option(f)
 }
 
