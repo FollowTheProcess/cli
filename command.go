@@ -599,9 +599,9 @@ func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 	tab := table.New(s)
 	for _, arg := range cmd.positionalArgs {
 		if arg.defaultValue != "" {
-			tab.Row("  %s:\t%s [default %s]\n", colour.Bold(arg.name), arg.description, arg.defaultValue)
+			tab.Row("  %s\t%s [default %s]\n", colour.Bold(arg.name), arg.description, arg.defaultValue)
 		} else {
-			tab.Row("  %s:\t%s\n", colour.Bold(arg.name), arg.description)
+			tab.Row("  %s\t%s\n", colour.Bold(arg.name), arg.description)
 		}
 	}
 	if err := tab.Flush(); err != nil {
