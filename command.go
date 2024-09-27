@@ -148,10 +148,15 @@ type Command struct {
 	// examples is examples of how to use the command.
 	examples []example
 
-	// args is the arguments passed to the command, default to [os.Args]
+	// args are the raw arguments passed to the command prior to any parsing, defaulting to [os.Args]
 	// (excluding the command name, so os.Args[1:]), can be overridden using
-	// the [Args] option for e.g. testing.
+	// the [OverrideArgs] option for e.g. testing.
 	args []string
+
+	// positionalArgs are the named positional arguments to the command, positional arguments
+	// may be retrieved from within command logic by name and this also significantly
+	// enhances the help message.
+	positionalArgs []positionalArg
 
 	// subcommands is the list of subcommands this command has directly underneath it,
 	// these may have any number of subcommands under them, this is how we form nested
@@ -246,6 +251,28 @@ func (c *Command) Execute() error {
 		return err
 	}
 
+	// Now we have the actual positional arguments to the command, we can use our
+	// named arguments to assign the given values (or the defaults) to the arguments
+	// so they may be retrieved by name
+	for i := 0; i < len(c.positionalArgs); i++ {
+		if i >= len(argsWithoutFlags) {
+			arg := c.positionalArgs[i]
+
+			// If we've fallen off the end of argsWithoutFlags and the positionalArg at this
+			// index does not have a default, it means the arg was required but not provided
+			if arg.defaultValue == "" {
+				return fmt.Errorf("missing required argument %q, expected at position %d", arg.name, i)
+			}
+			// It does have a default, so use that instead
+			c.positionalArgs[i].value = arg.defaultValue
+		} else {
+			// We are in a valid index in both slices which means the named positional
+			// argument at this index was provided on the command line, so all we need
+			// to do is set its value
+			c.positionalArgs[i].value = argsWithoutFlags[i]
+		}
+	}
+
 	// If the command is runnable, go and execute its run function
 	if cmd.run != nil {
 		return cmd.run(cmd, argsWithoutFlags)
@@ -285,6 +312,24 @@ func (c *Command) Stderr() io.Writer {
 // Stdin returns the configured Stdin for the Command.
 func (c *Command) Stdin() io.Reader {
 	return c.root().stdin
+}
+
+// Arg looks up a named positional argument by name.
+//
+// If the argument was defined with a default, and it was not provided on the command line
+// then the value returned will be the default value.
+//
+// If no named argument exists with the given name, it will return "".
+func (c *Command) Arg(name string) string {
+	for _, arg := range c.positionalArgs {
+		if arg.name == name {
+			// arg.value will have been set to the default already during command line parsing
+			// if the arg was not provided
+			return arg.value
+		}
+	}
+
+	return ""
 }
 
 // ExtraArgs returns any additional arguments following a "--", and a boolean indicating

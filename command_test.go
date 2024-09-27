@@ -227,6 +227,127 @@ func TestSubCommandExecute(t *testing.T) {
 	}
 }
 
+func TestPositionalArgs(t *testing.T) {
+	// TODO(@FollowTheProcess): Turn this table driven
+	tests := []struct {
+		name    string
+		stdout  string
+		errMsg  string
+		options []cli.Option
+		args    []string
+		wantErr bool
+	}{
+		{
+			name: "required and given",
+			options: []cli.Option{
+				cli.Arg("file", "The path to a file", ""), // "" means required
+				cli.Run(func(cmd *cli.Command, args []string) error {
+					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
+					return nil
+				}),
+			},
+			stdout:  "file was something.txt\n",
+			args:    []string{"something.txt"},
+			wantErr: false,
+		},
+		{
+			name: "required but missing",
+			options: []cli.Option{
+				cli.Arg("file", "The path to a file", ""), // "" means required
+				cli.Run(func(cmd *cli.Command, args []string) error {
+					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
+					return nil
+				}),
+			},
+			stdout:  "",
+			args:    []string{},
+			wantErr: true,
+			errMsg:  `missing required argument "file", expected at position 0`, // Comes from command.Execute
+		},
+		{
+			name: "optional and given",
+			options: []cli.Option{
+				cli.Arg("file", "The path to a file", "default.txt"), // This time it has a default
+				cli.Run(func(cmd *cli.Command, args []string) error {
+					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
+					return nil
+				}),
+			},
+			stdout:  "file was something.txt\n",
+			args:    []string{"something.txt"},
+			wantErr: false,
+		},
+		{
+			name: "optional and missing",
+			options: []cli.Option{
+				cli.Arg("file", "The path to a file", "default.txt"), // This time it has a default
+				cli.Run(func(cmd *cli.Command, args []string) error {
+					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
+					return nil
+				}),
+			},
+			stdout:  "file was default.txt\n", // Should fall back to the default
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "several args all given",
+			options: []cli.Option{
+				cli.Arg("src", "The path to the source file", ""),   // File required as first arg
+				cli.Arg("dest", "The destination path", "dest.txt"), // Dest has a default
+				cli.Arg("something", "Another arg", ""),             // Required again
+				cli.Run(func(cmd *cli.Command, args []string) error {
+					fmt.Fprintf(cmd.Stdout(), "src: %s, dest: %s, something: %s\n", cmd.Arg("src"), cmd.Arg("dest"), cmd.Arg("something"))
+					return nil
+				}),
+			},
+			stdout:  "src: src.txt, dest: other-dest.txt, something: yes\n",
+			args:    []string{"src.txt", "other-dest.txt", "yes"}, // Give all 3 args
+			wantErr: false,
+		},
+		{
+			name: "several args one missing",
+			options: []cli.Option{
+				cli.Arg("src", "The path to the source file", ""),           // File required as first arg
+				cli.Arg("dest", "The destination path", "default-dest.txt"), // Dest has a default
+				cli.Arg("something", "Another arg", ""),                     // Required again
+				cli.Run(func(cmd *cli.Command, args []string) error {
+					fmt.Fprintf(cmd.Stdout(), "src: %s, dest: %s, something: %s\n", cmd.Arg("src"), cmd.Arg("dest"), cmd.Arg("something"))
+					return nil
+				}),
+			},
+			stdout:  "",
+			args:    []string{"src.txt"}, // arg 'something' is missing, dest will use its default
+			wantErr: true,
+			errMsg:  `missing required argument "something", expected at position 2`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			stdout := &bytes.Buffer{}
+
+			// Test specific overrides to the options in the table
+			options := []cli.Option{
+				cli.Stdout(stdout),
+				cli.OverrideArgs(tt.args),
+			}
+
+			cmd, err := cli.New("posargs", slices.Concat(options, tt.options)...)
+			test.Ok(t, err) // cli.New returned an error
+
+			err = cmd.Execute()
+			test.WantErr(t, err, tt.wantErr)
+
+			test.Equal(t, stdout.String(), tt.stdout)
+
+			if err != nil {
+				test.Equal(t, err.Error(), tt.errMsg) // Error messages don't match
+			}
+		})
+	}
+}
+
 func TestHelp(t *testing.T) {
 	sub1 := func() (*cli.Command, error) {
 		return cli.New(
