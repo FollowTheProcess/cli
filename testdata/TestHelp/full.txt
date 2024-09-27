@@ -7,5 +7,3 @@ Usage: test [OPTIONS] ARGS...
 Options:
   -h  --help     bool  Show help for test
   -V  --version  bool  Show version info for test
-
-Use "test [command] -h/--help" for more information about a command.

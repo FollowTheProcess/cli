@@ -142,3 +142,11 @@ func Combine(validators ...ArgValidator) ArgValidator {
 		return nil
 	}
 }
+
+// positionalArg is a named positional argument to a command.
+type positionalArg struct {
+	name         string // The name of the argument
+	description  string // A short description of the argument
+	value        string // The actual parsed value from the command line
+	defaultValue string // The default value to be used if not set, a default of "" marks the arg as required
+}

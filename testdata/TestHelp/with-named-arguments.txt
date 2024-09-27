@@ -1,6 +1,10 @@
 A placeholder for something cool
 
-Usage: test [OPTIONS] ARGS...
+Usage: test [OPTIONS] [SRC] DEST 
+
+Arguments:
+  src   The file to copy
+  dest  Destination to copy to [default ./dest]
 
 Options:
   -h  --help     bool  Show help for test
