@@ -516,16 +516,59 @@ func defaultHelp(cmd *Command) error {
 	if len(cmd.subcommands) == 0 {
 		// We don't have any subcommands so usage will be:
 		// "Usage: {name} [OPTIONS] ARGS..."
-		s.WriteString(" [OPTIONS] ARGS...")
+		s.WriteString(" [OPTIONS] ")
+
+		if len(cmd.positionalArgs) > 0 {
+			// If we have named args, use the names in the help text
+			for _, arg := range cmd.positionalArgs {
+				// If it's required, write it as a bare upper word e.g FILE
+				if arg.defaultValue != "" {
+					s.WriteString(strings.ToUpper(arg.name))
+				} else {
+					// If its optional wrap it in brackets e.g. [FILE]
+					s.WriteString("[")
+					s.WriteString(strings.ToUpper(arg.name))
+					s.WriteString("]")
+				}
+				s.WriteString(" ")
+			}
+		} else {
+			// We have no named arguments so do the best we can
+			s.WriteString("ARGS...")
+		}
 	} else {
 		// We do have subcommands, so usage will instead be:
 		// "Usage: {name} [OPTIONS] COMMAND"
 		s.WriteString(" [OPTIONS] COMMAND")
 	}
 
+	// If we have named arguments, list them explicitly and use their descriptions
+	if len(cmd.positionalArgs) != 0 {
+		s.WriteString("\n\n")
+		s.WriteString(colour.Title("Arguments:"))
+		s.WriteString("\n")
+		tab := table.New(s)
+		for _, arg := range cmd.positionalArgs {
+			if arg.defaultValue != "" {
+				tab.Row("  %s:\t%s [default %s]\n", colour.Bold(arg.name), arg.description, arg.defaultValue)
+			} else {
+				tab.Row("  %s:\t%s\n", colour.Bold(arg.name), arg.description)
+			}
+		}
+		if err := tab.Flush(); err != nil {
+			return fmt.Errorf("could not format arguments: %w", err)
+		}
+	}
+
 	// If the user defined some examples, show those
 	if len(cmd.examples) != 0 {
-		s.WriteString("\n\n")
+		// If there were positional args, the last one would have printed a newline
+		if len(cmd.positionalArgs) != 0 {
+			s.WriteString("\n")
+		} else {
+			// If not, we need a bit more space
+			s.WriteString("\n\n")
+		}
 		s.WriteString(colour.Title("Examples:"))
 		for _, example := range cmd.examples {
 			s.WriteString(example.String())
@@ -547,8 +590,8 @@ func defaultHelp(cmd *Command) error {
 	}
 
 	// Now options
-	if len(cmd.examples) != 0 || len(cmd.subcommands) != 0 {
-		// If there were examples or subcommands, the last one would have printed a newline
+	if len(cmd.examples) != 0 || len(cmd.subcommands) != 0 || len(cmd.positionalArgs) != 0 {
+		// If there were examples or subcommands or named arguments, the last one would have printed a newline
 		s.WriteString("\n")
 	} else {
 		// If there weren't, we need some more space

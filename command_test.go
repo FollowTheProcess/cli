@@ -228,14 +228,13 @@ func TestSubCommandExecute(t *testing.T) {
 }
 
 func TestPositionalArgs(t *testing.T) {
-	// TODO(@FollowTheProcess): Turn this table driven
 	tests := []struct {
-		name    string
-		stdout  string
-		errMsg  string
-		options []cli.Option
-		args    []string
-		wantErr bool
+		name    string       // The name of the test case
+		stdout  string       // The expected stdout
+		errMsg  string       // If we did want an error, what should it say
+		options []cli.Option // Options to apply to the command under test
+		args    []string     // Arguments to be passed to the command
+		wantErr bool         // Whether we want an error
 	}{
 		{
 			name: "required and given",
@@ -417,6 +416,17 @@ func TestHelp(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "with named arguments",
+			options: []cli.Option{
+				cli.OverrideArgs([]string{"--help"}),
+				cli.Arg("src", "The file to copy", ""),              // This one is required
+				cli.Arg("dest", "Destination to copy to", "./dest"), // This one is optional
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+			},
+			golden:  "with-named-arguments.txt",
+			wantErr: false,
+		},
+		{
 			name: "with full description",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--help"}),
@@ -485,9 +495,8 @@ func TestHelp(t *testing.T) {
 
 			// Test specific overrides to the options in the table
 			options := []cli.Option{cli.Stdout(stdout), cli.Stderr(stderr)}
-			options = append(options, tt.options...)
 
-			cmd, err := cli.New("test", options...)
+			cmd, err := cli.New("test", slices.Concat(options, tt.options)...)
 
 			test.Ok(t, err)
 
