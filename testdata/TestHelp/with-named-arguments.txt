@@ -1,6 +1,6 @@
 A placeholder for something cool
 
-Usage: test [OPTIONS] [SRC] DEST 
+Usage: test [OPTIONS] SRC [DEST] 
 
 Arguments:
   src   The file to copy

@@ -579,12 +579,16 @@ func defaultHelp(cmd *Command) error {
 // format for the top level usage string in the help text string builder.
 func writePositionalArgs(cmd *Command, s *strings.Builder) {
 	for _, arg := range cmd.positionalArgs {
+		displayName := strings.ToUpper(arg.name)
 		if arg.defaultValue != "" {
-			s.WriteString(strings.ToUpper(arg.name))
-		} else {
+			// If it has a default, it's an optional argument so wrap it
+			// in brackets e.g. [FILE]
 			s.WriteString("[")
-			s.WriteString(strings.ToUpper(arg.name))
+			s.WriteString(displayName)
 			s.WriteString("]")
+		} else {
+			// It's required, so just FILE
+			s.WriteString(displayName)
 		}
 		s.WriteString(" ")
 	}
