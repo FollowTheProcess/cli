@@ -419,7 +419,28 @@ func Flag[T Flaggable](p *T, name string, short rune, value T, usage string) Opt
 }
 
 // Arg is an [Option] that adds a named positional argument to a [Command].
+//
+// A named argument is given a name, description and a default value, a default of ""
+// marks the argument as required.
+//
+// If an argument without a default is provided on the command line, the provided value is used, if
+// it doesn't have a default and the value isn't given on the command line, [Command.Execute] will
+// return an informative error saying which one is missing.
+//
+// This is the only [Option] for which the order of calls matter, each call to Arg effectively appends a
+// named positional argument so the following:
+//
+//	cli.New("cp", cli.Arg("src", "The file to copy", ""))
+//	cli.New("cp", cli.Arg("dest", "Where to copy to", ""))
+//
+// results in a command that will expect the following args *in order*
+//
+//	cp src.txt dest.txt
+//
+// Arguments added to the command with Arg may be retrieved by name from within command logic with [Command.Arg].
 func Arg(name, description, value string) Option {
+	// TODO(@FollowTheProcess): Not entirely happy with the "" meaning required
+	// I wonder if we should have Arg and ArgWithDefault?
 	f := func(cfg *config) error {
 		arg := positionalArg{
 			name:         name,
