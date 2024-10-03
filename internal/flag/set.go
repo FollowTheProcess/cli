@@ -213,7 +213,27 @@ func (s *Set) Usage() (string, error) {
 			shorthand = "N/A"
 		}
 
-		tab.Row("  %s\t--%s\t%s\t%s\n", colour.Bold(shorthand), colour.Bold(entry.Name), entry.Value.Type(), entry.Usage)
+		if entry.DefaultValue != "" {
+			// Plain string
+			tab.Row(
+				"  %s\t--%s\t%s\t%s [default %s]\n",
+				colour.Bold(shorthand),
+				colour.Bold(entry.Name),
+				entry.Value.Type(),
+				entry.Usage,
+				entry.DefaultValue,
+			)
+		} else {
+			// Empty string so use the quotes
+			tab.Row(
+				"  %s\t--%s\t%s\t%s [default %q]\n",
+				colour.Bold(shorthand),
+				colour.Bold(entry.Name),
+				entry.Value.Type(),
+				entry.Usage,
+				entry.DefaultValue,
+			)
+		}
 	}
 
 	if err := tab.Flush(); err != nil {
