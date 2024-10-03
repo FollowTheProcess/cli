@@ -77,7 +77,7 @@ tasks:
     desc: Render the demo gifs
     sources:
       - ./docs/src/*.tape
-      - examples/**/*.go
+      - "**/*.go"
     preconditions:
       - sh: command -v vhs
         msg: vhs not installed, see https://github.com/charmbracelet/vhs
