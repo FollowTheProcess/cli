@@ -210,6 +210,8 @@ func (c *Command) Execute() error {
 	// cmd here will be c.
 	cmd, args := findRequestedCommand(c, c.args)
 
+	// Below this point, use cmd not c!
+
 	if err := cmd.flagSet().Parse(args); err != nil {
 		return fmt.Errorf("failed to parse command flags: %w", err)
 	}
@@ -257,9 +259,9 @@ func (c *Command) Execute() error {
 	//
 	// We're modifying the slice in place here, hence not using a range loop as it
 	// would take a copy of the c.positionalArgs slice
-	for i := 0; i < len(c.positionalArgs); i++ {
+	for i := 0; i < len(cmd.positionalArgs); i++ {
 		if i >= len(argsWithoutFlags) {
-			arg := c.positionalArgs[i]
+			arg := cmd.positionalArgs[i]
 
 			// If we've fallen off the end of argsWithoutFlags and the positionalArg at this
 			// index does not have a default, it means the arg was required but not provided
@@ -267,12 +269,12 @@ func (c *Command) Execute() error {
 				return fmt.Errorf("missing required argument %q, expected at position %d", arg.name, i)
 			}
 			// It does have a default, so use that instead
-			c.positionalArgs[i].value = arg.defaultValue
+			cmd.positionalArgs[i].value = arg.defaultValue
 		} else {
 			// We are in a valid index in both slices which means the named positional
 			// argument at this index was provided on the command line, so all we need
 			// to do is set its value
-			c.positionalArgs[i].value = argsWithoutFlags[i]
+			cmd.positionalArgs[i].value = argsWithoutFlags[i]
 		}
 	}
 
