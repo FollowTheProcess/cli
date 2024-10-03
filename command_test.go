@@ -228,6 +228,18 @@ func TestSubCommandExecute(t *testing.T) {
 }
 
 func TestPositionalArgs(t *testing.T) {
+	sub := func() (*cli.Command, error) {
+		return cli.New(
+			"sub",
+			cli.Short("Sub command"),
+			cli.Arg("subarg", "Argument given to a subcommand", ""),
+			cli.Run(func(cmd *cli.Command, args []string) error {
+				fmt.Fprintf(cmd.Stdout(), "Hello from sub command, subarg: %s", cmd.Arg("subarg"))
+				return nil
+			}),
+		)
+	}
+
 	tests := []struct {
 		name    string       // The name of the test case
 		stdout  string       // The expected stdout
@@ -319,6 +331,15 @@ func TestPositionalArgs(t *testing.T) {
 			args:    []string{"src.txt"}, // arg 'something' is missing, dest will use its default
 			wantErr: true,
 			errMsg:  `missing required argument "something", expected at position 2`,
+		},
+		{
+			name: "subcommand with named arg",
+			options: []cli.Option{
+				cli.SubCommands(sub),
+			},
+			stdout:  "Hello from sub command, subarg: blah",
+			args:    []string{"sub", "blah"}, // subarg should be "blah"
+			wantErr: false,
 		},
 	}
 
