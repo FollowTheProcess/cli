@@ -5,5 +5,5 @@ A longer, probably multiline description
 Usage: test [OPTIONS] ARGS...
 
 Options:
-  -h  --help     bool  Show help for test
-  -V  --version  bool  Show version info for test
+  -h  --help     bool  Show help for test [default false]
+  -V  --version  bool  Show version info for test [default false]
