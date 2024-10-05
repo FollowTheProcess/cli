@@ -13,19 +13,21 @@ import (
 
 // Set is a set of command line flags.
 type Set struct {
-	// TODO(@FollowTheProcess): Figure out a way so that we don't have to store 2 maps
-	// as it's very memory wasteful
-	flags      map[string]Entry // The actual stored flags, can lookup by name
-	shorthands map[rune]Entry   // The flags by shorthand
-	args       []string         // Arguments minus flags or flag values
-	extra      []string         // Arguments after "--" was hit
+	// Note: flags and shorthands are different "views" to the same *Entry, the Entry
+	// is not duplicated, it's just two maps to the same pointer so we can look up
+	// using either
+
+	flags      map[string]*Entry // The actual stored flags, can lookup by name
+	shorthands map[rune]*Entry   // The flags by shorthand
+	args       []string          // Arguments minus flags or flag values
+	extra      []string          // Arguments after "--" was hit
 }
 
 // NewSet builds and returns a new set of flags.
 func NewSet() *Set {
 	return &Set{
-		flags:      make(map[string]Entry),
-		shorthands: make(map[rune]Entry),
+		flags:      make(map[string]*Entry),
+		shorthands: make(map[rune]*Entry),
 	}
 }
 
@@ -56,7 +58,7 @@ func AddToSet[T Flaggable](set *Set, flag Flag[T]) error {
 		defaultValueNoArg = "1"
 	}
 
-	entry := Entry{
+	entry := &Entry{
 		Value:             flag,
 		Name:              flag.name,
 		Usage:             flag.usage,
@@ -76,26 +78,26 @@ func AddToSet[T Flaggable](set *Set, flag Flag[T]) error {
 
 // Get gets a flag [Entry] from the Set by name and a boolean to indicate
 // whether it was present.
-func (s *Set) Get(name string) (Entry, bool) {
+func (s *Set) Get(name string) (*Entry, bool) {
 	if s == nil {
-		return Entry{}, false
+		return nil, false
 	}
 	entry, ok := s.flags[name]
 	if !ok {
-		return Entry{}, false
+		return nil, false
 	}
 	return entry, true
 }
 
 // GetShort gets a flag [Entry] from the Set by it's shorthand and a boolean to indicate
 // whether it was present.
-func (s *Set) GetShort(short rune) (Entry, bool) {
+func (s *Set) GetShort(short rune) (*Entry, bool) {
 	if s == nil {
-		return Entry{}, false
+		return nil, false
 	}
 	entry, ok := s.shorthands[short]
 	if !ok {
-		return Entry{}, false
+		return nil, false
 	}
 	return entry, true
 }
@@ -206,6 +208,9 @@ func (s *Set) Usage() (string, error) {
 
 	for _, name := range names {
 		entry := s.flags[name]
+		if entry == nil {
+			return "", fmt.Errorf("*Entry stored against key %s was nil", name) // Should never happen
+		}
 		var shorthand string
 		if entry.Shorthand != NoShortHand {
 			shorthand = fmt.Sprintf("-%s", string(entry.Shorthand))

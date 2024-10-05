@@ -36,7 +36,7 @@ func TestParse(t *testing.T) {
 				t.Helper()
 				f, exists := set.Get("something")
 				test.False(t, exists)
-				test.Equal(t, f, flag.Entry{})
+				test.Equal(t, f, nil)
 
 				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
@@ -53,7 +53,7 @@ func TestParse(t *testing.T) {
 				t.Helper()
 				f, exists := set.Get("something")
 				test.False(t, exists)
-				test.Equal(t, f, flag.Entry{})
+				test.Equal(t, f, nil)
 
 				test.EqualFunc(t, set.Args(), []string{"some", "args", "here", "no", "flags"}, slices.Equal)
 			},
@@ -70,7 +70,7 @@ func TestParse(t *testing.T) {
 				t.Helper()
 				f, exists := set.Get("something")
 				test.False(t, exists)
-				test.Equal(t, f, flag.Entry{})
+				test.Equal(t, f, nil)
 
 				test.EqualFunc(t, set.Args(), []string{"some", "args", "here", "no", "flags", "extra", "args"}, slices.Equal)
 				test.EqualFunc(t, set.ExtraArgs(), []string{"extra", "args"}, slices.Equal)
@@ -88,7 +88,7 @@ func TestParse(t *testing.T) {
 				t.Helper()
 				f, exists := set.Get("flag")
 				test.False(t, exists)
-				test.Equal(t, f, flag.Entry{})
+				test.Equal(t, f, nil)
 
 				test.EqualFunc(t, set.Args(), []string{"some", "args", "here"}, slices.Equal)
 			},
@@ -827,6 +827,7 @@ func TestParse(t *testing.T) {
 				// Get by short
 				entry, exists = set.GetShort('c')
 				test.False(t, exists) // Short shouldn't exist
+				test.Equal(t, entry, nil)
 			},
 			args:    []string{"--count", "1"},
 			wantErr: false,
@@ -856,6 +857,7 @@ func TestParse(t *testing.T) {
 				// Get by short
 				entry, exists = set.GetShort('c')
 				test.False(t, exists) // Short shouldn't exist
+				test.Equal(t, entry, nil)
 			},
 			args:    []string{"-c", "1"},
 			wantErr: true,
@@ -968,7 +970,7 @@ func TestFlagSet(t *testing.T) {
 				t.Helper()
 				f, exists := set.Get("missing")
 				test.False(t, exists)
-				test.Equal(t, f, flag.Entry{})
+				test.Equal(t, f, nil)
 			},
 		},
 		{
@@ -981,7 +983,7 @@ func TestFlagSet(t *testing.T) {
 				t.Helper()
 				f, exists := set.GetShort('d')
 				test.False(t, exists)
-				test.Equal(t, f, flag.Entry{})
+				test.Equal(t, f, nil)
 			},
 		},
 		{
@@ -994,7 +996,7 @@ func TestFlagSet(t *testing.T) {
 				t.Helper()
 				f, exists := set.Get("missing")
 				test.False(t, exists)
-				test.Equal(t, f, flag.Entry{})
+				test.Equal(t, f, nil)
 			},
 		},
 		{
@@ -1007,7 +1009,7 @@ func TestFlagSet(t *testing.T) {
 				t.Helper()
 				f, exists := set.GetShort('m')
 				test.False(t, exists)
-				test.Equal(t, f, flag.Entry{})
+				test.Equal(t, f, nil)
 			},
 		},
 		{
