@@ -107,3 +107,9 @@ tasks:
     cmds:
       - go clean ./...
       - rm -rf *.out
+
+  update:
+    desc: Updates dependencies in go.mod and go.sum
+    cmds:
+      - go get -u ./...
+      - go mod tidy
