@@ -810,7 +810,9 @@ func TestDuplicateSubCommands(t *testing.T) {
 	)
 
 	test.Err(t, err)
-	test.Equal(t, err.Error(), `subcommand "sub1" already defined`)
+	if err != nil {
+		test.Equal(t, err.Error(), `subcommand "sub1" already defined`)
+	}
 }
 
 func TestCommandNoRunNoSub(t *testing.T) {

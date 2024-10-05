@@ -119,7 +119,7 @@ func (f Flag[T]) Get() T {
 }
 
 // String implements [fmt.Stringer] for a [Flag], and also implements the String
-// part of [pflag.Value], allowing a flag to print itself.
+// part of [Value], allowing a flag to print itself.
 func (f Flag[T]) String() string { //nolint:gocyclo // No other way of doing this realistically
 	if f.value == nil {
 		return ""
