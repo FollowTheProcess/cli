@@ -360,9 +360,6 @@ func (c *Command) root() *Command {
 
 // hasFlag returns whether the command has a flag of the given name defined.
 func (c *Command) hasFlag(name string) bool {
-	if name == "" {
-		return false
-	}
 	flag, ok := c.flagSet().Get(name)
 	if !ok {
 		return false
