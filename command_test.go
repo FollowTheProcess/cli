@@ -990,6 +990,9 @@ func BenchmarkNew(b *testing.B) {
 			cli.Commit("dfdddaf"),
 			cli.Example("An example", "bench --help"),
 			cli.Allow(cli.AnyArgs()),
+			cli.Flag(new(bool), "force", 'f', false, "Force something"),
+			cli.Flag(new(string), "name", 'n', "", "The name of something"),
+			cli.Flag(new(int), "count", 'c', 1, "Count something"),
 			cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 		)
 		if err != nil {
