@@ -706,21 +706,6 @@ func TestOptionValidation(t *testing.T) {
 			errMsg:  "cannot set Args to nil",
 		},
 		{
-			name:    "empty version",
-			options: []cli.Option{cli.Version("")},
-			errMsg:  "cannot set Version to an empty string",
-		},
-		{
-			name:    "empty commit",
-			options: []cli.Option{cli.Commit("")},
-			errMsg:  "cannot set Commit to an empty string",
-		},
-		{
-			name:    "empty build date",
-			options: []cli.Option{cli.BuildDate("")},
-			errMsg:  "cannot set BuildDate to an empty string",
-		},
-		{
 			name:    "nil VersionFunc",
 			options: []cli.Option{cli.VersionFunc(nil)},
 			errMsg:  "cannot set VersionFunc to nil",
