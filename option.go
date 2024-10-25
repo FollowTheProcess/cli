@@ -267,9 +267,6 @@ func OverrideArgs(args []string) Option {
 //	cli.New("test", cli.Version("v1.2.3"))
 func Version(version string) Option {
 	f := func(cfg *config) error {
-		if version == "" {
-			return errors.New("cannot set Version to an empty string")
-		}
 		cfg.version = version
 		return nil
 	}
@@ -289,9 +286,6 @@ func Version(version string) Option {
 // [ldflags]: https://www.digitalocean.com/community/tutorials/using-ldflags-to-set-version-information-for-go-applications
 func Commit(commit string) Option {
 	f := func(cfg *config) error {
-		if commit == "" {
-			return errors.New("cannot set Commit to an empty string")
-		}
 		cfg.commit = commit
 		return nil
 	}
@@ -311,9 +305,6 @@ func Commit(commit string) Option {
 // [ldflags]: https://www.digitalocean.com/community/tutorials/using-ldflags-to-set-version-information-for-go-applications
 func BuildDate(date string) Option {
 	f := func(cfg *config) error {
-		if date == "" {
-			return errors.New("cannot set BuildDate to an empty string")
-		}
 		cfg.buildDate = date
 		return nil
 	}
