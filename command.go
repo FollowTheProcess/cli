@@ -51,21 +51,24 @@ func New(name string, options ...Option) (*Command, error) {
 		argValidator: AnyArgs(),
 	}
 
-	// Ensure we always have at least help and version flags
-	defaultOptions := []Option{
-		Flag(&cfg.helpCalled, "help", 'h', false, fmt.Sprintf("Show help for %s", name)),
-		Flag(&cfg.versionCalled, "version", 'V', false, fmt.Sprintf("Show version info for %s", name)),
-	}
-
-	toApply := slices.Concat(options, defaultOptions)
-
 	// Apply the options, gathering up all the validation errors
 	// to report in one go
 	var errs error
-	for _, option := range toApply {
+	for _, option := range options {
 		if err := option.apply(&cfg); err != nil {
 			errs = errors.Join(errs, err)
 		}
+	}
+
+	// Ensure we always have at least help and version flags
+	err := Flag(&cfg.helpCalled, "help", 'h', false, fmt.Sprintf("Show help for %s", name)).apply(&cfg)
+	if err != nil {
+		errs = errors.Join(errs, err)
+	}
+
+	err = Flag(&cfg.versionCalled, "version", 'V', false, fmt.Sprintf("Show version info for %s", name)).apply(&cfg)
+	if err != nil {
+		errs = errors.Join(errs, err)
 	}
 
 	if errs != nil {
