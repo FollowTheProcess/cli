@@ -60,18 +60,16 @@ func New(name string, options ...Option) (*Command, error) {
 	toApply := slices.Concat(options, defaultOptions)
 
 	// Apply the options, gathering up all the validation errors
-	// to report in one go. Each option returns only one error
-	// so this can be pre-allocated.
-	errs := make([]error, 0, len(toApply))
+	// to report in one go
+	var errs error
 	for _, option := range toApply {
-		err := option.apply(&cfg)
-		if err != nil {
-			errs = append(errs, err)
+		if err := option.apply(&cfg); err != nil {
+			errs = errors.Join(errs, err)
 		}
 	}
 
-	if len(errs) > 0 {
-		return nil, errors.Join(errs...)
+	if errs != nil {
+		return nil, errs
 	}
 
 	// Additional validation that can't be done per-option
