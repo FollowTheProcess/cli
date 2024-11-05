@@ -51,27 +51,22 @@ func New(name string, options ...Option) (*Command, error) {
 		argValidator: AnyArgs(),
 	}
 
-	// Ensure we always have at least help and version flags
-	defaultOptions := []Option{
-		Flag(&cfg.helpCalled, "help", 'h', false, fmt.Sprintf("Show help for %s", name)),
-		Flag(&cfg.versionCalled, "version", 'V', false, fmt.Sprintf("Show version info for %s", name)),
-	}
-
-	toApply := slices.Concat(options, defaultOptions)
-
 	// Apply the options, gathering up all the validation errors
-	// to report in one go. Each option returns only one error
-	// so this can be pre-allocated.
-	errs := make([]error, 0, len(toApply))
-	for _, option := range toApply {
-		err := option.apply(&cfg)
-		if err != nil {
-			errs = append(errs, err)
-		}
+	// to report in one go
+	var errs error
+	for _, option := range options {
+		errs = errors.Join(errs, option.apply(&cfg))
 	}
 
-	if len(errs) > 0 {
-		return nil, errors.Join(errs...)
+	// Ensure we always have at least help and version flags
+	err := Flag(&cfg.helpCalled, "help", 'h', false, fmt.Sprintf("Show help for %s", name)).apply(&cfg)
+	errs = errors.Join(errs, err) // nil errors are discarded in join
+
+	err = Flag(&cfg.versionCalled, "version", 'V', false, fmt.Sprintf("Show version info for %s", name)).apply(&cfg)
+	errs = errors.Join(errs, err)
+
+	if errs != nil {
+		return nil, errs
 	}
 
 	// Additional validation that can't be done per-option
