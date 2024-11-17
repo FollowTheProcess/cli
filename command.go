@@ -360,7 +360,7 @@ func (c *Command) hasFlag(name string) bool {
 		return false
 	}
 
-	return flag.DefaultValueNoArg != ""
+	return flag.NoArgValue() != ""
 }
 
 // hasShortFlag returns whether the command has a shorthand flag of the given name defined.
@@ -376,7 +376,7 @@ func (c *Command) hasShortFlag(name string) bool {
 		return false
 	}
 
-	return flag.DefaultValueNoArg != ""
+	return flag.NoArgValue() != ""
 }
 
 // subcommandNames returns a list of all the names of the current command's registered subcommands.
