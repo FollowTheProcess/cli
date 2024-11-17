@@ -206,7 +206,7 @@ func (s *Set) Usage() (string, error) {
 		tab.Row(
 			"  %s\t--%s\t%s\t%s\n",
 			colour.Bold(shorthand),
-			colour.Bold(flag.Name()),
+			colour.Bold(name),
 			flag.Type(),
 			flag.Usage(),
 		)
