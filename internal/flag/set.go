@@ -17,17 +17,17 @@ type Set struct {
 	// is not duplicated, it's just two maps to the same pointer so we can look up
 	// using either
 
-	flags      map[string]*Entry // The actual stored flags, can lookup by name
-	shorthands map[rune]*Entry   // The flags by shorthand
-	args       []string          // Arguments minus flags or flag values
-	extra      []string          // Arguments after "--" was hit
+	flags      map[string]Value // The actual stored flags, can lookup by name
+	shorthands map[rune]Value   // The flags by shorthand
+	args       []string         // Arguments minus flags or flag values
+	extra      []string         // Arguments after "--" was hit
 }
 
 // NewSet builds and returns a new set of flags.
 func NewSet() *Set {
 	return &Set{
-		flags:      make(map[string]*Entry),
-		shorthands: make(map[rune]*Entry),
+		flags:      make(map[string]Value),
+		shorthands: make(map[rune]Value),
 	}
 }
 
@@ -36,104 +36,86 @@ func AddToSet[T Flaggable](set *Set, flag Flag[T]) error {
 	if set == nil {
 		return errors.New("cannot add flag to a nil set")
 	}
-	_, exists := set.flags[flag.name]
+	_, exists := set.flags[flag.Name()]
 	if exists {
-		return fmt.Errorf("flag %q already defined", flag.name)
+		return fmt.Errorf("flag %q already defined", flag.Name())
 	}
 
-	if flag.short != NoShortHand {
-		f, exists := set.shorthands[flag.short]
+	if flag.Short() != NoShortHand {
+		f, exists := set.shorthands[flag.Short()]
 		if exists {
-			return fmt.Errorf("shorthand %q already in use for flag %q", string(flag.short), f.Name)
+			return fmt.Errorf("shorthand %q already in use for flag %q", string(flag.Short()), f.Name())
 		}
 	}
 
-	var defaultValueNoArg string
-	switch flag.Type() {
-	case typeBool:
-		// Boolean flags imply passing true, "--force" vs "--force true"
-		defaultValueNoArg = boolTrue
-	case typeCount:
-		// Count flags imply passing 1, "--count --count" or "-cc" should inc by 2
-		defaultValueNoArg = "1"
-	}
-
-	entry := &Entry{
-		Value:             flag,
-		Name:              flag.name,
-		Usage:             flag.usage,
-		DefaultValue:      flag.String(),
-		DefaultValueNoArg: defaultValueNoArg,
-		Shorthand:         flag.short,
-	}
-	set.flags[flag.name] = entry
+	set.flags[flag.Name()] = flag
 
 	// Only add the shorthand if it wasn't opted out of
-	if flag.short != NoShortHand {
-		set.shorthands[flag.short] = entry
+	if flag.Short() != NoShortHand {
+		set.shorthands[flag.Short()] = flag
 	}
 
 	return nil
 }
 
-// Get gets a flag [Entry] from the Set by name and a boolean to indicate
+// Get gets a flag from the Set by name and a boolean to indicate
 // whether it was present.
-func (s *Set) Get(name string) (*Entry, bool) {
+func (s *Set) Get(name string) (Value, bool) {
 	if s == nil {
 		return nil, false
 	}
-	entry, ok := s.flags[name]
+	flag, ok := s.flags[name]
 	if !ok {
 		return nil, false
 	}
-	return entry, true
+	return flag, true
 }
 
-// GetShort gets a flag [Entry] from the Set by it's shorthand and a boolean to indicate
+// GetShort gets a flag from the Set by it's shorthand and a boolean to indicate
 // whether it was present.
-func (s *Set) GetShort(short rune) (*Entry, bool) {
+func (s *Set) GetShort(short rune) (Value, bool) {
 	if s == nil {
 		return nil, false
 	}
-	entry, ok := s.shorthands[short]
+	flag, ok := s.shorthands[short]
 	if !ok {
 		return nil, false
 	}
-	return entry, true
+	return flag, true
 }
 
 // Help returns whether the [Set] has a boolean flag named "help" and what the value
 // of that flag is currently set to, it simplifies checking for --help.
 func (s *Set) Help() (value, ok bool) {
-	entry, exists := s.Get("help")
+	flag, exists := s.Get("help")
 	if !exists {
 		// No help defined
 		return false, false
 	}
 	// Is it a bool flag?
-	if entry.Value.Type() != typeBool {
+	if flag.Type() != typeBool {
 		return false, false
 	}
 	// It is there, we can infer from the string value what it's set to
 	// to avoid unnecessary type conversions
-	return entry.Value.String() == boolTrue, true
+	return flag.String() == boolTrue, true
 }
 
 // Version returns whether the [Set] has a boolean flag named "version" and what the value
 // of that flag is currently set to, it simplifies checking for --version.
 func (s *Set) Version() (value, ok bool) {
-	entry, exists := s.Get("version")
+	flag, exists := s.Get("version")
 	if !exists {
-		// No help defined
+		// No version defined
 		return false, false
 	}
 	// Is it a bool flag?
-	if entry.Value.Type() != typeBool {
+	if flag.Type() != typeBool {
 		return false, false
 	}
 	// It is there, we can infer from the string value what it's set to
 	// to avoid unnecessary type conversions
-	return entry.Value.String() == boolTrue, true
+	return flag.String() == boolTrue, true
 }
 
 // Args returns a slice of all the non-flag arguments, including any
@@ -207,38 +189,24 @@ func (s *Set) Usage() (string, error) {
 	tab := table.New(buf)
 
 	for _, name := range names {
-		entry := s.flags[name]
-		if entry == nil {
-			return "", fmt.Errorf("*Entry stored against key %s was nil", name) // Should never happen
+		flag := s.flags[name]
+		if flag == nil {
+			return "", fmt.Errorf("Value stored against key %s was nil", name) // Should never happen
 		}
 		var shorthand string
-		if entry.Shorthand != NoShortHand {
-			shorthand = fmt.Sprintf("-%s", string(entry.Shorthand))
+		if flag.Short() != NoShortHand {
+			shorthand = fmt.Sprintf("-%s", string(flag.Short()))
 		} else {
 			shorthand = "N/A"
 		}
 
-		if entry.DefaultValue != "" {
-			// Plain string
-			tab.Row(
-				"  %s\t--%s\t%s\t%s [default %s]\n",
-				colour.Bold(shorthand),
-				colour.Bold(entry.Name),
-				entry.Value.Type(),
-				entry.Usage,
-				entry.DefaultValue,
-			)
-		} else {
-			// Empty string so use the quotes
-			tab.Row(
-				"  %s\t--%s\t%s\t%s [default %q]\n",
-				colour.Bold(shorthand),
-				colour.Bold(entry.Name),
-				entry.Value.Type(),
-				entry.Usage,
-				entry.DefaultValue,
-			)
-		}
+		tab.Row(
+			"  %s\t--%s\t%s\t%s\n",
+			colour.Bold(shorthand),
+			colour.Bold(flag.Name()),
+			flag.Type(),
+			flag.Usage(),
+		)
 	}
 
 	if err := tab.Flush(); err != nil {
@@ -246,16 +214,6 @@ func (s *Set) Usage() (string, error) {
 	}
 
 	return buf.String(), nil
-}
-
-// Entry represents a single flag in the set, as stored.
-type Entry struct {
-	Value             Value  // The actual Flag[T]
-	Name              string // The full name of the flag e.g. "delete"
-	Usage             string // The flag's usage message
-	DefaultValue      string // String representation of the default flag value
-	DefaultValueNoArg string // String representation of the default flag value if used without an arg, e.g. boolean flags "--force" implies "--force true"
-	Shorthand         rune   // The optional shorthand e.g. 'd' or [NoShortHand]
 }
 
 // parseLongFlag parses a single long flag e.g. --delete. It is passed
@@ -279,7 +237,7 @@ func (s *Set) parseLongFlag(long string, rest []string) (remaining []string, err
 
 	if containsEquals {
 		// Must be "flag=value"
-		err := flag.Value.Set(value)
+		err := flag.Set(value)
 		if err != nil {
 			return nil, err
 		}
@@ -290,9 +248,9 @@ func (s *Set) parseLongFlag(long string, rest []string) (remaining []string, err
 
 	// Must now either be --flag (boolean) or --flag value
 	switch {
-	case flag.DefaultValueNoArg != "":
+	case flag.NoArgValue() != "":
 		// --flag (boolean)
-		err := flag.Value.Set(flag.DefaultValueNoArg)
+		err := flag.Set(flag.NoArgValue())
 		if err != nil {
 			return nil, err
 		}
@@ -301,7 +259,7 @@ func (s *Set) parseLongFlag(long string, rest []string) (remaining []string, err
 	case len(rest) > 0:
 		// --flag value
 		value := rest[0]
-		err := flag.Value.Set(value)
+		err := flag.Set(value)
 		if err != nil {
 			return nil, err
 		}
@@ -355,7 +313,7 @@ func (s *Set) parseSingleShortFlag(shorthands string, rest []string) (string, []
 		case len(shorthands) > 2 && shorthands[1] == '=':
 			// '-f=value'
 			value := shorthands[2:]
-			err := flag.Value.Set(value)
+			err := flag.Set(value)
 			if err != nil {
 				return "", nil, err
 			}
@@ -363,9 +321,9 @@ func (s *Set) parseSingleShortFlag(shorthands string, rest []string) (string, []
 			// Nothing to trim off the arguments as "-f=value" is all 1 arg
 			return "", rest, nil
 
-		case flag.DefaultValueNoArg != "":
+		case flag.NoArgValue() != "":
 			// -f with implied value e.g. boolean or count
-			err := flag.Value.Set(flag.DefaultValueNoArg)
+			err := flag.Set(flag.NoArgValue())
 			if err != nil {
 				return "", nil, err
 			}
@@ -376,7 +334,7 @@ func (s *Set) parseSingleShortFlag(shorthands string, rest []string) (string, []
 		case len(shorthands) > 1:
 			// '-fvalue'
 			value := shorthands[1:]
-			err := flag.Value.Set(value)
+			err := flag.Set(value)
 			if err != nil {
 				return "", nil, err
 			}
@@ -388,7 +346,7 @@ func (s *Set) parseSingleShortFlag(shorthands string, rest []string) (string, []
 		case len(rest) > 0:
 			// '-f value'
 			value := rest[0]
-			err := flag.Value.Set(value)
+			err := flag.Set(value)
 			if err != nil {
 				return "", nil, err
 			}
@@ -399,7 +357,7 @@ func (s *Set) parseSingleShortFlag(shorthands string, rest []string) (string, []
 
 		default:
 			// '-f' with required value
-			return "", nil, fmt.Errorf("flag %s needs an argument: %q in -%s", flag.Name, string(char), shorthands)
+			return "", nil, fmt.Errorf("flag %s needs an argument: %q in -%s", flag.Name(), string(char), shorthands)
 		}
 	}
 

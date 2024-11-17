@@ -1,2 +1,2 @@
-  -h  --help     bool  Show help for test [default false]
-  -V  --version  bool  Show version info for test [default false]
+  -h  --help     bool  Show help for test
+  -V  --version  bool  Show version info for test
