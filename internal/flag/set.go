@@ -36,23 +36,26 @@ func AddToSet[T Flaggable](set *Set, flag Flag[T]) error {
 	if set == nil {
 		return errors.New("cannot add flag to a nil set")
 	}
-	_, exists := set.flags[flag.Name()]
+	name := flag.Name()
+	short := flag.Short()
+
+	_, exists := set.flags[name]
 	if exists {
-		return fmt.Errorf("flag %q already defined", flag.Name())
+		return fmt.Errorf("flag %q already defined", name)
 	}
 
-	if flag.Short() != NoShortHand {
-		f, exists := set.shorthands[flag.Short()]
+	if short != NoShortHand {
+		f, exists := set.shorthands[short]
 		if exists {
-			return fmt.Errorf("shorthand %q already in use for flag %q", string(flag.Short()), f.Name())
+			return fmt.Errorf("shorthand %q already in use for flag %q", string(short), f.Name())
 		}
 	}
 
-	set.flags[flag.Name()] = flag
+	set.flags[name] = flag
 
 	// Only add the shorthand if it wasn't opted out of
-	if flag.Short() != NoShortHand {
-		set.shorthands[flag.Short()] = flag
+	if short != NoShortHand {
+		set.shorthands[short] = flag
 	}
 
 	return nil
