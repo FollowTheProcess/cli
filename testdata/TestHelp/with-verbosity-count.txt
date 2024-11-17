@@ -1,0 +1,12 @@
+A placeholder for something cool
+
+Usage: test [OPTIONS] SRC [DEST] 
+
+Arguments:
+  src   The file to copy
+  dest  Destination to copy to [default ./dest]
+
+Options:
+  -h  --help       bool   Show help for test
+  -v  --verbosity  count  Increase the verbosity level
+  -V  --version    bool   Show version info for test
