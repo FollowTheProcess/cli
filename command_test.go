@@ -448,6 +448,18 @@ func TestHelp(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "with verbosity count",
+			options: []cli.Option{
+				cli.OverrideArgs([]string{"--help"}),
+				cli.Arg("src", "The file to copy", ""),              // This one is required
+				cli.Arg("dest", "Destination to copy to", "./dest"), // This one is optional
+				cli.Flag(new(cli.FlagCount), "verbosity", 'v', 0, "Increase the verbosity level"),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+			},
+			golden:  "with-verbosity-count.txt",
+			wantErr: false,
+		},
+		{
 			name: "with full description",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--help"}),
