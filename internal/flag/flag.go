@@ -118,6 +118,38 @@ func (f Flag[T]) Get() T {
 	return *f.value
 }
 
+// Name returns the name of the [Flag].
+func (f Flag[T]) Name() string {
+	return f.name
+}
+
+// Short returns the shorthand registered for the flag (e.g. -d for --delete), or
+// NoShortHand if the flag should be long only.
+func (f Flag[T]) Short() rune {
+	return f.short
+}
+
+// Usage returns the usage line for the flag.
+func (f Flag[T]) Usage() string {
+	return f.usage
+}
+
+// NoArgValue returns a string representation of value the flag should hold
+// when it is given no arguments on the command line. For example a boolean flag
+// --delete, when passed without arguments implies --delete true.
+func (f Flag[T]) NoArgValue() string {
+	switch f.Type() {
+	case typeBool:
+		// Boolean flags imply passing true, "--force" vs "--force true"
+		return boolTrue
+	case typeCount:
+		// Count flags imply passing 1, "--count --count" or "-cc" should inc by 2
+		return "1"
+	default:
+		return ""
+	}
+}
+
 // String implements [fmt.Stringer] for a [Flag], and also implements the String
 // part of [Value], allowing a flag to print itself.
 func (f Flag[T]) String() string { //nolint:gocyclo // No other way of doing this realistically
