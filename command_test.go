@@ -8,11 +8,11 @@ import (
 	"io"
 	"math/rand/v2"
 	"os"
-	"path/filepath"
 	"slices"
 	"testing"
 
 	"github.com/FollowTheProcess/cli"
+	"github.com/FollowTheProcess/snapshot"
 	"github.com/FollowTheProcess/test"
 )
 
@@ -403,7 +403,6 @@ func TestHelp(t *testing.T) {
 
 	tests := []struct {
 		name    string       // Identifier of the test case
-		golden  string       // Name of the file containing expected output
 		options []cli.Option // Options to apply to the command
 		wantErr bool         // Whether we want an error
 	}{
@@ -413,7 +412,6 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
-			golden:  "default-help.txt",
 			wantErr: false,
 		},
 		{
@@ -422,7 +420,6 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"-h"}),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
-			golden:  "default-help.txt",
 			wantErr: false,
 		},
 		{
@@ -433,7 +430,6 @@ func TestHelp(t *testing.T) {
 				cli.Example("Do a different thing", "test do thing --different"),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
-			golden:  "with-examples.txt",
 			wantErr: false,
 		},
 		{
@@ -444,7 +440,6 @@ func TestHelp(t *testing.T) {
 				cli.Arg("dest", "Destination to copy to", "./dest"), // This one is optional
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
-			golden:  "with-named-arguments.txt",
 			wantErr: false,
 		},
 		{
@@ -456,7 +451,6 @@ func TestHelp(t *testing.T) {
 				cli.Flag(new(cli.FlagCount), "verbosity", 'v', 0, "Increase the verbosity level"),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
-			golden:  "with-verbosity-count.txt",
 			wantErr: false,
 		},
 		{
@@ -467,7 +461,6 @@ func TestHelp(t *testing.T) {
 				cli.Long("A longer, probably multiline description"),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
-			golden:  "full.txt",
 			wantErr: false,
 		},
 		{
@@ -476,7 +469,6 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
-			golden:  "no-about.txt",
 			wantErr: false,
 		},
 		{
@@ -487,7 +479,6 @@ func TestHelp(t *testing.T) {
 				cli.Long("A longer, probably multiline description"),
 				cli.SubCommands(sub1, sub2),
 			},
-			golden:  "subcommands.txt",
 			wantErr: false,
 		},
 		{
@@ -498,7 +489,6 @@ func TestHelp(t *testing.T) {
 				cli.Long("A longer, probably multiline description"),
 				cli.SubCommands(sub1, sub2, sub3),
 			},
-			golden:  "subcommands-different-lengths.txt",
 			wantErr: false,
 		},
 		{
@@ -511,7 +501,6 @@ func TestHelp(t *testing.T) {
 				cli.Flag(new(bool), "delete", 'd', false, "Delete something"),
 				cli.Flag(new(int), "count", cli.NoShortHand, -1, "Count something"),
 			},
-			golden:  "subcommands-flags.txt",
 			wantErr: false,
 		},
 	}
@@ -521,10 +510,10 @@ func TestHelp(t *testing.T) {
 			// Force no colour in tests
 			t.Setenv("NO_COLOR", "true")
 
+			snap := snapshot.New(t, snapshot.Update(*update))
+
 			stderr := &bytes.Buffer{}
 			stdout := &bytes.Buffer{}
-
-			golden := filepath.Join(test.Data(t), "TestHelp", tt.golden)
 
 			// Test specific overrides to the options in the table
 			options := []cli.Option{cli.Stdout(stdout), cli.Stderr(stderr)}
@@ -540,17 +529,11 @@ func TestHelp(t *testing.T) {
 				fmt.Printf("DEBUG\n_____\n\n%s\n", stderr.String())
 			}
 
-			if *update {
-				t.Logf("Updating %s\n", golden)
-				err := os.WriteFile(golden, stderr.Bytes(), os.ModePerm)
-				test.Ok(t, err)
-			}
-
 			// Should have no output to stdout
 			test.Equal(t, stdout.String(), "")
 
-			// --help output should be as per the golden file
-			test.File(t, stderr.String(), golden)
+			// --help output should be as per the snapshot
+			snap.Snap(stderr.String())
 		})
 	}
 }
