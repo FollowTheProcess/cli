@@ -3,12 +3,11 @@ package flag_test
 import (
 	goflag "flag"
 	"fmt"
-	"os"
-	"path/filepath"
 	"slices"
 	"testing"
 
 	"github.com/FollowTheProcess/cli/internal/flag"
+	"github.com/FollowTheProcess/snapshot"
 	"github.com/FollowTheProcess/test"
 )
 
@@ -1310,7 +1309,6 @@ func TestUsage(t *testing.T) {
 	tests := []struct {
 		newSet func(t *testing.T) *flag.Set // Function to build the flag set under test
 		name   string                       // Name of the test case
-		golden string                       // Name of the file containing expected output
 	}{
 		{
 			name: "simple",
@@ -1332,7 +1330,6 @@ func TestUsage(t *testing.T) {
 
 				return set
 			},
-			golden: "simple.txt",
 		},
 		{
 			name: "no shorthand",
@@ -1360,7 +1357,6 @@ func TestUsage(t *testing.T) {
 
 				return set
 			},
-			golden: "no-shorthand.txt",
 		},
 		{
 			name: "full",
@@ -1400,7 +1396,6 @@ func TestUsage(t *testing.T) {
 
 				return set
 			},
-			golden: "full.txt",
 		},
 	}
 
@@ -1408,8 +1403,9 @@ func TestUsage(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Force no colour in tests
 			t.Setenv("NO_COLOR", "true")
+
+			snap := snapshot.New(t, snapshot.Update(*update))
 			set := tt.newSet(t)
-			golden := filepath.Join(test.Data(t), "TestUsage", tt.golden)
 
 			got, err := set.Usage()
 			test.Ok(t, err)
@@ -1418,13 +1414,7 @@ func TestUsage(t *testing.T) {
 				fmt.Printf("DEBUG (%s)\n_____\n\n%s\n", tt.name, got)
 			}
 
-			if *update {
-				t.Logf("Updating %s\n", golden)
-				err := os.WriteFile(golden, []byte(got), os.ModePerm)
-				test.Ok(t, err)
-			}
-
-			test.File(t, got, golden)
+			snap.Snap(got)
 		})
 	}
 }
