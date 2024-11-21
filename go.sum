@@ -1,3 +1,5 @@
+github.com/FollowTheProcess/snapshot v0.1.0 h1:G5tWpBXVre6cTrmN1OWZLiTnqEi9IKLiewtQQYOnQqc=
+github.com/FollowTheProcess/snapshot v0.1.0/go.mod h1:sJv2oq83QK5Yj6+JVts8fQIaAJjQfsxN/WtGqX8oKIg=
 github.com/FollowTheProcess/test v0.17.1 h1:j4TkMqzxvYoyAP9alaTNPgKOPUJHOBCs0z4fNJb7Kr0=
 github.com/FollowTheProcess/test v0.17.1/go.mod h1:LlRdAk8bwBZ5kP10xHOcOTknNUrHU347IH7RgAm2Dgs=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
