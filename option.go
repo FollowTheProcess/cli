@@ -425,8 +425,7 @@ func Flag[T Flaggable](p *T, name string, short rune, value T, usage string) Opt
 // This is the only [Option] for which the order of calls matter, each call to Arg effectively appends a
 // named positional argument so the following:
 //
-//	cli.New("cp", cli.Arg("src", "The file to copy", ""))
-//	cli.New("cp", cli.Arg("dest", "Where to copy to", ""))
+//	cli.New("cp", cli.Arg("src", "The file to copy", ""), cli.Arg("dest", "Where to copy to", ""))
 //
 // results in a command that will expect the following args *in order*
 //
