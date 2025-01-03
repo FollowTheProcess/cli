@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"slices"
+	"strings"
 
 	"github.com/FollowTheProcess/cli/internal/flag"
 )
@@ -162,6 +163,8 @@ func Stderr(stderr io.Writer) Option {
 // The one line usage will appear in the help text as well as alongside
 // subcommands when they are listed.
 //
+// For consistency of formatting, all leading and trailing whitespace is stripped.
+//
 // Successive calls will simply overwrite any previous calls.
 //
 //	cli.New("rm", cli.Short("Delete files and directories"))
@@ -170,7 +173,7 @@ func Short(short string) Option {
 		if short == "" {
 			return errors.New("cannot set command short description to an empty string")
 		}
-		cfg.short = short
+		cfg.short = strings.TrimSpace(short)
 		return nil
 	}
 	return option(f)
@@ -181,6 +184,8 @@ func Short(short string) Option {
 // The long description will appear in the help text for a command. Users
 // are responsible for wrapping the text at a sensible width.
 //
+// For consistency of formatting, all leading and trailing whitespace is stripped.
+//
 // Successive calls will simply overwrite any previous calls.
 //
 //	cli.New("rm", cli.Long("... lots of text here"))
@@ -189,7 +194,7 @@ func Long(long string) Option {
 		if long == "" {
 			return errors.New("cannot set command long description to an empty string")
 		}
-		cfg.long = long
+		cfg.long = strings.TrimSpace(long)
 		return nil
 	}
 	return option(f)

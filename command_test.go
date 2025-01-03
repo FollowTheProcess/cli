@@ -415,7 +415,7 @@ func TestHelp(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "default.short",
+			name: "default short",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"-h"}),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
@@ -459,6 +459,16 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.Short("A cool CLI to do things"),
 				cli.Long("A longer, probably multiline description"),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+			},
+			wantErr: false,
+		},
+		{
+			name: "full description strip whitespace",
+			options: []cli.Option{
+				cli.OverrideArgs([]string{"--help"}),
+				cli.Short("  \t\n A cool CLI to do things   \n "),
+				cli.Long("  \t\n\n A longer, probably multiline description \t\n\n "),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			wantErr: false,

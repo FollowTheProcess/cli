@@ -1,0 +1,9 @@
+A cool CLI to do things
+
+A longer, probably multiline description
+
+Usage: test [OPTIONS] ARGS...
+
+Options:
+  -h  --help     bool  Show help for test
+  -V  --version  bool  Show version info for test

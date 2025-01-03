@@ -424,7 +424,7 @@ type signed interface {
 	~int | ~int8 | ~int16 | ~int32 | ~int64
 }
 
-// unsigned is the same as constraints.Unsigned but we don't hve to depend
+// unsigned is the same as constraints.Unsigned but we don't have to depend
 // on golang/x/exp.
 type unsigned interface {
 	~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr
@@ -456,7 +456,7 @@ func cast[T2 any, T1 any](v *T1) *T2 {
 
 // validateFlagName ensures a flag name is valid, returning an error if it's not.
 //
-// Flags names must be all lower case ASCII letters, a hypen separator is allowed e.g. "set-default"
+// Flags names must be all lower case ASCII letters, a hyphen separator is allowed e.g. "set-default"
 // but this must be in between letters, not leading or trailing.
 func validateFlagName(name string) error {
 	if name == "" {
