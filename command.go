@@ -260,7 +260,7 @@ func (c *Command) Execute() error {
 
 			// If we've fallen off the end of argsWithoutFlags and the positionalArg at this
 			// index does not have a default, it means the arg was required but not provided
-			if arg.defaultValue == "" {
+			if arg.defaultValue == requiredArgMarker {
 				return fmt.Errorf("missing required argument %q, expected at position %d", arg.name, i)
 			}
 			// It does have a default, so use that instead
@@ -574,7 +574,7 @@ func defaultHelp(cmd *Command) error {
 func writePositionalArgs(cmd *Command, s *strings.Builder) {
 	for _, arg := range cmd.positionalArgs {
 		displayName := strings.ToUpper(arg.name)
-		if arg.defaultValue != "" {
+		if arg.defaultValue != requiredArgMarker {
 			// If it has a default, it's an optional argument so wrap it
 			// in brackets e.g. [FILE]
 			s.WriteString("[")
@@ -596,10 +596,13 @@ func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 	s.WriteString("\n")
 	tab := table.New(s)
 	for _, arg := range cmd.positionalArgs {
-		if arg.defaultValue != "" {
-			tab.Row("  %s\t%s [default %s]\n", colour.Bold(arg.name), arg.description, arg.defaultValue)
-		} else {
+		switch arg.defaultValue {
+		case requiredArgMarker:
+			tab.Row("  %s\t%s [required]\n", colour.Bold(arg.name), arg.description)
+		case "":
 			tab.Row("  %s\t%s\n", colour.Bold(arg.name), arg.description)
+		default:
+			tab.Row("  %s\t%s [default %s]\n", colour.Bold(arg.name), arg.description, arg.defaultValue)
 		}
 	}
 	if err := tab.Flush(); err != nil {
