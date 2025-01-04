@@ -600,7 +600,7 @@ func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 		case requiredArgMarker:
 			tab.Row("  %s\t%s [required]\n", colour.Bold(arg.name), arg.description)
 		case "":
-			tab.Row("  %s\t%s\n", colour.Bold(arg.name), arg.description)
+			tab.Row("  %s\t%s [default %q]\n", colour.Bold(arg.name), arg.description, arg.defaultValue)
 		default:
 			tab.Row("  %s\t%s [default %s]\n", colour.Bold(arg.name), arg.description, arg.defaultValue)
 		}
