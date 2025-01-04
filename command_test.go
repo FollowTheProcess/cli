@@ -232,7 +232,7 @@ func TestPositionalArgs(t *testing.T) {
 		return cli.New(
 			"sub",
 			cli.Short("Sub command"),
-			cli.Arg("subarg", "Argument given to a subcommand", ""),
+			cli.RequiredArg("subarg", "Argument given to a subcommand"),
 			cli.Run(func(cmd *cli.Command, args []string) error {
 				fmt.Fprintf(cmd.Stdout(), "Hello from sub command, subarg: %s", cmd.Arg("subarg"))
 				return nil
@@ -251,7 +251,7 @@ func TestPositionalArgs(t *testing.T) {
 		{
 			name: "required and given",
 			options: []cli.Option{
-				cli.Arg("file", "The path to a file", ""), // "" means required
+				cli.RequiredArg("file", "The path to a file"),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
 					return nil
@@ -264,7 +264,7 @@ func TestPositionalArgs(t *testing.T) {
 		{
 			name: "required but missing",
 			options: []cli.Option{
-				cli.Arg("file", "The path to a file", ""), // "" means required
+				cli.RequiredArg("file", "The path to a file"),
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
 					return nil
@@ -278,7 +278,7 @@ func TestPositionalArgs(t *testing.T) {
 		{
 			name: "optional and given",
 			options: []cli.Option{
-				cli.Arg("file", "The path to a file", "default.txt"), // This time it has a default
+				cli.OptionalArg("file", "The path to a file", "default.txt"), // This time it has a default
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
 					return nil
@@ -291,7 +291,7 @@ func TestPositionalArgs(t *testing.T) {
 		{
 			name: "optional and missing",
 			options: []cli.Option{
-				cli.Arg("file", "The path to a file", "default.txt"), // This time it has a default
+				cli.OptionalArg("file", "The path to a file", "default.txt"), // This time it has a default
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
 					return nil
@@ -304,9 +304,9 @@ func TestPositionalArgs(t *testing.T) {
 		{
 			name: "several args all given",
 			options: []cli.Option{
-				cli.Arg("src", "The path to the source file", ""),   // File required as first arg
-				cli.Arg("dest", "The destination path", "dest.txt"), // Dest has a default
-				cli.Arg("something", "Another arg", ""),             // Required again
+				cli.RequiredArg("src", "The path to the source file"),       // File required as first arg
+				cli.OptionalArg("dest", "The destination path", "dest.txt"), // Dest has a default
+				cli.RequiredArg("something", "Another arg"),                 // Required again
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintf(cmd.Stdout(), "src: %s, dest: %s, something: %s\n", cmd.Arg("src"), cmd.Arg("dest"), cmd.Arg("something"))
 					return nil
@@ -319,9 +319,9 @@ func TestPositionalArgs(t *testing.T) {
 		{
 			name: "several args one missing",
 			options: []cli.Option{
-				cli.Arg("src", "The path to the source file", ""),           // File required as first arg
-				cli.Arg("dest", "The destination path", "default-dest.txt"), // Dest has a default
-				cli.Arg("something", "Another arg", ""),                     // Required again
+				cli.RequiredArg("src", "The path to the source file"),               // File required as first arg
+				cli.OptionalArg("dest", "The destination path", "default-dest.txt"), // Dest has a default
+				cli.RequiredArg("something", "Another arg"),                         // Required again
 				cli.Run(func(cmd *cli.Command, args []string) error {
 					fmt.Fprintf(cmd.Stdout(), "src: %s, dest: %s, something: %s\n", cmd.Arg("src"), cmd.Arg("dest"), cmd.Arg("something"))
 					return nil
@@ -436,8 +436,8 @@ func TestHelp(t *testing.T) {
 			name: "with named arguments",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--help"}),
-				cli.Arg("src", "The file to copy", ""),              // This one is required
-				cli.Arg("dest", "Destination to copy to", "./dest"), // This one is optional
+				cli.RequiredArg("src", "The file to copy"),                  // This one is required
+				cli.OptionalArg("dest", "Destination to copy to", "./dest"), // This one is optional
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			wantErr: false,
@@ -446,8 +446,8 @@ func TestHelp(t *testing.T) {
 			name: "with verbosity count",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--help"}),
-				cli.Arg("src", "The file to copy", ""),              // This one is required
-				cli.Arg("dest", "Destination to copy to", "./dest"), // This one is optional
+				cli.RequiredArg("src", "The file to copy"),                  // This one is required
+				cli.OptionalArg("dest", "Destination to copy to", "./dest"), // This one is optional
 				cli.Flag(new(cli.FlagCount), "verbosity", 'v', 0, "Increase the verbosity level"),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},

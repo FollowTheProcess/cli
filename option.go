@@ -418,28 +418,66 @@ func Flag[T Flaggable](p *T, name string, short rune, value T, usage string) Opt
 	return option(f)
 }
 
-// Arg is an [Option] that adds a named positional argument to a [Command].
+// RequiredArg is an [Option] that adds a required named positional argument to a [Command].
 //
-// A named argument is given a name, description and a default value, a default of ""
-// marks the argument as required.
+// A required named argument is given a name, and a description that will be shown in
+// the help text. Failure to provide this argument on the command line when the command is
+// invoked will result in an error from [Command.Execute].
 //
-// If an argument without a default is provided on the command line, the provided value is used, if
-// it doesn't have a default and the value isn't given on the command line, [Command.Execute] will
-// return an informative error saying which one is missing.
+// The order of calls matters, each call to RequiredArg effectively appends a required, named
+// positional argument to the command so the following:
 //
-// This is the only [Option] for which the order of calls matter, each call to Arg effectively appends a
-// named positional argument so the following:
-//
-//	cli.New("cp", cli.Arg("src", "The file to copy", ""), cli.Arg("dest", "Where to copy to", ""))
+//	cli.New(
+//	    "cp",
+//	    cli.RequiredArg("src", "The file to copy"),
+//	    cli.RequiredArg("dest", "Where to copy to"),
+//	)
 //
 // results in a command that will expect the following args *in order*
 //
 //	cp src.txt dest.txt
 //
-// Arguments added to the command with Arg may be retrieved by name from within command logic with [Command.Arg].
-func Arg(name, description, value string) Option {
-	// TODO(@FollowTheProcess): Not entirely happy with the "" meaning required
-	// I wonder if we should have Arg and ArgWithDefault?
+// If the argument should have a default value if not specified on the command line, use [OptionalArg].
+//
+// Arguments added to the command may be retrieved by name from within command logic with [Command.Arg].
+func RequiredArg(name, description string) Option {
+	// TODO(@FollowTheProcess): Validation
+	f := func(cfg *config) error {
+		arg := positionalArg{
+			name:        name,
+			description: description,
+		}
+		cfg.positionalArgs = append(cfg.positionalArgs, arg)
+		return nil
+	}
+
+	return option(f)
+}
+
+// OptionalArg is an [Option] that adds a named positional argument, with a default value, to a [Command].
+//
+// An optional named argument is given a name, a description, and a default value that will be shown in
+// the help text. If the argument isn't given when the command is invoke, the default value is used
+// in it's place.
+//
+// The order of calls matters, each call to OptionalArg effectively appends an optional, named
+// positional argument to the command so the following:
+//
+//	cli.New(
+//	    "cp",
+//	    cli.OptionalArg("src", "The file to copy", "./default-src.txt"),
+//	    cli.OptionalArg("dest", "Where to copy to", "./default-dest.txt"),
+//	)
+//
+// results in a command that will expect the following args *in order*
+//
+//	cp src.txt dest.txt
+//
+// If the argument should be required (e.g. no sensible default), use [RequiredArg].
+//
+// Arguments added to the command may be retrieved by name from within command logic with [Command.Arg].
+func OptionalArg(name, description, value string) Option {
+	// TODO(@FollowTheProcess): Validation, value cannot be ""
 	f := func(cfg *config) error {
 		arg := positionalArg{
 			name:         name,
