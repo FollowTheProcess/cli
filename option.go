@@ -44,6 +44,12 @@ func (o option) apply(cfg *config) error {
 	return o(cfg)
 }
 
+// requiredArgMarker is a special string designed to be used as the default value for
+// a required positional argument. This is so we know the argument was required, but still
+// permits the use of the empty string "" as a default. Without this marker, omitting the default
+// value or setting it to the string zero value would accidentally mark it as required.
+const requiredArgMarker = "<required>"
+
 // config represents the internal configuration of a [Command].
 type config struct {
 	stdin          io.Reader
@@ -441,11 +447,17 @@ func Flag[T Flaggable](p *T, name string, short rune, value T, usage string) Opt
 //
 // Arguments added to the command may be retrieved by name from within command logic with [Command.Arg].
 func RequiredArg(name, description string) Option {
-	// TODO(@FollowTheProcess): Validation
 	f := func(cfg *config) error {
+		if name == "" {
+			return errors.New("invalid name for positional argument, must be non-empty string")
+		}
+		if description == "" {
+			return errors.New("invalid description for positional argument, must be non-empty string")
+		}
 		arg := positionalArg{
-			name:        name,
-			description: description,
+			name:         name,
+			description:  description,
+			defaultValue: requiredArgMarker, // Internal marker
 		}
 		cfg.positionalArgs = append(cfg.positionalArgs, arg)
 		return nil
@@ -477,8 +489,13 @@ func RequiredArg(name, description string) Option {
 //
 // Arguments added to the command may be retrieved by name from within command logic with [Command.Arg].
 func OptionalArg(name, description, value string) Option {
-	// TODO(@FollowTheProcess): Validation, value cannot be ""
 	f := func(cfg *config) error {
+		if name == "" {
+			return errors.New("invalid name for positional argument, must be non-empty string")
+		}
+		if description == "" {
+			return errors.New("invalid description for positional argument, must be non-empty string")
+		}
 		arg := positionalArg{
 			name:         name,
 			description:  description,

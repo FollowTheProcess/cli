@@ -289,6 +289,32 @@ func TestPositionalArgs(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "optional given with empty string default",
+			options: []cli.Option{
+				cli.OptionalArg("file", "The path to a file", ""), // Default is empty string
+				cli.Run(func(cmd *cli.Command, args []string) error {
+					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
+					return nil
+				}),
+			},
+			stdout:  "file was something.txt\n",
+			args:    []string{"something.txt"},
+			wantErr: false,
+		},
+		{
+			name: "optional missing with empty string default",
+			options: []cli.Option{
+				cli.OptionalArg("file", "The path to a file", ""), // Default is empty string
+				cli.Run(func(cmd *cli.Command, args []string) error {
+					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
+					return nil
+				}),
+			},
+			stdout:  "file was \n", // Empty string
+			args:    []string{},
+			wantErr: false,
+		},
+		{
 			name: "optional and missing",
 			options: []cli.Option{
 				cli.OptionalArg("file", "The path to a file", "default.txt"), // This time it has a default
@@ -682,7 +708,7 @@ func TestVersion(t *testing.T) {
 func TestOptionValidation(t *testing.T) {
 	tests := []struct {
 		name    string       // Name of the test case
-		errMsg  string       // If we wanted an error, what should it say
+		errMsg  string       // Expected error message
 		options []cli.Option // Options to apply to the command
 	}{
 		{
@@ -706,7 +732,7 @@ func TestOptionValidation(t *testing.T) {
 			errMsg:  "cannot set Stdout to nil\ncannot set Stderr to nil\ncannot set Stdin to nil",
 		},
 		{
-			name:    "nil args",
+			name:    "nil override args",
 			options: []cli.Option{cli.OverrideArgs(nil)},
 			errMsg:  "cannot set Args to nil",
 		},
@@ -761,13 +787,33 @@ func TestOptionValidation(t *testing.T) {
 			options: []cli.Option{cli.Long("")},
 			errMsg:  "cannot set command long description to an empty string",
 		},
+		{
+			name:    "empty required arg name",
+			options: []cli.Option{cli.RequiredArg("", "empty required arg")},
+			errMsg:  "invalid name for positional argument, must be non-empty string",
+		},
+		{
+			name:    "empty required arg description",
+			options: []cli.Option{cli.RequiredArg("name", "")},
+			errMsg:  "invalid description for positional argument, must be non-empty string",
+		},
+		{
+			name:    "empty optional arg name",
+			options: []cli.Option{cli.OptionalArg("", "empty required arg", "")},
+			errMsg:  "invalid name for positional argument, must be non-empty string",
+		},
+		{
+			name:    "empty optional arg description",
+			options: []cli.Option{cli.OptionalArg("name", "", "")},
+			errMsg:  "invalid description for positional argument, must be non-empty string",
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := cli.New("test", tt.options...)
-			test.Err(t, err)
-			test.Equal(t, err.Error(), tt.errMsg)
+			test.Err(t, err)                      // Invalid option should have triggered an error
+			test.Equal(t, err.Error(), tt.errMsg) // Error message was not as expected
 		})
 	}
 }
