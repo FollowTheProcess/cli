@@ -1,2 +1,3 @@
 ignore:
   - examples # Demo programs to showcase the library, coverage tracking not needed
+  - internal/colour # Done this a bunch of times, annoying to test because of $FORCE_COLOR and $NO_COLOR and sync.OnceValues
