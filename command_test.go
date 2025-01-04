@@ -464,6 +464,7 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.RequiredArg("src", "The file to copy"),                  // This one is required
 				cli.OptionalArg("dest", "Destination to copy to", "./dest"), // This one is optional
+				cli.OptionalArg("other", "Something else", ""),              // This is optional but default is empty
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			wantErr: false,
