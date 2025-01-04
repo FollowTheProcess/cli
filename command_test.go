@@ -543,16 +543,17 @@ func TestHelp(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Force no colour in tests
-			t.Setenv("NO_COLOR", "true")
-
 			snap := snapshot.New(t, snapshot.Update(*update))
 
 			stderr := &bytes.Buffer{}
 			stdout := &bytes.Buffer{}
 
 			// Test specific overrides to the options in the table
-			options := []cli.Option{cli.Stdout(stdout), cli.Stderr(stderr)}
+			options := []cli.Option{
+				cli.Stdout(stdout),
+				cli.Stderr(stderr),
+				cli.NoColour(true),
+			}
 
 			cmd, err := cli.New("test", slices.Concat(options, tt.options)...)
 
@@ -681,14 +682,15 @@ func TestVersion(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Force no colour in tests
-			t.Setenv("NO_COLOR", "true")
-
 			stderr := &bytes.Buffer{}
 			stdout := &bytes.Buffer{}
 
 			// Test specific overrides to the options in the table
-			options := []cli.Option{cli.Stdout(stdout), cli.Stderr(stderr)}
+			options := []cli.Option{
+				cli.Stdout(stdout),
+				cli.Stderr(stderr),
+				cli.NoColour(true),
+			}
 
 			cmd, err := cli.New("version-test", slices.Concat(tt.options, options)...)
 			test.Ok(t, err)

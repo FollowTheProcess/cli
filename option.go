@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/FollowTheProcess/cli/internal/colour"
 	"github.com/FollowTheProcess/cli/internal/flag"
 )
 
@@ -159,6 +160,21 @@ func Stderr(stderr io.Writer) Option {
 			return errors.New("cannot set Stderr to nil")
 		}
 		cfg.stderr = stderr
+		return nil
+	}
+	return option(f)
+}
+
+// NoColour is an [Option] that disables all colour output from the [Command].
+//
+// CLI respects the values of $NO_COLOR and $FORCE_COLOR automatically so this need
+// not be set for most applications.
+//
+// Setting this option takes precedence over all other colour configuration.
+func NoColour(noColour bool) Option {
+	f := func(cfg *config) error {
+		// Just disable the internal colour package entirely
+		colour.Disable = noColour
 		return nil
 	}
 	return option(f)
