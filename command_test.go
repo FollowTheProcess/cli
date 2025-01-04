@@ -464,6 +464,7 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.RequiredArg("src", "The file to copy"),                  // This one is required
 				cli.OptionalArg("dest", "Destination to copy to", "./dest"), // This one is optional
+				cli.OptionalArg("other", "Something else", ""),              // This is optional but default is empty
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			wantErr: false,
@@ -543,16 +544,17 @@ func TestHelp(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Force no colour in tests
-			t.Setenv("NO_COLOR", "true")
-
 			snap := snapshot.New(t, snapshot.Update(*update))
 
 			stderr := &bytes.Buffer{}
 			stdout := &bytes.Buffer{}
 
 			// Test specific overrides to the options in the table
-			options := []cli.Option{cli.Stdout(stdout), cli.Stderr(stderr)}
+			options := []cli.Option{
+				cli.Stdout(stdout),
+				cli.Stderr(stderr),
+				cli.NoColour(true),
+			}
 
 			cmd, err := cli.New("test", slices.Concat(options, tt.options)...)
 
@@ -681,14 +683,15 @@ func TestVersion(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Force no colour in tests
-			t.Setenv("NO_COLOR", "true")
-
 			stderr := &bytes.Buffer{}
 			stdout := &bytes.Buffer{}
 
 			// Test specific overrides to the options in the table
-			options := []cli.Option{cli.Stdout(stdout), cli.Stderr(stderr)}
+			options := []cli.Option{
+				cli.Stdout(stdout),
+				cli.Stderr(stderr),
+				cli.NoColour(true),
+			}
 
 			cmd, err := cli.New("version-test", slices.Concat(tt.options, options)...)
 			test.Ok(t, err)
