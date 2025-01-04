@@ -18,8 +18,8 @@ func run() error {
 	cmd, err := cli.New(
 		"copy", // A fictional copy command
 		cli.Short("Copy a file from a src to a destination"),
-		cli.Arg("src", "The file to copy from", ""),             // "" as default value means required
-		cli.Arg("dest", "The destination to copy to", "./dest"), // dest has a default if not provided
+		cli.RequiredArg("src", "The file to copy from"),                 // src is required, failure to provide it will error
+		cli.OptionalArg("dest", "The destination to copy to", "./dest"), // dest has a default if not provided
 		cli.Stdout(os.Stdout),
 		cli.Example("Copy a file to somewhere", "copy src.txt ./some/where/else"),
 		cli.Example("Use the default destination", "copy src.txt"),
