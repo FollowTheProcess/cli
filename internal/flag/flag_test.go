@@ -528,7 +528,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = ipFlag.Set("192.0.2.1")
 		test.Ok(t, err)
-		test.Diff(t, ipFlag.Get(), net.ParseIP("192.0.2.1"))
+		test.DiffBytes(t, ipFlag.Get(), net.ParseIP("192.0.2.1"))
 		test.Equal(t, ipFlag.Type(), "ip")
 		test.Equal(t, ipFlag.String(), "192.0.2.1")
 	})
