@@ -6,6 +6,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/FollowTheProcess/cli/internal/colour"
 	"github.com/FollowTheProcess/cli/internal/flag"
 	"github.com/FollowTheProcess/snapshot"
 	"github.com/FollowTheProcess/test"
@@ -1401,11 +1402,10 @@ func TestUsage(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Force no colour in tests
-			t.Setenv("NO_COLOR", "true")
-
 			snap := snapshot.New(t, snapshot.Update(*update))
 			set := tt.newSet(t)
+
+			colour.Disable = true // For testing
 
 			got, err := set.Usage()
 			test.Ok(t, err)
