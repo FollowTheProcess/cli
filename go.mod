@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/FollowTheProcess/snapshot v0.3.0
-	github.com/FollowTheProcess/test v0.19.1
+	github.com/FollowTheProcess/test v0.19.2
 )
 
 require (
