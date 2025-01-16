@@ -120,24 +120,59 @@ func TestSubCommandExecute(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "invoke sub1 with arg terminator",
-			stdout:  "Hello from sub1, my args were: [my subcommand args more args here], force was true, something was here, extra args: [more args here]",
-			stderr:  "",
-			args:    []string{"sub1", "my", "subcommand", "args", "--force", "--something", "here", "--", "more", "args", "here"},
+			name:   "invoke sub1 with arg terminator",
+			stdout: "Hello from sub1, my args were: [my subcommand args more args here], force was true, something was here, extra args: [more args here]",
+			stderr: "",
+			args: []string{
+				"sub1",
+				"my",
+				"subcommand",
+				"args",
+				"--force",
+				"--something",
+				"here",
+				"--",
+				"more",
+				"args",
+				"here",
+			},
 			wantErr: false,
 		},
 		{
-			name:    "invoke sub1 with sub1 in the arg list",
-			stdout:  "Hello from sub1, my args were: [my sub1 args sub1 more args here], force was true, something was here, extra args: []",
-			stderr:  "",
-			args:    []string{"sub1", "my", "sub1", "args", "sub1", "--force", "--something", "here", "more", "args", "here"},
+			name:   "invoke sub1 with sub1 in the arg list",
+			stdout: "Hello from sub1, my args were: [my sub1 args sub1 more args here], force was true, something was here, extra args: []",
+			stderr: "",
+			args: []string{
+				"sub1",
+				"my",
+				"sub1",
+				"args",
+				"sub1",
+				"--force",
+				"--something",
+				"here",
+				"more",
+				"args",
+				"here",
+			},
 			wantErr: false,
 		},
 		{
-			name:    "invoke sub1 with sub1 as a flag value",
-			stdout:  "Hello from sub1, my args were: [my subcommand args more args here], force was true, something was sub2, extra args: []",
-			stderr:  "",
-			args:    []string{"sub1", "my", "subcommand", "args", "--force", "--something", "sub2", "more", "args", "here"},
+			name:   "invoke sub1 with sub1 as a flag value",
+			stdout: "Hello from sub1, my args were: [my subcommand args more args here], force was true, something was sub2, extra args: []",
+			stderr: "",
+			args: []string{
+				"sub1",
+				"my",
+				"subcommand",
+				"args",
+				"--force",
+				"--something",
+				"sub2",
+				"more",
+				"args",
+				"here",
+			},
 			wantErr: false,
 		},
 		{
@@ -334,7 +369,13 @@ func TestPositionalArgs(t *testing.T) {
 				cli.OptionalArg("dest", "The destination path", "dest.txt"), // Dest has a default
 				cli.RequiredArg("something", "Another arg"),                 // Required again
 				cli.Run(func(cmd *cli.Command, args []string) error {
-					fmt.Fprintf(cmd.Stdout(), "src: %s, dest: %s, something: %s\n", cmd.Arg("src"), cmd.Arg("dest"), cmd.Arg("something"))
+					fmt.Fprintf(
+						cmd.Stdout(),
+						"src: %s, dest: %s, something: %s\n",
+						cmd.Arg("src"),
+						cmd.Arg("dest"),
+						cmd.Arg("something"),
+					)
 					return nil
 				}),
 			},
@@ -349,7 +390,13 @@ func TestPositionalArgs(t *testing.T) {
 				cli.OptionalArg("dest", "The destination path", "default-dest.txt"), // Dest has a default
 				cli.RequiredArg("something", "Another arg"),                         // Required again
 				cli.Run(func(cmd *cli.Command, args []string) error {
-					fmt.Fprintf(cmd.Stdout(), "src: %s, dest: %s, something: %s\n", cmd.Arg("src"), cmd.Arg("dest"), cmd.Arg("something"))
+					fmt.Fprintf(
+						cmd.Stdout(),
+						"src: %s, dest: %s, something: %s\n",
+						cmd.Arg("src"),
+						cmd.Arg("dest"),
+						cmd.Arg("something"),
+					)
 					return nil
 				}),
 			},
