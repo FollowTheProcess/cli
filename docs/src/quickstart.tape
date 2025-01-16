@@ -60,8 +60,8 @@ Output ./docs/img/quickstart.gif
 
 Set Shell fish
 Set FontSize 18
-Set FontFamily "SFMono Nerd Font"
-Set Theme "Catppuccin Mocha"
+Set FontFamily "Geist Mono"
+Set Theme "Catppuccin Macchiato"
 Set WindowBar Colorful
 Set Padding 5
 Set Height 800
