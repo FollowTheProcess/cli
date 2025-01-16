@@ -31,7 +31,7 @@ tasks:
         msg: golines not installed, see https://github.com/segmentio/golines
     cmds:
       - go fmt ./...
-      - golines . --ignore-generated --write-output --max-len 140
+      - golines . --ignore-generated --write-output --max-len 120
 
   test:
     desc: Run the test suite

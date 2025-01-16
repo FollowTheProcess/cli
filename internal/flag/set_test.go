@@ -72,7 +72,12 @@ func TestParse(t *testing.T) {
 				test.False(t, exists)
 				test.Equal(t, f, nil)
 
-				test.EqualFunc(t, set.Args(), []string{"some", "args", "here", "no", "flags", "extra", "args"}, slices.Equal)
+				test.EqualFunc(
+					t,
+					set.Args(),
+					[]string{"some", "args", "here", "no", "flags", "extra", "args"},
+					slices.Equal,
+				)
 				test.EqualFunc(t, set.ExtraArgs(), []string{"extra", "args"}, slices.Equal)
 			},
 			args:    []string{"some", "args", "here", "no", "flags", "--", "extra", "args"},
