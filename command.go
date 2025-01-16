@@ -598,11 +598,11 @@ func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 	for _, arg := range cmd.positionalArgs {
 		switch arg.defaultValue {
 		case requiredArgMarker:
-			tab.Row("  %s\t%s [required]\n", colour.Bold(arg.name), arg.description)
+			tab.Row("  %s\t%s\t[required]\n", colour.Bold(arg.name), arg.description)
 		case "":
-			tab.Row("  %s\t%s [default %q]\n", colour.Bold(arg.name), arg.description, arg.defaultValue)
+			tab.Row("  %s\t%s\t[default %q]\n", colour.Bold(arg.name), arg.description, arg.defaultValue)
 		default:
-			tab.Row("  %s\t%s [default %s]\n", colour.Bold(arg.name), arg.description, arg.defaultValue)
+			tab.Row("  %s\t%s\t[default %s]\n", colour.Bold(arg.name), arg.description, arg.defaultValue)
 		}
 	}
 	if err := tab.Flush(); err != nil {
