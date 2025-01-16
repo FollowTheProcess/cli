@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/FollowTheProcess/cli"
 )
@@ -55,6 +56,7 @@ type doOptions struct {
 	count     int
 	fast      bool
 	verbosity cli.FlagCount
+	duration  time.Duration
 }
 
 func buildDoCommand() (*cli.Command, error) {
@@ -64,10 +66,12 @@ func buildDoCommand() (*cli.Command, error) {
 		cli.Short("Do a thing"),
 		cli.Example("Do something", "demo do something --fast"),
 		cli.Example("Do it 3 times", "demo do something --count 3"),
-		cli.Allow(cli.MaxArgs(1)), // Only allowed to do one thing
+		cli.Example("Do it for a specific duration", "demo do something --duration 1m30s"),
+		cli.Allow(cli.ExactArgs(1)), // Only allowed to do one thing
 		cli.Flag(&options.count, "count", 'c', 1, "Number of times to do the thing"),
 		cli.Flag(&options.fast, "fast", 'f', false, "Do the thing quickly"),
 		cli.Flag(&options.verbosity, "verbosity", 'v', 0, "Increase the verbosity level"),
+		cli.Flag(&options.duration, "duration", 'd', 1*time.Second, "Do the thing for a specific duration"),
 		cli.Run(runDo(&options)),
 	)
 	if err != nil {
@@ -97,9 +101,15 @@ func runSay(options *sayOptions) func(cmd *cli.Command, args []string) error {
 func runDo(options *doOptions) func(cmd *cli.Command, args []string) error {
 	return func(cmd *cli.Command, args []string) error {
 		if options.fast {
-			fmt.Fprintf(cmd.Stdout(), "Doing %s %d times, but fast!\n", args[0], options.count)
+			fmt.Fprintf(
+				cmd.Stdout(),
+				"Doing %s %d times, but faster! (will still take %v)\n",
+				args[0],
+				options.count,
+				options.duration,
+			)
 		} else {
-			fmt.Fprintf(cmd.Stdout(), "Doing %s %d times\n", args[0], options.count)
+			fmt.Fprintf(cmd.Stdout(), "Doing %s %d times for %v\n", args[0], options.count, options.duration)
 		}
 
 		fmt.Fprintf(cmd.Stdout(), "Verbosity level was %d\n", options.verbosity)
