@@ -3,9 +3,9 @@ A placeholder for something cool
 Usage: test [OPTIONS] SRC [DEST] [OTHER] 
 
 Arguments:
-  src    The file to copy [required]
-  dest   Destination to copy to [default ./dest]
-  other  Something else [default ""]
+  src    The file to copy        [required]
+  dest   Destination to copy to  [default ./dest]
+  other  Something else          [default ""]
 
 Options:
   -h  --help     bool  Show help for test
