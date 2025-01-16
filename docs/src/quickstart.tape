@@ -58,7 +58,6 @@
 # Run from the repo root
 Output ./docs/img/quickstart.gif
 
-Set Shell fish
 Set FontSize 18
 Set FontFamily "Geist Mono"
 Set Theme "Catppuccin Macchiato"
@@ -81,7 +80,7 @@ Sleep 1s
 
 Type "./quickstart --help" Sleep 500ms  Enter
 
-Sleep 4s
+Sleep 8s
 
 Type "clear" Sleep 500ms Enter
 
@@ -89,11 +88,11 @@ Sleep 1s
 
 Type "./quickstart --version" Sleep 500ms Enter
 
-Sleep 2s
+Sleep 4s
 
 Type "./quickstart something --count 3" Sleep 500ms Enter
 
-Sleep 2s
+Sleep 4s
 
 Type "./quickstart" Sleep 500ms Enter
 
