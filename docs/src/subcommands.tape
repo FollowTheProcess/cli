@@ -52,7 +52,7 @@ Type "clear" Sleep 500ms Enter
 
 Sleep 1s
 
-Type "./subcommands do 'something' --fast --count 3 -vvv" Sleep 500ms Enter
+Type "./subcommands do 'something' --fast --count 3 --duration 5m27s -vvv" Sleep 500ms Enter
 
 Sleep 4s
 
