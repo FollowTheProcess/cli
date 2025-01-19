@@ -134,3 +134,4 @@ linters-settings:
         arguments:
           - fmt\.(Fp|P)rint(ln|f)?
           - strings.Builder.Write(String|Byte)?
+          - bytes.Buffer.Write(String|Byte)?
