@@ -25,6 +25,12 @@ linters:
     - varnamelen # Lots of false positives of things that are fine
     - wrapcheck # Not every error must be wrapped
 
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - prealloc # These kinds of optimisations will make no difference to test code
+
 linters-settings:
   cyclop:
     max-complexity: 20
@@ -95,6 +101,10 @@ linters-settings:
       - name: cognitive-complexity
         disabled: true # gocognit does this
 
+      - name: comment-spacings
+        arguments:
+          - "nolint:" # Doesn't recognise this by default
+
       - name: cyclomatic
         disabled: true # cyclop does this
 
@@ -104,17 +114,17 @@ linters-settings:
           - checkPublicInterface
 
       - name: function-length
-        disabled: true
+        disabled: true # Bad proxy for complexity
 
       - name: function-result-limit
         arguments:
           - 3
 
       - name: import-shadowing
-        disabled: true
+        disabled: true # predeclared does this
 
       - name: line-length-limit
-        disabled: true
+        disabled: true # gofmt/golines handles this well enough
 
       - name: redefines-builtin-id
         disabled: true # predeclared does this
