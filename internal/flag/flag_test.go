@@ -694,6 +694,7 @@ func BenchmarkFlagSet(b *testing.B) {
 	test.Ok(b, err)
 
 	b.ResetTimer()
+
 	for range b.N {
 		err := flag.Set("42")
 		if err != nil {

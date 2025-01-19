@@ -59,10 +59,10 @@ func New(name string, options ...Option) (*Command, error) {
 	}
 
 	// Ensure we always have at least help and version flags
-	err := Flag(&cfg.helpCalled, "help", 'h', false, fmt.Sprintf("Show help for %s", name)).apply(&cfg)
+	err := Flag(&cfg.helpCalled, "help", 'h', false, "Show help for "+name).apply(&cfg)
 	errs = errors.Join(errs, err) // nil errors are discarded in join
 
-	err = Flag(&cfg.versionCalled, "version", 'V', false, fmt.Sprintf("Show version info for %s", name)).apply(&cfg)
+	err = Flag(&cfg.versionCalled, "version", 'V', false, "Show version info for "+name).apply(&cfg)
 	errs = errors.Join(errs, err)
 
 	if errs != nil {
@@ -218,10 +218,12 @@ func (c *Command) Execute() error {
 		// Should never get here as we define a default help
 		return errors.New("help flag not defined")
 	}
+
 	if helpCalled {
 		if err := defaultHelp(cmd); err != nil {
 			return fmt.Errorf("help function returned an error: %w", err)
 		}
+
 		return nil
 	}
 
@@ -232,13 +234,16 @@ func (c *Command) Execute() error {
 		// Again, should be unreachable
 		return errors.New("version flag not defined")
 	}
+
 	if versionCalled {
 		if cmd.versionFunc == nil {
 			return errors.New("versionFunc was nil")
 		}
+
 		if err := cmd.versionFunc(c); err != nil {
 			return fmt.Errorf("version function returned an error: %w", err)
 		}
+
 		return nil
 	}
 
@@ -254,7 +259,7 @@ func (c *Command) Execute() error {
 	//
 	// We're modifying the slice in place here, hence not using a range loop as it
 	// would take a copy of the c.positionalArgs slice
-	for i := 0; i < len(cmd.positionalArgs); i++ {
+	for i := range len(cmd.positionalArgs) {
 		if i >= len(argsWithoutFlags) {
 			arg := cmd.positionalArgs[i]
 
@@ -283,6 +288,7 @@ func (c *Command) Execute() error {
 	if err := defaultHelp(cmd); err != nil {
 		return err
 	}
+
 	return fmt.Errorf("command %q expected arguments (subcommands) but got none", cmd.name)
 }
 
@@ -293,9 +299,11 @@ func (c *Command) flagSet() *flag.Set {
 		// nil pointer dereference
 		panic("flagSet called on a nil Command")
 	}
+
 	if c.flags == nil {
 		return flag.NewSet()
 	}
+
 	return c.flags
 }
 
@@ -342,6 +350,7 @@ func (c *Command) ExtraArgs() (args []string, ok bool) {
 	if len(extra) > 0 {
 		return extra, true
 	}
+
 	return nil, false
 }
 
@@ -350,6 +359,7 @@ func (c *Command) root() *Command {
 	if c.parent != nil {
 		return c.parent.root()
 	}
+
 	return c
 }
 
@@ -385,6 +395,7 @@ func (c *Command) subcommandNames() []string {
 	for _, sub := range c.subcommands {
 		names = append(names, sub.name)
 	}
+
 	return names
 }
 
@@ -426,6 +437,7 @@ func argsMinusFirstX(args []string, x string) []string {
 			return slices.Delete(args, i, i+1)
 		}
 	}
+
 	return args
 }
 
@@ -438,6 +450,7 @@ func findSubCommand(cmd *Command, next string) *Command {
 			return subcommand
 		}
 	}
+
 	return nil
 }
 
@@ -453,6 +466,7 @@ func stripFlags(cmd *Command, args []string) []string {
 	for len(args) > 0 {
 		arg := args[0]
 		args = args[1:]
+
 		switch {
 		case arg == "--":
 			// "--" terminates the flags
@@ -466,6 +480,7 @@ func stripFlags(cmd *Command, args []string) []string {
 				return argsWithoutFlags
 			} else {
 				args = args[1:]
+
 				continue
 			}
 		case arg != "" && !strings.HasPrefix(arg, "-"):
@@ -482,6 +497,7 @@ func defaultHelp(cmd *Command) error {
 	if cmd == nil {
 		return errors.New("defaultHelp called on a nil Command")
 	}
+
 	usage, err := cmd.flagSet().Usage()
 	if err != nil {
 		return fmt.Errorf("could not write usage: %w", err)
@@ -510,6 +526,7 @@ func defaultHelp(cmd *Command) error {
 	s.WriteString(colour.Title("Usage:"))
 	s.WriteString(" ")
 	s.WriteString(colour.Bold(cmd.name))
+
 	if len(cmd.subcommands) == 0 {
 		// We don't have any subcommands so usage will be:
 		// "Usage: {name} [OPTIONS] ARGS..."
@@ -555,6 +572,7 @@ func defaultHelp(cmd *Command) error {
 		// If there weren't, we need some more space
 		s.WriteString("\n\n")
 	}
+
 	s.WriteString(colour.Title("Options:"))
 	s.WriteString("\n")
 	s.WriteString(usage)
@@ -574,6 +592,7 @@ func defaultHelp(cmd *Command) error {
 func writePositionalArgs(cmd *Command, s *strings.Builder) {
 	for _, arg := range cmd.positionalArgs {
 		displayName := strings.ToUpper(arg.name)
+
 		if arg.defaultValue != requiredArgMarker {
 			// If it has a default, it's an optional argument so wrap it
 			// in brackets e.g. [FILE]
@@ -584,6 +603,7 @@ func writePositionalArgs(cmd *Command, s *strings.Builder) {
 			// It's required, so just FILE
 			s.WriteString(displayName)
 		}
+
 		s.WriteString(" ")
 	}
 }
@@ -595,6 +615,7 @@ func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 	s.WriteString(colour.Title("Arguments:"))
 	s.WriteString("\n")
 	tab := table.New(s)
+
 	for _, arg := range cmd.positionalArgs {
 		switch arg.defaultValue {
 		case requiredArgMarker:
@@ -605,9 +626,11 @@ func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 			tab.Row("  %s\t%s\t[default %s]\n", colour.Bold(arg.name), arg.description, arg.defaultValue)
 		}
 	}
+
 	if err := tab.Flush(); err != nil {
 		return fmt.Errorf("could not format arguments: %w", err)
 	}
+
 	return nil
 }
 
@@ -620,7 +643,9 @@ func writeExamples(cmd *Command, s *strings.Builder) {
 		// If not, we need a bit more space
 		s.WriteString("\n\n")
 	}
+
 	s.WriteString(colour.Title("Examples:"))
+
 	for _, example := range cmd.examples {
 		s.WriteString(example.String())
 	}
@@ -631,13 +656,16 @@ func writeSubcommands(cmd *Command, s *strings.Builder) error {
 	s.WriteString("\n\n")
 	s.WriteString(colour.Title("Commands:"))
 	s.WriteString("\n")
+
 	tab := table.New(s)
 	for _, subcommand := range cmd.subcommands {
 		tab.Row("  %s\t%s\n", colour.Bold(subcommand.name), subcommand.short)
 	}
+
 	if err := tab.Flush(); err != nil {
 		return fmt.Errorf("could not format subcommands: %w", err)
 	}
+
 	return nil
 }
 
@@ -657,6 +685,7 @@ func defaultVersion(cmd *Command) error {
 	if cmd == nil {
 		return errors.New("defaultVersion called on a nil Command")
 	}
+
 	s := &strings.Builder{}
 	s.WriteString(colour.Title(cmd.name))
 	s.WriteString("\n\n")
@@ -680,5 +709,6 @@ func defaultVersion(cmd *Command) error {
 	}
 
 	fmt.Fprint(cmd.stderr, s.String())
+
 	return nil
 }

@@ -20,7 +20,7 @@ const (
 // Disable is a flag that disables all colour text, it overrides both
 // $FORCE_COLOR and $NO_COLOR, setting it to true will always make this
 // package return plain text and not check any other config.
-var Disable bool = false
+var Disable = false
 
 // getColourOnce is a [sync.OnceValues] function that returns the state of
 // $NO_COLOR and $FORCE_COLOR, once and only once to avoid us calling
@@ -28,7 +28,7 @@ var Disable bool = false
 var getColourOnce = sync.OnceValues(getColour)
 
 // getColour returns whether $NO_COLOR and $FORCE_COLOR were set.
-func getColour() (noColour bool, forceColour bool) {
+func getColour() (noColour, forceColour bool) {
 	no := os.Getenv("NO_COLOR") != ""
 	force := os.Getenv("FORCE_COLOR") != ""
 
