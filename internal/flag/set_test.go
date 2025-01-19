@@ -30,6 +30,7 @@ func TestParse(t *testing.T) {
 			name: "empty set no args",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -47,6 +48,7 @@ func TestParse(t *testing.T) {
 			name: "empty set args no flags",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -64,6 +66,7 @@ func TestParse(t *testing.T) {
 			name: "empty set args with terminator",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -87,6 +90,7 @@ func TestParse(t *testing.T) {
 			name: "empty set with flags",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -105,6 +109,7 @@ func TestParse(t *testing.T) {
 			name: "undefined flag long",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"--unknown"},
@@ -115,6 +120,7 @@ func TestParse(t *testing.T) {
 			name: "undefined flag short",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"-u"},
@@ -125,6 +131,7 @@ func TestParse(t *testing.T) {
 			name: "undefined flag long with value",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"--unknown", "value"},
@@ -135,6 +142,7 @@ func TestParse(t *testing.T) {
 			name: "undefined flag short with value",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"-u", "value"},
@@ -145,6 +153,7 @@ func TestParse(t *testing.T) {
 			name: "undefined flag long equals value",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"--unknown=value"},
@@ -155,6 +164,7 @@ func TestParse(t *testing.T) {
 			name: "undefined flag short equals value",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"-u=value"},
@@ -165,6 +175,7 @@ func TestParse(t *testing.T) {
 			name: "undefined flag shortvalue",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"-uvalue"},
@@ -175,6 +186,7 @@ func TestParse(t *testing.T) {
 			name: "bad syntax short empty name",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"-"},
@@ -185,6 +197,7 @@ func TestParse(t *testing.T) {
 			name: "bad syntax long extra hyphen",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"---"},
@@ -195,6 +208,7 @@ func TestParse(t *testing.T) {
 			name: "bad syntax long leading whitespace",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"-- delete"},
@@ -205,6 +219,7 @@ func TestParse(t *testing.T) {
 			name: "bad syntax short leading whitespace",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"- d"},
@@ -215,6 +230,7 @@ func TestParse(t *testing.T) {
 			name: "bad syntax long trailing whitespace",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"--delete "},
@@ -243,6 +259,7 @@ func TestParse(t *testing.T) {
 			name: "bad syntax short more than 1 char equals",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"-dfv=something"},
@@ -253,6 +270,7 @@ func TestParse(t *testing.T) {
 			name: "bad syntax short non utf8",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"-Ê"},
@@ -263,6 +281,7 @@ func TestParse(t *testing.T) {
 			name: "bad syntax short non utf8 equals",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"-Ê=something"},
@@ -273,6 +292,7 @@ func TestParse(t *testing.T) {
 			name: "bad syntax short multiple non utf8",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"-本¼語"},
@@ -283,6 +303,7 @@ func TestParse(t *testing.T) {
 			name: "bad syntax long internal whitespace",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			args:    []string{"--de lete"},
@@ -969,6 +990,7 @@ func TestFlagSet(t *testing.T) {
 			name: "empty",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -982,6 +1004,7 @@ func TestFlagSet(t *testing.T) {
 			name: "empty short",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -995,6 +1018,7 @@ func TestFlagSet(t *testing.T) {
 			name: "nil safe get",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return nil // uh oh
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -1008,6 +1032,7 @@ func TestFlagSet(t *testing.T) {
 			name: "nil safe get short",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return nil // uh oh
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -1021,6 +1046,7 @@ func TestFlagSet(t *testing.T) {
 			name: "nil safe add",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return nil // uh oh
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -1039,6 +1065,7 @@ func TestFlagSet(t *testing.T) {
 			name: "nil safe parse",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return nil // uh oh
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -1054,6 +1081,7 @@ func TestFlagSet(t *testing.T) {
 			name: "nil safe args",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return nil // uh oh
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -1065,6 +1093,7 @@ func TestFlagSet(t *testing.T) {
 			name: "duplicate flag added",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -1087,6 +1116,7 @@ func TestFlagSet(t *testing.T) {
 			name: "different flag same name added",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -1112,6 +1142,7 @@ func TestFlagSet(t *testing.T) {
 			name: "different flag same short added",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -1153,6 +1184,7 @@ func TestHelpVersion(t *testing.T) {
 			name: "empty help",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -1166,6 +1198,7 @@ func TestHelpVersion(t *testing.T) {
 			name: "empty version",
 			newSet: func(t *testing.T) *flag.Set {
 				t.Helper()
+
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
@@ -1447,6 +1480,7 @@ func BenchmarkParse(b *testing.B) {
 	args := []string{"some", "args", "here", "--delete", "--count", "10", "--name", "John"}
 
 	b.ResetTimer()
+
 	for range b.N {
 		err := set.Parse(args)
 		if err != nil {

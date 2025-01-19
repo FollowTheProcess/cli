@@ -36,6 +36,7 @@ func AddToSet[T Flaggable](set *Set, flag Flag[T]) error {
 	if set == nil {
 		return errors.New("cannot add flag to a nil set")
 	}
+
 	name := flag.Name()
 	short := flag.Short()
 
@@ -67,10 +68,12 @@ func (s *Set) Get(name string) (Value, bool) {
 	if s == nil {
 		return nil, false
 	}
+
 	flag, ok := s.flags[name]
 	if !ok {
 		return nil, false
 	}
+
 	return flag, true
 }
 
@@ -80,10 +83,12 @@ func (s *Set) GetShort(short rune) (Value, bool) {
 	if s == nil {
 		return nil, false
 	}
+
 	flag, ok := s.shorthands[short]
 	if !ok {
 		return nil, false
 	}
+
 	return flag, true
 }
 
@@ -100,7 +105,7 @@ func (s *Set) Help() (value, ok bool) {
 		return false, false
 	}
 	// It is there, we can infer from the string value what it's set to
-	// to avoid unnecessary type conversions
+	// avoid unnecessary type conversions
 	return flag.String() == boolTrue, true
 }
 
@@ -117,7 +122,7 @@ func (s *Set) Version() (value, ok bool) {
 		return false, false
 	}
 	// It is there, we can infer from the string value what it's set to
-	// to avoid unnecessary type conversions
+	// avoid unnecessary type conversions
 	return flag.String() == boolTrue, true
 }
 
@@ -127,6 +132,7 @@ func (s *Set) Args() []string {
 	if s == nil {
 		return nil
 	}
+
 	return s.args
 }
 
@@ -136,6 +142,7 @@ func (s *Set) ExtraArgs() []string {
 	if s == nil {
 		return nil
 	}
+
 	return s.extra
 }
 
@@ -144,6 +151,7 @@ func (s *Set) Parse(args []string) (err error) {
 	if s == nil {
 		return errors.New("Parse called on a nil set")
 	}
+
 	for len(args) > 0 {
 		arg := args[0]  // The argument we're currently inspecting
 		args = args[1:] // Remainder
@@ -153,6 +161,7 @@ func (s *Set) Parse(args []string) (err error) {
 			terminatorIndex := len(s.args)
 			s.args = append(s.args, args...)
 			s.extra = s.args[terminatorIndex:]
+
 			return nil
 		}
 
@@ -187,6 +196,7 @@ func (s *Set) Usage() (string, error) {
 	for name := range s.flags {
 		names = append(names, name)
 	}
+
 	slices.Sort(names)
 
 	tab := table.New(buf)
@@ -196,9 +206,10 @@ func (s *Set) Usage() (string, error) {
 		if flag == nil {
 			return "", fmt.Errorf("Value stored against key %s was nil", name) // Should never happen
 		}
+
 		var shorthand string
 		if flag.Short() != NoShortHand {
-			shorthand = fmt.Sprintf("-%s", string(flag.Short()))
+			shorthand = "-" + string(flag.Short())
 		} else {
 			shorthand = "N/A"
 		}
@@ -233,6 +244,7 @@ func (s *Set) parseLongFlag(long string, rest []string) (remaining []string, err
 	if err := validateFlagName(name); err != nil {
 		return nil, fmt.Errorf("invalid flag name %q: %w", name, err)
 	}
+
 	flag, exists := s.flags[name]
 	if !exists {
 		return nil, fmt.Errorf("unrecognised flag: --%s", name)
@@ -262,6 +274,7 @@ func (s *Set) parseLongFlag(long string, rest []string) (remaining []string, err
 	case len(rest) > 0:
 		// --flag value
 		value := rest[0]
+
 		err := flag.Set(value)
 		if err != nil {
 			return nil, err
@@ -298,6 +311,7 @@ func (s *Set) parseShortFlag(short string, rest []string) (remaining []string, e
 			return nil, err
 		}
 	}
+
 	return rest, nil
 }
 
@@ -307,6 +321,7 @@ func (s *Set) parseSingleShortFlag(shorthands string, rest []string) (string, []
 		if err := validateFlagShort(char); err != nil {
 			return "", nil, fmt.Errorf("invalid flag shorthand %q: %w", string(char), err)
 		}
+
 		flag, exists := s.shorthands[char]
 		if !exists {
 			return "", nil, fmt.Errorf("unrecognised shorthand flag: %q in -%s", string(char), shorthands)
@@ -316,6 +331,7 @@ func (s *Set) parseSingleShortFlag(shorthands string, rest []string) (string, []
 		case len(shorthands) > 2 && shorthands[1] == '=':
 			// '-f=value'
 			value := shorthands[2:]
+
 			err := flag.Set(value)
 			if err != nil {
 				return "", nil, err
@@ -337,6 +353,7 @@ func (s *Set) parseSingleShortFlag(shorthands string, rest []string) (string, []
 		case len(shorthands) > 1:
 			// '-fvalue'
 			value := shorthands[1:]
+
 			err := flag.Set(value)
 			if err != nil {
 				return "", nil, err
@@ -349,6 +366,7 @@ func (s *Set) parseSingleShortFlag(shorthands string, rest []string) (string, []
 		case len(rest) > 0:
 			// '-f value'
 			value := rest[0]
+
 			err := flag.Set(value)
 			if err != nil {
 				return "", nil, err
