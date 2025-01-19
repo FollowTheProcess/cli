@@ -147,11 +147,5 @@ linters-settings:
 
       - name: unhandled-error
         arguments:
-          # Apparently regexes for this don't work?
-          - fmt\.Fprintln
-          - fmt\.Fprintf
-          - fmt\.Fprint
-          - fmt\.Println
-          - fmt\.Printf
-          - fmt\.Print
-          - strings\.Builder\.WriteString
+          - fmt\.(Fp|P)rint(ln|f)?
+          - strings.Builder.WriteString
