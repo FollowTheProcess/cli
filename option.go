@@ -33,12 +33,12 @@ type FlagCount = flag.Count
 type Option interface {
 	// Apply the option to the config, returning an error if the
 	// option cannot be applied for whatever reason.
-	apply(*config) error
+	apply(cfg *config) error
 }
 
 // option is a function adapter implementing the Option interface, analogous
 // to http.HandlerFunc.
-type option func(*config) error
+type option func(cfg *config) error
 
 // apply implements the Option interface for option.
 func (o option) apply(cfg *config) error {
@@ -121,9 +121,12 @@ func Stdin(stdin io.Reader) Option {
 		if stdin == nil {
 			return errors.New("cannot set Stdin to nil")
 		}
+
 		cfg.stdin = stdin
+
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -140,9 +143,12 @@ func Stdout(stdout io.Writer) Option {
 		if stdout == nil {
 			return errors.New("cannot set Stdout to nil")
 		}
+
 		cfg.stdout = stdout
+
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -159,9 +165,12 @@ func Stderr(stderr io.Writer) Option {
 		if stderr == nil {
 			return errors.New("cannot set Stderr to nil")
 		}
+
 		cfg.stderr = stderr
+
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -175,8 +184,10 @@ func NoColour(noColour bool) Option {
 	f := func(_ *config) error {
 		// Just disable the internal colour package entirely
 		colour.Disable = noColour
+
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -195,9 +206,12 @@ func Short(short string) Option {
 		if short == "" {
 			return errors.New("cannot set command short description to an empty string")
 		}
+
 		cfg.short = strings.TrimSpace(short)
+
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -216,9 +230,12 @@ func Long(long string) Option {
 		if long == "" {
 			return errors.New("cannot set command long description to an empty string")
 		}
+
 		cfg.long = strings.TrimSpace(long)
+
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -244,12 +261,16 @@ func Example(comment, command string) Option {
 		if comment == "" {
 			return errors.New("example comment cannot be empty")
 		}
+
 		if command == "" {
 			return errors.New("example command cannot be empty")
 		}
+
 		cfg.examples = append(cfg.examples, example{comment: comment, command: command})
+
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -264,9 +285,12 @@ func Run(run func(cmd *Command, args []string) error) Option {
 		if run == nil {
 			return errors.New("cannot set Run to nil")
 		}
+
 		cfg.run = run
+
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -285,9 +309,12 @@ func OverrideArgs(args []string) Option {
 		if args == nil {
 			return errors.New("cannot set Args to nil")
 		}
+
 		cfg.args = args
+
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -299,8 +326,10 @@ func OverrideArgs(args []string) Option {
 func Version(version string) Option {
 	f := func(cfg *config) error {
 		cfg.version = version
+
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -318,8 +347,10 @@ func Version(version string) Option {
 func Commit(commit string) Option {
 	f := func(cfg *config) error {
 		cfg.commit = commit
+
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -337,8 +368,10 @@ func Commit(commit string) Option {
 func BuildDate(date string) Option {
 	f := func(cfg *config) error {
 		cfg.buildDate = date
+
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -354,9 +387,12 @@ func VersionFunc(fn func(cmd *Command) error) Option {
 		if fn == nil {
 			return errors.New("cannot set VersionFunc to nil")
 		}
+
 		cfg.versionFunc = fn
+
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -370,7 +406,6 @@ func SubCommands(builders ...Builder) Option {
 	// Note: In Cobra the AddCommand method has to protect against a command adding itself
 	// as a subcommand, this is impossible in cli due to the functional options pattern, the
 	// root command will not exist as a variable inside the call to cli.New.
-
 	f := func(cfg *config) error {
 		// Add the subcommands to the command this is being called on
 		for _, builder := range builders {
@@ -378,6 +413,7 @@ func SubCommands(builders ...Builder) Option {
 			if err != nil {
 				return fmt.Errorf("could not build subcommand: %w", err)
 			}
+
 			cfg.subcommands = append(cfg.subcommands, subcommand)
 		}
 
@@ -385,8 +421,10 @@ func SubCommands(builders ...Builder) Option {
 		if name, found := anyDuplicates(cfg.subcommands...); found {
 			return fmt.Errorf("subcommand %q already defined", name)
 		}
+
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -404,9 +442,12 @@ func Allow(validator ArgValidator) Option {
 		if validator == nil {
 			return errors.New("cannot set Allow to a nil ArgValidator")
 		}
+
 		cfg.argValidator = validator
+
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -437,6 +478,7 @@ func Flag[T Flaggable](p *T, name string, short rune, value T, usage string) Opt
 
 		return nil
 	}
+
 	return option(f)
 }
 
@@ -467,15 +509,18 @@ func RequiredArg(name, description string) Option {
 		if name == "" {
 			return errors.New("invalid name for positional argument, must be non-empty string")
 		}
+
 		if description == "" {
 			return errors.New("invalid description for positional argument, must be non-empty string")
 		}
+
 		arg := positionalArg{
 			name:         name,
 			description:  description,
 			defaultValue: requiredArgMarker, // Internal marker
 		}
 		cfg.positionalArgs = append(cfg.positionalArgs, arg)
+
 		return nil
 	}
 
@@ -509,15 +554,18 @@ func OptionalArg(name, description, value string) Option {
 		if name == "" {
 			return errors.New("invalid name for positional argument, must be non-empty string")
 		}
+
 		if description == "" {
 			return errors.New("invalid description for positional argument, must be non-empty string")
 		}
+
 		arg := positionalArg{
 			name:         name,
 			description:  description,
 			defaultValue: value,
 		}
 		cfg.positionalArgs = append(cfg.positionalArgs, arg)
+
 		return nil
 	}
 
@@ -528,14 +576,18 @@ func OptionalArg(name, description, value string) Option {
 // is found, it's name and true are returned, else "", false.
 func anyDuplicates(cmds ...*Command) (string, bool) {
 	seen := make([]string, 0, len(cmds))
+
 	for _, cmd := range cmds {
 		if cmd == nil {
 			continue
 		}
+
 		if slices.Contains(seen, cmd.name) {
 			return cmd.name, true
 		}
+
 		seen = append(seen, cmd.name)
 	}
+
 	return "", false
 }

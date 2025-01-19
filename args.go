@@ -35,8 +35,10 @@ func NoArgs() ArgValidator {
 					cmd.subcommandNames(),
 				)
 			}
+
 			return fmt.Errorf("command %s accepts no arguments but got %v", cmd.name, args)
 		}
+
 		return nil
 	}
 }
@@ -53,6 +55,7 @@ func MinArgs(n int) ArgValidator {
 				args,
 			)
 		}
+
 		return nil
 	}
 }
@@ -69,6 +72,7 @@ func MaxArgs(n int) ArgValidator {
 				args,
 			)
 		}
+
 		return nil
 	}
 }
@@ -86,6 +90,7 @@ func ExactArgs(n int) ArgValidator {
 				args,
 			)
 		}
+
 		return nil
 	}
 }
@@ -107,6 +112,7 @@ func BetweenArgs(min, max int) ArgValidator {
 				args,
 			)
 		}
+
 		return nil
 	}
 }
@@ -125,6 +131,7 @@ func ValidArgs(valid []string) ArgValidator {
 				)
 			}
 		}
+
 		return nil
 	}
 }
@@ -139,6 +146,7 @@ func Combine(validators ...ArgValidator) ArgValidator {
 				return err
 			}
 		}
+
 		return nil
 	}
 }

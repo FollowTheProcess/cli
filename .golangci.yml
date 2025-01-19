@@ -1,55 +1,29 @@
 linters:
-  disable-all: true
-  enable:
-    - bodyclose
-    - canonicalheader
-    - cyclop
-    - depguard
-    - durationcheck
-    - errcheck
-    - errchkjson
-    - errname
-    - errorlint
-    - exhaustive
-    - exptostd
-    - fatcontext
-    - gocognit
-    - goconst
-    - gocritic
-    - godot
-    - gofumpt
-    - goimports
-    - gosec
-    - gosimple
-    - govet
-    - ineffassign
-    - intrange
-    - mirror
-    - misspell
-    - mnd
-    - musttag
-    - nakedret
-    - nilerr
-    - nilnesserr
-    - nilnil
-    - nolintlint
-    - perfsprint
-    - predeclared
-    - reassign
-    - recvcheck
-    - revive
-    - sloglint
-    - staticcheck
-    - tagalign
-    - tagliatelle
-    - tenv
-    - testpackage
-    - thelper
-    - unconvert
-    - unparam
-    - unused
-    - usetesting
-    - whitespace
+  enable-all: true
+  disable:
+    - decorder # Don't care about this
+    - dupl # Basically every table driven test ever triggers this
+    - err113 # Out of date
+    - exhaustruct # No
+    - exportloopref # Go 1.22+ solves this
+    - forbidigo # Nothing to forbid
+    - funlen # Bad metric for complexity
+    - gci # gofmt/goimports is fine
+    - ginkgolinter # I don't use whatever this is
+    - gochecknoglobals # Globals are fine sometimes, use common sense
+    - gocyclo # cyclop does this instead
+    - godox # "todo" and "fixme" comments are allowed
+    - goheader # No need
+    - gosmopolitan # No need
+    - grouper # Imports take care of themselves, rest is common sense
+    - ireturn # This is just not necessary or practical in a real codebase
+    - lll # Auto formatters do this and what they can't do I don't care about
+    - maintidx # This is just the inverse of complexity... which is cyclop
+    - nestif # cyclop does this
+    - nonamedreturns # Named returns are often helpful, it's naked returns that are the issue
+    - paralleltest # I've never had Go tests take longer than a few seconds, it's fine
+    - varnamelen # Lots of false positives of things that are fine
+    - wrapcheck # Not every error must be wrapped
 
 linters-settings:
   cyclop:
@@ -60,7 +34,7 @@ linters-settings:
       main:
         deny:
           - pkg: io/ioutil
-            desc: use io instead
+            desc: io/ioutil is deprecated, use io instead
 
           - pkg: "math/rand$"
             desc: use math/rand/v2 instead

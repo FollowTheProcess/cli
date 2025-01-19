@@ -91,6 +91,7 @@ func New[T Flaggable](p *T, name string, short rune, value T, usage string) (Fla
 	if err := validateFlagName(name); err != nil {
 		return Flag[T]{}, fmt.Errorf("invalid flag name %q: %w", name, err)
 	}
+
 	if err := validateFlagShort(short); err != nil {
 		return Flag[T]{}, fmt.Errorf("invalid shorthand for flag %q: %w", name, err)
 	}
@@ -98,6 +99,7 @@ func New[T Flaggable](p *T, name string, short rune, value T, usage string) (Fla
 	if p == nil {
 		p = new(T)
 	}
+
 	*p = value
 
 	flag := Flag[T]{
@@ -115,6 +117,7 @@ func (f Flag[T]) Get() T {
 	if f.value == nil {
 		return *new(T)
 	}
+
 	return *f.value
 }
 
@@ -210,6 +213,7 @@ func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this r
 	if f.value == nil {
 		return ""
 	}
+
 	switch typ := any(f.value).(type) {
 	case *int:
 		return typeInt
@@ -261,45 +265,55 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 	if f.value == nil {
 		return fmt.Errorf("cannot set value %s, flag.value was nil", str)
 	}
+
 	switch typ := any(f.value).(type) {
 	case *int:
 		val, err := parseInt[int](0)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *int8:
 		val, err := parseInt[int8](bits8)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *int16:
 		val, err := parseInt[int16](bits16)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *int32:
 		val, err := parseInt[int32](bits32)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *int64:
 		val, err := parseInt[int64](bits64)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *Count:
 		// We have to do a bit of custom stuff here as an incremement is a read and write op
-
 		// First read the current value of the flag and cast it to a Count so we
 		// can increment it
 		current, ok := any(*f.value).(Count)
@@ -317,101 +331,129 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		// Increment the count and store it back
 		newValue := current + Count(val)
 		*f.value = *cast[T](&newValue)
+
 		return nil
 	case *uint:
 		val, err := parseUint[uint](0)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *uint8:
 		val, err := parseUint[uint8](bits8)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *uint16:
 		val, err := parseUint[uint16](bits16)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *uint32:
 		val, err := parseUint[uint32](bits32)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *uint64:
 		val, err := parseUint[uint64](bits64)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *uintptr:
 		val, err := parseUint[uint64](bits64)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *float32:
 		val, err := parseFloat[float32](bits32)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *float64:
 		val, err := parseFloat[float64](bits64)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *string:
 		val := str
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *bool:
 		val, err := strconv.ParseBool(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *[]byte:
 		val, err := hex.DecodeString(strings.TrimSpace(str))
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *time.Time:
 		val, err := time.Parse(time.RFC3339, str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *time.Duration:
 		val, err := time.ParseDuration(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	case *net.IP:
 		val := net.ParseIP(str)
 		if val == nil {
 			return errParse(f.name, str, typ, errors.New("invalid IP address"))
 		}
+
 		*f.value = *cast[T](&val)
+
 		return nil
 	default:
 		return fmt.Errorf("unsupported flag type: %T", typ)
@@ -462,6 +504,7 @@ func validateFlagName(name string) error {
 	if name == "" {
 		return errors.New("must not be empty")
 	}
+
 	before, after, found := strings.Cut(name, "-")
 
 	// Hyphen must be in between "words" like "set-default"
@@ -473,6 +516,7 @@ func validateFlagName(name string) error {
 	if found && before == "" {
 		return errors.New("leading hyphen")
 	}
+
 	for _, char := range name {
 		// No whitespace
 		if unicode.IsSpace(char) {
@@ -504,6 +548,7 @@ func validateFlagShort(short rune) error {
 	if short == NoShortHand {
 		return nil
 	}
+
 	if unicode.IsSpace(short) {
 		return errors.New("cannot contain whitespace")
 	}
