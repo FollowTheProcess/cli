@@ -25,6 +25,7 @@ type Table struct {
 // New returns a new [Table], writing to w.
 func New(w io.Writer) Table {
 	tw := tabwriter.NewWriter(w, minWidth, tabWidth, padding, padChar, flags)
+
 	return Table{tw: tw}
 }
 

@@ -23,8 +23,9 @@ func TestArgValidators(t *testing.T) {
 			name: "anyargs",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"some", "args", "here"}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from anyargs")
+
 					return nil
 				}),
 				cli.Allow(cli.AnyArgs()),
@@ -36,8 +37,9 @@ func TestArgValidators(t *testing.T) {
 			name: "noargs pass",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from noargs")
+
 					return nil
 				}),
 				cli.Allow(cli.NoArgs()),
@@ -49,8 +51,9 @@ func TestArgValidators(t *testing.T) {
 			name: "noargs fail",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"some", "args", "here"}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from noargs")
+
 					return nil
 				}),
 				cli.Allow(cli.NoArgs()),
@@ -62,8 +65,9 @@ func TestArgValidators(t *testing.T) {
 			name: "noargs subcommand",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"subb", "args", "here"}), // Note: subb is typo of sub
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from noargs")
+
 					return nil
 				}),
 				cli.Allow(cli.NoArgs()),
@@ -71,7 +75,7 @@ func TestArgValidators(t *testing.T) {
 					func() (*cli.Command, error) {
 						return cli.New(
 							"sub",
-							cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+							cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
 						)
 					},
 				),
@@ -83,8 +87,9 @@ func TestArgValidators(t *testing.T) {
 			name: "minargs pass",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"loads", "more", "args", "here"}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from minargs")
+
 					return nil
 				}),
 				cli.Allow(cli.MinArgs(3)),
@@ -96,8 +101,9 @@ func TestArgValidators(t *testing.T) {
 			name: "minargs fail",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"only", "two"}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from minargs")
+
 					return nil
 				}),
 				cli.Allow(cli.MinArgs(3)),
@@ -109,8 +115,9 @@ func TestArgValidators(t *testing.T) {
 			name: "maxargs pass",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"two", "args"}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from maxargs")
+
 					return nil
 				}),
 				cli.Allow(cli.MaxArgs(2)),
@@ -122,8 +129,9 @@ func TestArgValidators(t *testing.T) {
 			name: "maxargs fail",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"loads", "of", "args", "here", "wow", "so", "many"}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from maxargs")
+
 					return nil
 				}),
 				cli.Allow(cli.MaxArgs(3)),
@@ -135,8 +143,9 @@ func TestArgValidators(t *testing.T) {
 			name: "exactargs pass",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"two", "args"}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from exactargs")
+
 					return nil
 				}),
 				cli.Allow(cli.ExactArgs(2)),
@@ -148,8 +157,9 @@ func TestArgValidators(t *testing.T) {
 			name: "exactargs fail",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"not", "three", "but", "four"}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from exactargs")
+
 					return nil
 				}),
 				cli.Allow(cli.ExactArgs(3)),
@@ -161,8 +171,9 @@ func TestArgValidators(t *testing.T) {
 			name: "betweenargs pass",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"two", "args"}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from betweenargs")
+
 					return nil
 				}),
 				cli.Allow(cli.BetweenArgs(1, 4)),
@@ -174,8 +185,9 @@ func TestArgValidators(t *testing.T) {
 			name: "betweenargs fail high",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"not", "three", "but", "more", "than", "four"}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from betweenargs")
+
 					return nil
 				}),
 				cli.Allow(cli.BetweenArgs(1, 4)),
@@ -187,8 +199,9 @@ func TestArgValidators(t *testing.T) {
 			name: "betweenargs fail low",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"not", "three"}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from betweenargs")
+
 					return nil
 				}),
 				cli.Allow(cli.BetweenArgs(3, 5)),
@@ -200,8 +213,9 @@ func TestArgValidators(t *testing.T) {
 			name: "validargs pass",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"valid", "args", "only"}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from validargs")
+
 					return nil
 				}),
 				cli.Allow(cli.ValidArgs([]string{"only", "valid", "args"})), // Order doesn't matter
@@ -214,8 +228,9 @@ func TestArgValidators(t *testing.T) {
 			name: "validargs fail",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"valid", "args", "only", "bad"}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from validargs")
+
 					return nil
 				}),
 				cli.Allow(cli.ValidArgs([]string{"only", "valid", "args"})),
@@ -227,8 +242,9 @@ func TestArgValidators(t *testing.T) {
 			name: "combine pass",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"four", "args", "all", "valid"}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from combine")
+
 					return nil
 				}),
 				cli.Allow(
@@ -245,8 +261,9 @@ func TestArgValidators(t *testing.T) {
 			name: "combine fail",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"valid", "args", "only", "bad", "five"}),
-				cli.Run(func(cmd *cli.Command, args []string) error {
+				cli.Run(func(cmd *cli.Command, _ []string) error {
 					fmt.Fprintln(cmd.Stdout(), "Hello from combine")
+
 					return nil
 				}),
 				cli.Allow(
