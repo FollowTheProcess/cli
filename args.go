@@ -16,7 +16,7 @@ type ArgValidator func(cmd *Command, args []string) error
 //
 // This is the default argument validator on a [Command] instantiated with cli.New.
 func AnyArgs() ArgValidator {
-	return func(cmd *Command, args []string) error {
+	return func(_ *Command, _ []string) error {
 		return nil
 	}
 }

@@ -62,13 +62,9 @@ tasks:
       - sh: command -v nilaway
         msg: nilaway not installed, see https://github.com/uber-go/nilaway
 
-      - sh: command -v betteralign
-        msg: requires betteralign, run `go install github.com/dkorunic/betteralign/cmd/betteralign@latest`
-
       - sh: command -v typos
         msg: requires typos-cli, run `brew install typos-cli`
     cmds:
-      - betteralign -test_files -apply ./...
       - golangci-lint run --fix
       - typos
       - nilaway ./...

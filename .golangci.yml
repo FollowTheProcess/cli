@@ -2,31 +2,45 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - containedctx
+    - canonicalheader
+    - cyclop
+    - depguard
     - durationcheck
     - errcheck
     - errchkjson
     - errname
+    - errorlint
     - exhaustive
+    - exptostd
+    - fatcontext
+    - gocognit
     - goconst
     - gocritic
-    - gocyclo
     - godot
     - gofumpt
     - goimports
+    - gosec
     - gosimple
     - govet
     - ineffassign
+    - intrange
+    - mirror
     - misspell
     - mnd
+    - musttag
+    - nakedret
     - nilerr
+    - nilnesserr
     - nilnil
     - nolintlint
-    - nakedret
+    - perfsprint
     - predeclared
     - reassign
+    - recvcheck
     - revive
+    - sloglint
     - staticcheck
+    - tagalign
     - tagliatelle
     - tenv
     - testpackage
@@ -34,9 +48,23 @@ linters:
     - unconvert
     - unparam
     - unused
+    - usetesting
     - whitespace
 
 linters-settings:
+  cyclop:
+    max-complexity: 20
+
+  depguard:
+    rules:
+      main:
+        deny:
+          - pkg: io/ioutil
+            desc: use io instead
+
+          - pkg: "math/rand$"
+            desc: use math/rand/v2 instead
+
   errcheck:
     check-type-assertions: true
     check-blank: true
@@ -47,80 +75,83 @@ linters-settings:
       - map
     default-signifies-exhaustive: true
 
-  gocyclo:
-    min-complexity: 20
-
   staticcheck:
-    checks: ["all"]
+    checks:
+      - all
 
   gosimple:
-    checks: ["all"]
+    checks:
+      - all
 
   govet:
     enable-all: true
 
+  gofumpt:
+    extra-rules: true
+
+  nakedret:
+    max-func-lines: 0 # Disallow any naked returns
+
+  nolintlint:
+    allow-unused: false
+    require-explanation: true
+    require-specific: true
+
+  usetesting:
+    context-background: true
+    context-todo: true
+    os-chdir: true
+    os-mkdir-temp: true
+    os-setenv: true
+    os-create-temp: true
+    os-temp-dir: true
+
   revive:
     max-open-files: 256
     ignore-generated-header: true
+    enable-all-rules: true
     rules:
+      - name: add-constant
+        disabled: true # goconst does this
+
       - name: argument-limit
-        disabled: false
-        arguments: [5]
+        arguments:
+          - 5
 
-      - name: atomic
-        disabled: false
+      - name: cognitive-complexity
+        disabled: true # gocognit does this
 
-      - name: blank-imports
-        disabled: false
-
-      - name: call-to-gc
-        disabled: false
-
-      - name: constant-logical-expr
-        disabled: false
-
-      - name: context-as-argument
-        disabled: false
-
-      - name: datarace
-        disabled: false
-
-      - name: deep-exit
-        disabled: false
-
-      - name: defer
-        disabled: false
-
-      - name: dot-imports
-        disabled: false
-
-      - name: early-return
-        disabled: false
+      - name: cyclomatic
+        disabled: true # cyclop does this
 
       - name: exported
         arguments:
           - checkPrivateReceivers
+          - checkPublicInterface
 
-      - name: modifies-value-receiver
-        disabled: false
+      - name: function-length
+        disabled: true
 
-      - name: package-comments
-        disabled: false
+      - name: function-result-limit
+        arguments:
+          - 3
 
-      - name: range
-        disabled: false
+      - name: import-shadowing
+        disabled: true
 
-      - name: range-val-in-closure
-        disabled: false
+      - name: line-length-limit
+        disabled: true
 
-      - name: range-val-address
-        disabled: false
+      - name: redefines-builtin-id
+        disabled: true # predeclared does this
 
-      - name: time-equal
-        disabled: false
-
-      - name: use-any
-        disabled: false
-
-      - name: waitgroup-by-value
-        disabled: false
+      - name: unhandled-error
+        arguments:
+          # Apparently regexes for this don't work?
+          - fmt\.Fprintln
+          - fmt\.Fprintf
+          - fmt\.Fprint
+          - fmt\.Println
+          - fmt\.Printf
+          - fmt\.Print
+          - strings\.Builder\.WriteString

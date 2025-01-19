@@ -198,7 +198,7 @@ func (s *Set) Usage() (string, error) {
 		}
 		var shorthand string
 		if flag.Short() != NoShortHand {
-			shorthand = fmt.Sprintf("-%s", string(flag.Short()))
+			shorthand = "-" + string(flag.Short())
 		} else {
 			shorthand = "N/A"
 		}

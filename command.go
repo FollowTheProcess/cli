@@ -59,10 +59,10 @@ func New(name string, options ...Option) (*Command, error) {
 	}
 
 	// Ensure we always have at least help and version flags
-	err := Flag(&cfg.helpCalled, "help", 'h', false, fmt.Sprintf("Show help for %s", name)).apply(&cfg)
+	err := Flag(&cfg.helpCalled, "help", 'h', false, "Show help for "+name).apply(&cfg)
 	errs = errors.Join(errs, err) // nil errors are discarded in join
 
-	err = Flag(&cfg.versionCalled, "version", 'V', false, fmt.Sprintf("Show version info for %s", name)).apply(&cfg)
+	err = Flag(&cfg.versionCalled, "version", 'V', false, "Show version info for "+name).apply(&cfg)
 	errs = errors.Join(errs, err)
 
 	if errs != nil {
@@ -254,7 +254,7 @@ func (c *Command) Execute() error {
 	//
 	// We're modifying the slice in place here, hence not using a range loop as it
 	// would take a copy of the c.positionalArgs slice
-	for i := 0; i < len(cmd.positionalArgs); i++ {
+	for i := range len(cmd.positionalArgs) {
 		if i >= len(argsWithoutFlags) {
 			arg := cmd.positionalArgs[i]
 

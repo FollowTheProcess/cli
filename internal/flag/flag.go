@@ -152,7 +152,7 @@ func (f Flag[T]) NoArgValue() string {
 
 // String implements [fmt.Stringer] for a [Flag], and also implements the String
 // part of [Value], allowing a flag to print itself.
-func (f Flag[T]) String() string { //nolint:gocyclo // No other way of doing this realistically
+func (f Flag[T]) String() string { //nolint:cyclop // No other way of doing this realistically
 	if f.value == nil {
 		return ""
 	}
@@ -206,7 +206,7 @@ func (f Flag[T]) String() string { //nolint:gocyclo // No other way of doing thi
 }
 
 // Type returns a string representation of the type of the Flag.
-func (f Flag[T]) Type() string { //nolint:gocyclo // No other way of doing this realistically
+func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this realistically
 	if f.value == nil {
 		return ""
 	}
@@ -257,7 +257,7 @@ func (f Flag[T]) Type() string { //nolint:gocyclo // No other way of doing this 
 }
 
 // Set sets a [Flag] value based on string input, i.e. parsing from the command line.
-func (f Flag[T]) Set(str string) error { //nolint:gocyclo // No other way of doing this realistically
+func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other way of doing this realistically
 	if f.value == nil {
 		return fmt.Errorf("cannot set value %s, flag.value was nil", str)
 	}
@@ -450,7 +450,7 @@ type unsigned interface {
 // This describes our use case as we're converting a *T to e.g a *string but *only* when we know
 // that a Flag[T] is actually Flag[string], so the memory layout and size is guaranteed by the
 // compiler to be equivalent.
-func cast[T2 any, T1 any](v *T1) *T2 {
+func cast[T2, T1 any](v *T1) *T2 {
 	return (*T2)(unsafe.Pointer(v))
 }
 

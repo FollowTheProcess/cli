@@ -172,7 +172,7 @@ func Stderr(stderr io.Writer) Option {
 //
 // Setting this option takes precedence over all other colour configuration.
 func NoColour(noColour bool) Option {
-	f := func(cfg *config) error {
+	f := func(_ *config) error {
 		// Just disable the internal colour package entirely
 		colour.Disable = noColour
 		return nil
