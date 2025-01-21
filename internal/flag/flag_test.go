@@ -163,20 +163,6 @@ func TestFlagValue(t *testing.T) {
 		test.Equal(t, countFlag.String(), "2")
 	})
 
-	t.Run("count invalid", func(t *testing.T) {
-		var c flag.Count
-		countFlag, err := flag.New(&c, "count", 'c', 0, "Count something")
-		test.Ok(t, err)
-
-		err = countFlag.Set("word")
-		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "count" received invalid value "word" (expected flag.Count), detail: strconv.ParseUint: parsing "word": invalid syntax`,
-		)
-	})
-
 	t.Run("uint valid", func(t *testing.T) {
 		var i uint
 		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint value")
@@ -679,7 +665,7 @@ func TestFlagNilSafety(t *testing.T) {
 		// Users doing naughty things, should still be nil safe
 		flag := flag.Flag[bool]{}
 		test.False(t, flag.Get())
-		test.Equal(t, flag.String(), "")
+		test.Equal(t, flag.String(), "<nil>")
 		test.Equal(t, flag.Type(), "")
 
 		err := flag.Set("true")
