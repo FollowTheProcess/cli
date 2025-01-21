@@ -62,12 +62,13 @@ var _ Value = Flag[string]{} // This will fail if we violate our Value interface
 // flag may be passed "-vvv" which should increase the verbosity level to 3.
 type Count uint
 
+// TODO(@FollowTheProcess): Support []<everything below> where you can use the flag
+// multiple times to append values e.g. --slice "one" --slice "two" --slice "three"
+// produces []string{"one", "two", "three"}
+
 // Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
-//
-// It's worth noting that the complete set of supported types is wider than this constraint appears
-// as e.g. a [time.Duration] is actually just an int64 underneath, likewise a [net.IP] is actually just []byte.
 type Flaggable interface {
-	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr | ~float32 | ~float64 | ~string | ~bool | ~[]byte | time.Time
+	int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | uintptr | float32 | float64 | string | bool | []byte | Count | time.Time | time.Duration | net.IP
 }
 
 // Flag represents a single command line flag.
@@ -157,7 +158,7 @@ func (f Flag[T]) NoArgValue() string {
 // part of [Value], allowing a flag to print itself.
 func (f Flag[T]) String() string { //nolint:cyclop // No other way of doing this realistically
 	if f.value == nil {
-		return ""
+		return "<nil>"
 	}
 
 	switch typ := any(f.value).(type) {
@@ -204,7 +205,7 @@ func (f Flag[T]) String() string { //nolint:cyclop // No other way of doing this
 	case fmt.Stringer:
 		return typ.String()
 	default:
-		return ""
+		return fmt.Sprintf("ERROR: unhandled type %T", typ)
 	}
 }
 
@@ -322,14 +323,8 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 			return fmt.Errorf("bad current count value %v, could not cast to Count", *f.value)
 		}
 
-		// Parse the given value which will be the flag's default value of "1"
-		// for 'increment by one'
-		val, err := parseUint[uint](0)(str)
-		if err != nil {
-			return errParse(f.name, str, typ, err)
-		}
 		// Increment the count and store it back
-		newValue := current + Count(val)
+		newValue := current + 1
 		*f.value = *cast[T](&newValue)
 
 		return nil
@@ -463,13 +458,13 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 // signed is the same as constraints.Signed but we don't have to depend
 // on golang/x/exp.
 type signed interface {
-	~int | ~int8 | ~int16 | ~int32 | ~int64
+	int | int8 | int16 | int32 | int64
 }
 
-// unsigned is the same as constraints.Unsigned but we don't have to depend
+// unsigned is the same as constraints.Unsigned (with Count mixed in) but we don't have to depend
 // on golang/x/exp.
 type unsigned interface {
-	~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr
+	uint | uint8 | uint16 | uint32 | uint64 | uintptr | Count
 }
 
 // cast converts a *T1 to a *T2, we use it here when we know (via generics and compile time checks)
