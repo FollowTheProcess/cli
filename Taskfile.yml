@@ -38,6 +38,8 @@ tasks:
     sources:
       - "**/*.go"
       - testdata/**/*.txt
+      - go.mod
+      - go.sum
     cmds:
       - go test -race ./... {{.CLI_ARGS}}
 
