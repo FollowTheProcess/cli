@@ -103,6 +103,12 @@ func New[T Flaggable](p *T, name string, short rune, value T, usage string) (Fla
 
 	*p = value
 
+	// If the default value is not the zero value for the type, it is treated as
+	// significant and shown to the user
+	if !isZero(value) {
+		usage += fmt.Sprintf(" [default: %v]", value)
+	}
+
 	flag := Flag[T]{
 		value: p,
 		name:  name,
@@ -623,5 +629,31 @@ func formatUint[T unsigned](in T) string {
 func formatFloat[T ~float32 | ~float64](bits int) func(T) string {
 	return func(in T) string {
 		return strconv.FormatFloat(float64(in), 'g', -1, bits)
+	}
+}
+
+// isZero reports whether value is the zero value for it's type.
+func isZero[T Flaggable](value T) bool {
+	switch typ := any(value).(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, uintptr, float32, float64:
+		return typ == 0
+	case Count:
+		return typ == Count(0)
+	case string:
+		return typ == ""
+	case bool:
+		return !typ
+	case []byte:
+		return typ == nil
+	case time.Time:
+		var zero time.Time
+		return typ.Equal(zero)
+	case time.Duration:
+		var zero time.Duration
+		return typ == zero
+	case net.IP:
+		return typ == nil
+	default:
+		return false
 	}
 }
