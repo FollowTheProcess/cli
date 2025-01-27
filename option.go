@@ -451,10 +451,15 @@ func Allow(validator ArgValidator) Option {
 	return option(f)
 }
 
-// Flag is an [Option] that adds a flag to a [Command], storing its value in a variable.
+// Flag is an [Option] that adds a flag to a [Command], storing its value in a variable via it's
+// pointer 'p'.
 //
 // The variable is set when the flag is parsed during command execution. The value provided
-// in the call to [Flag] is used as the default value.
+// by the 'value' argument to [Flag] is used as the default value, which will be used if the
+// flag value was not given via the command line.
+//
+// If the default value is not the zero value for the type T, the flags usage message will
+// show the default value in the commands help text.
 //
 // To add a long flag only (e.g. --delete with no -d option), pass [NoShortHand] for "short".
 //
