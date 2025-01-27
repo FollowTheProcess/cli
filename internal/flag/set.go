@@ -13,10 +13,6 @@ import (
 
 // Set is a set of command line flags.
 type Set struct {
-	// Note: flags and shorthands are different "views" to the same *Entry, the Entry
-	// is not duplicated, it's just two maps to the same pointer so we can look up
-	// using either
-
 	flags      map[string]Value // The actual stored flags, can lookup by name
 	shorthands map[rune]Value   // The flags by shorthand
 	args       []string         // Arguments minus flags or flag values
