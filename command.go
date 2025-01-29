@@ -188,24 +188,23 @@ func (e example) String() string {
 //
 // If the flags fail to parse, an error will be returned and the Run function
 // will not be called.
-func (c *Command) Execute() error {
-	if c == nil {
+func (cmd *Command) Execute() error {
+	if cmd == nil {
 		return errors.New("Execute called on a nil Command")
 	}
 
 	// Regardless of where we call execute, run it only from the root command, this is to ensure
 	// that when we use the arguments to go and find the subcommand to run (if needed), then we
 	// at the root of the command tree.
-	if c.parent != nil {
-		return fmt.Errorf("Execute must be called on the root of the command tree, was called on %s", c.name)
+	if cmd.parent != nil {
+		return fmt.Errorf("Execute must be called on the root of the command tree, was called on %s", cmd.name)
 	}
 
 	// Use the raw arguments and the command tree to determine which subcommand (if any)
-	// we should be invoking. If it turns out we want to invoke the root command, then
-	// cmd here will be c.
-	cmd, args := findRequestedCommand(c, c.args)
-
-	// Below this point, use cmd not c!
+	// we should be invoking and swap that into 'cmd'.
+	//
+	// Slightly magical trick but it simplifies a lot of stuff below.
+	cmd, args := findRequestedCommand(cmd, cmd.args)
 
 	if err := cmd.flagSet().Parse(args); err != nil {
 		return fmt.Errorf("failed to parse command flags: %w", err)
@@ -240,7 +239,7 @@ func (c *Command) Execute() error {
 			return errors.New("versionFunc was nil")
 		}
 
-		if err := cmd.versionFunc(c); err != nil {
+		if err := cmd.versionFunc(cmd); err != nil {
 			return fmt.Errorf("version function returned an error: %w", err)
 		}
 
@@ -293,33 +292,33 @@ func (c *Command) Execute() error {
 }
 
 // Flags returns the set of flags for the command.
-func (c *Command) flagSet() *flag.Set {
-	if c == nil {
+func (cmd *Command) flagSet() *flag.Set {
+	if cmd == nil {
 		// Only thing to do really, slightly more helpful than a generic
 		// nil pointer dereference
 		panic("flagSet called on a nil Command")
 	}
 
-	if c.flags == nil {
+	if cmd.flags == nil {
 		return flag.NewSet()
 	}
 
-	return c.flags
+	return cmd.flags
 }
 
 // Stdout returns the configured Stdout for the Command.
-func (c *Command) Stdout() io.Writer {
-	return c.root().stdout
+func (cmd *Command) Stdout() io.Writer {
+	return cmd.root().stdout
 }
 
 // Stderr returns the configured Stderr for the Command.
-func (c *Command) Stderr() io.Writer {
-	return c.root().stderr
+func (cmd *Command) Stderr() io.Writer {
+	return cmd.root().stderr
 }
 
 // Stdin returns the configured Stdin for the Command.
-func (c *Command) Stdin() io.Reader {
-	return c.root().stdin
+func (cmd *Command) Stdin() io.Reader {
+	return cmd.root().stdin
 }
 
 // Arg looks up a named positional argument by name.
@@ -328,8 +327,8 @@ func (c *Command) Stdin() io.Reader {
 // then the value returned will be the default value.
 //
 // If no named argument exists with the given name, it will return "".
-func (c *Command) Arg(name string) string {
-	for _, arg := range c.positionalArgs {
+func (cmd *Command) Arg(name string) string {
+	for _, arg := range cmd.positionalArgs {
 		if arg.name == name {
 			// arg.value will have been set to the default already during command line parsing
 			// if the arg was not provided
@@ -345,8 +344,8 @@ func (c *Command) Arg(name string) string {
 // pass through in your commands.
 //
 // If there were no extra arguments, it will return nil, false.
-func (c *Command) ExtraArgs() (args []string, ok bool) {
-	extra := c.flagSet().ExtraArgs()
+func (cmd *Command) ExtraArgs() (args []string, ok bool) {
+	extra := cmd.flagSet().ExtraArgs()
 	if len(extra) > 0 {
 		return extra, true
 	}
@@ -355,17 +354,17 @@ func (c *Command) ExtraArgs() (args []string, ok bool) {
 }
 
 // root returns the root of the command tree.
-func (c *Command) root() *Command {
-	if c.parent != nil {
-		return c.parent.root()
+func (cmd *Command) root() *Command {
+	if cmd.parent != nil {
+		return cmd.parent.root()
 	}
 
-	return c
+	return cmd
 }
 
 // hasFlag returns whether the command has a flag of the given name defined.
-func (c *Command) hasFlag(name string) bool {
-	flag, ok := c.flagSet().Get(name)
+func (cmd *Command) hasFlag(name string) bool {
+	flag, ok := cmd.flagSet().Get(name)
 	if !ok {
 		return false
 	}
@@ -374,14 +373,14 @@ func (c *Command) hasFlag(name string) bool {
 }
 
 // hasShortFlag returns whether the command has a shorthand flag of the given name defined.
-func (c *Command) hasShortFlag(name string) bool {
+func (cmd *Command) hasShortFlag(name string) bool {
 	if name == "" {
 		return false
 	}
 
 	char, _ := utf8.DecodeRuneInString(name)
 
-	flag, ok := c.flagSet().GetShort(char)
+	flag, ok := cmd.flagSet().GetShort(char)
 	if !ok {
 		return false
 	}
@@ -390,9 +389,9 @@ func (c *Command) hasShortFlag(name string) bool {
 }
 
 // subcommandNames returns a list of all the names of the current command's registered subcommands.
-func (c *Command) subcommandNames() []string {
-	names := make([]string, 0, len(c.subcommands))
-	for _, sub := range c.subcommands {
+func (cmd *Command) subcommandNames() []string {
+	names := make([]string, 0, len(cmd.subcommands))
+	for _, sub := range cmd.subcommands {
 		names = append(names, sub.name)
 	}
 
