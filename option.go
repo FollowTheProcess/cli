@@ -16,9 +16,6 @@ import (
 const NoShortHand = flag.NoShortHand
 
 // Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
-//
-// It's worth noting that the complete set of supported types is wider than this constraint appears
-// as e.g. a [time.Duration] is actually just an int64 underneath, likewise a [net.IP] is actually just []byte.
 type Flaggable flag.Flaggable
 
 // Note: this must be a type alias (FlagCount = flag.Count), not a newtype (FlagCount flag.Count)
@@ -75,8 +72,10 @@ type config struct {
 	versionCalled  bool
 }
 
-// build builds an returns a Command from the config, applying validation
-// to the whole thing.
+// build builds an returns a Command from the config.
+//
+// The returned command is a completely standalone CLI program with no back-references
+// to the config, so is effectively immutable to the user.
 func (c *config) build() *Command {
 	cmd := &Command{
 		stdin:          c.stdin,
