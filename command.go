@@ -522,8 +522,8 @@ func defaultHelp(cmd *Command) error {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString(colour.Title("Usage:"))
-	s.WriteString(" ")
+	s.WriteString(colour.Title("Usage"))
+	s.WriteString(": ")
 	s.WriteString(colour.Bold(cmd.name))
 
 	if len(cmd.subcommands) == 0 {
@@ -572,8 +572,8 @@ func defaultHelp(cmd *Command) error {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString(colour.Title("Options:"))
-	s.WriteString("\n")
+	s.WriteString(colour.Title("Options"))
+	s.WriteString(":\n")
 	s.WriteString(usage)
 
 	// Subcommand help
@@ -611,8 +611,8 @@ func writePositionalArgs(cmd *Command, s *strings.Builder) {
 // text string builder.
 func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 	s.WriteString("\n\n")
-	s.WriteString(colour.Title("Arguments:"))
-	s.WriteString("\n")
+	s.WriteString(colour.Title("Arguments"))
+	s.WriteString(":\n")
 	tab := table.New(s)
 
 	for _, arg := range cmd.positionalArgs {
@@ -643,7 +643,8 @@ func writeExamples(cmd *Command, s *strings.Builder) {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString(colour.Title("Examples:"))
+	s.WriteString(colour.Title("Examples"))
+	s.WriteString(":")
 
 	for _, example := range cmd.examples {
 		s.WriteString(example.String())
@@ -653,8 +654,8 @@ func writeExamples(cmd *Command, s *strings.Builder) {
 // writeSubcommands writes the subcommand block to the help text string builder.
 func writeSubcommands(cmd *Command, s *strings.Builder) error {
 	s.WriteString("\n\n")
-	s.WriteString(colour.Title("Commands:"))
-	s.WriteString("\n")
+	s.WriteString(colour.Title("Commands"))
+	s.WriteString(":\n")
 
 	tab := table.New(s)
 	for _, subcommand := range cmd.subcommands {
