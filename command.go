@@ -536,6 +536,8 @@ func defaultHelp(cmd *Command) error {
 			writePositionalArgs(cmd, s)
 		} else {
 			// We have no named arguments so do the best we can
+			// TODO(@FollowTheProcess): Can we detect if cli.NoArgs was used in which case
+			// omit this
 			s.WriteString("ARGS...")
 		}
 	} else {
