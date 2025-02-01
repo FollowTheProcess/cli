@@ -9,7 +9,7 @@ import (
 )
 
 func BuildCLI() (*cli.Command, error) {
-	demo, err := cli.New(
+	return cli.New(
 		"demo",
 		cli.Short("An example CLI to demonstrate the library and play with it for real."),
 		cli.Version("dev"),
@@ -20,11 +20,6 @@ func BuildCLI() (*cli.Command, error) {
 		cli.Allow(cli.NoArgs()),
 		cli.SubCommands(buildSayCommand, buildDoCommand),
 	)
-	if err != nil {
-		return nil, err
-	}
-
-	return demo, nil
 }
 
 type sayOptions struct {
@@ -35,7 +30,7 @@ type sayOptions struct {
 
 func buildSayCommand() (*cli.Command, error) {
 	var options sayOptions
-	say, err := cli.New(
+	return cli.New(
 		"say",
 		cli.Short("Print a message"),
 		cli.Example("Say a well known phrase", "demo say hello world"),
@@ -45,11 +40,6 @@ func buildSayCommand() (*cli.Command, error) {
 		cli.Flag(&options.count, "count", 'c', 0, "Count the things"),
 		cli.Flag(&options.thing, "thing", 't', "", "Name of the thing"),
 	)
-	if err != nil {
-		return nil, err
-	}
-
-	return say, nil
 }
 
 type doOptions struct {
@@ -61,7 +51,7 @@ type doOptions struct {
 
 func buildDoCommand() (*cli.Command, error) {
 	var options doOptions
-	do, err := cli.New(
+	return cli.New(
 		"do",
 		cli.Short("Do a thing"),
 		cli.Example("Do something", "demo do something --fast"),
@@ -74,11 +64,6 @@ func buildDoCommand() (*cli.Command, error) {
 		cli.Flag(&options.duration, "duration", 'd', 1*time.Second, "Do the thing for a specific duration"),
 		cli.Run(runDo(&options)),
 	)
-	if err != nil {
-		return nil, err
-	}
-
-	return do, nil
 }
 
 func runSay(options *sayOptions) func(cmd *cli.Command, args []string) error {
