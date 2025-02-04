@@ -10,7 +10,7 @@ import (
 	"github.com/FollowTheProcess/test"
 )
 
-func TestFlagValue(t *testing.T) {
+func TestFlaggableTypes(t *testing.T) {
 	// We can't do table testing here because Flag[T] is a different type for each test
 	// so we can't do a []Flag[T] which is needed to define the test cases
 	// so strap in for a bunch of copy pasta
@@ -21,7 +21,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = intFlag.Set("42")
 		test.Ok(t, err)
-		test.Equal(t, intFlag.Get(), 42)
+		test.Equal(t, i, 42)
 		test.Equal(t, intFlag.Type(), "int")
 		test.Equal(t, intFlag.String(), "42")
 	})
@@ -47,7 +47,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = intFlag.Set("42")
 		test.Ok(t, err)
-		test.Equal(t, intFlag.Get(), int8(42))
+		test.Equal(t, i, int8(42))
 		test.Equal(t, intFlag.Type(), "int8")
 		test.Equal(t, intFlag.String(), "42")
 	})
@@ -73,7 +73,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = intFlag.Set("42")
 		test.Ok(t, err)
-		test.Equal(t, intFlag.Get(), int16(42))
+		test.Equal(t, i, int16(42))
 		test.Equal(t, intFlag.Type(), "int16")
 		test.Equal(t, intFlag.String(), "42")
 	})
@@ -99,7 +99,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = intFlag.Set("42")
 		test.Ok(t, err)
-		test.Equal(t, intFlag.Get(), int32(42))
+		test.Equal(t, i, int32(42))
 		test.Equal(t, intFlag.Type(), "int32")
 		test.Equal(t, intFlag.String(), "42")
 	})
@@ -125,7 +125,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = intFlag.Set("42")
 		test.Ok(t, err)
-		test.Equal(t, intFlag.Get(), int64(42))
+		test.Equal(t, i, int64(42))
 		test.Equal(t, intFlag.Type(), "int64")
 		test.Equal(t, intFlag.String(), "42")
 	})
@@ -151,14 +151,14 @@ func TestFlagValue(t *testing.T) {
 
 		err = countFlag.Set("1")
 		test.Ok(t, err)
-		test.Equal(t, countFlag.Get(), flag.Count(1))
+		test.Equal(t, c, flag.Count(1))
 		test.Equal(t, countFlag.Type(), "count")
 		test.Equal(t, countFlag.String(), "1")
 
 		// Setting it again should increment to 2
 		err = countFlag.Set("1")
 		test.Ok(t, err)
-		test.Equal(t, countFlag.Get(), flag.Count(2))
+		test.Equal(t, c, flag.Count(2))
 		test.Equal(t, countFlag.Type(), "count")
 		test.Equal(t, countFlag.String(), "2")
 	})
@@ -170,7 +170,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = intFlag.Set("42")
 		test.Ok(t, err)
-		test.Equal(t, intFlag.Get(), 42)
+		test.Equal(t, i, 42)
 		test.Equal(t, intFlag.Type(), "uint")
 		test.Equal(t, intFlag.String(), "42")
 	})
@@ -196,7 +196,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = intFlag.Set("42")
 		test.Ok(t, err)
-		test.Equal(t, intFlag.Get(), uint8(42))
+		test.Equal(t, i, uint8(42))
 		test.Equal(t, intFlag.Type(), "uint8")
 		test.Equal(t, intFlag.String(), "42")
 	})
@@ -222,7 +222,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = intFlag.Set("42")
 		test.Ok(t, err)
-		test.Equal(t, intFlag.Get(), uint16(42))
+		test.Equal(t, i, uint16(42))
 		test.Equal(t, intFlag.Type(), "uint16")
 		test.Equal(t, intFlag.String(), "42")
 	})
@@ -248,7 +248,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = intFlag.Set("42")
 		test.Ok(t, err)
-		test.Equal(t, intFlag.Get(), uint32(42))
+		test.Equal(t, i, uint32(42))
 		test.Equal(t, intFlag.Type(), "uint32")
 		test.Equal(t, intFlag.String(), "42")
 	})
@@ -274,7 +274,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = intFlag.Set("42")
 		test.Ok(t, err)
-		test.Equal(t, intFlag.Get(), uint64(42))
+		test.Equal(t, i, uint64(42))
 		test.Equal(t, intFlag.Type(), "uint64")
 		test.Equal(t, intFlag.String(), "42")
 	})
@@ -300,7 +300,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = intFlag.Set("42")
 		test.Ok(t, err)
-		test.Equal(t, intFlag.Get(), uintptr(42))
+		test.Equal(t, i, uintptr(42))
 		test.Equal(t, intFlag.Type(), "uintptr")
 		test.Equal(t, intFlag.String(), "42")
 	})
@@ -326,7 +326,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = floatFlag.Set("3.14159")
 		test.Ok(t, err)
-		test.Equal(t, floatFlag.Get(), 3.14159)
+		test.Equal(t, f, 3.14159)
 		test.Equal(t, floatFlag.Type(), "float32")
 		test.Equal(t, floatFlag.String(), "3.14159")
 	})
@@ -352,7 +352,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = floatFlag.Set("3.14159")
 		test.Ok(t, err)
-		test.Equal(t, floatFlag.Get(), 3.14159)
+		test.Equal(t, f, 3.14159)
 		test.Equal(t, floatFlag.Type(), "float64")
 		test.Equal(t, floatFlag.String(), "3.14159")
 	})
@@ -378,7 +378,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = boolFlag.Set("true")
 		test.Ok(t, err)
-		test.Equal(t, boolFlag.Get(), true)
+		test.Equal(t, b, true)
 		test.Equal(t, boolFlag.Type(), "bool")
 		test.Equal(t, boolFlag.String(), "true")
 	})
@@ -406,7 +406,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = strFlag.Set("newvalue")
 		test.Ok(t, err)
-		test.Equal(t, strFlag.Get(), "newvalue")
+		test.Equal(t, str, "newvalue")
 		test.Equal(t, strFlag.Type(), "string")
 		test.Equal(t, strFlag.String(), "newvalue")
 	})
@@ -418,7 +418,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = byteFlag.Set("5e")
 		test.Ok(t, err)
-		test.EqualFunc(t, byteFlag.Get(), []byte("^"), bytes.Equal)
+		test.EqualFunc(t, byt, []byte("^"), bytes.Equal)
 		test.Equal(t, byteFlag.Type(), "bytesHex")
 		test.Equal(t, byteFlag.String(), "5e")
 	})
@@ -447,7 +447,7 @@ func TestFlagValue(t *testing.T) {
 
 		want, err := time.Parse(time.RFC3339, "2024-07-17T07:38:05Z")
 		test.Ok(t, err)
-		test.Equal(t, timeFlag.Get(), want)
+		test.Equal(t, tyme, want)
 		test.Equal(t, timeFlag.Type(), "time")
 		test.Equal(t, timeFlag.String(), "2024-07-17T07:38:05Z")
 	})
@@ -482,7 +482,7 @@ func TestFlagValue(t *testing.T) {
 
 		want, err := time.ParseDuration("300ms")
 		test.Ok(t, err)
-		test.Equal(t, durationFlag.Get(), want)
+		test.Equal(t, duration, want)
 		test.Equal(t, durationFlag.Type(), "duration")
 		test.Equal(t, durationFlag.String(), "300ms")
 	})
@@ -514,7 +514,7 @@ func TestFlagValue(t *testing.T) {
 
 		err = ipFlag.Set("192.0.2.1")
 		test.Ok(t, err)
-		test.DiffBytes(t, ipFlag.Get(), net.ParseIP("192.0.2.1"))
+		test.DiffBytes(t, ip, net.ParseIP("192.0.2.1"))
 		test.Equal(t, ipFlag.Type(), "ip")
 		test.Equal(t, ipFlag.String(), "192.0.2.1")
 	})
@@ -656,7 +656,6 @@ func TestFlagNilSafety(t *testing.T) {
 		flag, err := flag.New(bang, "bang", 'b', false, "Nil go bang?")
 		test.Ok(t, err)
 
-		test.False(t, flag.Get())
 		test.Equal(t, flag.String(), "false")
 		test.Equal(t, flag.Type(), "bool")
 	})
@@ -664,7 +663,6 @@ func TestFlagNilSafety(t *testing.T) {
 	t.Run("composite literal", func(t *testing.T) {
 		// Users doing naughty things, should still be nil safe
 		flag := flag.Flag[bool]{}
-		test.False(t, flag.Get())
 		test.Equal(t, flag.String(), "<nil>")
 		test.Equal(t, flag.Type(), "")
 
