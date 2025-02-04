@@ -149,46 +149,46 @@ func (f Flag[T]) String() string { //nolint:cyclop // No other way of doing this
 		return "<nil>"
 	}
 
-	switch typ := any(f.value).(type) {
-	case *int:
-		return formatInt(*typ)
-	case *int8:
-		return formatInt(*typ)
-	case *int16:
-		return formatInt(*typ)
-	case *int32:
-		return formatInt(*typ)
-	case *int64:
-		return formatInt(*typ)
-	case *Count:
-		return formatUint(*typ)
-	case *uint:
-		return formatUint(*typ)
-	case *uint8:
-		return formatUint(*typ)
-	case *uint16:
-		return formatUint(*typ)
-	case *uint32:
-		return formatUint(*typ)
-	case *uint64:
-		return formatUint(*typ)
-	case *uintptr:
-		return formatUint(*typ)
-	case *float32:
-		return formatFloat[float32](bits32)(*typ)
-	case *float64:
-		return formatFloat[float64](bits64)(*typ)
-	case *string:
-		return *typ
-	case *bool:
-		return strconv.FormatBool(*typ)
-	case *[]byte:
-		return hex.EncodeToString(*typ)
-	case *time.Time:
+	switch typ := any(*f.value).(type) {
+	case int:
+		return formatInt(typ)
+	case int8:
+		return formatInt(typ)
+	case int16:
+		return formatInt(typ)
+	case int32:
+		return formatInt(typ)
+	case int64:
+		return formatInt(typ)
+	case Count:
+		return formatUint(typ)
+	case uint:
+		return formatUint(typ)
+	case uint8:
+		return formatUint(typ)
+	case uint16:
+		return formatUint(typ)
+	case uint32:
+		return formatUint(typ)
+	case uint64:
+		return formatUint(typ)
+	case uintptr:
+		return formatUint(typ)
+	case float32:
+		return formatFloat[float32](bits32)(typ)
+	case float64:
+		return formatFloat[float64](bits64)(typ)
+	case string:
+		return typ
+	case bool:
+		return strconv.FormatBool(typ)
+	case []byte:
+		return hex.EncodeToString(typ)
+	case time.Time:
 		return typ.Format(time.RFC3339)
-	case *time.Duration:
+	case time.Duration:
 		return typ.String()
-	case *net.IP:
+	case net.IP:
 		return typ.String()
 	case fmt.Stringer:
 		return typ.String()
@@ -203,46 +203,46 @@ func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this r
 		return ""
 	}
 
-	switch typ := any(f.value).(type) {
-	case *int:
+	switch typ := any(*f.value).(type) {
+	case int:
 		return typeInt
-	case *int8:
+	case int8:
 		return typeInt8
-	case *int16:
+	case int16:
 		return typeInt16
-	case *int32:
+	case int32:
 		return typeInt32
-	case *int64:
+	case int64:
 		return typeInt64
-	case *Count:
+	case Count:
 		return typeCount
-	case *uint:
+	case uint:
 		return typeUint
-	case *uint8:
+	case uint8:
 		return typeUint8
-	case *uint16:
+	case uint16:
 		return typeUint16
-	case *uint32:
+	case uint32:
 		return typeUint32
-	case *uint64:
+	case uint64:
 		return typeUint64
-	case *uintptr:
+	case uintptr:
 		return typeUintptr
-	case *float32:
+	case float32:
 		return typeFloat32
-	case *float64:
+	case float64:
 		return typeFloat64
-	case *string:
+	case string:
 		return typeString
-	case *bool:
+	case bool:
 		return typeBool
-	case *[]byte:
+	case []byte:
 		return typeBytesHex
-	case *time.Time:
+	case time.Time:
 		return typeTime
-	case *time.Duration:
+	case time.Duration:
 		return typeDuration
-	case *net.IP:
+	case net.IP:
 		return typeIP
 	default:
 		return fmt.Sprintf("%T", typ)
@@ -255,8 +255,8 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		return fmt.Errorf("cannot set value %s, flag.value was nil", str)
 	}
 
-	switch typ := any(f.value).(type) {
-	case *int:
+	switch typ := any(*f.value).(type) {
+	case int:
 		val, err := parseInt[int](0)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -265,7 +265,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *int8:
+	case int8:
 		val, err := parseInt[int8](bits8)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -274,7 +274,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *int16:
+	case int16:
 		val, err := parseInt[int16](bits16)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -283,7 +283,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *int32:
+	case int32:
 		val, err := parseInt[int32](bits32)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -292,7 +292,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *int64:
+	case int64:
 		val, err := parseInt[int64](bits64)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -301,7 +301,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *Count:
+	case Count:
 		// We have to do a bit of custom stuff here as an incremement is a read and write op
 		// First read the current value of the flag and cast it to a Count so we
 		// can increment it
@@ -316,7 +316,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&newValue)
 
 		return nil
-	case *uint:
+	case uint:
 		val, err := parseUint[uint](0)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -325,7 +325,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *uint8:
+	case uint8:
 		val, err := parseUint[uint8](bits8)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -334,7 +334,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *uint16:
+	case uint16:
 		val, err := parseUint[uint16](bits16)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -343,7 +343,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *uint32:
+	case uint32:
 		val, err := parseUint[uint32](bits32)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -352,7 +352,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *uint64:
+	case uint64:
 		val, err := parseUint[uint64](bits64)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -361,7 +361,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *uintptr:
+	case uintptr:
 		val, err := parseUint[uint64](bits64)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -370,7 +370,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *float32:
+	case float32:
 		val, err := parseFloat[float32](bits32)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -379,7 +379,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *float64:
+	case float64:
 		val, err := parseFloat[float64](bits64)(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -388,12 +388,12 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *string:
+	case string:
 		val := str
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *bool:
+	case bool:
 		val, err := strconv.ParseBool(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -402,7 +402,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *[]byte:
+	case []byte:
 		val, err := hex.DecodeString(strings.TrimSpace(str))
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -411,7 +411,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *time.Time:
+	case time.Time:
 		val, err := time.Parse(time.RFC3339, str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -420,7 +420,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *time.Duration:
+	case time.Duration:
 		val, err := time.ParseDuration(str)
 		if err != nil {
 			return errParse(f.name, str, typ, err)
@@ -429,7 +429,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case *net.IP:
+	case net.IP:
 		val := net.ParseIP(str)
 		if val == nil {
 			return errParse(f.name, str, typ, errors.New("invalid IP address"))
@@ -545,12 +545,12 @@ func validateFlagShort(short rune) error {
 
 // errParse is a helper to quickly return a consistent error in the face of flag
 // value parsing errors.
-func errParse[T Flaggable](name, str string, typ *T, err error) error {
+func errParse[T Flaggable](name, str string, typ T, err error) error {
 	return fmt.Errorf(
 		"flag %q received invalid value %q (expected %T), detail: %w",
 		name,
 		str,
-		*typ,
+		typ,
 		err,
 	)
 }
