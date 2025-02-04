@@ -119,15 +119,6 @@ func New[T Flaggable](p *T, name string, short rune, value T, usage string) (Fla
 	return flag, nil
 }
 
-// Get gets a [Flag] value.
-func (f Flag[T]) Get() T {
-	if f.value == nil {
-		return *new(T)
-	}
-
-	return *f.value
-}
-
 // Name returns the name of the [Flag].
 func (f Flag[T]) Name() string {
 	return f.name
