@@ -450,6 +450,8 @@ func Allow(validator ArgValidator) Option {
 	return option(f)
 }
 
+// TODO(@FollowTheProcess): Document the flaggable types
+
 // Flag is an [Option] that adds a flag to a [Command], storing its value in a variable via it's
 // pointer 'p'.
 //
