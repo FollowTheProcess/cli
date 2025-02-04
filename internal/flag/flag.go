@@ -45,6 +45,7 @@ const (
 	typeTime     = "time"
 	typeDuration = "duration"
 	typeIP       = "ip"
+	typeIntSlice = "[]int"
 )
 
 const (
@@ -190,6 +191,8 @@ func (f Flag[T]) String() string { //nolint:cyclop // No other way of doing this
 		return typ.String()
 	case net.IP:
 		return typ.String()
+	case []int:
+		return formatSlice(typ)
 	case fmt.Stringer:
 		return typ.String()
 	default:
@@ -244,6 +247,8 @@ func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this r
 		return typeDuration
 	case net.IP:
 		return typeIP
+	case []int:
+		return typeIntSlice
 	default:
 		return fmt.Sprintf("%T", typ)
 	}
@@ -438,6 +443,24 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
+	case []int:
+		// Like Count, a slice flag is a read/write op
+		slice, ok := any(*f.value).([]int)
+		if !ok {
+			return fmt.Errorf("bad value %v, could not cast to []int", *f.value)
+		}
+
+		// Append the given value to the slice
+		newValue, err := parseInt[int](0)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+
 	default:
 		return fmt.Errorf("unsupported flag type: %T", typ)
 	}
@@ -555,6 +578,18 @@ func errParse[T Flaggable](name, str string, typ T, err error) error {
 	)
 }
 
+// errParseSlice is like errParse but for []T flags where the error message
+// needs to be a bit more specific.
+func errParseSlice[T Flaggable](name, str string, typ T, err error) error {
+	return fmt.Errorf(
+		"flag %q (type %T) cannot append element %q: %w",
+		name,
+		typ,
+		str,
+		err,
+	)
+}
+
 // parseInt is a generic helper to parse all signed integers, given a bit size.
 //
 // It returns the parsed value or an error.
@@ -614,6 +649,11 @@ func formatFloat[T ~float32 | ~float64](bits int) func(T) string {
 	}
 }
 
+// formatSlice is a generic helper to return a string representation of a slice.
+func formatSlice[T any](slice []T) string {
+	return fmt.Sprintf("%v", slice)
+}
+
 // isZero reports whether value is the zero value for it's type.
 func isZero[T Flaggable](value T) bool {
 	switch typ := any(value).(type) {
@@ -634,6 +674,8 @@ func isZero[T Flaggable](value T) bool {
 		var zero time.Duration
 		return typ == zero
 	case net.IP:
+		return typ == nil
+	case []int:
 		return typ == nil
 	default:
 		return false

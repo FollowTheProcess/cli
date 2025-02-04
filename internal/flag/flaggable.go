@@ -12,6 +12,7 @@ import (
 // Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
 type Flaggable interface {
 	int |
+		[]int |
 		int8 |
 		int16 |
 		int32 |

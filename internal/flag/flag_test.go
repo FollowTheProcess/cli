@@ -3,6 +3,7 @@ package flag_test
 import (
 	"bytes"
 	"net"
+	"slices"
 	"testing"
 	"time"
 
@@ -530,6 +531,40 @@ func TestFlaggableTypes(t *testing.T) {
 			t,
 			err.Error(),
 			`flag "ip" received invalid value "not an ip" (expected net.IP), detail: invalid IP address`,
+		)
+	})
+
+	t.Run("int slice valid", func(t *testing.T) {
+		var slice []int
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("1") // Append 1 to the slice
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []int{1}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]int")
+		test.Equal(t, sliceFlag.String(), "[1]")
+
+		err = sliceFlag.Set("2") // Now 2
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []int{1, 2}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]int")
+		test.Equal(t, sliceFlag.String(), "[1 2]")
+	})
+
+	t.Run("int slice invalid", func(t *testing.T) {
+		var slice []int
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("a word")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "slice" (type []int) cannot append element "a word": strconv.ParseInt: parsing "a word": invalid syntax`,
 		)
 	})
 }
