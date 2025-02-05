@@ -109,7 +109,9 @@ func New[T Flaggable](p *T, name string, short rune, value T, usage string) (Fla
 	// If the default value is not the zero value for the type, it is treated as
 	// significant and shown to the user
 	if !isZero(value) {
-		usage += fmt.Sprintf(" [default: %v]", value)
+		// \t so that defaults get aligned by tabwriter when the command
+		// dumps the flags
+		usage += fmt.Sprintf("\t[default: %v]", value)
 	}
 
 	flag := Flag[T]{
