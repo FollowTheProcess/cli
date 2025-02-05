@@ -7,6 +7,7 @@ package colour
 import (
 	"os"
 	"sync"
+	"sync/atomic"
 )
 
 // ANSI codes for coloured output, they are all the same length so as not to throw off
@@ -20,7 +21,7 @@ const (
 // Disable is a flag that disables all colour text, it overrides both
 // $FORCE_COLOR and $NO_COLOR, setting it to true will always make this
 // package return plain text and not check any other config.
-var Disable = false
+var Disable atomic.Bool
 
 // getColourOnce is a [sync.OnceValues] function that returns the state of
 // $NO_COLOR and $FORCE_COLOR, once and only once to avoid us calling
@@ -55,7 +56,7 @@ func Bold(text string) string {
 // [Disable] is true then nothing else is checked and plain text is returned.
 func sprint(code, text string) string {
 	// Our global variable is above all else
-	if Disable {
+	if Disable.Load() {
 		return text
 	}
 
