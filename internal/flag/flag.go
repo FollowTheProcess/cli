@@ -25,31 +25,35 @@ const (
 )
 
 const (
-	typeInt        = "int"
-	typeInt8       = "int8"
-	typeInt16      = "int16"
-	typeInt32      = "int32"
-	typeInt64      = "int64"
-	typeCount      = "count"
-	typeUint       = "uint"
-	typeUint8      = "uint8"
-	typeUint16     = "uint16"
-	typeUint32     = "uint32"
-	typeUint64     = "uint64"
-	typeUintptr    = "uintptr"
-	typeFloat32    = "float32"
-	typeFloat64    = "float64"
-	typeString     = "string"
-	typeBool       = "bool"
-	typeBytesHex   = "bytesHex"
-	typeTime       = "time"
-	typeDuration   = "duration"
-	typeIP         = "ip"
-	typeIntSlice   = "[]int"
-	typeInt8Slice  = "[]int8"
-	typeInt16Slice = "[]int16"
-	typeInt32Slice = "[]int32"
-	typeInt64Slice = "[]int64"
+	typeInt         = "int"
+	typeInt8        = "int8"
+	typeInt16       = "int16"
+	typeInt32       = "int32"
+	typeInt64       = "int64"
+	typeCount       = "count"
+	typeUint        = "uint"
+	typeUint8       = "uint8"
+	typeUint16      = "uint16"
+	typeUint32      = "uint32"
+	typeUint64      = "uint64"
+	typeUintptr     = "uintptr"
+	typeFloat32     = "float32"
+	typeFloat64     = "float64"
+	typeString      = "string"
+	typeBool        = "bool"
+	typeBytesHex    = "bytesHex"
+	typeTime        = "time"
+	typeDuration    = "duration"
+	typeIP          = "ip"
+	typeIntSlice    = "[]int"
+	typeInt8Slice   = "[]int8"
+	typeInt16Slice  = "[]int16"
+	typeInt32Slice  = "[]int32"
+	typeInt64Slice  = "[]int64"
+	typeUintSlice   = "[]uint"
+	typeUint16Slice = "[]uint16"
+	typeUint32Slice = "[]uint32"
+	typeUint64Slice = "[]uint64"
 )
 
 const (
@@ -205,6 +209,14 @@ func (f Flag[T]) String() string { //nolint:cyclop // No other way of doing this
 		return formatSlice(typ)
 	case []int64:
 		return formatSlice(typ)
+	case []uint:
+		return formatSlice(typ)
+	case []uint16:
+		return formatSlice(typ)
+	case []uint32:
+		return formatSlice(typ)
+	case []uint64:
+		return formatSlice(typ)
 	case fmt.Stringer:
 		return typ.String()
 	default:
@@ -269,6 +281,14 @@ func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this r
 		return typeInt32Slice
 	case []int64:
 		return typeInt64Slice
+	case []uint:
+		return typeUintSlice
+	case []uint16:
+		return typeUint16Slice
+	case []uint32:
+		return typeUint32Slice
+	case []uint64:
+		return typeUint64Slice
 	default:
 		return fmt.Sprintf("%T", typ)
 	}
@@ -541,6 +561,67 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		return nil
 
+	case []uint:
+		slice, ok := any(*f.value).([]uint)
+		if !ok {
+			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+		}
+
+		// Append the given value to the slice
+		newValue, err := parseUint[uint](0)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []uint16:
+		slice, ok := any(*f.value).([]uint16)
+		if !ok {
+			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+		}
+
+		newValue, err := parseUint[uint16](bits16)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []uint32:
+		slice, ok := any(*f.value).([]uint32)
+		if !ok {
+			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+		}
+
+		newValue, err := parseUint[uint32](bits32)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []uint64:
+		slice, ok := any(*f.value).([]uint64)
+		if !ok {
+			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+		}
+
+		newValue, err := parseUint[uint64](bits64)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
 	default:
 		return fmt.Errorf("unsupported flag type: %T", typ)
 	}
