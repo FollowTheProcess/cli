@@ -32,5 +32,6 @@ type Flaggable interface {
 		time.Duration |
 		net.IP |
 		[]int |
-		[]int8
+		[]int8 |
+		[]int16
 }
