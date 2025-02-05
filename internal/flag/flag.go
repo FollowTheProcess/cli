@@ -25,26 +25,38 @@ const (
 )
 
 const (
-	typeInt      = "int"
-	typeInt8     = "int8"
-	typeInt16    = "int16"
-	typeInt32    = "int32"
-	typeInt64    = "int64"
-	typeCount    = "count"
-	typeUint     = "uint"
-	typeUint8    = "uint8"
-	typeUint16   = "uint16"
-	typeUint32   = "uint32"
-	typeUint64   = "uint64"
-	typeUintptr  = "uintptr"
-	typeFloat32  = "float32"
-	typeFloat64  = "float64"
-	typeString   = "string"
-	typeBool     = "bool"
-	typeBytesHex = "bytesHex"
-	typeTime     = "time"
-	typeDuration = "duration"
-	typeIP       = "ip"
+	typeInt          = "int"
+	typeInt8         = "int8"
+	typeInt16        = "int16"
+	typeInt32        = "int32"
+	typeInt64        = "int64"
+	typeCount        = "count"
+	typeUint         = "uint"
+	typeUint8        = "uint8"
+	typeUint16       = "uint16"
+	typeUint32       = "uint32"
+	typeUint64       = "uint64"
+	typeUintptr      = "uintptr"
+	typeFloat32      = "float32"
+	typeFloat64      = "float64"
+	typeString       = "string"
+	typeBool         = "bool"
+	typeBytesHex     = "bytesHex"
+	typeTime         = "time"
+	typeDuration     = "duration"
+	typeIP           = "ip"
+	typeIntSlice     = "[]int"
+	typeInt8Slice    = "[]int8"
+	typeInt16Slice   = "[]int16"
+	typeInt32Slice   = "[]int32"
+	typeInt64Slice   = "[]int64"
+	typeUintSlice    = "[]uint"
+	typeUint16Slice  = "[]uint16"
+	typeUint32Slice  = "[]uint32"
+	typeUint64Slice  = "[]uint64"
+	typeFloat32Slice = "[]float32"
+	typeFloat64Slice = "[]float64"
+	typeStringSlice  = "[]string"
 )
 
 const (
@@ -190,17 +202,39 @@ func (f Flag[T]) String() string { //nolint:cyclop // No other way of doing this
 		return typ.String()
 	case net.IP:
 		return typ.String()
-	case fmt.Stringer:
-		return typ.String()
+	case []int:
+		return formatSlice(typ)
+	case []int8:
+		return formatSlice(typ)
+	case []int16:
+		return formatSlice(typ)
+	case []int32:
+		return formatSlice(typ)
+	case []int64:
+		return formatSlice(typ)
+	case []uint:
+		return formatSlice(typ)
+	case []uint16:
+		return formatSlice(typ)
+	case []uint32:
+		return formatSlice(typ)
+	case []uint64:
+		return formatSlice(typ)
+	case []float32:
+		return formatSlice(typ)
+	case []float64:
+		return formatSlice(typ)
+	case []string:
+		return formatStringSlice(typ)
 	default:
-		return fmt.Sprintf("ERROR: unhandled type %T", typ)
+		return fmt.Sprintf("Flag.String: unsupported flag type: %T", typ)
 	}
 }
 
 // Type returns a string representation of the type of the Flag.
 func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this realistically
 	if f.value == nil {
-		return ""
+		return "<nil>"
 	}
 
 	switch typ := any(*f.value).(type) {
@@ -244,6 +278,30 @@ func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this r
 		return typeDuration
 	case net.IP:
 		return typeIP
+	case []int:
+		return typeIntSlice
+	case []int8:
+		return typeInt8Slice
+	case []int16:
+		return typeInt16Slice
+	case []int32:
+		return typeInt32Slice
+	case []int64:
+		return typeInt64Slice
+	case []uint:
+		return typeUintSlice
+	case []uint16:
+		return typeUint16Slice
+	case []uint32:
+		return typeUint32Slice
+	case []uint64:
+		return typeUint64Slice
+	case []float32:
+		return typeFloat32Slice
+	case []float64:
+		return typeFloat64Slice
+	case []string:
+		return typeStringSlice
 	default:
 		return fmt.Sprintf("%T", typ)
 	}
@@ -308,7 +366,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		current, ok := any(*f.value).(Count)
 		if !ok {
 			// This basically shouldn't ever happen but it's easy enough to handle nicely
-			return fmt.Errorf("bad current count value %v, could not cast to Count", *f.value)
+			return errBadType(*f.value)
 		}
 
 		// Increment the count and store it back
@@ -438,8 +496,188 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
+	case []int:
+		// Like Count, a slice flag is a read/write op
+		slice, ok := any(*f.value).([]int)
+		if !ok {
+			return errBadType(*f.value)
+		}
+
+		// Append the given value to the slice
+		newValue, err := parseInt[int](0)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []int8:
+		slice, ok := any(*f.value).([]int8)
+		if !ok {
+			return errBadType(*f.value)
+		}
+
+		newValue, err := parseInt[int8](bits8)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []int16:
+		slice, ok := any(*f.value).([]int16)
+		if !ok {
+			return errBadType(*f.value)
+		}
+
+		newValue, err := parseInt[int16](bits16)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []int32:
+		slice, ok := any(*f.value).([]int32)
+		if !ok {
+			return errBadType(*f.value)
+		}
+
+		newValue, err := parseInt[int32](bits32)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []int64:
+		slice, ok := any(*f.value).([]int64)
+		if !ok {
+			return errBadType(*f.value)
+		}
+
+		newValue, err := parseInt[int64](bits64)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+
+	case []uint:
+		slice, ok := any(*f.value).([]uint)
+		if !ok {
+			return errBadType(*f.value)
+		}
+
+		// Append the given value to the slice
+		newValue, err := parseUint[uint](0)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []uint16:
+		slice, ok := any(*f.value).([]uint16)
+		if !ok {
+			return errBadType(*f.value)
+		}
+
+		newValue, err := parseUint[uint16](bits16)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []uint32:
+		slice, ok := any(*f.value).([]uint32)
+		if !ok {
+			return errBadType(*f.value)
+		}
+
+		newValue, err := parseUint[uint32](bits32)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []uint64:
+		slice, ok := any(*f.value).([]uint64)
+		if !ok {
+			return errBadType(*f.value)
+		}
+
+		newValue, err := parseUint[uint64](bits64)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []float32:
+		slice, ok := any(*f.value).([]float32)
+		if !ok {
+			return errBadType(*f.value)
+		}
+
+		newValue, err := parseFloat[float32](bits32)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []float64:
+		slice, ok := any(*f.value).([]float64)
+		if !ok {
+			return errBadType(*f.value)
+		}
+
+		newValue, err := parseFloat[float64](bits64)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []string:
+		slice, ok := any(*f.value).([]string)
+		if !ok {
+			return errBadType(*f.value)
+		}
+
+		// No parsing to do because a string is... well, a string
+		slice = append(slice, str)
+		*f.value = *cast[T](&slice)
+
+		return nil
 	default:
-		return fmt.Errorf("unsupported flag type: %T", typ)
+		return fmt.Errorf("Flag.Set: unsupported flag type: %T", typ)
 	}
 }
 
@@ -555,6 +793,24 @@ func errParse[T Flaggable](name, str string, typ T, err error) error {
 	)
 }
 
+// errParseSlice is like errParse but for []T flags where the error message
+// needs to be a bit more specific.
+func errParseSlice[T Flaggable](name, str string, typ T, err error) error {
+	return fmt.Errorf(
+		"flag %q (type %T) cannot append element %q: %w",
+		name,
+		typ,
+		str,
+		err,
+	)
+}
+
+// errBadType makes a consistent error in the face of a bad type
+// assertion.
+func errBadType[T Flaggable](value T) error {
+	return fmt.Errorf("bad value %v, could not cast to %T", value, value)
+}
+
 // parseInt is a generic helper to parse all signed integers, given a bit size.
 //
 // It returns the parsed value or an error.
@@ -614,6 +870,31 @@ func formatFloat[T ~float32 | ~float64](bits int) func(T) string {
 	}
 }
 
+// formatSlice is a generic helper to return a string representation of a slice.
+func formatSlice[T any](slice []T) string {
+	return fmt.Sprintf("%v", slice)
+}
+
+// formatStringSlice is a specialisation of formatSlice because for string
+// slices we want to quote the individual strings, which is not an available
+// option using one of the format verbs.
+func formatStringSlice(slice []string) string {
+	length := len(slice)
+	s := &strings.Builder{}
+	s.WriteByte('[')
+	for index, elem := range slice {
+		s.WriteString(strconv.Quote(elem))
+		// Write commas and a space on every element other than the last one
+		if index < length-1 {
+			s.WriteByte(',')
+			s.WriteByte(' ')
+		}
+	}
+	s.WriteByte(']')
+
+	return s.String()
+}
+
 // isZero reports whether value is the zero value for it's type.
 func isZero[T Flaggable](value T) bool {
 	switch typ := any(value).(type) {
@@ -625,7 +906,7 @@ func isZero[T Flaggable](value T) bool {
 		return typ == ""
 	case bool:
 		return !typ
-	case []byte:
+	case []byte, net.IP, []int, []int8, []int16, []int32, []int64, []uint, []uint16, []uint32, []uint64, []float32, []float64, []string:
 		return typ == nil
 	case time.Time:
 		var zero time.Time
@@ -633,8 +914,6 @@ func isZero[T Flaggable](value T) bool {
 	case time.Duration:
 		var zero time.Duration
 		return typ == zero
-	case net.IP:
-		return typ == nil
 	default:
 		return false
 	}
