@@ -353,7 +353,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		current, ok := any(*f.value).(Count)
 		if !ok {
 			// This basically shouldn't ever happen but it's easy enough to handle nicely
-			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+			return errBadType(*f.value)
 		}
 
 		// Increment the count and store it back
@@ -487,7 +487,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		// Like Count, a slice flag is a read/write op
 		slice, ok := any(*f.value).([]int)
 		if !ok {
-			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+			return errBadType(*f.value)
 		}
 
 		// Append the given value to the slice
@@ -503,7 +503,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 	case []int8:
 		slice, ok := any(*f.value).([]int8)
 		if !ok {
-			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+			return errBadType(*f.value)
 		}
 
 		newValue, err := parseInt[int8](bits8)(str)
@@ -518,7 +518,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 	case []int16:
 		slice, ok := any(*f.value).([]int16)
 		if !ok {
-			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+			return errBadType(*f.value)
 		}
 
 		newValue, err := parseInt[int16](bits16)(str)
@@ -533,7 +533,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 	case []int32:
 		slice, ok := any(*f.value).([]int32)
 		if !ok {
-			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+			return errBadType(*f.value)
 		}
 
 		newValue, err := parseInt[int32](bits32)(str)
@@ -548,7 +548,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 	case []int64:
 		slice, ok := any(*f.value).([]int64)
 		if !ok {
-			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+			return errBadType(*f.value)
 		}
 
 		newValue, err := parseInt[int64](bits64)(str)
@@ -564,7 +564,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 	case []uint:
 		slice, ok := any(*f.value).([]uint)
 		if !ok {
-			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+			return errBadType(*f.value)
 		}
 
 		// Append the given value to the slice
@@ -580,7 +580,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 	case []uint16:
 		slice, ok := any(*f.value).([]uint16)
 		if !ok {
-			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+			return errBadType(*f.value)
 		}
 
 		newValue, err := parseUint[uint16](bits16)(str)
@@ -595,7 +595,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 	case []uint32:
 		slice, ok := any(*f.value).([]uint32)
 		if !ok {
-			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+			return errBadType(*f.value)
 		}
 
 		newValue, err := parseUint[uint32](bits32)(str)
@@ -610,7 +610,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 	case []uint64:
 		slice, ok := any(*f.value).([]uint64)
 		if !ok {
-			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+			return errBadType(*f.value)
 		}
 
 		newValue, err := parseUint[uint64](bits64)(str)
@@ -749,6 +749,12 @@ func errParseSlice[T Flaggable](name, str string, typ T, err error) error {
 		str,
 		err,
 	)
+}
+
+// errBadType makes a consistent error in the face of a bad type
+// assertion.
+func errBadType[T Flaggable](value T) error {
+	return fmt.Errorf("bad value %v, could not cast to %T", value, value)
 }
 
 // parseInt is a generic helper to parse all signed integers, given a bit size.
