@@ -35,5 +35,8 @@ type Flaggable interface {
 		[]uint |
 		[]uint16 |
 		[]uint32 |
-		[]uint64
+		[]uint64 |
+		[]float32 |
+		[]float64 |
+		[]string
 }

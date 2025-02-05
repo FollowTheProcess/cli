@@ -839,6 +839,96 @@ func TestFlaggableTypes(t *testing.T) {
 			`flag "slice" (type []uint64) cannot append element "balls": strconv.ParseUint: parsing "balls": invalid syntax`,
 		)
 	})
+
+	t.Run("float32 slice valid", func(t *testing.T) {
+		var slice []float32
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of floats")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("3.14159") // Append pi to the slice
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []float32{3.14159}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]float32")
+		test.Equal(t, sliceFlag.String(), "[3.14159]")
+
+		err = sliceFlag.Set("2.7128") // Now e
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []float32{3.14159, 2.7128}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]float32")
+		test.Equal(t, sliceFlag.String(), "[3.14159 2.7128]")
+	})
+
+	t.Run("float32 slice invalid", func(t *testing.T) {
+		var slice []float32
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of floats")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("balls")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "slice" (type []float32) cannot append element "balls": strconv.ParseFloat: parsing "balls": invalid syntax`,
+		)
+	})
+
+	t.Run("float64 slice valid", func(t *testing.T) {
+		var slice []float64
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of floats")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("3.14159") // Append pi to the slice
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []float64{3.14159}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]float64")
+		test.Equal(t, sliceFlag.String(), "[3.14159]")
+
+		err = sliceFlag.Set("2.7128") // Now e
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []float64{3.14159, 2.7128}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]float64")
+		test.Equal(t, sliceFlag.String(), "[3.14159 2.7128]")
+	})
+
+	t.Run("float64 slice invalid", func(t *testing.T) {
+		var slice []float64
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of floats")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("balls")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "slice" (type []float64) cannot append element "balls": strconv.ParseFloat: parsing "balls": invalid syntax`,
+		)
+	})
+
+	t.Run("string slice valid", func(t *testing.T) {
+		// Note: no invalid case for []string because *every* flag value is a string
+		// it's impossible to make a bad one
+		var slice []string
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of strings")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("a string")
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []string{"a string"}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]string")
+		test.Equal(t, sliceFlag.String(), `["a string"]`)
+
+		err = sliceFlag.Set("another string")
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []string{"a string", "another string"}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]string")
+		test.Equal(t, sliceFlag.String(), `["a string", "another string"]`)
+	})
 }
 
 func TestFlagValidation(t *testing.T) {
@@ -971,7 +1061,7 @@ func TestFlagNilSafety(t *testing.T) {
 		// Users doing naughty things, should still be nil safe
 		flag := flag.Flag[bool]{}
 		test.Equal(t, flag.String(), "<nil>")
-		test.Equal(t, flag.Type(), "")
+		test.Equal(t, flag.Type(), "<nil>")
 
 		err := flag.Set("true")
 		test.Err(t, err)
