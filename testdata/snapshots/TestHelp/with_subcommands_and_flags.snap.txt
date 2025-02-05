@@ -9,7 +9,7 @@ Commands:
   sub2  Do another thing
 
 Options:
-  N/A  --count    int   Count something [default: -1]
+  N/A  --count    int   Count something  [default: -1]
   -d   --delete   bool  Delete something
   -h   --help     bool  Show help for test
   -V   --version  bool  Show version info for test
