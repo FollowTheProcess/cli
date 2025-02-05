@@ -25,27 +25,28 @@ const (
 )
 
 const (
-	typeInt      = "int"
-	typeInt8     = "int8"
-	typeInt16    = "int16"
-	typeInt32    = "int32"
-	typeInt64    = "int64"
-	typeCount    = "count"
-	typeUint     = "uint"
-	typeUint8    = "uint8"
-	typeUint16   = "uint16"
-	typeUint32   = "uint32"
-	typeUint64   = "uint64"
-	typeUintptr  = "uintptr"
-	typeFloat32  = "float32"
-	typeFloat64  = "float64"
-	typeString   = "string"
-	typeBool     = "bool"
-	typeBytesHex = "bytesHex"
-	typeTime     = "time"
-	typeDuration = "duration"
-	typeIP       = "ip"
-	typeIntSlice = "[]int"
+	typeInt       = "int"
+	typeInt8      = "int8"
+	typeInt16     = "int16"
+	typeInt32     = "int32"
+	typeInt64     = "int64"
+	typeCount     = "count"
+	typeUint      = "uint"
+	typeUint8     = "uint8"
+	typeUint16    = "uint16"
+	typeUint32    = "uint32"
+	typeUint64    = "uint64"
+	typeUintptr   = "uintptr"
+	typeFloat32   = "float32"
+	typeFloat64   = "float64"
+	typeString    = "string"
+	typeBool      = "bool"
+	typeBytesHex  = "bytesHex"
+	typeTime      = "time"
+	typeDuration  = "duration"
+	typeIP        = "ip"
+	typeIntSlice  = "[]int"
+	typeInt8Slice = "[]int8"
 )
 
 const (
@@ -193,6 +194,8 @@ func (f Flag[T]) String() string { //nolint:cyclop // No other way of doing this
 		return typ.String()
 	case []int:
 		return formatSlice(typ)
+	case []int8:
+		return formatSlice(typ)
 	case fmt.Stringer:
 		return typ.String()
 	default:
@@ -205,6 +208,8 @@ func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this r
 	if f.value == nil {
 		return ""
 	}
+
+	// TODO(@FollowTheProcess): Would fmt.Sprint("%T", typ) just work?
 
 	switch typ := any(*f.value).(type) {
 	case int:
@@ -249,6 +254,8 @@ func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this r
 		return typeIP
 	case []int:
 		return typeIntSlice
+	case []int8:
+		return typeInt8Slice
 	default:
 		return fmt.Sprintf("%T", typ)
 	}
@@ -447,11 +454,27 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		// Like Count, a slice flag is a read/write op
 		slice, ok := any(*f.value).([]int)
 		if !ok {
-			return fmt.Errorf("bad value %v, could not cast to []int", *f.value)
+			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
 		}
 
 		// Append the given value to the slice
 		newValue, err := parseInt[int](0)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []int8:
+		slice, ok := any(*f.value).([]int8)
+		if !ok {
+			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+		}
+
+		// Append the given value to the slice
+		newValue, err := parseInt[int8](bits8)(str)
 		if err != nil {
 			return errParseSlice(f.name, str, typ, err)
 		}

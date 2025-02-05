@@ -567,6 +567,40 @@ func TestFlaggableTypes(t *testing.T) {
 			`flag "slice" (type []int) cannot append element "a word": strconv.ParseInt: parsing "a word": invalid syntax`,
 		)
 	})
+
+	t.Run("int8 slice valid", func(t *testing.T) {
+		var slice []int8
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("1") // Append 1 to the slice
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []int8{1}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]int8")
+		test.Equal(t, sliceFlag.String(), "[1]")
+
+		err = sliceFlag.Set("2") // Now 2
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []int8{1, 2}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]int8")
+		test.Equal(t, sliceFlag.String(), "[1 2]")
+	})
+
+	t.Run("int8 slice invalid", func(t *testing.T) {
+		var slice []int8
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("cheese")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "slice" (type []int8) cannot append element "cheese": strconv.ParseInt: parsing "cheese": invalid syntax`,
+		)
+	})
 }
 
 func TestFlagValidation(t *testing.T) {

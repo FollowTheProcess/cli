@@ -12,7 +12,6 @@ import (
 // Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
 type Flaggable interface {
 	int |
-		[]int |
 		int8 |
 		int16 |
 		int32 |
@@ -31,5 +30,7 @@ type Flaggable interface {
 		Count |
 		time.Time |
 		time.Duration |
-		net.IP
+		net.IP |
+		[]int |
+		[]int8
 }
