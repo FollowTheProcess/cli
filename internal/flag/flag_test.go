@@ -3,6 +3,7 @@ package flag_test
 import (
 	"bytes"
 	"net"
+	"slices"
 	"testing"
 	"time"
 
@@ -532,6 +533,402 @@ func TestFlaggableTypes(t *testing.T) {
 			`flag "ip" received invalid value "not an ip" (expected net.IP), detail: invalid IP address`,
 		)
 	})
+
+	t.Run("int slice valid", func(t *testing.T) {
+		var slice []int
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("1") // Append 1 to the slice
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []int{1}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]int")
+		test.Equal(t, sliceFlag.String(), "[1]")
+
+		err = sliceFlag.Set("2") // Now 2
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []int{1, 2}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]int")
+		test.Equal(t, sliceFlag.String(), "[1 2]")
+	})
+
+	t.Run("int slice invalid", func(t *testing.T) {
+		var slice []int
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("a word")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "slice" (type []int) cannot append element "a word": strconv.ParseInt: parsing "a word": invalid syntax`,
+		)
+	})
+
+	t.Run("int8 slice valid", func(t *testing.T) {
+		var slice []int8
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("1") // Append 1 to the slice
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []int8{1}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]int8")
+		test.Equal(t, sliceFlag.String(), "[1]")
+
+		err = sliceFlag.Set("2") // Now 2
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []int8{1, 2}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]int8")
+		test.Equal(t, sliceFlag.String(), "[1 2]")
+	})
+
+	t.Run("int8 slice invalid", func(t *testing.T) {
+		var slice []int8
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("cheese")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "slice" (type []int8) cannot append element "cheese": strconv.ParseInt: parsing "cheese": invalid syntax`,
+		)
+	})
+
+	t.Run("int16 slice valid", func(t *testing.T) {
+		var slice []int16
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("1") // Append 1 to the slice
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []int16{1}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]int16")
+		test.Equal(t, sliceFlag.String(), "[1]")
+
+		err = sliceFlag.Set("2") // Now 2
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []int16{1, 2}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]int16")
+		test.Equal(t, sliceFlag.String(), "[1 2]")
+	})
+
+	t.Run("int16 slice invalid", func(t *testing.T) {
+		var slice []int16
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("balls")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "slice" (type []int16) cannot append element "balls": strconv.ParseInt: parsing "balls": invalid syntax`,
+		)
+	})
+
+	t.Run("int32 slice valid", func(t *testing.T) {
+		var slice []int32
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("1") // Append 1 to the slice
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []int32{1}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]int32")
+		test.Equal(t, sliceFlag.String(), "[1]")
+
+		err = sliceFlag.Set("2") // Now 2
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []int32{1, 2}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]int32")
+		test.Equal(t, sliceFlag.String(), "[1 2]")
+	})
+
+	t.Run("int32 slice invalid", func(t *testing.T) {
+		var slice []int32
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("balls")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "slice" (type []int32) cannot append element "balls": strconv.ParseInt: parsing "balls": invalid syntax`,
+		)
+	})
+
+	t.Run("int64 slice valid", func(t *testing.T) {
+		var slice []int64
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("1") // Append 1 to the slice
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []int64{1}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]int64")
+		test.Equal(t, sliceFlag.String(), "[1]")
+
+		err = sliceFlag.Set("2") // Now 2
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []int64{1, 2}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]int64")
+		test.Equal(t, sliceFlag.String(), "[1 2]")
+	})
+
+	t.Run("int64 slice invalid", func(t *testing.T) {
+		var slice []int64
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("balls")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "slice" (type []int64) cannot append element "balls": strconv.ParseInt: parsing "balls": invalid syntax`,
+		)
+	})
+
+	t.Run("uint slice valid", func(t *testing.T) {
+		var slice []uint
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of uints")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("1") // Append 1 to the slice
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []uint{1}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]uint")
+		test.Equal(t, sliceFlag.String(), "[1]")
+
+		err = sliceFlag.Set("2") // Now 2
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []uint{1, 2}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]uint")
+		test.Equal(t, sliceFlag.String(), "[1 2]")
+	})
+
+	t.Run("uint slice invalid", func(t *testing.T) {
+		var slice []uint
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of unsigned integers")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("a word")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "slice" (type []uint) cannot append element "a word": strconv.ParseUint: parsing "a word": invalid syntax`,
+		)
+	})
+
+	t.Run("uint16 slice valid", func(t *testing.T) {
+		var slice []uint16
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("1") // Append 1 to the slice
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []uint16{1}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]uint16")
+		test.Equal(t, sliceFlag.String(), "[1]")
+
+		err = sliceFlag.Set("2") // Now 2
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []uint16{1, 2}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]uint16")
+		test.Equal(t, sliceFlag.String(), "[1 2]")
+	})
+
+	t.Run("uint16 slice invalid", func(t *testing.T) {
+		var slice []uint16
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("balls")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "slice" (type []uint16) cannot append element "balls": strconv.ParseUint: parsing "balls": invalid syntax`,
+		)
+	})
+
+	t.Run("uint32 slice valid", func(t *testing.T) {
+		var slice []uint32
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("1") // Append 1 to the slice
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []uint32{1}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]uint32")
+		test.Equal(t, sliceFlag.String(), "[1]")
+
+		err = sliceFlag.Set("2") // Now 2
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []uint32{1, 2}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]uint32")
+		test.Equal(t, sliceFlag.String(), "[1 2]")
+	})
+
+	t.Run("uint32 slice invalid", func(t *testing.T) {
+		var slice []uint32
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("balls")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "slice" (type []uint32) cannot append element "balls": strconv.ParseUint: parsing "balls": invalid syntax`,
+		)
+	})
+
+	t.Run("uint64 slice valid", func(t *testing.T) {
+		var slice []uint64
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("1") // Append 1 to the slice
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []uint64{1}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]uint64")
+		test.Equal(t, sliceFlag.String(), "[1]")
+
+		err = sliceFlag.Set("2") // Now 2
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []uint64{1, 2}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]uint64")
+		test.Equal(t, sliceFlag.String(), "[1 2]")
+	})
+
+	t.Run("uint64 slice invalid", func(t *testing.T) {
+		var slice []uint64
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("balls")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "slice" (type []uint64) cannot append element "balls": strconv.ParseUint: parsing "balls": invalid syntax`,
+		)
+	})
+
+	t.Run("float32 slice valid", func(t *testing.T) {
+		var slice []float32
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of floats")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("3.14159") // Append pi to the slice
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []float32{3.14159}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]float32")
+		test.Equal(t, sliceFlag.String(), "[3.14159]")
+
+		err = sliceFlag.Set("2.7128") // Now e
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []float32{3.14159, 2.7128}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]float32")
+		test.Equal(t, sliceFlag.String(), "[3.14159 2.7128]")
+	})
+
+	t.Run("float32 slice invalid", func(t *testing.T) {
+		var slice []float32
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of floats")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("balls")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "slice" (type []float32) cannot append element "balls": strconv.ParseFloat: parsing "balls": invalid syntax`,
+		)
+	})
+
+	t.Run("float64 slice valid", func(t *testing.T) {
+		var slice []float64
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of floats")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("3.14159") // Append pi to the slice
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []float64{3.14159}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]float64")
+		test.Equal(t, sliceFlag.String(), "[3.14159]")
+
+		err = sliceFlag.Set("2.7128") // Now e
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []float64{3.14159, 2.7128}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]float64")
+		test.Equal(t, sliceFlag.String(), "[3.14159 2.7128]")
+	})
+
+	t.Run("float64 slice invalid", func(t *testing.T) {
+		var slice []float64
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of floats")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("balls")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "slice" (type []float64) cannot append element "balls": strconv.ParseFloat: parsing "balls": invalid syntax`,
+		)
+	})
+
+	t.Run("string slice valid", func(t *testing.T) {
+		// Note: no invalid case for []string because *every* flag value is a string
+		// it's impossible to make a bad one
+		var slice []string
+		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of strings")
+		test.Ok(t, err)
+
+		err = sliceFlag.Set("a string")
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []string{"a string"}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]string")
+		test.Equal(t, sliceFlag.String(), `["a string"]`)
+
+		err = sliceFlag.Set("another string")
+		test.Ok(t, err)
+
+		test.EqualFunc(t, slice, []string{"a string", "another string"}, slices.Equal)
+		test.Equal(t, sliceFlag.Type(), "[]string")
+		test.Equal(t, sliceFlag.String(), `["a string", "another string"]`)
+	})
 }
 
 func TestFlagValidation(t *testing.T) {
@@ -664,7 +1061,7 @@ func TestFlagNilSafety(t *testing.T) {
 		// Users doing naughty things, should still be nil safe
 		flag := flag.Flag[bool]{}
 		test.Equal(t, flag.String(), "<nil>")
-		test.Equal(t, flag.Type(), "")
+		test.Equal(t, flag.Type(), "<nil>")
 
 		err := flag.Set("true")
 		test.Err(t, err)
