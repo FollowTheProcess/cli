@@ -92,7 +92,7 @@ tasks:
         msg: freeze not installed, see https://github.com/charmbracelet/freeze
     cmds:
       - for file in ./docs/src/*.tape; do vhs "$file"; done
-      - freeze ./examples/cover/main.go --config ./docs/src/freeze.json --output ./docs/img/demo.png
+      - freeze ./examples/cover/main.go --config ./docs/src/freeze.json --output ./docs/img/demo.png --show-line-numbers
 
   cov:
     desc: Calculate test coverage and render the html
