@@ -182,7 +182,7 @@ func Stderr(stderr io.Writer) Option {
 func NoColour(noColour bool) Option {
 	f := func(_ *config) error {
 		// Just disable the internal colour package entirely
-		colour.Disable = noColour
+		colour.Disable.Store(noColour)
 
 		return nil
 	}
