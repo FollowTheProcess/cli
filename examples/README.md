@@ -10,7 +10,7 @@ This directory contains a bunch of example programs built with `cli` to show you
 
 ## `./cover`
 
-Not really an example, but holds the source code used to generate the cover image with [silicon]
+Not really an example, but holds the source code used to generate the cover image with [freeze]
 
 ## `./quickstart`
 
@@ -31,4 +31,4 @@ A CLI with named positional arguments that may or may not have default values. S
 ![namedargs](../docs/img/namedargs.gif)
 
 [quickstart]: https://github.com/FollowTheProcess/cli#quickstart
-[silicon]: https://github.com/Aloxaf/silicon
+[freeze]: https://github.com/charmbracelet/freeze

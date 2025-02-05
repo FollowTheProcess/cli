@@ -87,9 +87,12 @@ tasks:
     preconditions:
       - sh: command -v vhs
         msg: vhs not installed, see https://github.com/charmbracelet/vhs
+
+      - sh: command -v freeze
+        msg: freeze not installed, see https://github.com/charmbracelet/freeze
     cmds:
       - for file in ./docs/src/*.tape; do vhs "$file"; done
-      - silicon ./examples/cover/main.go --output ./docs/img/demo.png --background "#7983FF" --language go --shadow-blur-radius 10 --window-title {{.PACKAGE}} --font 'Geist Mono' --theme Coldark-Dark
+      - freeze ./examples/cover/main.go --config ./docs/src/freeze.json --output ./docs/img/demo.png
 
   cov:
     desc: Calculate test coverage and render the html
