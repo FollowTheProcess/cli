@@ -26,6 +26,7 @@ type sayOptions struct {
 	thing string
 	count int
 	shout bool
+	items []string
 }
 
 func buildSayCommand() (*cli.Command, error) {
@@ -39,6 +40,7 @@ func buildSayCommand() (*cli.Command, error) {
 		cli.Flag(&options.shout, "shout", 's', false, "Say the message louder"),
 		cli.Flag(&options.count, "count", 'c', 0, "Count the things"),
 		cli.Flag(&options.thing, "thing", 't', "", "Name of the thing"),
+		cli.Flag(&options.items, "item", 'i', nil, "Items to add to a list"),
 	)
 }
 
@@ -77,7 +79,13 @@ func runSay(options *sayOptions) func(cmd *cli.Command, args []string) error {
 				fmt.Fprintln(cmd.Stdout(), arg, " ")
 			}
 		}
-		fmt.Printf("Shout: %v\nCount: %v\nThing: %v\n", options.shout, options.count, options.thing)
+		fmt.Printf(
+			"Shout: %v\nCount: %v\nThing: %v\nItems: %v\n",
+			options.shout,
+			options.count,
+			options.thing,
+			options.items,
+		)
 		fmt.Fprintln(cmd.Stdout())
 		return nil
 	}
