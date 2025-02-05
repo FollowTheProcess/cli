@@ -33,5 +33,7 @@ type Flaggable interface {
 		net.IP |
 		[]int |
 		[]int8 |
-		[]int16
+		[]int16 |
+		[]int32 |
+		[]int64
 }

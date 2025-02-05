@@ -48,6 +48,8 @@ const (
 	typeIntSlice   = "[]int"
 	typeInt8Slice  = "[]int8"
 	typeInt16Slice = "[]int16"
+	typeInt32Slice = "[]int32"
+	typeInt64Slice = "[]int64"
 )
 
 const (
@@ -199,6 +201,10 @@ func (f Flag[T]) String() string { //nolint:cyclop // No other way of doing this
 		return formatSlice(typ)
 	case []int16:
 		return formatSlice(typ)
+	case []int32:
+		return formatSlice(typ)
+	case []int64:
+		return formatSlice(typ)
 	case fmt.Stringer:
 		return typ.String()
 	default:
@@ -259,6 +265,10 @@ func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this r
 		return typeInt8Slice
 	case []int16:
 		return typeInt16Slice
+	case []int32:
+		return typeInt32Slice
+	case []int64:
+		return typeInt64Slice
 	default:
 		return fmt.Sprintf("%T", typ)
 	}
@@ -485,7 +495,6 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&slice)
 
 		return nil
-
 	case []int16:
 		slice, ok := any(*f.value).([]int16)
 		if !ok {
@@ -493,6 +502,36 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		}
 
 		newValue, err := parseInt[int16](bits16)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []int32:
+		slice, ok := any(*f.value).([]int32)
+		if !ok {
+			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+		}
+
+		newValue, err := parseInt[int32](bits32)(str)
+		if err != nil {
+			return errParseSlice(f.name, str, typ, err)
+		}
+
+		slice = append(slice, newValue)
+		*f.value = *cast[T](&slice)
+
+		return nil
+	case []int64:
+		slice, ok := any(*f.value).([]int64)
+		if !ok {
+			return fmt.Errorf("bad value %v, could not cast to %T", *f.value, typ)
+		}
+
+		newValue, err := parseInt[int64](bits64)(str)
 		if err != nil {
 			return errParseSlice(f.name, str, typ, err)
 		}
