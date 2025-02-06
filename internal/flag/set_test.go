@@ -29,13 +29,10 @@ func TestParse(t *testing.T) {
 	}{
 		{
 			name: "empty set no args",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				f, exists := set.Get("something")
 				test.False(t, exists)
 				test.Equal(t, f, nil)
@@ -47,13 +44,10 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "empty set args no flags",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				f, exists := set.Get("something")
 				test.False(t, exists)
 				test.Equal(t, f, nil)
@@ -65,13 +59,10 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "empty set args with terminator",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				f, exists := set.Get("something")
 				test.False(t, exists)
 				test.Equal(t, f, nil)
@@ -89,13 +80,10 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "empty set with flags",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				f, exists := set.Get("flag")
 				test.False(t, exists)
 				test.Equal(t, f, nil)
@@ -108,9 +96,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "undefined flag long",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"--unknown"},
@@ -119,9 +105,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "undefined flag short",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"-u"},
@@ -130,9 +114,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "undefined flag long with value",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"--unknown", "value"},
@@ -141,9 +123,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "undefined flag short with value",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"-u", "value"},
@@ -152,9 +132,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "undefined flag long equals value",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"--unknown=value"},
@@ -163,9 +141,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "undefined flag short equals value",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"-u=value"},
@@ -174,9 +150,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "undefined flag shortvalue",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"-uvalue"},
@@ -185,9 +159,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "bad syntax short empty name",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"-"},
@@ -196,9 +168,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "bad syntax long extra hyphen",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"---"},
@@ -207,9 +177,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "bad syntax long leading whitespace",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"-- delete"},
@@ -218,9 +186,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "bad syntax short leading whitespace",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"- d"},
@@ -229,9 +195,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "bad syntax long trailing whitespace",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"--delete "},
@@ -241,7 +205,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "bad syntax short trailing whitespace",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				f, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
 				test.Ok(t, err)
 
@@ -258,9 +221,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "bad syntax short more than 1 char equals",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"-dfv=something"},
@@ -269,9 +230,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "bad syntax short non utf8",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"-Ê"},
@@ -280,9 +239,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "bad syntax short non utf8 equals",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"-Ê=something"},
@@ -291,9 +248,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "bad syntax short multiple non utf8",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"-本¼語"},
@@ -302,9 +257,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "bad syntax long internal whitespace",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			args:    []string{"--de lete"},
@@ -314,7 +267,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid long",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
 				test.Ok(t, err)
@@ -325,7 +277,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				flag, exists := set.Get("delete")
 				test.True(t, exists)
 
@@ -340,7 +291,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid long with args",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
 				test.Ok(t, err)
@@ -351,7 +301,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				flag, exists := set.Get("delete")
 				test.True(t, exists)
 
@@ -367,7 +316,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid short",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
 				test.Ok(t, err)
@@ -378,7 +326,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				// Get by name
 				flag, exists := set.Get("delete")
 				test.True(t, exists)
@@ -401,7 +348,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid shortvalue",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(int), "number", 'n', 0, "Number of something")
 				test.Ok(t, err)
@@ -412,7 +358,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				// Get by name
 				flag, exists := set.Get("number")
 				test.True(t, exists)
@@ -433,7 +378,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid short with args",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
 				test.Ok(t, err)
@@ -444,7 +388,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				// Get by name
 				flag, exists := set.Get("delete")
 				test.True(t, exists)
@@ -467,7 +410,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid long value",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
@@ -478,7 +420,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				flag, exists := set.Get("count")
 				test.True(t, exists)
 
@@ -493,7 +434,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid long missing value",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
@@ -504,7 +444,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				flag, exists := set.Get("count")
 				test.True(t, exists)
 
@@ -520,7 +459,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid short missing value",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
@@ -531,7 +469,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				flag, exists := set.Get("count")
 				test.True(t, exists)
 
@@ -547,7 +484,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid long value with args",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
@@ -558,7 +494,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				flag, exists := set.Get("count")
 				test.True(t, exists)
 
@@ -573,7 +508,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "invalid long value",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(uint), "number", 'n', 0, "Uint")
 				test.Ok(t, err)
@@ -584,7 +518,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				flag, exists := set.Get("number")
 				test.True(t, exists)
 
@@ -598,7 +531,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid short value",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
@@ -609,7 +541,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				// Get by name
 				flag, exists := set.Get("count")
 				test.True(t, exists)
@@ -632,7 +563,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid short value with args",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
@@ -643,7 +573,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				// Get by name
 				flag, exists := set.Get("count")
 				test.True(t, exists)
@@ -666,7 +595,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "invalid short value",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(uint), "number", 'n', 0, "Uint")
 				test.Ok(t, err)
@@ -677,7 +605,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				flag, exists := set.Get("number")
 				test.True(t, exists)
 
@@ -691,7 +618,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid long equals value",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
@@ -702,7 +628,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				flag, exists := set.Get("count")
 				test.True(t, exists)
 
@@ -715,7 +640,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid long equals value with args",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
@@ -726,7 +650,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				flag, exists := set.Get("count")
 				test.True(t, exists)
 
@@ -741,7 +664,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "invalid long equals value",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(uint), "number", 'n', 0, "Uint")
 				test.Ok(t, err)
@@ -752,7 +674,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				flag, exists := set.Get("number")
 				test.True(t, exists)
 
@@ -766,7 +687,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid short equals value",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
@@ -777,7 +697,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				// Get by name
 				flag, exists := set.Get("count")
 				test.True(t, exists)
@@ -798,7 +717,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid short equals value with args",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
@@ -809,7 +727,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				// Get by name
 				flag, exists := set.Get("count")
 				test.True(t, exists)
@@ -832,7 +749,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "no shorthand use long",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(int), "count", flag.NoShortHand, 0, "Count something")
 				test.Ok(t, err)
@@ -843,7 +759,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				// Get by name
 				flag, exists := set.Get("count")
 				test.True(t, exists)
@@ -862,7 +777,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "no shorthand use short",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(int), "count", flag.NoShortHand, 0, "Count something")
 				test.Ok(t, err)
@@ -873,7 +787,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				// Get by name
 				flag, exists := set.Get("count")
 				test.True(t, exists)
@@ -893,7 +806,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid count long",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(flag.Count), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
@@ -904,7 +816,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				flag, exists := set.Get("count")
 				test.True(t, exists)
 
@@ -917,7 +828,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid count short",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(flag.Count), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
@@ -928,7 +838,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				flag, exists := set.Get("count")
 				test.True(t, exists)
 
@@ -941,7 +850,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "valid count super short",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 				f, err := flag.New(new(flag.Count), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
@@ -952,7 +860,6 @@ func TestParse(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				flag, exists := set.Get("count")
 				test.True(t, exists)
 
@@ -991,13 +898,10 @@ func TestFlagSet(t *testing.T) {
 	}{
 		{
 			name: "empty",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				f, exists := set.Get("missing")
 				test.False(t, exists)
 				test.Equal(t, f, nil)
@@ -1005,13 +909,10 @@ func TestFlagSet(t *testing.T) {
 		},
 		{
 			name: "empty short",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				f, exists := set.GetShort('d')
 				test.False(t, exists)
 				test.Equal(t, f, nil)
@@ -1019,13 +920,10 @@ func TestFlagSet(t *testing.T) {
 		},
 		{
 			name: "nil safe get",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return nil // uh oh
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				f, exists := set.Get("missing")
 				test.False(t, exists)
 				test.Equal(t, f, nil)
@@ -1033,13 +931,10 @@ func TestFlagSet(t *testing.T) {
 		},
 		{
 			name: "nil safe get short",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return nil // uh oh
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				f, exists := set.GetShort('m')
 				test.False(t, exists)
 				test.Equal(t, f, nil)
@@ -1047,13 +942,10 @@ func TestFlagSet(t *testing.T) {
 		},
 		{
 			name: "nil safe add",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return nil // uh oh
 			},
-			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
+			test: func(_ *testing.T, set *flag.Set) {
 				f, err := flag.New(new(bool), "force", 'f', false, "Force something")
 				test.Ok(t, err)
 
@@ -1066,13 +958,10 @@ func TestFlagSet(t *testing.T) {
 		},
 		{
 			name: "nil safe parse",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return nil // uh oh
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				err := set.Parse([]string{"args", "here", "doesn't", "matter"})
 				test.Err(t, err)
 				if err != nil {
@@ -1082,25 +971,19 @@ func TestFlagSet(t *testing.T) {
 		},
 		{
 			name: "nil safe args",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return nil // uh oh
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
 		},
 		{
 			name: "duplicate flag added",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
 
@@ -1117,13 +1000,10 @@ func TestFlagSet(t *testing.T) {
 		},
 		{
 			name: "different flag same name added",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
 
@@ -1143,13 +1023,10 @@ func TestFlagSet(t *testing.T) {
 		},
 		{
 			name: "different flag same short added",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
 
@@ -1187,13 +1064,10 @@ func TestHelpVersion(t *testing.T) {
 	}{
 		{
 			name: "empty help",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				help, ok := set.Help()
 				test.False(t, help)
 				test.False(t, ok)
@@ -1201,13 +1075,10 @@ func TestHelpVersion(t *testing.T) {
 		},
 		{
 			name: "empty version",
-			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
-
+			newSet: func(_ *testing.T) *flag.Set {
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				version, ok := set.Version()
 				test.False(t, version)
 				test.False(t, ok)
@@ -1216,7 +1087,6 @@ func TestHelpVersion(t *testing.T) {
 		{
 			name: "help false",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 
 				f, err := flag.New(new(bool), "help", 'h', false, "Show help")
@@ -1228,7 +1098,6 @@ func TestHelpVersion(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				help, ok := set.Help()
 				test.True(t, ok)    // It should exist
 				test.False(t, help) // But not true
@@ -1237,7 +1106,6 @@ func TestHelpVersion(t *testing.T) {
 		{
 			name: "help non bool",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 
 				f, err := flag.New(new(int), "help", 'h', 0, "Show help")
@@ -1249,7 +1117,6 @@ func TestHelpVersion(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				help, ok := set.Help()
 				test.False(t, ok)   // It should not exist
 				test.False(t, help) // And be false because it's not a bool
@@ -1258,7 +1125,6 @@ func TestHelpVersion(t *testing.T) {
 		{
 			name: "help true",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 
 				f, err := flag.New(new(bool), "help", 'h', true, "Show help")
@@ -1270,7 +1136,6 @@ func TestHelpVersion(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				help, ok := set.Help()
 				test.True(t, ok)   // It should exist
 				test.True(t, help) // And be true
@@ -1279,7 +1144,6 @@ func TestHelpVersion(t *testing.T) {
 		{
 			name: "version false",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 
 				f, err := flag.New(new(bool), "version", 'v', false, "Show version")
@@ -1291,7 +1155,6 @@ func TestHelpVersion(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				version, ok := set.Version()
 				test.True(t, ok)       // It should exist
 				test.False(t, version) // But not true
@@ -1300,7 +1163,6 @@ func TestHelpVersion(t *testing.T) {
 		{
 			name: "version non bool",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 
 				f, err := flag.New(new(int), "version", 'v', 0, "Show version")
@@ -1312,7 +1174,6 @@ func TestHelpVersion(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				version, ok := set.Version()
 				test.False(t, ok)      // It should not exist
 				test.False(t, version) // And be false because it's not a bool
@@ -1321,7 +1182,6 @@ func TestHelpVersion(t *testing.T) {
 		{
 			name: "version true",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				set := flag.NewSet()
 
 				f, err := flag.New(new(bool), "version", 'v', true, "Show version")
@@ -1333,7 +1193,6 @@ func TestHelpVersion(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				t.Helper()
 				version, ok := set.Version()
 				test.True(t, ok)      // It should exist
 				test.True(t, version) // And be true
@@ -1359,7 +1218,6 @@ func TestUsage(t *testing.T) {
 		{
 			name: "simple",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				help, err := flag.New(new(bool), "help", 'h', false, "Show help for test")
 				test.Ok(t, err)
 
@@ -1380,7 +1238,6 @@ func TestUsage(t *testing.T) {
 		{
 			name: "no shorthand",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				help, err := flag.New(new(bool), "help", 'h', false, "Show help for test")
 				test.Ok(t, err)
 
@@ -1407,7 +1264,6 @@ func TestUsage(t *testing.T) {
 		{
 			name: "full",
 			newSet: func(t *testing.T) *flag.Set {
-				t.Helper()
 				help, err := flag.New(new(bool), "help", 'h', false, "Show help for test")
 				test.Ok(t, err)
 
