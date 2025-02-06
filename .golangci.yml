@@ -23,6 +23,7 @@ linters:
     - nestif # cyclop does this
     - nlreturn # Similar to wsl, I think best left to judgement
     - nonamedreturns # Named returns are often helpful, it's naked returns that are the issue
+    - thelper # Lots of false positives due to the way I do table tests in here
     - varnamelen # Lots of false positives of things that are fine
     - wrapcheck # Not every error must be wrapped
     - wsl # Very aggressive, some of this I like but tend to do anyway
