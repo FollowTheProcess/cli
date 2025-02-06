@@ -372,6 +372,9 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		}
 
 		// Increment the count and store it back
+		// TODO(@FollowTheProcess): We should actually still parse str here because
+		// currently --verbosity=3 doesn't work, --verbosity 3 also doesn't work but not sure why
+		// yet, need some test cases and to do a bit of digging
 		newValue := current + 1
 		*f.value = *cast[T](&newValue)
 
