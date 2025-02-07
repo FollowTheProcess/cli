@@ -174,6 +174,29 @@ func TestFlaggableTypes(t *testing.T) {
 		test.Equal(t, c, flag.Count(2))
 		test.Equal(t, countFlag.Type(), "count")
 		test.Equal(t, countFlag.String(), "2")
+
+		// Should also be able to set an explicit number e.g. --verbosity=3
+		// so should now be 5
+		err = countFlag.Set("3")
+		test.Ok(t, err)
+		test.Equal(t, c, flag.Count(5))
+		test.Equal(t, countFlag.Type(), "count")
+		test.Equal(t, countFlag.String(), "5")
+	})
+
+	t.Run("count invalid", func(t *testing.T) {
+		t.Parallel()
+		var c flag.Count
+		countFlag, err := flag.New(&c, "count", 'c', 0, "Count something")
+		test.Ok(t, err)
+
+		err = countFlag.Set("a word")
+		test.Err(t, err)
+		test.Equal(
+			t,
+			err.Error(),
+			`flag "count" received invalid value "a word" (expected flag.Count), detail: strconv.ParseUint: parsing "a word": invalid syntax`,
+		)
 	})
 
 	t.Run("uint valid", func(t *testing.T) {
