@@ -371,11 +371,15 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 			return errBadType(*f.value)
 		}
 
-		// Increment the count and store it back
-		// TODO(@FollowTheProcess): We should actually still parse str here because
-		// currently --verbosity=3 doesn't work, --verbosity 3 also doesn't work but not sure why
-		// yet, need some test cases and to do a bit of digging
-		newValue := current + 1
+		// Add the count and store it back, we still parse the given str rather
+		// than just +1 every time as this allows people to do e.g. --verbosity=3
+		// as well as -vvv
+		val, err := parseUint[uint](0)(str)
+		if err != nil {
+			return errParse(f.name, str, typ, err)
+		}
+
+		newValue := current + Count(val)
 		*f.value = *cast[T](&newValue)
 
 		return nil

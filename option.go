@@ -23,7 +23,17 @@ type Flaggable flag.Flaggable
 // a new type declared here.
 
 // FlagCount is a type used for a flag who's job is to increment a counter, e.g. a "verbosity"
-// flag may be passed "-vvv" which should increase the verbosity level to 3.
+// flag may be used like so "-vvv" which should increase the verbosity level to 3.
+//
+// Count flags may be used in the following ways:
+//   - -vvv
+//   - --verbose --verbose --verbose (although not sure why you'd do this)
+//   - --verbose=3
+//
+// All have the same effect of increasing the verbosity level to 3.
+//
+// --verbose 3 however is not supported, this is due to an internal parsing
+// implementation detail.
 type FlagCount = flag.Count
 
 // Option is a functional option for configuring a [Command].
