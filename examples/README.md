@@ -34,7 +34,8 @@ A CLI with named positional arguments that may or may not have default values. S
 ### TODO
 
 - Replicate one or two well known CLI tools as an example
-- A complex one with all sorts of flags and arguments etc.
+  - Docker
+  - Cargo
 
 [quickstart]: <https://github.com/FollowTheProcess/cli#quickstart>
 [freeze]: <https://github.com/charmbracelet/freeze>
