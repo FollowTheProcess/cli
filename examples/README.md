@@ -7,6 +7,7 @@ This directory contains a bunch of example programs built with `cli` to show you
   - [`./quickstart`](#quickstart)
   - [`./subcommands`](#subcommands)
   - [`./namedargs`](#namedargs)
+    - [TODO](#todo)
 
 ## `./cover`
 
@@ -30,5 +31,10 @@ A CLI with named positional arguments that may or may not have default values. S
 
 ![namedargs](../docs/img/namedargs.gif)
 
-[quickstart]: https://github.com/FollowTheProcess/cli#quickstart
-[freeze]: https://github.com/charmbracelet/freeze
+### TODO
+
+- Replicate one or two well known CLI tools as an example
+- A complex one with all sorts of flags and arguments etc.
+
+[quickstart]: <https://github.com/FollowTheProcess/cli#quickstart>
+[freeze]: <https://github.com/charmbracelet/freeze>
