@@ -460,8 +460,6 @@ func Allow(validator ArgValidator) Option {
 	return option(f)
 }
 
-// TODO(@FollowTheProcess): Document the flaggable types
-
 // Flag is an [Option] that adds a flag to a [Command], storing its value in a variable via it's
 // pointer 'p'.
 //
@@ -473,6 +471,9 @@ func Allow(validator ArgValidator) Option {
 // show the default value in the commands help text.
 //
 // To add a long flag only (e.g. --delete with no -d option), pass [NoShortHand] for "short".
+//
+// Flags linked to slice values (e.g. []string) work by appending the passed values to the slice
+// so multiple values may be given by repeat usage of the flag e.g. --items "one" --items "two".
 //
 //	// Add a force flag
 //	var force bool
