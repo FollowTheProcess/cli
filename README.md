@@ -14,7 +14,24 @@ Tiny, simple, but powerful CLI framework for modern Go 🚀
 </p>
 
 > [!WARNING]
-> **CLI is still in early development and is not yet stable**
+> **CLI is still in development and is not yet stable**
+
+- [CLI](#cli)
+  - [Project Description](#project-description)
+  - [Installation](#installation)
+  - [Quickstart](#quickstart)
+  - [Usage](#usage)
+    - [Commands](#commands)
+    - [Sub Commands](#sub-commands)
+    - [Flags](#flags)
+  - [Core Principles](#core-principles)
+    - [😱 Well behaved libraries don't panic](#-well-behaved-libraries-dont-panic)
+    - [🧘🏻 Keep it Simple](#-keep-it-simple)
+    - [👨🏻‍🔬 Use Modern Techniques](#-use-modern-techniques)
+    - [🥹 A Beautiful API](#-a-beautiful-api)
+    - [🔐 Immutable State](#-immutable-state)
+    - [🚧 Good Libraries are Hard to Misuse](#-good-libraries-are-hard-to-misuse)
+  - [In the Wild](#in-the-wild)
 
 ## Project Description
 
@@ -81,30 +98,152 @@ Will get you the following:
 ![quickstart](https://github.com/FollowTheProcess/cli/raw/main/docs/img/quickstart.gif)
 
 > [!TIP]
-> See more examples under [`./examples`](https://github.com/FollowTheProcess/cli/tree/main/examples)
+> See usage section below and more examples under [`./examples`](https://github.com/FollowTheProcess/cli/tree/main/examples)
 
-### Core Principles
+## Usage
 
-#### 😱 Well behaved libraries don't panic
+### Commands
 
-`cli` validates heavily and returns errors for you to handle. By contrast [spf13/cobra] (and [spf13/pflag]) panic in a number of conditions including:
+To create CLI commands, you simply call `cli.New`:
 
-- Duplicate subcommand added
+```go
+cmd, err := cli.New(
+    "name", // The name of your command
+    cli.Short("A new command") // Shown in the help
+    cli.Run(func(cmd *cli.Command, args []string) error {
+        // This function is what your command does
+        fmt.Printf("name called with args: %v\n", args)
+        return nil
+    })
+)
+```
+
+> [!TIP]
+> The command can be customised by applying any number of [functional options] for setting the help text, describing the arguments or flags it takes, adding subcommands etc. see <https://pkg.go.dev/github.com/FollowTheProcess/cli#Option>
+
+### Sub Commands
+
+To add a subcommand underneath the command you've just created, it's again `cli.New`:
+
+```go
+// Best to abstract it into a function
+func buildSubcommand() (*cli.Command, error) {
+    return cli.New(
+        "sub", // Name of the sub command e.g. 'clone' for 'git clone'
+        cli.Short("A sub command"),
+        // etc..
+    )
+}
+```
+
+And add it to your parent command:
+
+```go
+// From the example above
+cmd, err := cli.New(
+    "name", // The name of your command
+    // ...
+    cli.SubCommands(buildSubcommand),
+)
+```
+
+This pattern can be repeated recursively to create complex command structures.
+
+### Flags
+
+Flags in `cli` are generic, that is, there is *one* way to add a flag to your command, and that's with the `cli.Flag` option to `cli.New`
+
+```go
+type options struct {
+    name string
+    force bool
+    size uint
+    items []string
+}
+
+func buildCmd() (*cli.Command, error) {
+    var opts options
+    return cli.New(
+        // ...
+        // Signature is cli.Flag(*T, name, shorthand, default, description)
+        cli.Flag(&options.name, "name", 'n', "", "The name of something"),
+        cli.Flag(&options.force, "force", cli.NoShortHand, false, "Force delete without confirmation"),
+        cli.Flag(&options.size, "size", 's', 0, "Size of something"),
+        cli.Flag(&options.items, "items", 'i', nil, "Items to include"),
+        cli.Run(runCmd(&options)), // Pass the parsed flag values to your command run function
+    )
+}
+```
+
+The types are all inferred automatically! No more `BoolSliceVarP` ✨
+
+The types you can use for flags currently are:
+
+- `int`
+- `int8`
+- `int16`
+- `int32`
+- `int64`
+- `uint`
+- `uint8`
+- `uint16`
+- `uint32`
+- `uint64`
+- `uintptr`
+- `float32`
+- `float64`
+- `string`
+- `bool`
+- `[]byte` (interpreted as a hex string)
+- `Count` (special type for flags that count things e.g. a `--verbosity` flag may be used like `-vvv` to increase verbosity to 3)
+- `time.Time`
+- `time.Duration`
+- `net.IP`
+- `[]int`
+- `[]int8`
+- `[]int16`
+- `[]int32`
+- `[]int64`
+- `[]uint`
+- `[]uint16`
+- `[]uint32`
+- `[]uint64`
+- `[]float32`
+- `[]float64`
+- `[]string`
+
+> [!NOTE]
+> You basically can't get this wrong, if you try and use an unsupported type, the Go compiler will yell at you
+
+## Core Principles
+
+When designing and implementing `cli`, I had some core goals and guiding principles for implementation.
+
+### 😱 Well behaved libraries don't panic
+
+`cli` validates heavily and returns errors for you to handle. By contrast [spf13/cobra] (and by extension [spf13/pflag]) panic in a number of (IMO unnecessary) conditions including:
+
+- Duplicate subcommand
 - Command adding itself as a subcommand
-- Duplicate flag added
+- Duplicate flag
 - Invalid shorthand flag letter
 
 The design of `cli` is such that commands are instantiated with `cli.New` and a number of [functional options]. These options are in charge of configuring your command and each will perform validation prior to applying the setting.
 
 These errors are joined and bubbled up to you in one go via `cli.New` so you don't have to play error whack-a-mole, and more importantly your application won't panic!
 
-#### 🧘🏻 Keep it Simple
+### 🧘🏻 Keep it Simple
 
-`cli` has an intentionally tiny public interface and gives you only what you need to build amazing CLI apps, no more confusing options and hundreds of struct fields.
+`cli` has an intentionally small public interface and gives you only what you need to build amazing CLI apps:
+
+- No huge structs with hundreds of fields
+- No confusing or conflicting options
+- Customisation in areas where it makes sense, sensible opinionated defaults everywhere else
+- No reflection or struct tags
 
 There is one and only one way to do things (and that is *usually* to use an option in `cli.New`)
 
-#### 👨🏻‍🔬 Use Modern Techniques
+### 👨🏻‍🔬 Use Modern Techniques
 
 The dominant Go CLI toolkits were mostly built many years (and many versions of Go) ago. They are reliable and battle hardened but because of their high number of users, they have had to be very conservative with changes.
 
@@ -119,7 +258,7 @@ cli.New("demo", cli.Flag(&force, "force", 'f', false, "Force something"))
 
 Note the type `bool` is inferred by `cli.Flag`. This will work with any type allowed by the `Flaggable` generic constraint so you'll get compile time feedback if you've got it wrong. No more `flag.BoolStringSliceVarP` 🎉
 
-#### 🥹 A Beautiful API
+### 🥹 A Beautiful API
 
 `cli` heavily leverages the [functional options] pattern to create a delightful experience building a CLI tool. It almost reads like plain english:
 
@@ -137,7 +276,7 @@ cmd, err := cli.New(
 )
 ```
 
-#### 🔐 Immutable State
+### 🔐 Immutable State
 
 Typically, commands are implemented as a big struct with lots of fields. `cli` is no different in this regard.
 
@@ -145,7 +284,7 @@ What *is* different though is that this large struct can **only** be configured 
 
 This eliminates a whole class of bugs and prevents misconfiguration and footguns 🔫
 
-#### 🚧 Good Libraries are Hard to Misuse
+### 🚧 Good Libraries are Hard to Misuse
 
 Everything in `cli` is (hopefully) clear, intuitive, and well-documented. There's a tonne of strict validation in a bunch of places and wherever possible, misuse results in a compilation error.
 
@@ -173,6 +312,15 @@ And if you don't want a shorthand? i.e. just `--delete` with no `-d` option:
 var delete bool
 cli.New("demo", cli.Flag(&delete, "delete", cli.NoShortHand, false, "Delete something"))
 ```
+
+## In the Wild
+
+I built `cli` for my own uses really, so I've quickly adopted it across a number of tools. See the following projects for some working examples in real code:
+
+- <https://github.com/FollowTheProcess/txtract>
+- <https://github.com/FollowTheProcess/tag>
+- <https://github.com/FollowTheProcess/spok>
+- <https://github.com/FollowTheProcess/gowc>
 
 [spf13/cobra]: https://github.com/spf13/cobra
 [spf13/pflag]: https://github.com/spf13/pflag
