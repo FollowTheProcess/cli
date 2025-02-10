@@ -148,10 +148,6 @@ func (s *Set) Parse(args []string) (err error) {
 		return errors.New("Parse called on a nil set")
 	}
 
-	// TODO(@FollowTheProcess): Rewrite the parsing to be a proper token stream, parser vibe
-	// should be pretty easy to do and would simplify some of this code. Simple stack based
-	// parser would work, it only needs to peek one token ahead for the `--flag value` case
-
 	for len(args) > 0 {
 		arg := args[0]  // The argument we're currently inspecting
 		args = args[1:] // Remainder
