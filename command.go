@@ -477,11 +477,10 @@ func stripFlags(cmd *Command, args []string) []string {
 			// If '-f arg' then delete 'arg' from args or break the loop if len(args) <= 1.
 			if len(args) <= 1 {
 				return argsWithoutFlags
-			} else {
-				args = args[1:]
-
-				continue
 			}
+			args = args[1:]
+			continue
+
 		case arg != "" && !strings.HasPrefix(arg, "-"):
 			// We have a valid positional arg
 			argsWithoutFlags = append(argsWithoutFlags, arg)

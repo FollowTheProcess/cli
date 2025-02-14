@@ -6,7 +6,6 @@ linters:
     - dupword # Messes with test cases more often than not
     - err113 # Out of date
     - exhaustruct # No
-    - exportloopref # Go 1.22+ solves this
     - forbidigo # Nothing to forbid
     - funlen # Bad metric for complexity
     - gci # gofmt/goimports is fine
@@ -23,6 +22,7 @@ linters:
     - nestif # cyclop does this
     - nlreturn # Similar to wsl, I think best left to judgement
     - nonamedreturns # Named returns are often helpful, it's naked returns that are the issue
+    - tenv # Replaced by usetesting
     - thelper # Lots of false positives due to the way I do table tests in here
     - varnamelen # Lots of false positives of things that are fine
     - wrapcheck # Not every error must be wrapped
