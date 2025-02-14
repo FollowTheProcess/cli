@@ -1164,9 +1164,7 @@ func BenchmarkFlagSet(b *testing.B) {
 	flag, err := flag.New(&count, "count", 'c', 0, "Count things")
 	test.Ok(b, err)
 
-	b.ResetTimer()
-
-	for range b.N {
+	for b.Loop() {
 		err := flag.Set("42")
 		if err != nil {
 			b.Fatalf("flag.Set returned an error: %v", err)

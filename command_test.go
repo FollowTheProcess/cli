@@ -1099,9 +1099,7 @@ func BenchmarkExecuteHelp(b *testing.B) {
 	)
 	test.Ok(b, err)
 
-	b.ResetTimer()
-
-	for range b.N {
+	for b.Loop() {
 		err := cmd.Execute()
 		if err != nil {
 			b.Fatalf("Execute returned an error: %v", err)
@@ -1111,7 +1109,7 @@ func BenchmarkExecuteHelp(b *testing.B) {
 
 // Benchmarks calling New to build a typical CLI.
 func BenchmarkNew(b *testing.B) {
-	for range b.N {
+	for b.Loop() {
 		_, err := cli.New(
 			"benchy",
 			cli.Short("A typical CLI to benchmark calling cli.New"),
