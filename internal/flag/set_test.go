@@ -1343,9 +1343,7 @@ func BenchmarkParse(b *testing.B) {
 
 	args := []string{"some", "args", "here", "--delete", "--count", "10", "--name", "John"}
 
-	b.ResetTimer()
-
-	for range b.N {
+	for b.Loop() {
 		err := set.Parse(args)
 		if err != nil {
 			b.Fatalf("Parse returned an error: %v", err)
