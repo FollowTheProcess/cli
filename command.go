@@ -15,6 +15,9 @@ import (
 	"github.com/FollowTheProcess/cli/internal/table"
 )
 
+// helpBufferSize is sufficient to hold most command --help text.
+const helpBufferSize = 1024
+
 // Builder is a function that constructs and returns a [Command], it makes constructing
 // complex command trees easier as they can be passed directly to the [SubCommands] option.
 type Builder func() (*Command, error)
@@ -497,6 +500,7 @@ func defaultHelp(cmd *Command) error {
 	// significant increase in memory consumption and disk space.
 	// See https://github.com/spf13/cobra/issues/2015
 	s := &strings.Builder{}
+	s.Grow(helpBufferSize)
 
 	// If we have a short description, write that
 	if cmd.short != "" {
