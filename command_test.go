@@ -22,7 +22,6 @@ var (
 )
 
 func TestExecute(t *testing.T) {
-	t.Parallel()
 	tests := []struct {
 		name    string       // Name of the test case
 		stdout  string       // Expected output to stdout
@@ -62,7 +61,6 @@ func TestExecute(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			var force bool
 
 			stderr := &bytes.Buffer{}
@@ -93,7 +91,6 @@ func TestExecute(t *testing.T) {
 }
 
 func TestSubCommandExecute(t *testing.T) {
-	t.Parallel()
 	tests := []struct {
 		name    string   // Test case name
 		stdout  string   // Expected stdout
@@ -190,7 +187,6 @@ func TestSubCommandExecute(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			var (
 				force     bool
 				something string
@@ -272,7 +268,6 @@ func TestSubCommandExecute(t *testing.T) {
 }
 
 func TestPositionalArgs(t *testing.T) {
-	t.Parallel()
 	sub := func() (*cli.Command, error) {
 		return cli.New(
 			"sub",
@@ -437,7 +432,6 @@ func TestPositionalArgs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			stdout := &bytes.Buffer{}
 
 			// Test specific overrides to the options in the table
@@ -462,7 +456,6 @@ func TestPositionalArgs(t *testing.T) {
 }
 
 func TestHelp(t *testing.T) {
-	t.Parallel()
 	sub1 := func() (*cli.Command, error) {
 		return cli.New(
 			"sub1",
@@ -615,7 +608,6 @@ func TestHelp(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			snap := snapshot.New(t, snapshot.Update(*update))
 
 			stderr := &bytes.Buffer{}
@@ -649,7 +641,6 @@ func TestHelp(t *testing.T) {
 }
 
 func TestVersion(t *testing.T) {
-	t.Parallel()
 	tests := []struct {
 		name    string       // Name of the test case
 		stderr  string       // Expected output to stderr
@@ -757,7 +748,6 @@ func TestVersion(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			stderr := &bytes.Buffer{}
 			stdout := &bytes.Buffer{}
 
@@ -784,7 +774,6 @@ func TestVersion(t *testing.T) {
 }
 
 func TestOptionValidation(t *testing.T) {
-	t.Parallel()
 	tests := []struct {
 		name    string       // Name of the test case
 		errMsg  string       // Expected error message
@@ -890,7 +879,6 @@ func TestOptionValidation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			_, err := cli.New("test", tt.options...)
 			test.Err(t, err)                      // Invalid option should have triggered an error
 			test.Equal(t, err.Error(), tt.errMsg) // Error message was not as expected
@@ -899,7 +887,6 @@ func TestOptionValidation(t *testing.T) {
 }
 
 func TestDuplicateSubCommands(t *testing.T) {
-	t.Parallel()
 	sub1 := func() (*cli.Command, error) {
 		return cli.New(
 			"sub1",
@@ -934,7 +921,6 @@ func TestDuplicateSubCommands(t *testing.T) {
 }
 
 func TestCommandNoRunNoSub(t *testing.T) {
-	t.Parallel()
 	_, err := cli.New(
 		"root",
 		cli.OverrideArgs([]string{}),
@@ -944,7 +930,6 @@ func TestCommandNoRunNoSub(t *testing.T) {
 }
 
 func TestExecuteNilCommand(t *testing.T) {
-	t.Parallel()
 	var cmd *cli.Command
 	err := cmd.Execute()
 	test.Err(t, err)
@@ -958,7 +943,6 @@ func TestExecuteNilCommand(t *testing.T) {
 // shuffles the order of the options and asserts the Command we get
 // out behaves the same as a baseline.
 func TestCommandOptionOrder(t *testing.T) {
-	t.Parallel()
 	baseLineStdout := &bytes.Buffer{}
 	baseLineStderr := &bytes.Buffer{}
 

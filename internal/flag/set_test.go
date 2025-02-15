@@ -18,7 +18,6 @@ var (
 )
 
 func TestParse(t *testing.T) {
-	t.Parallel()
 	tests := []struct {
 		name    string                            // The name of the test case
 		errMsg  string                            // If we did get an error, what should it say
@@ -873,7 +872,6 @@ func TestParse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			set := tt.newSet(t)
 			err := set.Parse(tt.args)
 			test.WantErr(t, err, tt.wantErr)
@@ -890,7 +888,6 @@ func TestParse(t *testing.T) {
 }
 
 func TestFlagSet(t *testing.T) {
-	t.Parallel()
 	tests := []struct {
 		newSet func(t *testing.T) *flag.Set      // Function to build the flag set under test
 		test   func(t *testing.T, set *flag.Set) // Function to test the set
@@ -1048,7 +1045,6 @@ func TestFlagSet(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			set := tt.newSet(t)
 			tt.test(t, set)
 		})
@@ -1056,7 +1052,6 @@ func TestFlagSet(t *testing.T) {
 }
 
 func TestHelpVersion(t *testing.T) {
-	t.Parallel()
 	tests := []struct {
 		newSet func(t *testing.T) *flag.Set      // Function to build the flag set under test
 		test   func(t *testing.T, set *flag.Set) // Function to test the set
@@ -1202,7 +1197,6 @@ func TestHelpVersion(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			set := tt.newSet(t)
 			tt.test(t, set)
 		})
@@ -1210,7 +1204,6 @@ func TestHelpVersion(t *testing.T) {
 }
 
 func TestUsage(t *testing.T) {
-	t.Parallel()
 	tests := []struct {
 		newSet func(t *testing.T) *flag.Set // Function to build the flag set under test
 		name   string                       // Name of the test case
@@ -1303,7 +1296,6 @@ func TestUsage(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			snap := snapshot.New(t, snapshot.Update(*update))
 			set := tt.newSet(t)
 
