@@ -17,7 +17,6 @@ var (
 )
 
 func TestTable(t *testing.T) {
-	t.Parallel()
 	snap := snapshot.New(t, snapshot.Update(*update))
 	buf := &bytes.Buffer{}
 
