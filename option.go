@@ -65,7 +65,6 @@ type config struct {
 	stderr         io.Writer
 	run            func(cmd *Command, args []string) error
 	flags          *flag.Set
-	versionFunc    func(cmd *Command) error
 	parent         *Command
 	argValidator   ArgValidator
 	name           string
@@ -93,7 +92,6 @@ func (c *config) build() *Command {
 		stderr:         c.stderr,
 		run:            c.run,
 		flags:          c.flags,
-		versionFunc:    c.versionFunc,
 		parent:         c.parent,
 		argValidator:   c.argValidator,
 		name:           c.name,
@@ -377,27 +375,6 @@ func Commit(commit string) Option {
 func BuildDate(date string) Option {
 	f := func(cfg *config) error {
 		cfg.buildDate = date
-
-		return nil
-	}
-
-	return option(f)
-}
-
-// VersionFunc is an [Option] that allows for a custom implementation of the -v/--version flag.
-//
-// A [Command] will have a default implementation of this function that prints a default
-// format of the version info to [os.Stderr].
-//
-// This option is particularly useful if you want to inject ldflags in at build time for
-// e.g commit hash.
-func VersionFunc(fn func(cmd *Command) error) Option {
-	f := func(cfg *config) error {
-		if fn == nil {
-			return errors.New("cannot set VersionFunc to nil")
-		}
-
-		cfg.versionFunc = fn
 
 		return nil
 	}
