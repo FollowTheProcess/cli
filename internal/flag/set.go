@@ -11,6 +11,9 @@ import (
 	"github.com/FollowTheProcess/cli/internal/table"
 )
 
+// usageBufferSize is sufficient to hold most commands flag usage text.
+const usageBufferSize = 256
+
 // Set is a set of command line flags.
 type Set struct {
 	flags      map[string]Value // The actual stored flags, can lookup by name
@@ -186,6 +189,7 @@ func (s *Set) Parse(args []string) (err error) {
 // Usage returns a string containing the usage info of all flags in the set.
 func (s *Set) Usage() (string, error) {
 	buf := &bytes.Buffer{}
+	buf.Grow(usageBufferSize)
 
 	// Flags should be sorted alphabetically
 	names := make([]string, 0, len(s.flags))
