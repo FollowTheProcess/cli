@@ -46,7 +46,6 @@ func New(name string, options ...Option) (*Command, error) {
 		args:         os.Args[1:],
 		name:         name,
 		version:      "dev",
-		versionFunc:  defaultVersion,
 		short:        "A placeholder for something cool",
 		argValidator: AnyArgs(),
 	}
@@ -106,12 +105,6 @@ type Command struct {
 
 	// flags is the set of flags for this command.
 	flags *flag.Set
-
-	// versionFunc is the function thatgets called when the user calls -v/--version.
-	//
-	// It can be overridden by the user to customise their version output using
-	// the [VersionFunc] [Option].
-	versionFunc func(cmd *Command) error
 
 	// parent is the immediate parent of this subcommand. If this command is the root
 	// and has no parent, this will be nil.
@@ -235,11 +228,7 @@ func (cmd *Command) Execute() error {
 	}
 
 	if versionCalled {
-		if cmd.versionFunc == nil {
-			return errors.New("versionFunc was nil")
-		}
-
-		if err := cmd.versionFunc(cmd); err != nil {
+		if err := defaultVersion(cmd); err != nil {
 			return fmt.Errorf("version function returned an error: %w", err)
 		}
 
