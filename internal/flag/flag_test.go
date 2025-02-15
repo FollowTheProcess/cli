@@ -12,12 +12,10 @@ import (
 )
 
 func TestFlaggableTypes(t *testing.T) {
-	t.Parallel()
 	// We can't do table testing here because Flag[T] is a different type for each test
 	// so we can't do a []Flag[T] which is needed to define the test cases
 	// so strap in for a bunch of copy pasta
 	t.Run("int valid", func(t *testing.T) {
-		t.Parallel()
 		var i int
 		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int value")
 		test.Ok(t, err)
@@ -30,7 +28,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int invalid", func(t *testing.T) {
-		t.Parallel()
 		var i int
 		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int value")
 		test.Ok(t, err)
@@ -45,7 +42,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int8 valid", func(t *testing.T) {
-		t.Parallel()
 		var i int8
 		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int8 value")
 		test.Ok(t, err)
@@ -58,7 +54,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int8 invalid", func(t *testing.T) {
-		t.Parallel()
 		var i int8
 		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int8 value")
 		test.Ok(t, err)
@@ -73,7 +68,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int16 valid", func(t *testing.T) {
-		t.Parallel()
 		var i int16
 		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int16 value")
 		test.Ok(t, err)
@@ -86,7 +80,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int16 invalid", func(t *testing.T) {
-		t.Parallel()
 		var i int16
 		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int16 value")
 		test.Ok(t, err)
@@ -101,7 +94,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int32 valid", func(t *testing.T) {
-		t.Parallel()
 		var i int32
 		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int32 value")
 		test.Ok(t, err)
@@ -114,7 +106,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int32 invalid", func(t *testing.T) {
-		t.Parallel()
 		var i int32
 		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int32 value")
 		test.Ok(t, err)
@@ -129,7 +120,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int64 valid", func(t *testing.T) {
-		t.Parallel()
 		var i int64
 		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int64 value")
 		test.Ok(t, err)
@@ -142,7 +132,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int64 invalid", func(t *testing.T) {
-		t.Parallel()
 		var i int64
 		intFlag, err := flag.New(&i, "int", 'i', 0, "Set an int64 value")
 		test.Ok(t, err)
@@ -157,7 +146,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("count valid", func(t *testing.T) {
-		t.Parallel()
 		var c flag.Count
 		countFlag, err := flag.New(&c, "count", 'c', 0, "Count something")
 		test.Ok(t, err)
@@ -185,7 +173,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("count invalid", func(t *testing.T) {
-		t.Parallel()
 		var c flag.Count
 		countFlag, err := flag.New(&c, "count", 'c', 0, "Count something")
 		test.Ok(t, err)
@@ -200,7 +187,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint valid", func(t *testing.T) {
-		t.Parallel()
 		var i uint
 		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint value")
 		test.Ok(t, err)
@@ -213,7 +199,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint invalid", func(t *testing.T) {
-		t.Parallel()
 		var i uint
 		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint value")
 		test.Ok(t, err)
@@ -228,7 +213,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint8 valid", func(t *testing.T) {
-		t.Parallel()
 		var i uint8
 		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint8 value")
 		test.Ok(t, err)
@@ -241,7 +225,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint8 invalid", func(t *testing.T) {
-		t.Parallel()
 		var i uint8
 		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint8 value")
 		test.Ok(t, err)
@@ -256,7 +239,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint16 valid", func(t *testing.T) {
-		t.Parallel()
 		var i uint16
 		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint16 value")
 		test.Ok(t, err)
@@ -269,7 +251,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint16 invalid", func(t *testing.T) {
-		t.Parallel()
 		var i uint16
 		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint16 value")
 		test.Ok(t, err)
@@ -284,7 +265,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint32 valid", func(t *testing.T) {
-		t.Parallel()
 		var i uint32
 		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint32 value")
 		test.Ok(t, err)
@@ -297,7 +277,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint32 invalid", func(t *testing.T) {
-		t.Parallel()
 		var i uint32
 		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint32 value")
 		test.Ok(t, err)
@@ -312,7 +291,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint64 valid", func(t *testing.T) {
-		t.Parallel()
 		var i uint64
 		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint64 value")
 		test.Ok(t, err)
@@ -325,7 +303,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint64 invalid", func(t *testing.T) {
-		t.Parallel()
 		var i uint64
 		intFlag, err := flag.New(&i, "uint", 'i', 0, "Set a uint64 value")
 		test.Ok(t, err)
@@ -340,7 +317,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uintptr valid", func(t *testing.T) {
-		t.Parallel()
 		var i uintptr
 		intFlag, err := flag.New(&i, "uintptr", 'i', 0, "Set a uintptr value")
 		test.Ok(t, err)
@@ -353,7 +329,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uintptr invalid", func(t *testing.T) {
-		t.Parallel()
 		var i uintptr
 		intFlag, err := flag.New(&i, "uintptr", 'i', 0, "Set a uintptr value")
 		test.Ok(t, err)
@@ -368,7 +343,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("float32 valid", func(t *testing.T) {
-		t.Parallel()
 		var f float32
 		floatFlag, err := flag.New(&f, "float", 'f', 0, "Set a float32 value")
 		test.Ok(t, err)
@@ -381,7 +355,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("float32 invalid", func(t *testing.T) {
-		t.Parallel()
 		var f float32
 		floatFlag, err := flag.New(&f, "float", 'f', 0, "Set a float32 value")
 		test.Ok(t, err)
@@ -396,7 +369,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("float64 valid", func(t *testing.T) {
-		t.Parallel()
 		var f float64
 		floatFlag, err := flag.New(&f, "float", 'f', 0, "Set a float64 value")
 		test.Ok(t, err)
@@ -409,7 +381,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("float64 invalid", func(t *testing.T) {
-		t.Parallel()
 		var f float64
 		floatFlag, err := flag.New(&f, "float", 'f', 0, "Set a float64 value")
 		test.Ok(t, err)
@@ -424,7 +395,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("bool valid", func(t *testing.T) {
-		t.Parallel()
 		var b bool
 		boolFlag, err := flag.New(&b, "bool", 'b', false, "Set a bool value")
 		test.Ok(t, err)
@@ -437,7 +407,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("bool invalid", func(t *testing.T) {
-		t.Parallel()
 		var b bool
 		boolFlag, err := flag.New(&b, "bool", 'b', false, "Set a bool value")
 		test.Ok(t, err)
@@ -454,7 +423,6 @@ func TestFlaggableTypes(t *testing.T) {
 	// No invalid case as all command line args are strings anyway so no real way of
 	// getting an error here
 	t.Run("string", func(t *testing.T) {
-		t.Parallel()
 		var str string
 		strFlag, err := flag.New(&str, "string", 's', "", "Set a string value")
 		test.Ok(t, err)
@@ -467,7 +435,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("byte slice valid", func(t *testing.T) {
-		t.Parallel()
 		var byt []byte
 		byteFlag, err := flag.New(&byt, "byte", 'b', []byte(""), "Set a byte slice value")
 		test.Ok(t, err)
@@ -480,7 +447,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("byte slice invalid", func(t *testing.T) {
-		t.Parallel()
 		var byt []byte
 		byteFlag, err := flag.New(&byt, "byte", 'b', []byte(""), "Set a byte slice value")
 		test.Ok(t, err)
@@ -495,7 +461,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("time.Time valid", func(t *testing.T) {
-		t.Parallel()
 		var tyme time.Time
 		timeFlag, err := flag.New(&tyme, "time", 't', time.Now(), "Set a time value")
 		test.Ok(t, err)
@@ -511,7 +476,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("time.Time invalid", func(t *testing.T) {
-		t.Parallel()
 		var tyme time.Time
 		timeFlag, err := flag.New(&tyme, "time", 't', time.Now(), "Set a time value")
 		test.Ok(t, err)
@@ -526,7 +490,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("time.Duration valid", func(t *testing.T) {
-		t.Parallel()
 		var duration time.Duration
 		durationFlag, err := flag.New(
 			&duration,
@@ -548,7 +511,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("time.Duration invalid", func(t *testing.T) {
-		t.Parallel()
 		var duration time.Duration
 		durationFlag, err := flag.New(
 			&duration,
@@ -569,7 +531,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("ip valid", func(t *testing.T) {
-		t.Parallel()
 		var ip net.IP
 		ipFlag, err := flag.New(&ip, "ip", 'i', nil, "Set an IP address")
 		test.Ok(t, err)
@@ -582,7 +543,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("ip invalid", func(t *testing.T) {
-		t.Parallel()
 		var ip net.IP
 		ipFlag, err := flag.New(&ip, "ip", 'i', nil, "Set an IP address")
 		test.Ok(t, err)
@@ -597,7 +557,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int slice valid", func(t *testing.T) {
-		t.Parallel()
 		var slice []int
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
 		test.Ok(t, err)
@@ -618,7 +577,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int slice invalid", func(t *testing.T) {
-		t.Parallel()
 		var slice []int
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
 		test.Ok(t, err)
@@ -633,7 +591,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int8 slice valid", func(t *testing.T) {
-		t.Parallel()
 		var slice []int8
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
 		test.Ok(t, err)
@@ -654,7 +611,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int8 slice invalid", func(t *testing.T) {
-		t.Parallel()
 		var slice []int8
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
 		test.Ok(t, err)
@@ -669,7 +625,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int16 slice valid", func(t *testing.T) {
-		t.Parallel()
 		var slice []int16
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
 		test.Ok(t, err)
@@ -690,7 +645,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int16 slice invalid", func(t *testing.T) {
-		t.Parallel()
 		var slice []int16
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
 		test.Ok(t, err)
@@ -705,7 +659,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int32 slice valid", func(t *testing.T) {
-		t.Parallel()
 		var slice []int32
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
 		test.Ok(t, err)
@@ -726,7 +679,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int32 slice invalid", func(t *testing.T) {
-		t.Parallel()
 		var slice []int32
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
 		test.Ok(t, err)
@@ -741,7 +693,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int64 slice valid", func(t *testing.T) {
-		t.Parallel()
 		var slice []int64
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
 		test.Ok(t, err)
@@ -762,7 +713,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("int64 slice invalid", func(t *testing.T) {
-		t.Parallel()
 		var slice []int64
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
 		test.Ok(t, err)
@@ -777,7 +727,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint slice valid", func(t *testing.T) {
-		t.Parallel()
 		var slice []uint
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of uints")
 		test.Ok(t, err)
@@ -798,7 +747,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint slice invalid", func(t *testing.T) {
-		t.Parallel()
 		var slice []uint
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of unsigned integers")
 		test.Ok(t, err)
@@ -813,7 +761,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint16 slice valid", func(t *testing.T) {
-		t.Parallel()
 		var slice []uint16
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
 		test.Ok(t, err)
@@ -834,7 +781,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint16 slice invalid", func(t *testing.T) {
-		t.Parallel()
 		var slice []uint16
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
 		test.Ok(t, err)
@@ -849,7 +795,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint32 slice valid", func(t *testing.T) {
-		t.Parallel()
 		var slice []uint32
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
 		test.Ok(t, err)
@@ -870,7 +815,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint32 slice invalid", func(t *testing.T) {
-		t.Parallel()
 		var slice []uint32
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
 		test.Ok(t, err)
@@ -885,7 +829,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint64 slice valid", func(t *testing.T) {
-		t.Parallel()
 		var slice []uint64
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of ints")
 		test.Ok(t, err)
@@ -906,7 +849,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("uint64 slice invalid", func(t *testing.T) {
-		t.Parallel()
 		var slice []uint64
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of integers")
 		test.Ok(t, err)
@@ -921,7 +863,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("float32 slice valid", func(t *testing.T) {
-		t.Parallel()
 		var slice []float32
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of floats")
 		test.Ok(t, err)
@@ -942,7 +883,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("float32 slice invalid", func(t *testing.T) {
-		t.Parallel()
 		var slice []float32
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of floats")
 		test.Ok(t, err)
@@ -957,7 +897,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("float64 slice valid", func(t *testing.T) {
-		t.Parallel()
 		var slice []float64
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Append to a slice of floats")
 		test.Ok(t, err)
@@ -978,7 +917,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("float64 slice invalid", func(t *testing.T) {
-		t.Parallel()
 		var slice []float64
 		sliceFlag, err := flag.New(&slice, "slice", 's', nil, "Slice of floats")
 		test.Ok(t, err)
@@ -993,7 +931,6 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("string slice valid", func(t *testing.T) {
-		t.Parallel()
 		// Note: no invalid case for []string because *every* flag value is a string
 		// it's impossible to make a bad one
 		var slice []string
@@ -1017,7 +954,6 @@ func TestFlaggableTypes(t *testing.T) {
 }
 
 func TestFlagValidation(t *testing.T) {
-	t.Parallel()
 	tests := []struct {
 		name     string // Name of the test case
 		flagName string // Input flag name
@@ -1121,7 +1057,6 @@ func TestFlagValidation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			_, err := flag.New(new(string), tt.flagName, tt.short, "", "Test me")
 			test.WantErr(t, err, tt.wantErr)
 
@@ -1133,9 +1068,7 @@ func TestFlagValidation(t *testing.T) {
 }
 
 func TestFlagNilSafety(t *testing.T) {
-	t.Parallel()
 	t.Run("with new", func(t *testing.T) {
-		t.Parallel()
 		// Should be impossible to make a nil pointer dereference when using .New
 		var bang *bool
 
@@ -1147,7 +1080,6 @@ func TestFlagNilSafety(t *testing.T) {
 	})
 
 	t.Run("composite literal", func(t *testing.T) {
-		t.Parallel()
 		// Users doing naughty things, should still be nil safe
 		flag := flag.Flag[bool]{}
 		test.Equal(t, flag.String(), "<nil>")

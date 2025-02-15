@@ -11,7 +11,6 @@ import (
 )
 
 func TestArgValidators(t *testing.T) {
-	t.Parallel()
 	tests := []struct {
 		name    string       // Identifier of the test case
 		stdout  string       // Desired output to stdout
@@ -281,7 +280,6 @@ func TestArgValidators(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			stderr := &bytes.Buffer{}
 			stdout := &bytes.Buffer{}
 
