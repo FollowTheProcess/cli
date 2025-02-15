@@ -638,18 +638,38 @@ func writeExamples(cmd *Command, s *strings.Builder) {
 	}
 
 	s.WriteString(colour.Title("Examples"))
-	s.WriteString(":")
+	s.WriteByte(':')
+	s.WriteByte('\n')
 
-	for _, example := range cmd.examples {
-		s.WriteString(example.String())
+	s.WriteString("  # ")
+	s.WriteString(cmd.examples[0].comment)
+	s.WriteByte('\n')
+	s.WriteString("  $ ")
+	s.WriteString(cmd.examples[0].command)
+
+	for _, example := range cmd.examples[1:] {
+		s.WriteString("\n\n")
+		s.WriteString("  # ")
+		s.WriteString(example.comment)
+		s.WriteByte('\n')
+		s.WriteString("  $ ")
+		s.WriteString(example.command)
 	}
+
+	s.WriteByte('\n')
 }
 
 // writeSubcommands writes the subcommand block to the help text string builder.
 func writeSubcommands(cmd *Command, s *strings.Builder) error {
-	s.WriteString("\n\n")
+	// If there were examples, the last one would have printed a newline
+	if len(cmd.examples) != 0 {
+		s.WriteByte('\n')
+	} else {
+		s.WriteString("\n\n")
+	}
 	s.WriteString(colour.Title("Commands"))
-	s.WriteString(":\n")
+	s.WriteByte(':')
+	s.WriteByte('\n')
 
 	tab := table.New(s)
 	for _, subcommand := range cmd.subcommands {
@@ -665,13 +685,13 @@ func writeSubcommands(cmd *Command, s *strings.Builder) error {
 
 // writeFooter writes the footer to the help text string builder.
 func writeFooter(cmd *Command, s *strings.Builder) {
-	s.WriteString("\n")
+	s.WriteByte('\n')
 	s.WriteString(`Use "`)
 	s.WriteString(cmd.name)
 	s.WriteString(" [command] -h/--help")
 	s.WriteString(`" `)
 	s.WriteString("for more information about a command.")
-	s.WriteString("\n")
+	s.WriteByte('\n')
 }
 
 // defaultVersion is the default for a command's versionFunc.
