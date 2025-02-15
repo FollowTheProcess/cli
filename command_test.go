@@ -2,7 +2,6 @@ package cli_test
 
 import (
 	"bytes"
-	"errors"
 	goflag "flag"
 	"fmt"
 	"io"
@@ -718,32 +717,6 @@ func TestVersion(t *testing.T) {
 			stderr:  "version-test\n\nVersion: v8.17.6\nCommit: b9aaafd\nBuildDate: 2024-08-17T10:37:30Z\n",
 			wantErr: false,
 		},
-		{
-			name: "custom versionFunc",
-			options: []cli.Option{
-				cli.OverrideArgs([]string{"--version"}),
-				cli.VersionFunc(func(cmd *cli.Command) error {
-					fmt.Fprintln(cmd.Stderr(), "Do something custom here")
-
-					return nil
-				}),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
-			},
-			stderr:  "Do something custom here\n",
-			wantErr: false,
-		},
-		{
-			name: "return error",
-			options: []cli.Option{
-				cli.OverrideArgs([]string{"--version"}),
-				cli.VersionFunc(func(_ *cli.Command) error {
-					return errors.New("uh oh")
-				}),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
-			},
-			stderr:  "",
-			wantErr: true,
-		},
 	}
 
 	for _, tt := range tests {
@@ -803,11 +776,6 @@ func TestOptionValidation(t *testing.T) {
 			name:    "nil override args",
 			options: []cli.Option{cli.OverrideArgs(nil)},
 			errMsg:  "cannot set Args to nil",
-		},
-		{
-			name:    "nil VersionFunc",
-			options: []cli.Option{cli.VersionFunc(nil)},
-			errMsg:  "cannot set VersionFunc to nil",
 		},
 		{
 			name:    "nil Run",
@@ -976,11 +944,6 @@ func TestCommandOptionOrder(t *testing.T) {
 			return nil
 		}),
 		cli.Version("v1.2.3"),
-		cli.VersionFunc(func(cmd *cli.Command) error {
-			fmt.Println(cmd.Stderr(), "versionFunc")
-
-			return nil
-		}),
 		cli.Allow(cli.AnyArgs()),
 		cli.SubCommands(sub),
 		cli.Flag(&f, "flag", 'f', false, "Set a bool flag"),
