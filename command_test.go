@@ -499,7 +499,7 @@ func TestHelp(t *testing.T) {
 			name: "default long",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--help"}),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -507,7 +507,7 @@ func TestHelp(t *testing.T) {
 			name: "default short",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"-h"}),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -517,7 +517,7 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.Example("Do a thing", "test do thing --now"),
 				cli.Example("Do a different thing", "test do thing --different"),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -528,7 +528,7 @@ func TestHelp(t *testing.T) {
 				cli.RequiredArg("src", "The file to copy"),                  // This one is required
 				cli.OptionalArg("dest", "Destination to copy to", "./dest"), // This one is optional
 				cli.OptionalArg("other", "Something else", ""),              // This is optional but default is empty
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -539,7 +539,7 @@ func TestHelp(t *testing.T) {
 				cli.RequiredArg("src", "The file to copy"),                  // This one is required
 				cli.OptionalArg("dest", "Destination to copy to", "./dest"), // This one is optional
 				cli.Flag(new(cli.FlagCount), "verbosity", 'v', 0, "Increase the verbosity level"),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -549,7 +549,7 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.Short("A cool CLI to do things"),
 				cli.Long("A longer, probably multiline description"),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -559,7 +559,7 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.Short("  \t\n A cool CLI to do things   \n "),
 				cli.Long("  \t\n\n A longer, probably multiline description \t\n\n "),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -567,7 +567,7 @@ func TestHelp(t *testing.T) {
 			name: "with no description",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--help"}),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -650,7 +650,7 @@ func TestVersion(t *testing.T) {
 			name: "default long",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--version"}),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: dev\n",
 			wantErr: false,
@@ -659,7 +659,7 @@ func TestVersion(t *testing.T) {
 			name: "default short",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"-V"}),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: dev\n",
 			wantErr: false,
@@ -669,7 +669,7 @@ func TestVersion(t *testing.T) {
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--version"}),
 				cli.Version("v3.1.7"),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: v3.1.7\n",
 			wantErr: false,
@@ -679,7 +679,7 @@ func TestVersion(t *testing.T) {
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--version"}),
 				cli.Commit("eedb45b"),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: dev\nCommit: eedb45b\n",
 			wantErr: false,
@@ -689,7 +689,7 @@ func TestVersion(t *testing.T) {
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--version"}),
 				cli.BuildDate("2024-04-11T02:23:42Z"),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: dev\nBuildDate: 2024-04-11T02:23:42Z\n",
 			wantErr: false,
@@ -700,7 +700,7 @@ func TestVersion(t *testing.T) {
 				cli.OverrideArgs([]string{"--version"}),
 				cli.Version("v8.17.6"),
 				cli.Commit("b9aaafd"),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: v8.17.6\nCommit: b9aaafd\n",
 			wantErr: false,
@@ -712,7 +712,7 @@ func TestVersion(t *testing.T) {
 				cli.Version("v8.17.6"),
 				cli.Commit("b9aaafd"),
 				cli.BuildDate("2024-08-17T10:37:30Z"),
-				cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: v8.17.6\nCommit: b9aaafd\nBuildDate: 2024-08-17T10:37:30Z\n",
 			wantErr: false,
@@ -858,21 +858,21 @@ func TestDuplicateSubCommands(t *testing.T) {
 	sub1 := func() (*cli.Command, error) {
 		return cli.New(
 			"sub1",
-			cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+			cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 		)
 	}
 
 	sub2 := func() (*cli.Command, error) {
 		return cli.New(
 			"sub2",
-			cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+			cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 		)
 	}
 
 	sub1Again := func() (*cli.Command, error) {
 		return cli.New(
 			"sub1",
-			cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+			cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 		)
 	}
 
@@ -1067,10 +1067,32 @@ func BenchmarkNew(b *testing.B) {
 			cli.Flag(new(bool), "force", 'f', false, "Force something"),
 			cli.Flag(new(string), "name", 'n', "", "The name of something"),
 			cli.Flag(new(int), "count", 'c', 1, "Count something"),
-			cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+			cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 		)
 		if err != nil {
 			b.Fatal(err)
+		}
+	}
+}
+
+// Benchmarks calling the --version flag.
+func BenchmarkVersion(b *testing.B) {
+	cmd, err := cli.New(
+		"bench-version",
+		cli.Version("v1.2.3"),
+		cli.Commit("f0d129cbda5cac5f57ffe091481bfb35fc6d5ee4"),
+		cli.BuildDate("2025-02-16T07:36:04Z"),
+		cli.OverrideArgs([]string{"--version"}),
+		cli.Stderr(io.Discard),
+		cli.Stdout(io.Discard),
+		cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+	)
+	test.Ok(b, err)
+
+	for b.Loop() {
+		err := cmd.Execute()
+		if err != nil {
+			b.Fatalf("Execute returned an error: %v", err)
 		}
 	}
 }

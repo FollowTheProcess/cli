@@ -75,7 +75,7 @@ func TestArgValidators(t *testing.T) {
 					func() (*cli.Command, error) {
 						return cli.New(
 							"sub",
-							cli.Run(func(_ *cli.Command, _ []string) error { return nil }),
+							cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 						)
 					},
 				),
