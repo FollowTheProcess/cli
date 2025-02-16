@@ -138,3 +138,9 @@ linters-settings:
           - fmt\.(Fp|P)rint(ln|f)?
           - strings.Builder.Write(String|Byte)?
           - bytes.Buffer.Write(String|Byte)?
+
+      - name: unused-parameter
+        disabled: true # Leaves a mess of _ in test cases etc.
+
+      - name: unused-receiver
+        disabled: true # As above
