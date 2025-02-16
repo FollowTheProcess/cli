@@ -15,8 +15,10 @@ import (
 	"github.com/FollowTheProcess/cli/internal/table"
 )
 
-// helpBufferSize is sufficient to hold most command --help text.
-const helpBufferSize = 1024
+const (
+	helpBufferSize    = 1024 // helpBufferSize is sufficient to hold most command --help text.
+	versionBufferSize = 256  // versionBufferSize is sufficient to hold all the --version text.
+)
 
 // Builder is a function that constructs and returns a [Command], it makes constructing
 // complex command trees easier as they can be passed directly to the [SubCommands] option.
@@ -701,6 +703,7 @@ func defaultVersion(cmd *Command) error {
 	}
 
 	s := &strings.Builder{}
+	s.Grow(versionBufferSize)
 	s.WriteString(colour.Title(cmd.name))
 	s.WriteString("\n\n")
 	s.WriteString(colour.Bold("Version:"))
