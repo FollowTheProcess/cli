@@ -24,9 +24,9 @@ func BuildCLI() (*cli.Command, error) {
 
 type sayOptions struct {
 	thing string
+	items []string
 	count int
 	shout bool
-	items []string
 }
 
 func buildSayCommand() (*cli.Command, error) {

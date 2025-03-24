@@ -26,12 +26,8 @@ tasks:
     desc: Run go fmt on all source files
     sources:
       - "**/*.go"
-    preconditions:
-      - sh: command -v golines
-        msg: golines not installed, see https://github.com/segmentio/golines
     cmds:
       - go fmt ./...
-      - golines . --ignore-generated --write-output --max-len 120
 
   test:
     desc: Run the test suite

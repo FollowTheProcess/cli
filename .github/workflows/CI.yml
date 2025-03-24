@@ -17,4 +17,4 @@ jobs:
     name: CI
     permissions:
       contents: read
-    uses: FollowTheProcess/ci/.github/workflows/Go.yml@v1
+    uses: FollowTheProcess/ci/.github/workflows/Go.yml@v2
