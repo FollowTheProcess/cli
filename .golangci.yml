@@ -1,5 +1,16 @@
+version: "2"
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+
+  settings:
+    gofumpt:
+      extra-rules: true
+
 linters:
-  enable-all: true
+  default: all
   disable:
     - decorder # Don't care about this
     - dupl # Basically every table driven test ever triggers this
@@ -8,9 +19,9 @@ linters:
     - exhaustruct # No
     - forbidigo # Nothing to forbid
     - funlen # Bad metric for complexity
-    - gci # gofmt/goimports is fine
     - ginkgolinter # I don't use whatever this is
     - gochecknoglobals # Globals are fine sometimes, use common sense
+    - gocognit # Cmplexity with another name, don't need both
     - gocyclo # cyclop does this instead
     - godox # "todo" and "fixme" comments are allowed
     - goheader # No need
@@ -22,125 +33,133 @@ linters:
     - nestif # cyclop does this
     - nlreturn # Similar to wsl, I think best left to judgement
     - nonamedreturns # Named returns are often helpful, it's naked returns that are the issue
-    - paralleltest # No need
-    - tenv # Replaced by usetesting
-    - thelper # Lots of false positives due to the way I do table tests in here
+    - paralleltest # I've never had Go tests take longer than a few seconds, it's fine
+    - thelper # Lots of false positives in here due to the way I do table tests
+    - unparam # gopls is better and more subtle
     - varnamelen # Lots of false positives of things that are fine
     - wrapcheck # Not every error must be wrapped
     - wsl # Very aggressive, some of this I like but tend to do anyway
 
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - prealloc # These kinds of optimisations will make no difference to test code
-
-linters-settings:
-  cyclop:
-    max-complexity: 20
-
-  depguard:
+  exclusions:
+    presets:
+      # See https://golangci-lint.run/usage/false-positives/#exclusion-presets
+      - comments # Revive in particular has lots of false positives
+      - std-error-handling
+      - common-false-positives
     rules:
-      main:
-        deny:
-          - pkg: io/ioutil
-            desc: io/ioutil is deprecated, use io instead
+      - path: _test\.go
+        linters:
+          - prealloc # These kinds of optimisations will make no difference to test code
+          - gosec # Tests don't need security stuff
 
-          - pkg: "math/rand$"
-            desc: use math/rand/v2 instead
+  settings:
+    cyclop:
+      max-complexity: 20
 
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: io/ioutil
+              desc: io/ioutil is deprecated, use io instead
 
-  exhaustive:
-    check:
-      - switch
-      - map
-    default-signifies-exhaustive: true
+            - pkg: "math/rand$"
+              desc: use math/rand/v2 instead
 
-  staticcheck:
-    checks:
-      - all
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
 
-  gosimple:
-    checks:
-      - all
+    exhaustive:
+      check:
+        - switch
+        - map
+      default-signifies-exhaustive: true
 
-  govet:
-    enable-all: true
+    staticcheck:
+      checks:
+        - all
 
-  gofumpt:
-    extra-rules: true
+    gosec:
+      excludes:
+        - G104 # Errors not checked, handled by errcheck
 
-  nakedret:
-    max-func-lines: 0 # Disallow any naked returns
+    govet:
+      enable-all: true
 
-  nolintlint:
-    allow-unused: false
-    require-explanation: true
-    require-specific: true
+    nakedret:
+      max-func-lines: 0 # Disallow any naked returns
 
-  usetesting:
-    context-background: true
-    context-todo: true
-    os-chdir: true
-    os-mkdir-temp: true
-    os-setenv: true
-    os-create-temp: true
-    os-temp-dir: true
+    nolintlint:
+      allow-unused: false
+      require-explanation: true
+      require-specific: true
 
-  revive:
-    max-open-files: 256
-    ignore-generated-header: true
-    enable-all-rules: true
-    rules:
-      - name: add-constant
-        disabled: true # goconst does this
+    usetesting:
+      context-background: true
+      context-todo: true
+      os-chdir: true
+      os-mkdir-temp: true
+      os-setenv: true
+      os-create-temp: true
+      os-temp-dir: true
 
-      - name: argument-limit
-        arguments:
-          - 5
+    revive:
+      max-open-files: 256
+      enable-all-rules: true
+      rules:
+        - name: add-constant
+          disabled: true # goconst does this
 
-      - name: cognitive-complexity
-        disabled: true # gocognit does this
+        - name: argument-limit
+          arguments:
+            - 5
 
-      - name: comment-spacings
-        arguments:
-          - "nolint:"
+        - name: cognitive-complexity
+          disabled: true # gocognit does this
 
-      - name: cyclomatic
-        disabled: true # cyclop does this
+        - name: comment-spacings
+          arguments:
+            - "nolint:"
 
-      - name: exported
-        arguments:
-          - checkPrivateReceivers
-          - checkPublicInterface
+        - name: cyclomatic
+          disabled: true # cyclop does this
 
-      - name: function-length
-        disabled: true # Bad proxy for complexity
+        - name: exported
+          arguments:
+            - checkPrivateReceivers
+            - checkPublicInterface
 
-      - name: function-result-limit
-        arguments:
-          - 3
+        - name: function-length
+          disabled: true # Bad proxy for complexity
 
-      - name: import-shadowing
-        disabled: true # predeclared does this
+        - name: function-result-limit
+          arguments:
+            - 3
 
-      - name: line-length-limit
-        disabled: true # gofmt/golines handles this well enough
+        - name: import-shadowing
+          disabled: true # predeclared does this
 
-      - name: redefines-builtin-id
-        disabled: true # predeclared does this
+        - name: line-length-limit
+          disabled: true # gofmt/golines handles this well enough
 
-      - name: unhandled-error
-        arguments:
-          - fmt\.(Fp|P)rint(ln|f)?
-          - strings.Builder.Write(String|Byte)?
-          - bytes.Buffer.Write(String|Byte)?
+        - name: max-public-structs
+          disabled: true # This is a dumb rule
 
-      - name: unused-parameter
-        disabled: true # Leaves a mess of _ in test cases etc.
+        - name: redefines-builtin-id
+          disabled: true # predeclared does this
 
-      - name: unused-receiver
-        disabled: true # As above
+        - name: unhandled-error
+          arguments:
+            - fmt\.(Fp|P)rint(ln|f)?
+            - strings.Builder.Write(String|Byte)?
+            - bytes.Buffer.Write(String|Byte)?
+
+        - name: flag-parameter
+          disabled: true # As far as I can work out this just doesn't like bools
+
+        - name: unused-parameter
+          disabled: true # The gopls unused analyzer covers this better
+
+        - name: unused-receiver
+          disabled: true # As above
