@@ -362,7 +362,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		return nil
 	case Count:
-		// We have to do a bit of custom stuff here as an incremement is a read and write op
+		// We have to do a bit of custom stuff here as an increment is a read and write op
 		// First read the current value of the flag and cast it to a Count so we
 		// can increment it
 		current, ok := any(*f.value).(Count)
