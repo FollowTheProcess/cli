@@ -285,21 +285,6 @@ func (cmd *Command) Execute() error {
 	return fmt.Errorf("command %q expected arguments (subcommands) but got none", cmd.name)
 }
 
-// Flags returns the set of flags for the command.
-func (cmd *Command) flagSet() *flag.Set {
-	if cmd == nil {
-		// Only thing to do really, slightly more helpful than a generic
-		// nil pointer dereference
-		panic("flagSet called on a nil Command")
-	}
-
-	if cmd.flags == nil {
-		return flag.NewSet()
-	}
-
-	return cmd.flags
-}
-
 // Stdout returns the configured Stdout for the Command.
 func (cmd *Command) Stdout() io.Writer {
 	return cmd.root().stdout
@@ -345,6 +330,21 @@ func (cmd *Command) ExtraArgs() (args []string, ok bool) {
 	}
 
 	return nil, false
+}
+
+// Flags returns the set of flags for the command.
+func (cmd *Command) flagSet() *flag.Set {
+	if cmd == nil {
+		// Only thing to do really, slightly more helpful than a generic
+		// nil pointer dereference
+		panic("flagSet called on a nil Command")
+	}
+
+	if cmd.flags == nil {
+		return flag.NewSet()
+	}
+
+	return cmd.flags
 }
 
 // root returns the root of the command tree.
