@@ -1,16 +1,16 @@
 # CLI
 
-[![License](https://img.shields.io/github/license/FollowTheProcess/cli)](https://github.com/FollowTheProcess/cli)
-[![Go Reference](https://pkg.go.dev/badge/github.com/FollowTheProcess/cli.svg)](https://pkg.go.dev/github.com/FollowTheProcess/cli)
-[![Go Report Card](https://goreportcard.com/badge/github.com/FollowTheProcess/cli)](https://goreportcard.com/report/github.com/FollowTheProcess/cli)
-[![GitHub](https://img.shields.io/github/v/release/FollowTheProcess/cli?logo=github&sort=semver)](https://github.com/FollowTheProcess/cli)
-[![CI](https://github.com/FollowTheProcess/cli/workflows/CI/badge.svg)](https://github.com/FollowTheProcess/cli/actions?query=workflow%3ACI)
+[![License](https://img.shields.io/github/license/FollowTheProcess/cli)](https://followtheprocess.codes/cli)
+[![Go Reference](https://pkg.go.dev/badge/followtheprocess.codes/cli.svg)](https://pkg.go.dev/followtheprocess.codes/cli)
+[![Go Report Card](https://goreportcard.com/badge/followtheprocess.codes/cli)](https://goreportcard.com/report/followtheprocess.codes/cli)
+[![GitHub](https://img.shields.io/github/v/release/FollowTheProcess/cli?logo=github&sort=semver)](https://followtheprocess.codes/cli)
+[![CI](https://followtheprocess.codes/cli/workflows/CI/badge.svg)](https://followtheprocess.codes/cli/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/FollowTheProcess/cli/branch/main/graph/badge.svg)](https://codecov.io/gh/FollowTheProcess/cli)
 
 Tiny, simple, but powerful CLI framework for modern Go 🚀
 
 <p align="center">
-<img src="https://github.com/FollowTheProcess/cli/raw/main/docs/img/demo.png" alt="demo">
+<img src="https://followtheprocess.codes/cli/raw/main/docs/img/demo.png" alt="demo">
 </p>
 
 > [!WARNING]
@@ -40,7 +40,7 @@ Tiny, simple, but powerful CLI framework for modern Go 🚀
 ## Installation
 
 ```shell
-go get github.com/FollowTheProcess/cli@latest
+go get followtheprocess.codes/cli@latest
 ```
 
 ## Quickstart
@@ -52,7 +52,7 @@ import (
     "fmt"
     "os"
 
-    "github.com/FollowTheProcess/cli"
+    "followtheprocess.codes/cli"
 )
 
 func main() {
@@ -95,10 +95,10 @@ func runQuickstart(count *int) func(cmd *cli.Command, args []string) error {
 
 Will get you the following:
 
-![quickstart](https://github.com/FollowTheProcess/cli/raw/main/docs/img/quickstart.gif)
+![quickstart](https://followtheprocess.codes/cli/raw/main/docs/img/quickstart.gif)
 
 > [!TIP]
-> See usage section below and more examples under [`./examples`](https://github.com/FollowTheProcess/cli/tree/main/examples)
+> See usage section below and more examples under [`./examples`](https://followtheprocess.codes/cli/tree/main/examples)
 
 ## Usage
 
@@ -119,7 +119,7 @@ cmd, err := cli.New(
 ```
 
 > [!TIP]
-> The command can be customised by applying any number of [functional options] for setting the help text, describing the arguments or flags it takes, adding subcommands etc. see <https://pkg.go.dev/github.com/FollowTheProcess/cli#Option>
+> The command can be customised by applying any number of [functional options] for setting the help text, describing the arguments or flags it takes, adding subcommands etc. see <https://pkg.go.dev/followtheprocess.codes/cli#Option>
 
 ### Sub Commands
 

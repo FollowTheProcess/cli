@@ -1,5 +1,5 @@
 // Package cli provides a clean, minimal and simple mechanism for constructing CLI commands.
-package cli
+package cli // import "followtheprocess.codes/cli"
 
 import (
 	"errors"
@@ -10,9 +10,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/FollowTheProcess/cli/internal/colour"
-	"github.com/FollowTheProcess/cli/internal/flag"
-	"github.com/FollowTheProcess/cli/internal/table"
+	"followtheprocess.codes/cli/internal/colour"
+	"followtheprocess.codes/cli/internal/flag"
+	"followtheprocess.codes/cli/internal/table"
 )
 
 const (

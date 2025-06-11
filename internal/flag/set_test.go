@@ -6,8 +6,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/FollowTheProcess/cli/internal/colour"
-	"github.com/FollowTheProcess/cli/internal/flag"
+	"followtheprocess.codes/cli/internal/colour"
+	"followtheprocess.codes/cli/internal/flag"
 	"github.com/FollowTheProcess/snapshot"
 	"github.com/FollowTheProcess/test"
 )

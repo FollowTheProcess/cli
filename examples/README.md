@@ -37,5 +37,5 @@ A CLI with named positional arguments that may or may not have default values. S
   - Docker
   - Cargo
 
-[quickstart]: <https://github.com/FollowTheProcess/cli#quickstart>
+[quickstart]: <https://followtheprocess.codes/cli#quickstart>
 [freeze]: <https://github.com/charmbracelet/freeze>

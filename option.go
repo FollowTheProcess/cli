@@ -1,4 +1,4 @@
-package cli
+package cli // import "followtheprocess.codes/cli"
 
 import (
 	"errors"
@@ -7,8 +7,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/FollowTheProcess/cli/internal/colour"
-	"github.com/FollowTheProcess/cli/internal/flag"
+	"followtheprocess.codes/cli/internal/colour"
+	"followtheprocess.codes/cli/internal/flag"
 )
 
 // NoShortHand should be passed as the "short" argument to [Flag] if the desired flag

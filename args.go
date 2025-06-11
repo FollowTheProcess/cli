@@ -1,4 +1,4 @@
-package cli
+package cli // import "followtheprocess.codes/cli"
 
 import (
 	"fmt"

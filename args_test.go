@@ -6,7 +6,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/FollowTheProcess/cli"
+	"followtheprocess.codes/cli"
 	"github.com/FollowTheProcess/test"
 )
 

@@ -4,7 +4,7 @@ version: "3"
 
 vars:
   COV_DATA: coverage.out
-  PACKAGE: github.com/FollowTheProcess/cli
+  PACKAGE: followtheprocess.codes/cli
 
 tasks:
   default:

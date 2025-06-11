@@ -1,4 +1,4 @@
-module github.com/FollowTheProcess/cli
+module followtheprocess.codes/cli
 
 go 1.24
 

@@ -7,8 +7,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/FollowTheProcess/cli/internal/colour"
-	"github.com/FollowTheProcess/cli/internal/table"
+	"followtheprocess.codes/cli/internal/colour"
+	"followtheprocess.codes/cli/internal/table"
 )
 
 // usageBufferSize is sufficient to hold most commands flag usage text.

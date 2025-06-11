@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/FollowTheProcess/cli/internal/table"
+	"followtheprocess.codes/cli/internal/table"
 	"github.com/FollowTheProcess/snapshot"
 	"github.com/FollowTheProcess/test"
 )
