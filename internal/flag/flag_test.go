@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/FollowTheProcess/cli/internal/flag"
-	"github.com/FollowTheProcess/test"
+	"go.followtheprocess.codes/cli/internal/flag"
+	"go.followtheprocess.codes/test"
 )
 
 func TestFlaggableTypes(t *testing.T) {

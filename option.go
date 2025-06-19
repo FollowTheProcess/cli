@@ -7,8 +7,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/FollowTheProcess/cli/internal/colour"
-	"github.com/FollowTheProcess/cli/internal/flag"
+	"go.followtheprocess.codes/cli/internal/colour"
+	"go.followtheprocess.codes/cli/internal/flag"
 )
 
 // NoShortHand should be passed as the "short" argument to [Flag] if the desired flag
