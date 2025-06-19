@@ -1,7 +1,7 @@
 # CLI
 
 [![License](https://img.shields.io/github/license/FollowTheProcess/cli)](https://github.com/FollowTheProcess/cli)
-[![Go Reference](https://pkg.go.dev/badge/github.com/FollowTheProcess/cli.svg)](https://pkg.go.dev/github.com/FollowTheProcess/cli)
+[![Go Reference](https://pkg.go.dev/badge/go.followtheprocess.codes/cli.svg)](https://pkg.go.dev/go.followtheprocess.codes/cli)
 [![Go Report Card](https://goreportcard.com/badge/github.com/FollowTheProcess/cli)](https://goreportcard.com/report/github.com/FollowTheProcess/cli)
 [![GitHub](https://img.shields.io/github/v/release/FollowTheProcess/cli?logo=github&sort=semver)](https://github.com/FollowTheProcess/cli)
 [![CI](https://github.com/FollowTheProcess/cli/workflows/CI/badge.svg)](https://github.com/FollowTheProcess/cli/actions?query=workflow%3ACI)
