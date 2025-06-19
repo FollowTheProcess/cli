@@ -40,7 +40,7 @@ Tiny, simple, but powerful CLI framework for modern Go 🚀
 ## Installation
 
 ```shell
-go get github.com/FollowTheProcess/cli@latest
+go get go.followtheprocess.codes/cli@latest
 ```
 
 ## Quickstart
@@ -52,7 +52,7 @@ import (
     "fmt"
     "os"
 
-    "github.com/FollowTheProcess/cli"
+    "go.followtheprocess.codes/cli"
 )
 
 func main() {

@@ -6,8 +6,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/FollowTheProcess/cli"
-	"github.com/FollowTheProcess/test"
+	"go.followtheprocess.codes/cli"
+	"go.followtheprocess.codes/test"
 )
 
 func TestArgValidators(t *testing.T) {

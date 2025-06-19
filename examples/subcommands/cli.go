@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FollowTheProcess/cli"
+	"go.followtheprocess.codes/cli"
 )
 
 func BuildCLI() (*cli.Command, error) {
