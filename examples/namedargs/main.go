@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/FollowTheProcess/cli"
+	"go.followtheprocess.codes/cli"
 )
 
 func main() {

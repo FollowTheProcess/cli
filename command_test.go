@@ -10,9 +10,9 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/FollowTheProcess/cli"
-	"github.com/FollowTheProcess/snapshot"
-	"github.com/FollowTheProcess/test"
+	"go.followtheprocess.codes/cli"
+	"go.followtheprocess.codes/snapshot"
+	"go.followtheprocess.codes/test"
 )
 
 var (

@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/FollowTheProcess/cli/internal/table"
-	"github.com/FollowTheProcess/snapshot"
-	"github.com/FollowTheProcess/test"
+	"go.followtheprocess.codes/cli/internal/table"
+	"go.followtheprocess.codes/snapshot"
+	"go.followtheprocess.codes/test"
 )
 
 var (
