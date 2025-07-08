@@ -32,6 +32,7 @@ linters:
     - maintidx # This is just the inverse of complexity... which is cyclop
     - nestif # cyclop does this
     - nlreturn # Similar to wsl, I think best left to judgement
+    - noinlineerr # Inline errors are fine
     - nonamedreturns # Named returns are often helpful, it's naked returns that are the issue
     - paralleltest # I've never had Go tests take longer than a few seconds, it's fine
     - thelper # Lots of false positives in here due to the way I do table tests
@@ -39,6 +40,7 @@ linters:
     - varnamelen # Lots of false positives of things that are fine
     - wrapcheck # Not every error must be wrapped
     - wsl # Very aggressive, some of this I like but tend to do anyway
+    - wsl_v5 # Very aggressive, some of this I like but tend to do anyway
 
   exclusions:
     presets:
