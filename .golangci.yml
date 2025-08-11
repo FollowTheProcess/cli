@@ -127,6 +127,9 @@ linters:
         - name: cyclomatic
           disabled: true # cyclop does this
 
+        - name: enforce-switch-style
+          disabled: true # exhaustive handles this
+
         - name: exported
           arguments:
             - checkPrivateReceivers
