@@ -1,6 +1,11 @@
 module go.followtheprocess.codes/cli
 
-go 1.24
+go 1.25
+
+ignore (
+	./docs
+	./examples
+)
 
 require (
 	go.followtheprocess.codes/snapshot v0.6.0
