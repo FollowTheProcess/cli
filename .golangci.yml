@@ -39,13 +39,11 @@ linters:
     - unparam # gopls is better and more subtle
     - varnamelen # Lots of false positives of things that are fine
     - wrapcheck # Not every error must be wrapped
-    - wsl # Very aggressive, some of this I like but tend to do anyway
-    - wsl_v5 # Very aggressive, some of this I like but tend to do anyway
+    - wsl # Deprecated
 
   exclusions:
     presets:
       # See https://golangci-lint.run/usage/false-positives/#exclusion-presets
-      - comments # Revive in particular has lots of false positives
       - std-error-handling
       - common-false-positives
     rules:
@@ -155,10 +153,7 @@ linters:
           disabled: true # predeclared does this
 
         - name: unhandled-error
-          arguments:
-            - fmt\.(Fp|P)rint(ln|f)?
-            - strings.Builder.Write(String|Byte)?
-            - bytes.Buffer.Write(String|Byte)?
+          disabled: true # errcheck handles this
 
         - name: flag-parameter
           disabled: true # As far as I can work out this just doesn't like bools
