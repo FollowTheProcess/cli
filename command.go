@@ -67,8 +67,8 @@ func New(name string, options ...Option) (*Command, error) {
 	errs = errors.Join(errs, err) // nil errors are discarded in join
 
 	err = Flag(&cfg.versionCalled, "version", 'V', false, "Show version info for "+name).apply(&cfg)
-	errs = errors.Join(errs, err)
 
+	errs = errors.Join(errs, err)
 	if errs != nil {
 		return nil, errs
 	}
@@ -472,7 +472,9 @@ func stripFlags(cmd *Command, args []string) []string {
 			if len(args) <= 1 {
 				return argsWithoutFlags
 			}
+
 			args = args[1:]
+
 			continue
 
 		case arg != "" && !strings.HasPrefix(arg, "-"):
@@ -669,6 +671,7 @@ func writeSubcommands(cmd *Command, s *strings.Builder) error {
 	} else {
 		s.WriteString("\n\n")
 	}
+
 	s.WriteString(colour.Title("Commands"))
 	s.WriteByte(':')
 	s.WriteByte('\n')
