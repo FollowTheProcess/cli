@@ -899,6 +899,7 @@ func TestCommandNoRunNoSub(t *testing.T) {
 
 func TestExecuteNilCommand(t *testing.T) {
 	var cmd *cli.Command
+
 	err := cmd.Execute()
 	test.Err(t, err)
 

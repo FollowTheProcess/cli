@@ -60,8 +60,7 @@ const (
 )
 
 const (
-	boolTrue  = "true"
-	boolFalse = "false"
+	boolTrue = "true"
 )
 
 // NoShortHand should be passed as the "short" argument to [New] if the desired flag
@@ -891,6 +890,7 @@ func formatStringSlice(slice []string) string {
 	length := len(slice)
 	s := &strings.Builder{}
 	s.WriteByte('[')
+
 	for index, elem := range slice {
 		s.WriteString(strconv.Quote(elem))
 		// Write commas and a space on every element other than the last one
@@ -899,6 +899,7 @@ func formatStringSlice(slice []string) string {
 			s.WriteByte(' ')
 		}
 	}
+
 	s.WriteByte(']')
 
 	return s.String()
