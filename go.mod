@@ -9,7 +9,7 @@ ignore (
 
 require (
 	go.followtheprocess.codes/snapshot v0.6.1
-	go.followtheprocess.codes/test v0.23.0
+	go.followtheprocess.codes/test v0.23.1
 )
 
 require (
