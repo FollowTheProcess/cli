@@ -607,7 +607,7 @@ func TestHelp(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			snap := snapshot.New(t, snapshot.Update(*update))
+			snap := snapshot.New(t, snapshot.Update(*update), snapshot.Color(os.Getenv("CI") == ""))
 
 			stderr := &bytes.Buffer{}
 			stdout := &bytes.Buffer{}
