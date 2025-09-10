@@ -571,7 +571,7 @@ func defaultHelp(cmd *Command) error {
 	}
 
 	s.WriteString(colour.Title("Options"))
-	s.WriteString(":\n")
+	s.WriteString(":\n\n")
 	s.WriteString(usage)
 
 	// Subcommand help
@@ -643,7 +643,7 @@ func writeExamples(cmd *Command, s *strings.Builder) {
 
 	s.WriteString(colour.Title("Examples"))
 	s.WriteByte(':')
-	s.WriteByte('\n')
+	s.WriteString("\n\n")
 
 	s.WriteString("  # ")
 	s.WriteString(cmd.examples[0].comment)
