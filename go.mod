@@ -8,12 +8,12 @@ ignore (
 )
 
 require (
-	go.followtheprocess.codes/snapshot v0.6.0
+	go.followtheprocess.codes/snapshot v0.6.1
 	go.followtheprocess.codes/test v0.23.0
 )
 
 require (
-	go.followtheprocess.codes/hue v0.6.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/term v0.34.0 // indirect
+	go.followtheprocess.codes/hue v0.7.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/term v0.35.0 // indirect
 )
