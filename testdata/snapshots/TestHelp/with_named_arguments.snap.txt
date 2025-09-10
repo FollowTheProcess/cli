@@ -8,5 +8,6 @@ Arguments:
   other  Something else          [default ""]
 
 Options:
+
   -h  --help     bool  Show help for test
   -V  --version  bool  Show version info for test
