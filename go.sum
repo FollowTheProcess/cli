@@ -2,8 +2,8 @@ go.followtheprocess.codes/hue v0.7.0 h1:6HaZTGc4NYVnqqjYZTTBcVYRKb8MyfPe5yBHJiBf
 go.followtheprocess.codes/hue v0.7.0/go.mod h1:gSn5xK6KJapih+eFgQk3woo1qg3/rx9XSrAanUIuDr8=
 go.followtheprocess.codes/snapshot v0.6.1 h1:cZkQtEjL21BSrHn98Lm0S4yTzcOje/K60Iog/u/A5tM=
 go.followtheprocess.codes/snapshot v0.6.1/go.mod h1:CM2E92Ah/j0XL4Z2UyOl7GlSuD0ZLLl8rJCpFylKcIg=
-go.followtheprocess.codes/test v0.23.0 h1:XpKkEAzzm2/FmOAfR6GHRvgdY3XhragOWYCCvr9F6wg=
-go.followtheprocess.codes/test v0.23.0/go.mod h1:Bhx7T8XRQs6w7DuT06uG4EPbGeaVgj3HL4laIGLVV4w=
+go.followtheprocess.codes/test v0.23.1 h1:VoucCC8qKb6tKnBOCRZ7Ln2Ex1oV+HMXHdZyJ6DURB8=
+go.followtheprocess.codes/test v0.23.1/go.mod h1:sL19ttHv+BSJSMtdPXTP05aWwl58ciap0SoLp1hucKk=
 golang.org/x/sys v0.36.0 h1:KVRy2GtZBrk1cBYA7MKu5bEZFxQk4NIDV6RLVcC8o0k=
 golang.org/x/sys v0.36.0/go.mod h1:OgkHotnGiDImocRcuBABYBEXf8A9a87e/uXjp9XT3ks=
 golang.org/x/term v0.35.0 h1:bZBVKBudEyhRcajGcNc3jIfWPqV4y/Kt2XcoigOWtDQ=
