@@ -674,7 +674,7 @@ func writeSubcommands(cmd *Command, s *strings.Builder) error {
 
 	s.WriteString(colour.Title("Commands"))
 	s.WriteByte(':')
-	s.WriteByte('\n')
+	s.WriteString("\n\n")
 
 	tab := table.New(s)
 	for _, subcommand := range cmd.subcommands {
