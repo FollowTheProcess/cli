@@ -4,10 +4,16 @@ formatters:
   enable:
     - gofumpt
     - goimports
+    - golines
 
   settings:
     gofumpt:
       extra-rules: true
+
+    golines:
+      max-len: 140
+      shorten-comments: true
+      reformat-tags: true
 
 linters:
   default: all
