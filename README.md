@@ -35,7 +35,7 @@ Tiny, simple, but powerful CLI framework for modern Go 🚀
 
 ## Project Description
 
-`cli` is a simple, minimalist, zero-dependency yet functional and powerful CLI framework for Go. Inspired by things like [spf13/cobra] and [urfave/cli], but building on lessons learned and using modern Go techniques and idioms.
+`cli` is a simple, minimalist, yet functional and powerful CLI framework for Go. Inspired by things like [spf13/cobra] and [urfave/cli], but building on lessons learned and using modern Go techniques and idioms.
 
 ## Installation
 
