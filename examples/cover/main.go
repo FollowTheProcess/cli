@@ -1,3 +1,4 @@
+// Package cover is a simple CLI demonstrating the core features of this library.
 package main
 
 import (
@@ -10,6 +11,7 @@ import (
 
 func main() {
 	var count int
+
 	cmd, err := cli.New(
 		"demo",
 		cli.Short("Short description of your command"),
