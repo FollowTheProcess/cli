@@ -6,7 +6,6 @@ import (
 	"slices"
 	"testing"
 
-	"go.followtheprocess.codes/cli/internal/colour"
 	"go.followtheprocess.codes/cli/internal/flag"
 	"go.followtheprocess.codes/snapshot"
 	"go.followtheprocess.codes/test"
@@ -1303,8 +1302,6 @@ func TestUsage(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			snap := snapshot.New(t, snapshot.Update(*update))
 			set := tt.newSet(t)
-
-			colour.Disable.Store(true) // For testing
 
 			got, err := set.Usage()
 			test.Ok(t, err)

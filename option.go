@@ -7,8 +7,8 @@ import (
 	"slices"
 	"strings"
 
-	"go.followtheprocess.codes/cli/internal/colour"
 	"go.followtheprocess.codes/cli/internal/flag"
+	"go.followtheprocess.codes/hue"
 )
 
 // NoShortHand should be passed as the "short" argument to [Flag] if the desired flag
@@ -190,7 +190,7 @@ func Stderr(stderr io.Writer) Option {
 func NoColour(noColour bool) Option {
 	f := func(_ *config) error {
 		// Just disable the internal colour package entirely
-		colour.Disable.Store(noColour)
+		hue.Enabled(!noColour)
 
 		return nil
 	}
