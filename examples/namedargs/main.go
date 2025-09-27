@@ -1,3 +1,4 @@
+// Package namedargs demonstrates how to use named positional arguments in cli.
 package main
 
 import (

@@ -1,3 +1,4 @@
+// Package subcommands demonstrates how to build a CLI with a full command structure.
 package main
 
 import (
