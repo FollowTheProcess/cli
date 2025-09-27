@@ -31,6 +31,7 @@ type sayOptions struct {
 
 func buildSayCommand() (*cli.Command, error) {
 	var options sayOptions
+
 	return cli.New(
 		"say",
 		cli.Short("Print a message"),
@@ -53,6 +54,7 @@ type doOptions struct {
 
 func buildDoCommand() (*cli.Command, error) {
 	var options doOptions
+
 	return cli.New(
 		"do",
 		cli.Short("Do a thing"),
@@ -79,6 +81,7 @@ func runSay(options *sayOptions) func(cmd *cli.Command, args []string) error {
 				fmt.Fprintln(cmd.Stdout(), arg, " ")
 			}
 		}
+
 		fmt.Printf(
 			"Shout: %v\nCount: %v\nThing: %v\nItems: %v\n",
 			options.shout,
@@ -87,6 +90,7 @@ func runSay(options *sayOptions) func(cmd *cli.Command, args []string) error {
 			options.items,
 		)
 		fmt.Fprintln(cmd.Stdout())
+
 		return nil
 	}
 }

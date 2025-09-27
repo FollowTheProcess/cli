@@ -1,3 +1,4 @@
+// Package quickstart demonstrates a quickstart example for cli.
 package main
 
 import (
@@ -16,6 +17,7 @@ func main() {
 
 func run() error {
 	var count int
+
 	cmd, err := cli.New(
 		"quickstart",
 		cli.Short("Short description of your command"),
