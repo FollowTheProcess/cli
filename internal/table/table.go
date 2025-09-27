@@ -30,6 +30,8 @@ func New(w io.Writer) Table {
 }
 
 // Row adds a row to the [Table].
+//
+//nolint:goprintffuncname // I like it this way
 func (t Table) Row(format string, a ...any) {
 	fmt.Fprintf(t.tw, format, a...)
 }
