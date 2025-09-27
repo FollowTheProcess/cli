@@ -25,14 +25,15 @@ tasks:
     desc: Run go fmt on all source files
     sources:
       - "**/*.go"
+      - .golangci.yml
     cmds:
-      - go fmt ./...
+      - golangci-lint fmt ./...
 
   test:
     desc: Run the test suite
     sources:
       - "**/*.go"
-      - testdata/**/*.txt
+      - "**/testdata/**/*"
       - go.mod
       - go.sum
     cmds:

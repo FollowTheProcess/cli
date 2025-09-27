@@ -948,6 +948,7 @@ func TestFlagSet(t *testing.T) {
 
 				err = flag.AddToSet(set, f)
 				test.Err(t, err)
+
 				if err != nil {
 					test.Equal(t, err.Error(), "cannot add flag to a nil set")
 				}
@@ -961,6 +962,7 @@ func TestFlagSet(t *testing.T) {
 			test: func(t *testing.T, set *flag.Set) {
 				err := set.Parse([]string{"args", "here", "doesn't", "matter"})
 				test.Err(t, err)
+
 				if err != nil {
 					test.Equal(t, err.Error(), "Parse called on a nil set")
 				}
@@ -990,6 +992,7 @@ func TestFlagSet(t *testing.T) {
 				// Add the same flag again
 				err = flag.AddToSet(set, f)
 				test.Err(t, err)
+
 				if err != nil {
 					test.Equal(t, err.Error(), `flag "count" already defined`)
 				}
@@ -1013,6 +1016,7 @@ func TestFlagSet(t *testing.T) {
 				// Add the different flag with the same na,e
 				err = flag.AddToSet(set, f2)
 				test.Err(t, err)
+
 				if err != nil {
 					test.Equal(t, err.Error(), `flag "count" already defined`)
 				}
@@ -1036,6 +1040,7 @@ func TestFlagSet(t *testing.T) {
 				// Add the different flag with the same na,e
 				err = flag.AddToSet(set, f2)
 				test.Err(t, err)
+
 				if err != nil {
 					test.Equal(t, err.Error(), `shorthand "c" already in use for flag "count"`)
 				}
