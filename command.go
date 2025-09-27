@@ -10,9 +10,10 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"go.followtheprocess.codes/cli/internal/colour"
 	"go.followtheprocess.codes/cli/internal/flag"
-	"go.followtheprocess.codes/cli/internal/table"
+	"go.followtheprocess.codes/cli/internal/style"
+
+	"go.followtheprocess.codes/hue/tabwriter"
 )
 
 const (
@@ -518,9 +519,9 @@ func defaultHelp(cmd *Command) error {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString(colour.Title("Usage"))
+	s.WriteString(style.Title.Text("Usage"))
 	s.WriteString(": ")
-	s.WriteString(colour.Bold(cmd.name))
+	s.WriteString(style.Bold.Text(cmd.name))
 
 	if len(cmd.subcommands) == 0 {
 		// We don't have any subcommands so usage will be:
@@ -570,7 +571,7 @@ func defaultHelp(cmd *Command) error {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString(colour.Title("Options"))
+	s.WriteString(style.Title.Text("Options"))
 	s.WriteString(":\n\n")
 	s.WriteString(usage)
 
@@ -609,22 +610,22 @@ func writePositionalArgs(cmd *Command, s *strings.Builder) {
 // text string builder.
 func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 	s.WriteString("\n\n")
-	s.WriteString(colour.Title("Arguments"))
+	s.WriteString(style.Title.Text("Arguments"))
 	s.WriteString(":\n")
-	tab := table.New(s)
+	tw := tabwriter.NewWriter(s, style.MinWidth, style.TabWidth, style.Padding, style.PadChar, style.Flags)
 
 	for _, arg := range cmd.positionalArgs {
 		switch arg.defaultValue {
 		case requiredArgMarker:
-			tab.Row("  %s\t%s\t[required]\n", colour.Bold(arg.name), arg.description)
+			fmt.Fprintf(tw, "  %s\t%s\t[required]\n", style.Bold.Text(arg.name), arg.description)
 		case "":
-			tab.Row("  %s\t%s\t[default %q]\n", colour.Bold(arg.name), arg.description, arg.defaultValue)
+			fmt.Fprintf(tw, "  %s\t%s\t[default %q]\n", style.Bold.Text(arg.name), arg.description, arg.defaultValue)
 		default:
-			tab.Row("  %s\t%s\t[default %s]\n", colour.Bold(arg.name), arg.description, arg.defaultValue)
+			fmt.Fprintf(tw, "  %s\t%s\t[default %s]\n", style.Bold.Text(arg.name), arg.description, arg.defaultValue)
 		}
 	}
 
-	if err := tab.Flush(); err != nil {
+	if err := tw.Flush(); err != nil {
 		return fmt.Errorf("could not format arguments: %w", err)
 	}
 
@@ -641,7 +642,7 @@ func writeExamples(cmd *Command, s *strings.Builder) {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString(colour.Title("Examples"))
+	s.WriteString(style.Title.Text("Examples"))
 	s.WriteByte(':')
 	s.WriteString("\n\n")
 
@@ -672,16 +673,16 @@ func writeSubcommands(cmd *Command, s *strings.Builder) error {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString(colour.Title("Commands"))
+	s.WriteString(style.Title.Text("Commands"))
 	s.WriteByte(':')
 	s.WriteString("\n\n")
 
-	tab := table.New(s)
+	tw := tabwriter.NewWriter(s, style.MinWidth, style.TabWidth, style.Padding, style.PadChar, style.Flags)
 	for _, subcommand := range cmd.subcommands {
-		tab.Row("  %s\t%s\n", colour.Bold(subcommand.name), subcommand.short)
+		fmt.Fprintf(tw, "  %s\t%s\n", style.Bold.Text(subcommand.name), subcommand.short)
 	}
 
-	if err := tab.Flush(); err != nil {
+	if err := tw.Flush(); err != nil {
 		return fmt.Errorf("could not format subcommands: %w", err)
 	}
 
@@ -707,22 +708,22 @@ func defaultVersion(cmd *Command) error {
 
 	s := &strings.Builder{}
 	s.Grow(versionBufferSize)
-	s.WriteString(colour.Title(cmd.name))
+	s.WriteString(style.Title.Text(cmd.name))
 	s.WriteString("\n\n")
-	s.WriteString(colour.Bold("Version:"))
+	s.WriteString(style.Bold.Text("Version:"))
 	s.WriteString(" ")
 	s.WriteString(cmd.version)
 	s.WriteString("\n")
 
 	if cmd.commit != "" {
-		s.WriteString(colour.Bold("Commit:"))
+		s.WriteString(style.Bold.Text("Commit:"))
 		s.WriteString(" ")
 		s.WriteString(cmd.commit)
 		s.WriteString("\n")
 	}
 
 	if cmd.buildDate != "" {
-		s.WriteString(colour.Bold("BuildDate:"))
+		s.WriteString(style.Bold.Text("BuildDate:"))
 		s.WriteString(" ")
 		s.WriteString(cmd.buildDate)
 		s.WriteString("\n")
