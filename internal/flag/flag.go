@@ -1,6 +1,6 @@
 // Package flag provides a command line flag definition and parsing library.
 //
-// Flag is intentionally internal so the only interraction is via the Flag option on a command.
+// Flag is intentionally internal so the only interaction is via the Flag option on a command.
 package flag
 
 import (
