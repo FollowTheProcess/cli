@@ -611,7 +611,7 @@ func writePositionalArgs(cmd *Command, s *strings.Builder) {
 func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 	s.WriteString("\n\n")
 	s.WriteString(style.Title.Text("Arguments"))
-	s.WriteString(":\n")
+	s.WriteString(":\n\n")
 	tw := tabwriter.NewWriter(s, style.MinWidth, style.TabWidth, style.Padding, style.PadChar, style.Flags)
 
 	for _, arg := range cmd.positionalArgs {
