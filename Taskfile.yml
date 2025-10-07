@@ -36,6 +36,9 @@ tasks:
       - "**/testdata/**/*"
       - go.mod
       - go.sum
+    env:
+      # -race needs CGO (https://go.dev/doc/articles/race_detector#Requirements)
+      CGO_ENABLED: 1
     cmds:
       - go test -race ./... {{.CLI_ARGS}}
 
