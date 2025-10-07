@@ -8,7 +8,7 @@ import "go.followtheprocess.codes/hue"
 
 const (
 	// Title is the style for titles of help text sections like arguments or commands.
-	Title = hue.Bold | hue.White | hue.Underline
+	Title = hue.Bold | hue.Underline
 
 	// Bold is simply plain bold text.
 	Bold = hue.Bold
