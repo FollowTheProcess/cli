@@ -600,6 +600,8 @@ func TestHelp(t *testing.T) {
 				cli.SubCommands(sub1, sub2),
 				cli.Flag(new(bool), "delete", 'd', false, "Delete something"),
 				cli.Flag(new(int), "count", cli.NoShortHand, -1, "Count something"),
+				cli.Flag(new([]string), "things", cli.NoShortHand, nil, "Names of things"),
+				cli.Flag(new([]string), "more", cli.NoShortHand, []string{"one", "two"}, "Names of things with a default"),
 			},
 			wantErr: false,
 		},

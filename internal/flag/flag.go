@@ -107,7 +107,7 @@ func New[T Flaggable](p *T, name string, short rune, value T, usage string) (Fla
 
 	// If the default value is not the zero value for the type, it is treated as
 	// significant and shown to the user
-	if !isZero(value) {
+	if !isZeroIsh(value) {
 		// \t so that defaults get aligned by tabwriter when the command
 		// dumps the flags
 		usage += fmt.Sprintf("\t[default: %v]", value)
@@ -905,8 +905,16 @@ func formatStringSlice(slice []string) string {
 	return s.String()
 }
 
-// isZero reports whether value is the zero value for it's type.
-func isZero[T Flaggable](value T) bool {
+// isZeroIsh reports whether value is the zero value (ish) for it's type.
+//
+// "ish" means that empty slices will return true from isZeroIsh despite their official
+// zero value being nil. The primary use of isZeroIsh is to determine whether or not
+// a default value is worth displaying to the user in the help text, and an empty slice
+// is probably not.
+func isZeroIsh[T Flaggable](value T) bool { //nolint:cyclop // Not much else we can do here
+	// Note: all the slice values ([]T) are in their own separate branches because if you
+	// combine them, the resulting value in the body of the case block is 'any' and
+	// you cannot do len(any)
 	switch typ := any(value).(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, uintptr, float32, float64:
 		return typ == 0
@@ -916,8 +924,34 @@ func isZero[T Flaggable](value T) bool {
 		return typ == ""
 	case bool:
 		return !typ
-	case []byte, net.IP, []int, []int8, []int16, []int32, []int64, []uint, []uint16, []uint32, []uint64, []float32, []float64, []string:
-		return typ == nil
+	case []byte:
+		return len(typ) == 0
+	case net.IP:
+		return len(typ) == 0
+	case []int:
+		return len(typ) == 0
+	case []int8:
+		return len(typ) == 0
+	case []int16:
+		return len(typ) == 0
+	case []int32:
+		return len(typ) == 0
+	case []int64:
+		return len(typ) == 0
+	case []uint:
+		return len(typ) == 0
+	case []uint16:
+		return len(typ) == 0
+	case []uint32:
+		return len(typ) == 0
+	case []uint64:
+		return len(typ) == 0
+	case []float32:
+		return len(typ) == 0
+	case []float64:
+		return len(typ) == 0
+	case []string:
+		return len(typ) == 0
 	case time.Time:
 		var zero time.Time
 		return typ.Equal(zero)
