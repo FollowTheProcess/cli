@@ -11,9 +11,11 @@ Commands:
 
 Options:
 
-  N/A  --count    int   Count something  [default: -1]
-  -d   --delete   bool  Delete something
-  -h   --help     bool  Show help for test
-  -V   --version  bool  Show version info for test
+  N/A  --count    int       Count something  [default: -1]
+  -d   --delete   bool      Delete something
+  -h   --help     bool      Show help for test
+  N/A  --more     []string  Names of things with a default  [default: [one two]]
+  N/A  --things   []string  Names of things
+  -V   --version  bool      Show version info for test
 
 Use "test [command] -h/--help" for more information about a command.
