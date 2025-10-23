@@ -61,6 +61,7 @@ func buildDoCommand() (*cli.Command, error) {
 		cli.Example("Do something", "demo do something --fast"),
 		cli.Example("Do it 3 times", "demo do something --count 3"),
 		cli.Example("Do it for a specific duration", "demo do something --duration 1m30s"),
+		cli.Version("do version"),
 		cli.Allow(cli.ExactArgs(1)), // Only allowed to do one thing
 		cli.Flag(&options.count, "count", 'c', 1, "Number of times to do the thing"),
 		cli.Flag(&options.fast, "fast", 'f', false, "Do the thing quickly"),
