@@ -642,6 +642,31 @@ func TestHelp(t *testing.T) {
 }
 
 func TestVersion(t *testing.T) {
+	sub1 := func() (*cli.Command, error) {
+		return cli.New(
+			"sub1",
+			cli.Short("Do one thing"),
+			// No version set on sub1
+			cli.Run(func(cmd *cli.Command, _ []string) error {
+				fmt.Fprintln(cmd.Stdout(), "Hello from sub1")
+
+				return nil
+			}))
+	}
+
+	sub2 := func() (*cli.Command, error) {
+		return cli.New(
+			"sub2",
+			cli.Short("Do another thing"),
+			cli.Version("sub2 version text"),
+			cli.Run(func(cmd *cli.Command, _ []string) error {
+				fmt.Fprintln(cmd.Stdout(), "Hello from sub2")
+
+				return nil
+			}),
+		)
+	}
+
 	tests := []struct {
 		name    string       // Name of the test case
 		stderr  string       // Expected output to stderr
@@ -719,6 +744,34 @@ func TestVersion(t *testing.T) {
 			stderr:  "version-test\n\nVersion: v8.17.6\nCommit: b9aaafd\nBuildDate: 2024-08-17T10:37:30Z\n",
 			wantErr: false,
 		},
+		{
+			name: "call on subcommand with no version",
+			options: []cli.Option{
+				cli.OverrideArgs([]string{"sub1", "--version"}),
+				cli.Version("v8.17.6"),
+				cli.Commit("b9aaafd"),
+				cli.BuildDate("2024-08-17T10:37:30Z"),
+				cli.SubCommands(sub1, sub2),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+			},
+			// Should show the root commands version info
+			stderr:  "sub1\n\nVersion: v8.17.6\nCommit: b9aaafd\nBuildDate: 2024-08-17T10:37:30Z\n",
+			wantErr: false,
+		},
+		{
+			name: "call on subcommand with version",
+			options: []cli.Option{
+				cli.OverrideArgs([]string{"sub2", "--version"}),
+				cli.Version("v8.17.6"),
+				cli.Commit("b9aaafd"),
+				cli.BuildDate("2024-08-17T10:37:30Z"),
+				cli.SubCommands(sub1, sub2),
+				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+			},
+			// Should show sub2's version text
+			stderr:  "sub2\n\nVersion: sub2 version text\n",
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -733,7 +786,7 @@ func TestVersion(t *testing.T) {
 				cli.NoColour(true),
 			}
 
-			cmd, err := cli.New("version-test", slices.Concat(tt.options, options)...)
+			cmd, err := cli.New("version-test", slices.Concat(options, tt.options)...)
 			test.Ok(t, err)
 
 			err = cmd.Execute()

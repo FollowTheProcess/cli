@@ -17,8 +17,10 @@ import (
 )
 
 const (
-	helpBufferSize    = 1024 // helpBufferSize is sufficient to hold most command --help text.
-	versionBufferSize = 256  // versionBufferSize is sufficient to hold all the --version text.
+	helpBufferSize    = 1024                               // helpBufferSize is sufficient to hold most command --help text.
+	versionBufferSize = 256                                // versionBufferSize is sufficient to hold all the --version text.
+	defaultVersion    = "dev"                              // defaultVersion is the version shown in --version when the user has not provided one.
+	defaultShort      = "A placeholder for something cool" // defaultShort is the default value for cli.Short.
 )
 
 // Builder is a function that constructs and returns a [Command], it makes constructing
@@ -51,8 +53,8 @@ func New(name string, options ...Option) (*Command, error) {
 		stderr:       os.Stderr,
 		args:         os.Args[1:],
 		name:         name,
-		version:      "dev",
-		short:        "A placeholder for something cool",
+		version:      defaultVersion,
+		short:        defaultShort,
 		argValidator: AnyArgs(),
 	}
 
@@ -218,7 +220,7 @@ func (cmd *Command) Execute() error {
 	}
 
 	if helpCalled {
-		if err := defaultHelp(cmd); err != nil {
+		if err := showHelp(cmd); err != nil {
 			return fmt.Errorf("help function returned an error: %w", err)
 		}
 
@@ -234,8 +236,8 @@ func (cmd *Command) Execute() error {
 	}
 
 	if versionCalled {
-		if err := defaultVersion(cmd); err != nil {
-			return fmt.Errorf("version function returned an error: %w", err)
+		if err := showVersion(cmd); err != nil {
+			return fmt.Errorf("could not show version: %w", err)
 		}
 
 		return nil
@@ -279,7 +281,7 @@ func (cmd *Command) Execute() error {
 
 	// The only way we get here is if the command has subcommands defined but got no arguments given to it
 	// so just show the usage and error
-	if err := defaultHelp(cmd); err != nil {
+	if err := showHelp(cmd); err != nil {
 		return err
 	}
 
@@ -487,8 +489,8 @@ func stripFlags(cmd *Command, args []string) []string {
 	return argsWithoutFlags
 }
 
-// defaultHelp is the default for a command's helpFunc.
-func defaultHelp(cmd *Command) error {
+// showHelp is the default for a command's helpFunc.
+func showHelp(cmd *Command) error {
 	if cmd == nil {
 		return errors.New("defaultHelp called on a nil Command")
 	}
@@ -580,6 +582,8 @@ func defaultHelp(cmd *Command) error {
 		writeFooter(cmd, s)
 	}
 
+	// Note: It's important to use cmd.Stderr() here over cmd.stderr
+	// as it resolves to the root's stderr
 	fmt.Fprint(cmd.Stderr(), s.String())
 
 	return nil
@@ -700,15 +704,22 @@ func writeFooter(cmd *Command, s *strings.Builder) {
 	s.WriteByte('\n')
 }
 
-// defaultVersion is the default for a command's versionFunc.
-func defaultVersion(cmd *Command) error {
+// showVersion is the default implementation of the --version flag.
+func showVersion(cmd *Command) error {
 	if cmd == nil {
 		return errors.New("defaultVersion called on a nil Command")
 	}
 
+	name := cmd.name // Incase we need to show the subcommand name
+
+	if cmd.version == defaultVersion {
+		// User has not set a version for this command, so we show the root version info
+		cmd = cmd.root()
+	}
+
 	s := &strings.Builder{}
 	s.Grow(versionBufferSize)
-	s.WriteString(style.Title.Text(cmd.name))
+	s.WriteString(style.Title.Text(name))
 	s.WriteString("\n\n")
 	s.WriteString(style.Bold.Text("Version:"))
 	s.WriteString(" ")
@@ -729,7 +740,9 @@ func defaultVersion(cmd *Command) error {
 		s.WriteString("\n")
 	}
 
-	fmt.Fprint(cmd.stderr, s.String())
+	// Note: It's important to use cmd.Stderr() here over cmd.stderr
+	// as it resolves to the root's stderr
+	fmt.Fprint(cmd.Stderr(), s.String())
 
 	return nil
 }
