@@ -7,7 +7,9 @@ import (
 	"slices"
 	"strings"
 
+	"go.followtheprocess.codes/cli/arg"
 	"go.followtheprocess.codes/cli/flag"
+	internalarg "go.followtheprocess.codes/cli/internal/arg"
 	internalflag "go.followtheprocess.codes/cli/internal/flag"
 	"go.followtheprocess.codes/hue"
 )
@@ -52,6 +54,7 @@ type config struct {
 	examples       []example
 	args           []string
 	positionalArgs []positionalArg
+	betterArgs     []internalarg.Value
 	subcommands    []*Command
 	helpCalled     bool
 	versionCalled  bool
@@ -79,6 +82,7 @@ func (c *config) build() *Command {
 		examples:       c.examples,
 		args:           c.args,
 		positionalArgs: c.positionalArgs,
+		betterArgs:     c.betterArgs,
 		subcommands:    c.subcommands,
 		helpCalled:     c.helpCalled,
 		versionCalled:  c.versionCalled,
@@ -445,6 +449,22 @@ func Flag[T flag.Flaggable](p *T, name string, short rune, value T, usage string
 		if err := internalflag.AddToSet(cfg.flags, f); err != nil {
 			return fmt.Errorf("could not add flag %q to command %q: %w", name, cfg.name, err)
 		}
+
+		return nil
+	}
+
+	return option(f)
+}
+
+// Arg is an [Option] that adds a typed argument to a [Command].
+func Arg[T arg.Argable](p *T, name, usage string) Option {
+	f := func(cfg *config) error {
+		a, err := internalarg.New(p, name, usage)
+		if err != nil {
+			return err
+		}
+
+		cfg.betterArgs = append(cfg.betterArgs, a)
 
 		return nil
 	}

@@ -10,6 +10,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"go.followtheprocess.codes/cli/internal/arg"
 	"go.followtheprocess.codes/cli/internal/flag"
 	"go.followtheprocess.codes/cli/internal/style"
 
@@ -163,6 +164,9 @@ type Command struct {
 	// enhances the help message.
 	positionalArgs []positionalArg
 
+	// betterArgs is a placeholder while I work out how to do args in a nicer way.
+	betterArgs []arg.Value
+
 	// subcommands is the list of subcommands this command has directly underneath it,
 	// these may have any number of subcommands under them, this is how we form nested
 	// command structures.
@@ -256,6 +260,17 @@ func (cmd *Command) Execute() error {
 	argsWithoutFlags := cmd.flagSet().Args()
 	if err := cmd.argValidator(cmd, argsWithoutFlags); err != nil {
 		return err
+	}
+
+	if len(cmd.betterArgs) != len(argsWithoutFlags) {
+		return fmt.Errorf("expected %d arguments, got %d", len(cmd.betterArgs), len(argsWithoutFlags))
+	}
+
+	for i, argument := range cmd.betterArgs {
+		str := argsWithoutFlags[i]
+		if err := argument.Set(str); err != nil {
+			return fmt.Errorf("could not parse argument %q from provided input %q: %w", argument.Name(), str, err)
+		}
 	}
 
 	// Now we have the actual positional arguments to the command, we can use our
