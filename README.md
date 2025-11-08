@@ -24,6 +24,7 @@ Tiny, simple, but powerful CLI framework for modern Go 🚀
     - [Commands](#commands)
     - [Sub Commands](#sub-commands)
     - [Flags](#flags)
+    - [Arguments](#arguments)
   - [Core Principles](#core-principles)
     - [😱 Well behaved libraries don't panic](#-well-behaved-libraries-dont-panic)
     - [🧘🏻 Keep it Simple](#-keep-it-simple)
@@ -64,6 +65,7 @@ func main() {
 
 func run() error {
     var count int
+
     cmd, err := cli.New(
         "quickstart",
         cli.Short("Short description of your command"),
@@ -71,25 +73,20 @@ func run() error {
         cli.Version("v1.2.3"),
         cli.Commit("7bcac896d5ab67edc5b58632c821ec67251da3b8"),
         cli.BuildDate("2024-08-17T10:37:30Z"),
-        cli.Allow(cli.MinArgs(1)), // Must have at least one argument
         cli.Stdout(os.Stdout),
         cli.Example("Do a thing", "quickstart something"),
         cli.Example("Count the things", "quickstart something --count 3"),
         cli.Flag(&count, "count", 'c', 0, "Count the things"),
-        cli.Run(runQuickstart(&count)),
+        cli.Run(func(cmd *cli.Command) error {
+            fmt.Fprintf(cmd.Stdout(), "Hello from quickstart!, my args were: %v, count was %d\n", cmd.Args(), count)
+            return nil
+        }),
     )
     if err != nil {
         return err
     }
 
     return cmd.Execute()
-}
-
-func runQuickstart(count *int) func(cmd *cli.Command, args []string) error {
-    return func(cmd *cli.Command, args []string) error {
-        fmt.Fprintf(cmd.Stdout(), "Hello from quickstart!, my args were: %v, count was %d\n", args, *count)
-        return nil
-    }
 }
 ```
 
@@ -215,6 +212,80 @@ The types you can use for flags currently are:
 > [!NOTE]
 > You basically can't get this wrong, if you try and use an unsupported type, the Go compiler will yell at you
 
+### Arguments
+
+There are two approaches to positional arguments in `cli`, you can either just get the raw arguments yourself with `cmd.Args()` and do whatever you want with them:
+
+```go
+cli.New(
+    "my-command",
+    // ...
+    cli.Run(func(cmd *cli.Command) error {
+        fmt.Fprintf(cmd.Stdout(), "Hello! My arguments were: %v\n", cmd.Args())
+        return nil
+    })
+)
+```
+
+This will return a `[]string` containing all the positional arguments to your command (not flags, they've already been parsed elsewhere!)
+
+Or, if you want to get smarter 🧠 `cli` allows you to define *type safe* representations of your arguments, with or without default values! This follows a similar
+idea to [Flags](#flags)
+
+That works like this:
+
+```go
+// Define a struct to hold your arguments
+type myArgs struct {
+    name     string
+    age      int
+    employed bool
+}
+
+// Instantiate it
+var args myArgs
+
+// Tell cli about your arguments with the Arg option
+cli.New(
+    "my-command",
+    // ... other options here
+    cli.Arg(&args.name, "name", "The name of a person"),
+    cli.Arg(&args.age, "age", "How old the person is"),
+    cli.Arg(&args.employed, "employed", "Whether they are employed", cli.ArgDefault(true))
+)
+```
+
+And just like [Flags](#flags), your argument types are all inferred and parsed automatically ✨, and you get nicer `--help` output too! Have a look at the [`./examples`](https://github.com/FollowTheProcess/cli/tree/main/examples)
+to see more!
+
+> [!NOTE]
+> Just like flags, you can't really get this wrong. The types you can use for arguments are part of a generic constraint so using the wrong type results in a compiler error
+
+The types you can currently use for positional args are:
+
+- `int`
+- `int8`
+- `int16`
+- `int32`
+- `int64`
+- `uint`
+- `uint8`
+- `uint16`
+- `uint32`
+- `uint64`
+- `uintptr`
+- `float32`
+- `float64`
+- `string`
+- `bool`
+- `[]byte` (interpreted as a hex string)
+- `time.Time`
+- `time.Duration`
+- `net.IP`
+
+> [!WARNING]
+> Slice types are not supported (yet), for those you need to use the `cmd.Args()` method to get the arguments manually. I'm working on this!
+
 ## Core Principles
 
 When designing and implementing `cli`, I had some core goals and guiding principles for implementation.
@@ -269,7 +340,6 @@ cmd, err := cli.New(
     cli.Short("Short description of your command"),
     cli.Long("Much longer text..."),
     cli.Version("v1.2.3"),
-    cli.Allow(cli.MinArgs(1)),
     cli.Stdout(os.Stdout),
     cli.Example("Do a thing", "test run thing --now"),
     cli.Flag(&count, "count", 'c', 0, "Count the things"),
@@ -319,8 +389,8 @@ I built `cli` for my own uses really, so I've quickly adopted it across a number
 
 - <https://github.com/FollowTheProcess/txtract>
 - <https://github.com/FollowTheProcess/tag>
-- <https://github.com/FollowTheProcess/spok>
 - <https://github.com/FollowTheProcess/gowc>
+- <https://github.com/FollowTheProcess/zap>
 
 [spf13/cobra]: https://github.com/spf13/cobra
 [spf13/pflag]: https://github.com/spf13/pflag

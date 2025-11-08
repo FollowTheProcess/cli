@@ -15,33 +15,30 @@ func main() {
 	}
 }
 
+type myArgs struct {
+	src  string
+	dest string
+}
+
 func run() error {
+	var arguments myArgs
+
 	cmd, err := cli.New(
 		"copy", // A fictional copy command
 		cli.Short("Copy a file from a src to a destination"),
-		cli.RequiredArg(
-			"src",
-			"The file to copy from",
-		), // src is required, failure to provide it will error
-		cli.OptionalArg("dest", "The destination to copy to", "./dest"), // dest has a default if not provided
 		cli.Stdout(os.Stdout),
+		cli.Arg(&arguments.src, "src", "The file to copy from"),
+		cli.Arg(&arguments.dest, "dest", "The file to copy to", cli.ArgDefault("dest.txt")),
 		cli.Example("Copy a file to somewhere", "copy src.txt ./some/where/else"),
 		cli.Example("Use the default destination", "copy src.txt"),
-		cli.Run(runCopy()),
+		cli.Run(func(cmd *cli.Command) error {
+			fmt.Fprintf(cmd.Stdout(), "Copying from %s to %s\n", arguments.src, arguments.dest)
+			return nil
+		}),
 	)
 	if err != nil {
 		return err
 	}
 
 	return cmd.Execute()
-}
-
-func runCopy() func(cmd *cli.Command, args []string) error {
-	return func(cmd *cli.Command, args []string) error {
-		// src is required so if not provided will be an error
-		// is dest is provided cmd.Arg("dest") will retrieve the value
-		// if it's not provided, cmd.Arg("dest") will return the default of "./dest"
-		fmt.Fprintf(cmd.Stdout(), "Copying from %s to %s\n", cmd.Arg("src"), cmd.Arg("dest"))
-		return nil
-	}
 }

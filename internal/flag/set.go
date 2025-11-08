@@ -130,7 +130,7 @@ func (s *Set) Version() (value, ok bool) {
 // following a "--" terminator.
 func (s *Set) Args() []string {
 	if s == nil {
-		return nil
+		return []string{}
 	}
 
 	return s.args
