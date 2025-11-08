@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	publicflag "go.followtheprocess.codes/cli/flag"
 	"go.followtheprocess.codes/cli/internal/flag"
 	"go.followtheprocess.codes/test"
 )
@@ -156,21 +157,21 @@ func TestFlaggableTypes(t *testing.T) {
 	})
 
 	t.Run("count valid", func(t *testing.T) {
-		var c flag.Count
+		var c publicflag.Count
 
 		countFlag, err := flag.New(&c, "count", 'c', 0, "Count something")
 		test.Ok(t, err)
 
 		err = countFlag.Set("1")
 		test.Ok(t, err)
-		test.Equal(t, c, flag.Count(1))
+		test.Equal(t, c, publicflag.Count(1))
 		test.Equal(t, countFlag.Type(), "count")
 		test.Equal(t, countFlag.String(), "1")
 
 		// Setting it again should increment to 2
 		err = countFlag.Set("1")
 		test.Ok(t, err)
-		test.Equal(t, c, flag.Count(2))
+		test.Equal(t, c, publicflag.Count(2))
 		test.Equal(t, countFlag.Type(), "count")
 		test.Equal(t, countFlag.String(), "2")
 
@@ -178,13 +179,13 @@ func TestFlaggableTypes(t *testing.T) {
 		// so should now be 5
 		err = countFlag.Set("3")
 		test.Ok(t, err)
-		test.Equal(t, c, flag.Count(5))
+		test.Equal(t, c, publicflag.Count(5))
 		test.Equal(t, countFlag.Type(), "count")
 		test.Equal(t, countFlag.String(), "5")
 	})
 
 	t.Run("count invalid", func(t *testing.T) {
-		var c flag.Count
+		var c publicflag.Count
 
 		countFlag, err := flag.New(&c, "count", 'c', 0, "Count something")
 		test.Ok(t, err)
@@ -1038,7 +1039,7 @@ func TestFlagValidation(t *testing.T) {
 		{
 			name:     "no shorthand",
 			flagName: "delete",
-			short:    flag.NoShortHand,
+			short:    publicflag.NoShortHand,
 			wantErr:  false,
 		},
 		{
