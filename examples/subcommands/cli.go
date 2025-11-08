@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"go.followtheprocess.codes/cli"
+	"go.followtheprocess.codes/cli/flag"
 )
 
 func BuildCLI() (*cli.Command, error) {
@@ -48,7 +49,7 @@ func buildSayCommand() (*cli.Command, error) {
 type doOptions struct {
 	count     int
 	fast      bool
-	verbosity cli.FlagCount
+	verbosity flag.Count
 	duration  time.Duration
 }
 

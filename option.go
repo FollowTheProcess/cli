@@ -7,34 +7,10 @@ import (
 	"slices"
 	"strings"
 
-	"go.followtheprocess.codes/cli/internal/flag"
+	"go.followtheprocess.codes/cli/flag"
+	internalflag "go.followtheprocess.codes/cli/internal/flag"
 	"go.followtheprocess.codes/hue"
 )
-
-// NoShortHand should be passed as the "short" argument to [Flag] if the desired flag
-// should be the long hand version only e.g. --count, not -c/--count.
-const NoShortHand = flag.NoShortHand
-
-// Flaggable is a type constraint that defines any type capable of being parsed as a command line flag.
-type Flaggable flag.Flaggable
-
-// Note: this must be a type alias (FlagCount = flag.Count), not a newtype (FlagCount flag.Count)
-// otherwise parsing does not work correctly as the flag package does not know how to parse
-// a new type declared here.
-
-// FlagCount is a type used for a flag who's job is to increment a counter, e.g. a "verbosity"
-// flag may be used like so "-vvv" which should increase the verbosity level to 3.
-//
-// Count flags may be used in the following ways:
-//   - -vvv
-//   - --verbose --verbose --verbose (although not sure why you'd do this)
-//   - --verbose=3
-//
-// All have the same effect of increasing the verbosity level to 3.
-//
-// --verbose 3 however is not supported, this is due to an internal parsing
-// implementation detail.
-type FlagCount = flag.Count
 
 // Option is a functional option for configuring a [Command].
 type Option interface {
@@ -64,7 +40,7 @@ type config struct {
 	stdout         io.Writer
 	stderr         io.Writer
 	run            func(cmd *Command, args []string) error
-	flags          *flag.Set
+	flags          *internalflag.Set
 	parent         *Command
 	argValidator   ArgValidator
 	name           string
@@ -455,18 +431,18 @@ func Allow(validator ArgValidator) Option {
 //	// Add a force flag
 //	var force bool
 //	cli.New("rm", cli.Flag(&force, "force", 'f', false, "Force deletion without confirmation"))
-func Flag[T Flaggable](p *T, name string, short rune, value T, usage string) Option {
+func Flag[T flag.Flaggable](p *T, name string, short rune, value T, usage string) Option {
 	f := func(cfg *config) error {
 		if _, ok := cfg.flags.Get(name); ok {
 			return fmt.Errorf("flag %q already defined", name)
 		}
 
-		f, err := flag.New(p, name, short, value, usage)
+		f, err := internalflag.New(p, name, short, value, usage)
 		if err != nil {
 			return err
 		}
 
-		if err := flag.AddToSet(cfg.flags, f); err != nil {
+		if err := internalflag.AddToSet(cfg.flags, f); err != nil {
 			return fmt.Errorf("could not add flag %q to command %q: %w", name, cfg.name, err)
 		}
 
