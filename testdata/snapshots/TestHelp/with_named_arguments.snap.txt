@@ -1,6 +1,6 @@
 A placeholder for something cool
 
-Usage: test [OPTIONS] SRC [DEST] [OTHER] 
+Usage: test [OPTIONS] SRC [DEST] [OTHER]
 
 Arguments:
 

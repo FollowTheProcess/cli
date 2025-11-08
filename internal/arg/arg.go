@@ -49,10 +49,6 @@ const (
 	typeIP       = "ip"
 )
 
-const (
-	boolTrue = "true"
-)
-
 var _ Value = Arg[string]{} // This will fail if we violate our Value interface
 
 // Arg represents a single command line argument.

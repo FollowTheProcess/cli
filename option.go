@@ -30,34 +30,26 @@ func (o option) apply(cfg *config) error {
 	return o(cfg)
 }
 
-// requiredArgMarker is a special string designed to be used as the default value for
-// a required positional argument. This is so we know the argument was required, but still
-// permits the use of the empty string "" as a default. Without this marker, omitting the default
-// value or setting it to the string zero value would accidentally mark it as required.
-const requiredArgMarker = "<required>"
-
 // config represents the internal configuration of a [Command].
 type config struct {
-	stdin          io.Reader
-	stdout         io.Writer
-	stderr         io.Writer
-	run            func(cmd *Command, args []string) error
-	flags          *internalflag.Set
-	parent         *Command
-	argValidator   ArgValidator
-	name           string
-	short          string
-	long           string
-	version        string
-	commit         string
-	buildDate      string
-	examples       []example
-	args           []string
-	positionalArgs []positionalArg
-	betterArgs     []internalarg.Value
-	subcommands    []*Command
-	helpCalled     bool
-	versionCalled  bool
+	stdin         io.Reader
+	stdout        io.Writer
+	stderr        io.Writer
+	run           func(cmd *Command) error
+	flags         *internalflag.Set
+	parent        *Command
+	name          string
+	short         string
+	long          string
+	version       string
+	commit        string
+	buildDate     string
+	examples      []example
+	args          []string
+	betterArgs    []internalarg.Value
+	subcommands   []*Command
+	helpCalled    bool
+	versionCalled bool
 }
 
 // build builds an returns a Command from the config.
@@ -66,26 +58,24 @@ type config struct {
 // to the config, so is effectively immutable to the user.
 func (c *config) build() *Command {
 	cmd := &Command{
-		stdin:          c.stdin,
-		stdout:         c.stdout,
-		stderr:         c.stderr,
-		run:            c.run,
-		flags:          c.flags,
-		parent:         c.parent,
-		argValidator:   c.argValidator,
-		name:           c.name,
-		short:          c.short,
-		long:           c.long,
-		version:        c.version,
-		commit:         c.commit,
-		buildDate:      c.buildDate,
-		examples:       c.examples,
-		args:           c.args,
-		positionalArgs: c.positionalArgs,
-		betterArgs:     c.betterArgs,
-		subcommands:    c.subcommands,
-		helpCalled:     c.helpCalled,
-		versionCalled:  c.versionCalled,
+		stdin:         c.stdin,
+		stdout:        c.stdout,
+		stderr:        c.stderr,
+		run:           c.run,
+		flags:         c.flags,
+		parent:        c.parent,
+		name:          c.name,
+		short:         c.short,
+		long:          c.long,
+		version:       c.version,
+		commit:        c.commit,
+		buildDate:     c.buildDate,
+		examples:      c.examples,
+		args:          c.args,
+		betterArgs:    c.betterArgs,
+		subcommands:   c.subcommands,
+		helpCalled:    c.helpCalled,
+		versionCalled: c.versionCalled,
 	}
 
 	// Loop through each subcommand and set this command as their immediate parent
@@ -267,7 +257,7 @@ func Example(comment, command string) Option {
 // want it to do when invoked.
 //
 // Successive calls overwrite previous ones.
-func Run(run func(cmd *Command, args []string) error) Option {
+func Run(run func(cmd *Command) error) Option {
 	f := func(cfg *config) error {
 		if run == nil {
 			return errors.New("cannot set Run to nil")
@@ -394,29 +384,6 @@ func SubCommands(builders ...Builder) Option {
 	return option(f)
 }
 
-// Allow is an [Option] that allows for validating positional arguments to a [Command].
-//
-// You provide a validator function that returns an error if it encounters invalid arguments, and it will
-// be run for you, passing in the non-flag arguments to the [Command] that was called.
-//
-// Successive calls overwrite previous ones, use [Combine] to compose multiple validators.
-//
-//	// No positional arguments allowed
-//	cli.New("test", cli.Allow(cli.NoArgs()))
-func Allow(validator ArgValidator) Option {
-	f := func(cfg *config) error {
-		if validator == nil {
-			return errors.New("cannot set Allow to a nil ArgValidator")
-		}
-
-		cfg.argValidator = validator
-
-		return nil
-	}
-
-	return option(f)
-}
-
 // Flag is an [Option] that adds a flag to a [Command], storing its value in a variable via it's
 // pointer 'p'.
 //
@@ -465,96 +432,6 @@ func Arg[T arg.Argable](p *T, name, usage string) Option {
 		}
 
 		cfg.betterArgs = append(cfg.betterArgs, a)
-
-		return nil
-	}
-
-	return option(f)
-}
-
-// RequiredArg is an [Option] that adds a required named positional argument to a [Command].
-//
-// A required named argument is given a name, and a description that will be shown in
-// the help text. Failure to provide this argument on the command line when the command is
-// invoked will result in an error from [Command.Execute].
-//
-// The order of calls matters, each call to RequiredArg effectively appends a required, named
-// positional argument to the command so the following:
-//
-//	cli.New(
-//	    "cp",
-//	    cli.RequiredArg("src", "The file to copy"),
-//	    cli.RequiredArg("dest", "Where to copy to"),
-//	)
-//
-// results in a command that will expect the following args *in order*
-//
-//	cp src.txt dest.txt
-//
-// If the argument should have a default value if not specified on the command line, use [OptionalArg].
-//
-// Arguments added to the command may be retrieved by name from within command logic with [Command.Arg].
-func RequiredArg(name, description string) Option {
-	f := func(cfg *config) error {
-		if name == "" {
-			return errors.New("invalid name for positional argument, must be non-empty string")
-		}
-
-		if description == "" {
-			return errors.New("invalid description for positional argument, must be non-empty string")
-		}
-
-		arg := positionalArg{
-			name:         name,
-			description:  description,
-			defaultValue: requiredArgMarker, // Internal marker
-		}
-		cfg.positionalArgs = append(cfg.positionalArgs, arg)
-
-		return nil
-	}
-
-	return option(f)
-}
-
-// OptionalArg is an [Option] that adds a named positional argument, with a default value, to a [Command].
-//
-// An optional named argument is given a name, a description, and a default value that will be shown in
-// the help text. If the argument isn't given when the command is invoke, the default value is used
-// in it's place.
-//
-// The order of calls matters, each call to OptionalArg effectively appends an optional, named
-// positional argument to the command so the following:
-//
-//	cli.New(
-//	    "cp",
-//	    cli.OptionalArg("src", "The file to copy", "./default-src.txt"),
-//	    cli.OptionalArg("dest", "Where to copy to", "./default-dest.txt"),
-//	)
-//
-// results in a command that will expect the following args *in order*
-//
-//	cp src.txt dest.txt
-//
-// If the argument should be required (e.g. no sensible default), use [RequiredArg].
-//
-// Arguments added to the command may be retrieved by name from within command logic with [Command.Arg].
-func OptionalArg(name, description, value string) Option {
-	f := func(cfg *config) error {
-		if name == "" {
-			return errors.New("invalid name for positional argument, must be non-empty string")
-		}
-
-		if description == "" {
-			return errors.New("invalid description for positional argument, must be non-empty string")
-		}
-
-		arg := positionalArg{
-			name:         name,
-			description:  description,
-			defaultValue: value,
-		}
-		cfg.positionalArgs = append(cfg.positionalArgs, arg)
 
 		return nil
 	}

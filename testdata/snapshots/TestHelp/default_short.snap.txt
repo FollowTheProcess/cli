@@ -1,6 +1,6 @@
 A placeholder for something cool
 
-Usage: test [OPTIONS] ARGS...
+Usage: test [OPTIONS]
 
 Options:
 
