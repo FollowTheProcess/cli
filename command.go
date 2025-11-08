@@ -10,6 +10,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"go.followtheprocess.codes/cli/internal/arg"
 	"go.followtheprocess.codes/cli/internal/flag"
 	"go.followtheprocess.codes/cli/internal/style"
 
@@ -47,15 +48,14 @@ func New(name string, options ...Option) (*Command, error) {
 
 	// Default implementation
 	cfg := config{
-		flags:        flag.NewSet(),
-		stdin:        os.Stdin,
-		stdout:       os.Stdout,
-		stderr:       os.Stderr,
-		args:         os.Args[1:],
-		name:         name,
-		version:      defaultVersion,
-		short:        defaultShort,
-		argValidator: AnyArgs(),
+		flags:   flag.NewSet(),
+		stdin:   os.Stdin,
+		stdout:  os.Stdout,
+		stderr:  os.Stderr,
+		rawArgs: os.Args[1:],
+		name:    name,
+		version: defaultVersion,
+		short:   defaultShort,
 	}
 
 	// Apply the options, gathering up all the validation errors
@@ -116,9 +116,9 @@ type Command struct {
 	// It defaults to [os.Stderr] but can be overridden as desired e.g. for testing.
 	stderr io.Writer
 
-	// run is the function actually implementing the command, the command and arguments to it, are passed into the function, flags
-	// are parsed out before the arguments are passed to Run, so `args` here are the command line arguments minus flags.
-	run func(cmd *Command, args []string) error
+	// run is the function actually implementing the command, the command is passed into the function for access
+	// to things like cmd.Stdout().
+	run func(cmd *Command) error
 
 	// flags is the set of flags for this command.
 	flags *flag.Set
@@ -126,11 +126,6 @@ type Command struct {
 	// parent is the immediate parent of this subcommand. If this command is the root
 	// and has no parent, this will be nil.
 	parent *Command
-
-	// argValidator is a function that gets called to validate the positional arguments
-	// to the command. It defaults to allowing arbitrary arguments, can be overridden using
-	// the [AllowArgs] option.
-	argValidator ArgValidator
 
 	// name is the name of the command.
 	name string
@@ -153,15 +148,13 @@ type Command struct {
 	// examples is examples of how to use the command.
 	examples []example
 
-	// args are the raw arguments passed to the command prior to any parsing, defaulting to [os.Args]
+	// rawArgs are the raw arguments passed to the command prior to any parsing, defaulting to [os.Args]
 	// (excluding the command name, so os.Args[1:]), can be overridden using
 	// the [OverrideArgs] option for e.g. testing.
-	args []string
+	rawArgs []string
 
-	// positionalArgs are the named positional arguments to the command, positional arguments
-	// may be retrieved from within command logic by name and this also significantly
-	// enhances the help message.
-	positionalArgs []positionalArg
+	// args are the command line arguments declared by the user using the [cli.Args] option.
+	args []arg.Value
 
 	// subcommands is the list of subcommands this command has directly underneath it,
 	// these may have any number of subcommands under them, this is how we form nested
@@ -214,7 +207,7 @@ func (cmd *Command) Execute() error {
 	// we should be invoking and swap that into 'cmd'.
 	//
 	// Slightly magical trick but it simplifies a lot of stuff below.
-	cmd, args := findRequestedCommand(cmd, cmd.args)
+	cmd, args := findRequestedCommand(cmd, cmd.rawArgs)
 
 	if err := cmd.flagSet().Parse(args); err != nil {
 		return fmt.Errorf("failed to parse command flags: %w", err)
@@ -252,40 +245,34 @@ func (cmd *Command) Execute() error {
 		return nil
 	}
 
-	// Validate the arguments using the command's allowedArgs function
-	argsWithoutFlags := cmd.flagSet().Args()
-	if err := cmd.argValidator(cmd, argsWithoutFlags); err != nil {
-		return err
+	nonExtraArgs := cmd.flagSet().Args()
+	terminatorIndex := slices.Index(nonExtraArgs, "--")
+
+	if terminatorIndex != -1 {
+		nonExtraArgs = nonExtraArgs[:terminatorIndex]
 	}
 
-	// Now we have the actual positional arguments to the command, we can use our
-	// named arguments to assign the given values (or the defaults) to the arguments
-	// so they may be retrieved by name.
-	//
-	// We're modifying the slice in place here, hence not using a range loop as it
-	// would take a copy of the c.positionalArgs slice
-	for i := range len(cmd.positionalArgs) {
-		if i >= len(argsWithoutFlags) {
-			arg := cmd.positionalArgs[i]
-
-			// If we've fallen off the end of argsWithoutFlags and the positionalArg at this
-			// index does not have a default, it means the arg was required but not provided
-			if arg.defaultValue == requiredArgMarker {
-				return fmt.Errorf("missing required argument %q, expected at position %d", arg.name, i)
-			}
-			// It does have a default, so use that instead
-			cmd.positionalArgs[i].value = arg.defaultValue
+	for i, argument := range cmd.args {
+		var str string
+		// The argument has been provided
+		if len(nonExtraArgs) > i {
+			str = nonExtraArgs[i]
 		} else {
-			// We are in a valid index in both slices which means the named positional
-			// argument at this index was provided on the command line, so all we need
-			// to do is set its value
-			cmd.positionalArgs[i].value = argsWithoutFlags[i]
+			// It hasn't, use the default
+			str = argument.Default()
+			if str == "" {
+				return fmt.Errorf("argument %q is required and no value was provided", argument.Name())
+			}
+		}
+
+		if err := argument.Set(str); err != nil {
+			return fmt.Errorf("could not parse argument %q from provided input %q: %w", argument.Name(), str, err)
 		}
 	}
 
 	// If the command is runnable, go and execute its run function
 	if cmd.run != nil {
-		return cmd.run(cmd, argsWithoutFlags)
+		return cmd.run(cmd)
 	}
 
 	// The only way we get here is if the command has subcommands defined but got no arguments given to it
@@ -312,22 +299,9 @@ func (cmd *Command) Stdin() io.Reader {
 	return cmd.root().stdin
 }
 
-// Arg looks up a named positional argument by name.
-//
-// If the argument was defined with a default, and it was not provided on the command line
-// then the value returned will be the default value.
-//
-// If no named argument exists with the given name, it will return "".
-func (cmd *Command) Arg(name string) string {
-	for _, arg := range cmd.positionalArgs {
-		if arg.name == name {
-			// arg.value will have been set to the default already during command line parsing
-			// if the arg was not provided
-			return arg.value
-		}
-	}
-
-	return ""
+// Args returns the positional arguments passed to the command.
+func (cmd *Command) Args() []string {
+	return cmd.flagSet().Args()
 }
 
 // ExtraArgs returns any additional arguments following a "--", and a boolean indicating
@@ -392,16 +366,6 @@ func (cmd *Command) hasShortFlag(name string) bool {
 	}
 
 	return flag.NoArgValue() != ""
-}
-
-// subcommandNames returns a list of all the names of the current command's registered subcommands.
-func (cmd *Command) subcommandNames() []string {
-	names := make([]string, 0, len(cmd.subcommands))
-	for _, sub := range cmd.subcommands {
-		names = append(names, sub.name)
-	}
-
-	return names
 }
 
 // findRequestedCommand uses the raw arguments and the command tree to determine what
@@ -537,16 +501,14 @@ func showHelp(cmd *Command) error {
 	if len(cmd.subcommands) == 0 {
 		// We don't have any subcommands so usage will be:
 		// "Usage: {name} [OPTIONS] ARGS..."
-		s.WriteString(" [OPTIONS] ")
+		s.WriteString(" [OPTIONS]")
 
-		if len(cmd.positionalArgs) > 0 {
+		if len(cmd.args) > 0 {
 			// If we have named args, use the names in the help text
 			writePositionalArgs(cmd, s)
 		} else {
-			// We have no named arguments so do the best we can
-			// TODO(@FollowTheProcess): Can we detect if cli.NoArgs was used in which case
-			// omit this
-			s.WriteString("ARGS...")
+			// Otherwise, the command accepts arbitrary arguments
+			s.WriteString(" ARGS...")
 		}
 	} else {
 		// We do have subcommands, so usage will instead be:
@@ -554,8 +516,8 @@ func showHelp(cmd *Command) error {
 		s.WriteString(" [OPTIONS] COMMAND")
 	}
 
-	// If we have named arguments, list them explicitly and use their descriptions
-	if len(cmd.positionalArgs) != 0 {
+	// If we have defined, list them explicitly and use their descriptions
+	if len(cmd.args) != 0 {
 		if err := writeArgumentsSection(cmd, s); err != nil {
 			return err
 		}
@@ -574,7 +536,7 @@ func showHelp(cmd *Command) error {
 	}
 
 	// Now options
-	if len(cmd.examples) != 0 || len(cmd.subcommands) != 0 || len(cmd.positionalArgs) != 0 {
+	if len(cmd.examples) != 0 || len(cmd.subcommands) != 0 || len(cmd.args) != 0 {
 		// If there were examples or subcommands or named arguments, the last one would have printed a newline
 		s.WriteString("\n")
 	} else {
@@ -601,21 +563,20 @@ func showHelp(cmd *Command) error {
 // writePositionalArgs writes any positional arguments in the correct
 // format for the top level usage string in the help text string builder.
 func writePositionalArgs(cmd *Command, s *strings.Builder) {
-	for _, arg := range cmd.positionalArgs {
-		displayName := strings.ToUpper(arg.name)
+	for _, arg := range cmd.args {
+		s.WriteString(" ")
 
-		if arg.defaultValue != requiredArgMarker {
-			// If it has a default, it's an optional argument so wrap it
-			// in brackets e.g. [FILE]
+		displayName := strings.ToUpper(arg.Name())
+
+		if arg.Default() != "" {
+			// It has a default so is not required
 			s.WriteString("[")
 			s.WriteString(displayName)
 			s.WriteString("]")
 		} else {
-			// It's required, so just FILE
+			// It is required
 			s.WriteString(displayName)
 		}
-
-		s.WriteString(" ")
 	}
 }
 
@@ -627,14 +588,14 @@ func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 	s.WriteString(":\n\n")
 	tw := tabwriter.NewWriter(s, style.MinWidth, style.TabWidth, style.Padding, style.PadChar, style.Flags)
 
-	for _, arg := range cmd.positionalArgs {
-		switch arg.defaultValue {
-		case requiredArgMarker:
-			fmt.Fprintf(tw, "  %s\t%s\t[required]\n", style.Bold.Text(arg.name), arg.description)
+	for _, arg := range cmd.args {
+		switch arg.Default() {
 		case "":
-			fmt.Fprintf(tw, "  %s\t%s\t[default %q]\n", style.Bold.Text(arg.name), arg.description, arg.defaultValue)
+			// It's required
+			fmt.Fprintf(tw, "  %s\t%s\t%s\t[required]\n", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage())
 		default:
-			fmt.Fprintf(tw, "  %s\t%s\t[default %s]\n", style.Bold.Text(arg.name), arg.description, arg.defaultValue)
+			// It has a default
+			fmt.Fprintf(tw, "  %s\t%s\t%s\t[default %s]\n", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage(), arg.Default())
 		}
 	}
 
@@ -648,7 +609,7 @@ func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 // writeExamples writes the examples block to the help text string builder.
 func writeExamples(cmd *Command, s *strings.Builder) {
 	// If there were positional args, the last one would have printed a newline
-	if len(cmd.positionalArgs) != 0 {
+	if len(cmd.args) != 0 {
 		s.WriteString("\n")
 	} else {
 		// If not, we need a bit more space

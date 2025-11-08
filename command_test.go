@@ -35,6 +35,8 @@ func TestExecute(t *testing.T) {
 			stderr: "",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"hello", "there"}),
+				cli.Arg(new(string), "first", "The first word"), // Expect the positional arguments
+				cli.Arg(new(string), "second", "The second word"),
 				cli.Stdin(os.Stdin), // Set stdin for the lols
 			},
 			wantErr: false,
@@ -45,6 +47,8 @@ func TestExecute(t *testing.T) {
 			stderr: "",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"hello", "there", "--force"}),
+				cli.Arg(new(string), "first", "The first word"), // Expect the positional arguments
+				cli.Arg(new(string), "second", "The second word"),
 			},
 			wantErr: false,
 		},
@@ -54,6 +58,9 @@ func TestExecute(t *testing.T) {
 			stderr: "",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"arg1", "arg2", "arg3", "-]force"}),
+				cli.Arg(new(string), "first", "The first arg"), // Expect the positional arguments
+				cli.Arg(new(string), "second", "The second arg"),
+				cli.Arg(new(string), "third", "The third arg"),
 			},
 			wantErr: true,
 		},
@@ -70,8 +77,8 @@ func TestExecute(t *testing.T) {
 			options := []cli.Option{
 				cli.Stdout(stdout),
 				cli.Stderr(stderr),
-				cli.Run(func(cmd *cli.Command, args []string) error {
-					fmt.Fprintf(cmd.Stdout(), "My arguments were: %v\nForce was: %v\n", args, force)
+				cli.Run(func(cmd *cli.Command) error {
+					fmt.Fprintf(cmd.Stdout(), "My arguments were: %v\nForce was: %v\n", cmd.Args(), force)
 
 					return nil
 				}),
@@ -92,32 +99,49 @@ func TestExecute(t *testing.T) {
 
 func TestSubCommandExecute(t *testing.T) {
 	tests := []struct {
-		name    string   // Test case name
-		stdout  string   // Expected stdout
-		stderr  string   // Expected stderr
-		args    []string // Args passed to root command
-		extra   []string // Extra args after "--" if present
-		wantErr bool     // Whether or not we wanted an error
+		name        string       // Test case name
+		stdout      string       // Expected stdout
+		stderr      string       // Expected stderr
+		args        []string     // Args passed to root command
+		extra       []string     // Extra args after "--" if present
+		sub1Options []cli.Option // Options for subcommand 1
+		sub2Options []cli.Option // Options for subcommand 1
+		wantErr     bool         // Whether or not we wanted an error
 	}{
 		{
-			name:    "invoke sub1 no flags",
-			stdout:  "Hello from sub1, my args were: [my subcommand args], force was false, something was <empty>, extra args: []",
-			stderr:  "",
-			args:    []string{"sub1", "my", "subcommand", "args"},
+			name:   "invoke sub1 no flags",
+			stdout: "Hello from sub1, my args were: [my subcommand args], force was false, something was <empty>, extra args: []",
+			stderr: "",
+			args:   []string{"sub1", "my", "subcommand", "args"},
+			sub1Options: []cli.Option{
+				cli.Arg(new(string), "one", "First arg"),
+				cli.Arg(new(string), "two", "Second arg"),
+				cli.Arg(new(string), "three", "Third arg"),
+			},
 			wantErr: false,
 		},
 		{
-			name:    "invoke sub2 no flags",
-			stdout:  "Hello from sub2, my args were: [my different args], delete was false, number was -1",
-			stderr:  "",
-			args:    []string{"sub2", "my", "different", "args"},
+			name:   "invoke sub2 no flags",
+			stdout: "Hello from sub2, my args were: [my different args], delete was false, number was -1",
+			stderr: "",
+			args:   []string{"sub2", "my", "different", "args"},
+			sub2Options: []cli.Option{
+				cli.Arg(new(string), "one", "First arg"),
+				cli.Arg(new(string), "two", "Second arg"),
+				cli.Arg(new(string), "three", "Third arg"),
+			},
 			wantErr: false,
 		},
 		{
-			name:    "invoke sub1 with flags",
-			stdout:  "Hello from sub1, my args were: [my subcommand args], force was true, something was here, extra args: []",
-			stderr:  "",
-			args:    []string{"sub1", "my", "subcommand", "args", "--force", "--something", "here"},
+			name:   "invoke sub1 with flags",
+			stdout: "Hello from sub1, my args were: [my subcommand args], force was true, something was here, extra args: []",
+			stderr: "",
+			args:   []string{"sub1", "my", "subcommand", "args", "--force", "--something", "here"},
+			sub1Options: []cli.Option{
+				cli.Arg(new(string), "one", "First arg"),
+				cli.Arg(new(string), "two", "Second arg"),
+				cli.Arg(new(string), "three", "Third arg"),
+			},
 			wantErr: false,
 		},
 		{
@@ -136,6 +160,14 @@ func TestSubCommandExecute(t *testing.T) {
 				"more",
 				"args",
 				"here",
+			},
+			sub1Options: []cli.Option{
+				cli.Arg(new(string), "one", "First arg"),
+				cli.Arg(new(string), "two", "Second arg"),
+				cli.Arg(new(string), "three", "Third arg"),
+				cli.Arg(new(string), "four", "Fourth arg"),
+				cli.Arg(new(string), "five", "Fifth arg"),
+				cli.Arg(new(string), "six", "Sixth arg"),
 			},
 			wantErr: false,
 		},
@@ -156,6 +188,15 @@ func TestSubCommandExecute(t *testing.T) {
 				"args",
 				"here",
 			},
+			sub1Options: []cli.Option{
+				cli.Arg(new(string), "one", "First arg"),
+				cli.Arg(new(string), "two", "Second arg"),
+				cli.Arg(new(string), "three", "Third arg"),
+				cli.Arg(new(string), "four", "Fourth arg"),
+				cli.Arg(new(string), "five", "Fifth arg"),
+				cli.Arg(new(string), "six", "Sixth arg"),
+				cli.Arg(new(string), "seven", "Seventh arg"),
+			},
 			wantErr: false,
 		},
 		{
@@ -173,6 +214,14 @@ func TestSubCommandExecute(t *testing.T) {
 				"more",
 				"args",
 				"here",
+			},
+			sub1Options: []cli.Option{
+				cli.Arg(new(string), "one", "First arg"),
+				cli.Arg(new(string), "two", "Second arg"),
+				cli.Arg(new(string), "three", "Third arg"),
+				cli.Arg(new(string), "four", "Fourth arg"),
+				cli.Arg(new(string), "five", "Fifth arg"),
+				cli.Arg(new(string), "six", "Sixth arg"),
 			},
 			wantErr: false,
 		},
@@ -197,9 +246,10 @@ func TestSubCommandExecute(t *testing.T) {
 			)
 
 			sub1 := func() (*cli.Command, error) {
-				return cli.New(
-					"sub1",
-					cli.Run(func(cmd *cli.Command, args []string) error {
+				defaultOpts := []cli.Option{
+					cli.Flag(&force, "force", 'f', false, "Force for sub1"),
+					cli.Flag(&something, "something", 's', "", "Something for sub1"),
+					cli.Run(func(cmd *cli.Command) error {
 						if something == "" {
 							something = "<empty>"
 						}
@@ -212,7 +262,7 @@ func TestSubCommandExecute(t *testing.T) {
 						fmt.Fprintf(
 							cmd.Stdout(),
 							"Hello from sub1, my args were: %v, force was %v, something was %s, extra args: %v",
-							args,
+							cmd.Args(),
 							force,
 							something,
 							extra,
@@ -220,20 +270,22 @@ func TestSubCommandExecute(t *testing.T) {
 
 						return nil
 					}),
+				}
+				opts := slices.Concat(defaultOpts, tt.sub1Options)
 
-					cli.Flag(&force, "force", 'f', false, "Force for sub1"),
-					cli.Flag(&something, "something", 's', "", "Something for sub1"),
+				return cli.New(
+					"sub1",
+					opts...,
 				)
 			}
 
 			sub2 := func() (*cli.Command, error) {
-				return cli.New(
-					"sub2",
-					cli.Run(func(cmd *cli.Command, args []string) error {
+				defaultOpts := []cli.Option{
+					cli.Run(func(cmd *cli.Command) error {
 						fmt.Fprintf(
 							cmd.Stdout(),
 							"Hello from sub2, my args were: %v, delete was %v, number was %d",
-							args,
+							cmd.Args(),
 							deleteMe,
 							number,
 						)
@@ -242,6 +294,13 @@ func TestSubCommandExecute(t *testing.T) {
 					}),
 					cli.Flag(&deleteMe, "delete", 'd', false, "Delete for sub2"),
 					cli.Flag(&number, "number", 'n', -1, "Number for sub2"),
+				}
+
+				opts := slices.Concat(defaultOpts, tt.sub2Options)
+
+				return cli.New(
+					"sub2",
+					opts...,
 				)
 			}
 
@@ -267,200 +326,12 @@ func TestSubCommandExecute(t *testing.T) {
 	}
 }
 
-func TestPositionalArgs(t *testing.T) {
-	sub := func() (*cli.Command, error) {
-		return cli.New(
-			"sub",
-			cli.Short("Sub command"),
-			cli.RequiredArg("subarg", "Argument given to a subcommand"),
-			cli.Run(func(cmd *cli.Command, _ []string) error {
-				fmt.Fprintf(cmd.Stdout(), "Hello from sub command, subarg: %s", cmd.Arg("subarg"))
-
-				return nil
-			}),
-		)
-	}
-
-	tests := []struct {
-		name    string       // The name of the test case
-		stdout  string       // The expected stdout
-		errMsg  string       // If we did want an error, what should it say
-		options []cli.Option // Options to apply to the command under test
-		args    []string     // Arguments to be passed to the command
-		wantErr bool         // Whether we want an error
-	}{
-		{
-			name: "required and given",
-			options: []cli.Option{
-				cli.RequiredArg("file", "The path to a file"),
-				cli.Run(func(cmd *cli.Command, _ []string) error {
-					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
-
-					return nil
-				}),
-			},
-			stdout:  "file was something.txt\n",
-			args:    []string{"something.txt"},
-			wantErr: false,
-		},
-		{
-			name: "required but missing",
-			options: []cli.Option{
-				cli.RequiredArg("file", "The path to a file"),
-				cli.Run(func(cmd *cli.Command, _ []string) error {
-					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
-
-					return nil
-				}),
-			},
-			stdout:  "",
-			args:    []string{},
-			wantErr: true,
-			errMsg:  `missing required argument "file", expected at position 0`, // Comes from command.Execute
-		},
-		{
-			name: "optional and given",
-			options: []cli.Option{
-				cli.OptionalArg("file", "The path to a file", "default.txt"), // This time it has a default
-				cli.Run(func(cmd *cli.Command, _ []string) error {
-					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
-
-					return nil
-				}),
-			},
-			stdout:  "file was something.txt\n",
-			args:    []string{"something.txt"},
-			wantErr: false,
-		},
-		{
-			name: "optional given with empty string default",
-			options: []cli.Option{
-				cli.OptionalArg("file", "The path to a file", ""), // Default is empty string
-				cli.Run(func(cmd *cli.Command, _ []string) error {
-					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
-
-					return nil
-				}),
-			},
-			stdout:  "file was something.txt\n",
-			args:    []string{"something.txt"},
-			wantErr: false,
-		},
-		{
-			name: "optional missing with empty string default",
-			options: []cli.Option{
-				cli.OptionalArg("file", "The path to a file", ""), // Default is empty string
-				cli.Run(func(cmd *cli.Command, _ []string) error {
-					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
-
-					return nil
-				}),
-			},
-			stdout:  "file was \n", // Empty string
-			args:    []string{},
-			wantErr: false,
-		},
-		{
-			name: "optional and missing",
-			options: []cli.Option{
-				cli.OptionalArg("file", "The path to a file", "default.txt"), // This time it has a default
-				cli.Run(func(cmd *cli.Command, _ []string) error {
-					fmt.Fprintf(cmd.Stdout(), "file was %s\n", cmd.Arg("file"))
-
-					return nil
-				}),
-			},
-			stdout:  "file was default.txt\n", // Should fall back to the default
-			args:    []string{},
-			wantErr: false,
-		},
-		{
-			name: "several args all given",
-			options: []cli.Option{
-				cli.RequiredArg("src", "The path to the source file"),       // File required as first arg
-				cli.OptionalArg("dest", "The destination path", "dest.txt"), // Dest has a default
-				cli.RequiredArg("something", "Another arg"),                 // Required again
-				cli.Run(func(cmd *cli.Command, _ []string) error {
-					fmt.Fprintf(
-						cmd.Stdout(),
-						"src: %s, dest: %s, something: %s\n",
-						cmd.Arg("src"),
-						cmd.Arg("dest"),
-						cmd.Arg("something"),
-					)
-
-					return nil
-				}),
-			},
-			stdout:  "src: src.txt, dest: other-dest.txt, something: yes\n",
-			args:    []string{"src.txt", "other-dest.txt", "yes"}, // Give all 3 args
-			wantErr: false,
-		},
-		{
-			name: "several args one missing",
-			options: []cli.Option{
-				cli.RequiredArg("src", "The path to the source file"),               // File required as first arg
-				cli.OptionalArg("dest", "The destination path", "default-dest.txt"), // Dest has a default
-				cli.RequiredArg("something", "Another arg"),                         // Required again
-				cli.Run(func(cmd *cli.Command, _ []string) error {
-					fmt.Fprintf(
-						cmd.Stdout(),
-						"src: %s, dest: %s, something: %s\n",
-						cmd.Arg("src"),
-						cmd.Arg("dest"),
-						cmd.Arg("something"),
-					)
-
-					return nil
-				}),
-			},
-			stdout:  "",
-			args:    []string{"src.txt"}, // arg 'something' is missing, dest will use its default
-			wantErr: true,
-			errMsg:  `missing required argument "something", expected at position 2`,
-		},
-		{
-			name: "subcommand with named arg",
-			options: []cli.Option{
-				cli.SubCommands(sub),
-			},
-			stdout:  "Hello from sub command, subarg: blah",
-			args:    []string{"sub", "blah"}, // subarg should be "blah"
-			wantErr: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			stdout := &bytes.Buffer{}
-
-			// Test specific overrides to the options in the table
-			options := []cli.Option{
-				cli.Stdout(stdout),
-				cli.OverrideArgs(tt.args),
-			}
-
-			cmd, err := cli.New("posargs", slices.Concat(options, tt.options)...)
-			test.Ok(t, err) // cli.New returned an error
-
-			err = cmd.Execute()
-			test.WantErr(t, err, tt.wantErr)
-
-			test.Equal(t, stdout.String(), tt.stdout)
-
-			if err != nil {
-				test.Equal(t, err.Error(), tt.errMsg) // Error messages don't match
-			}
-		})
-	}
-}
-
 func TestHelp(t *testing.T) {
 	sub1 := func() (*cli.Command, error) {
 		return cli.New(
 			"sub1",
 			cli.Short("Do one thing"),
-			cli.Run(func(cmd *cli.Command, _ []string) error {
+			cli.Run(func(cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub1")
 
 				return nil
@@ -471,7 +342,7 @@ func TestHelp(t *testing.T) {
 		return cli.New(
 			"sub2",
 			cli.Short("Do another thing"),
-			cli.Run(func(cmd *cli.Command, _ []string) error {
+			cli.Run(func(cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub2")
 
 				return nil
@@ -483,7 +354,7 @@ func TestHelp(t *testing.T) {
 		return cli.New(
 			"very-long-subcommand",
 			cli.Short("Wow so long"),
-			cli.Run(func(cmd *cli.Command, _ []string) error {
+			cli.Run(func(cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub3")
 
 				return nil
@@ -500,7 +371,7 @@ func TestHelp(t *testing.T) {
 			name: "default long",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--help"}),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -508,7 +379,7 @@ func TestHelp(t *testing.T) {
 			name: "default short",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"-h"}),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -518,7 +389,7 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.Example("Do a thing", "test do thing --now"),
 				cli.Example("Do a different thing", "test do thing --different"),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -526,10 +397,10 @@ func TestHelp(t *testing.T) {
 			name: "with named arguments",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--help"}),
-				cli.RequiredArg("src", "The file to copy"),                  // This one is required
-				cli.OptionalArg("dest", "Destination to copy to", "./dest"), // This one is optional
-				cli.OptionalArg("other", "Something else", ""),              // This is optional but default is empty
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Arg(new(string), "src", "The file to copy"),                                       // This one is required
+				cli.Arg(new(string), "dest", "Destination to copy to", cli.ArgDefault("default.txt")), // This one is optional
+				cli.Arg(new(int), "other", "Something else", cli.ArgDefault(0)),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -537,10 +408,10 @@ func TestHelp(t *testing.T) {
 			name: "with verbosity count",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--help"}),
-				cli.RequiredArg("src", "The file to copy"),                  // This one is required
-				cli.OptionalArg("dest", "Destination to copy to", "./dest"), // This one is optional
+				cli.Arg(new(string), "src", "The file to copy"),                                           // This one is required
+				cli.Arg(new(string), "dest", "Destination to copy to", cli.ArgDefault("destination.txt")), // This one is optional
 				cli.Flag(new(flag.Count), "verbosity", 'v', 0, "Increase the verbosity level"),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -550,7 +421,7 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.Short("A cool CLI to do things"),
 				cli.Long("A longer, probably multiline description"),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -560,7 +431,7 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.Short("  \t\n A cool CLI to do things   \n "),
 				cli.Long("  \t\n\n A longer, probably multiline description \t\n\n "),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -568,7 +439,7 @@ func TestHelp(t *testing.T) {
 			name: "with no description",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--help"}),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -648,7 +519,7 @@ func TestVersion(t *testing.T) {
 			"sub1",
 			cli.Short("Do one thing"),
 			// No version set on sub1
-			cli.Run(func(cmd *cli.Command, _ []string) error {
+			cli.Run(func(cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub1")
 
 				return nil
@@ -660,7 +531,7 @@ func TestVersion(t *testing.T) {
 			"sub2",
 			cli.Short("Do another thing"),
 			cli.Version("sub2 version text"),
-			cli.Run(func(cmd *cli.Command, _ []string) error {
+			cli.Run(func(cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub2")
 
 				return nil
@@ -678,7 +549,7 @@ func TestVersion(t *testing.T) {
 			name: "default long",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--version"}),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: dev\n",
 			wantErr: false,
@@ -687,7 +558,7 @@ func TestVersion(t *testing.T) {
 			name: "default short",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"-V"}),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: dev\n",
 			wantErr: false,
@@ -697,7 +568,7 @@ func TestVersion(t *testing.T) {
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--version"}),
 				cli.Version("v3.1.7"),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: v3.1.7\n",
 			wantErr: false,
@@ -707,7 +578,7 @@ func TestVersion(t *testing.T) {
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--version"}),
 				cli.Commit("eedb45b"),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: dev\nCommit: eedb45b\n",
 			wantErr: false,
@@ -717,7 +588,7 @@ func TestVersion(t *testing.T) {
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--version"}),
 				cli.BuildDate("2024-04-11T02:23:42Z"),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: dev\nBuildDate: 2024-04-11T02:23:42Z\n",
 			wantErr: false,
@@ -728,7 +599,7 @@ func TestVersion(t *testing.T) {
 				cli.OverrideArgs([]string{"--version"}),
 				cli.Version("v8.17.6"),
 				cli.Commit("b9aaafd"),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: v8.17.6\nCommit: b9aaafd\n",
 			wantErr: false,
@@ -740,7 +611,7 @@ func TestVersion(t *testing.T) {
 				cli.Version("v8.17.6"),
 				cli.Commit("b9aaafd"),
 				cli.BuildDate("2024-08-17T10:37:30Z"),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: v8.17.6\nCommit: b9aaafd\nBuildDate: 2024-08-17T10:37:30Z\n",
 			wantErr: false,
@@ -753,7 +624,7 @@ func TestVersion(t *testing.T) {
 				cli.Commit("b9aaafd"),
 				cli.BuildDate("2024-08-17T10:37:30Z"),
 				cli.SubCommands(sub1, sub2),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			// Should show the root commands version info
 			stderr:  "sub1\n\nVersion: v8.17.6\nCommit: b9aaafd\nBuildDate: 2024-08-17T10:37:30Z\n",
@@ -767,7 +638,7 @@ func TestVersion(t *testing.T) {
 				cli.Commit("b9aaafd"),
 				cli.BuildDate("2024-08-17T10:37:30Z"),
 				cli.SubCommands(sub1, sub2),
-				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			// Should show sub2's version text
 			stderr:  "sub2\n\nVersion: sub2 version text\n",
@@ -839,11 +710,6 @@ func TestOptionValidation(t *testing.T) {
 			errMsg:  "cannot set Run to nil",
 		},
 		{
-			name:    "nil ArgValidator",
-			options: []cli.Option{cli.Allow(nil)},
-			errMsg:  "cannot set Allow to a nil ArgValidator",
-		},
-		{
 			name: "flag already exists",
 			options: []cli.Option{
 				cli.Flag(new(int), "count", 'c', 0, "Count something"),
@@ -880,24 +746,14 @@ func TestOptionValidation(t *testing.T) {
 			errMsg:  "cannot set command long description to an empty string",
 		},
 		{
-			name:    "empty required arg name",
-			options: []cli.Option{cli.RequiredArg("", "empty required arg")},
-			errMsg:  "invalid name for positional argument, must be non-empty string",
+			name:    "empty arg name",
+			options: []cli.Option{cli.Arg(new(string), "", "empty required arg")},
+			errMsg:  `invalid arg name "": must not be empty`,
 		},
 		{
-			name:    "empty required arg description",
-			options: []cli.Option{cli.RequiredArg("name", "")},
-			errMsg:  "invalid description for positional argument, must be non-empty string",
-		},
-		{
-			name:    "empty optional arg name",
-			options: []cli.Option{cli.OptionalArg("", "empty required arg", "")},
-			errMsg:  "invalid name for positional argument, must be non-empty string",
-		},
-		{
-			name:    "empty optional arg description",
-			options: []cli.Option{cli.OptionalArg("name", "", "")},
-			errMsg:  "invalid description for positional argument, must be non-empty string",
+			name:    "arg name contains whitespace",
+			options: []cli.Option{cli.Arg(new(string), "a space", "some space things")},
+			errMsg:  `invalid arg name "a space": cannot contain whitespace`,
 		},
 	}
 
@@ -914,21 +770,21 @@ func TestDuplicateSubCommands(t *testing.T) {
 	sub1 := func() (*cli.Command, error) {
 		return cli.New(
 			"sub1",
-			cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+			cli.Run(func(cmd *cli.Command) error { return nil }),
 		)
 	}
 
 	sub2 := func() (*cli.Command, error) {
 		return cli.New(
 			"sub2",
-			cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+			cli.Run(func(cmd *cli.Command) error { return nil }),
 		)
 	}
 
 	sub1Again := func() (*cli.Command, error) {
 		return cli.New(
 			"sub1",
-			cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+			cli.Run(func(cmd *cli.Command) error { return nil }),
 		)
 	}
 
@@ -982,7 +838,7 @@ func TestCommandOptionOrder(t *testing.T) {
 	sub := func() (*cli.Command, error) {
 		return cli.New(
 			"sub",
-			cli.Run(func(cmd *cli.Command, _ []string) error {
+			cli.Run(func(cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub")
 
 				return nil
@@ -995,13 +851,15 @@ func TestCommandOptionOrder(t *testing.T) {
 		cli.Short("Short description"),
 		cli.Long("Long description"),
 		cli.Example("Do a thing", "demo run something --flag"),
-		cli.Run(func(cmd *cli.Command, args []string) error {
-			fmt.Fprintf(cmd.Stdout(), "args: %v, flag: %v, count: %v\n", args, f, count)
+		cli.Run(func(cmd *cli.Command) error {
+			fmt.Fprintf(cmd.Stdout(), "args: %v, flag: %v, count: %v\n", cmd.Args(), f, count)
 
 			return nil
 		}),
+		cli.Arg(new(string), "first", "First arg"), // It just needs *some* args
+		cli.Arg(new(string), "second", "Second arg"),
+		cli.Arg(new(string), "third", "Third arg"),
 		cli.Version("v1.2.3"),
-		cli.Allow(cli.AnyArgs()),
 		cli.SubCommands(sub),
 		cli.Flag(&f, "flag", 'f', false, "Set a bool flag"),
 		cli.Flag(&count, "count", 'c', 0, "Count a thing"),
@@ -1059,7 +917,7 @@ func BenchmarkExecuteHelp(b *testing.B) {
 		return cli.New(
 			"sub1",
 			cli.Short("Do one thing"),
-			cli.Run(func(cmd *cli.Command, _ []string) error {
+			cli.Run(func(cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub1")
 
 				return nil
@@ -1071,7 +929,7 @@ func BenchmarkExecuteHelp(b *testing.B) {
 		return cli.New(
 			"sub2",
 			cli.Short("Do another thing"),
-			cli.Run(func(cmd *cli.Command, _ []string) error {
+			cli.Run(func(cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub2")
 
 				return nil
@@ -1083,7 +941,7 @@ func BenchmarkExecuteHelp(b *testing.B) {
 		return cli.New(
 			"very-long-subcommand",
 			cli.Short("Wow so long"),
-			cli.Run(func(cmd *cli.Command, _ []string) error {
+			cli.Run(func(cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub3")
 
 				return nil
@@ -1120,11 +978,10 @@ func BenchmarkNew(b *testing.B) {
 			cli.Version("dev"),
 			cli.Commit("dfdddaf"),
 			cli.Example("An example", "bench --help"),
-			cli.Allow(cli.AnyArgs()),
 			cli.Flag(new(bool), "force", 'f', false, "Force something"),
 			cli.Flag(new(string), "name", 'n', "", "The name of something"),
 			cli.Flag(new(int), "count", 'c', 1, "Count something"),
-			cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+			cli.Run(func(cmd *cli.Command) error { return nil }),
 		)
 		if err != nil {
 			b.Fatal(err)
@@ -1142,7 +999,7 @@ func BenchmarkVersion(b *testing.B) {
 		cli.OverrideArgs([]string{"--version"}),
 		cli.Stderr(io.Discard),
 		cli.Stdout(io.Discard),
-		cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
+		cli.Run(func(cmd *cli.Command) error { return nil }),
 	)
 	test.Ok(b, err)
 
