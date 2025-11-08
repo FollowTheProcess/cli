@@ -29,18 +29,14 @@ func run() error {
 		cli.Example("Do a thing", "quickstart something"),
 		cli.Example("Count the things", "quickstart something --count 3"),
 		cli.Flag(&count, "count", 'c', 0, "Count the things"),
-		cli.Run(runQuickstart(&count)),
+		cli.Run(func(cmd *cli.Command) error {
+			fmt.Fprintf(cmd.Stdout(), "Hello from quickstart!, my args were: %v, count was %d\n", cmd.Args(), count)
+			return nil
+		}),
 	)
 	if err != nil {
 		return err
 	}
 
 	return cmd.Execute()
-}
-
-func runQuickstart(count *int) func(cmd *cli.Command) error {
-	return func(cmd *cli.Command) error {
-		fmt.Fprintf(cmd.Stdout(), "Hello from quickstart!, my args were: %v, count was %d\n", cmd.Args(), *count)
-		return nil
-	}
 }
