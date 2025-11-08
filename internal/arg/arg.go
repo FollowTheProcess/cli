@@ -486,7 +486,7 @@ func cast[T2, T1 any](v *T1) *T2 {
 // value parsing errors.
 func errParse[T flag.Flaggable](name, str string, typ T, err error) error {
 	return fmt.Errorf(
-		"flag %q received invalid value %q (expected %T), detail: %w",
+		"arg %q received invalid value %q (expected %T), detail: %w",
 		name,
 		str,
 		typ,
