@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 
+	"go.followtheprocess.codes/cli/flag"
 	"go.followtheprocess.codes/cli/internal/style"
 	"go.followtheprocess.codes/hue/tabwriter"
 )
@@ -31,31 +32,31 @@ func NewSet() *Set {
 }
 
 // AddToSet adds a flag to the given Set.
-func AddToSet[T Flaggable](set *Set, flag Flag[T]) error {
+func AddToSet[T flag.Flaggable](set *Set, f Flag[T]) error {
 	if set == nil {
 		return errors.New("cannot add flag to a nil set")
 	}
 
-	name := flag.Name()
-	short := flag.Short()
+	name := f.Name()
+	short := f.Short()
 
 	_, exists := set.flags[name]
 	if exists {
 		return fmt.Errorf("flag %q already defined", name)
 	}
 
-	if short != NoShortHand {
-		f, exists := set.shorthands[short]
+	if short != flag.NoShortHand {
+		existingFlag, exists := set.shorthands[short]
 		if exists {
-			return fmt.Errorf("shorthand %q already in use for flag %q", string(short), f.Name())
+			return fmt.Errorf("shorthand %q already in use for flag %q", string(short), existingFlag.Name())
 		}
 	}
 
-	set.flags[name] = flag
+	set.flags[name] = f
 
 	// Only add the shorthand if it wasn't opted out of
-	if short != NoShortHand {
-		set.shorthands[short] = flag
+	if short != flag.NoShortHand {
+		set.shorthands[short] = f
 	}
 
 	return nil
@@ -202,14 +203,14 @@ func (s *Set) Usage() (string, error) {
 	tw := tabwriter.NewWriter(buf, style.MinWidth, style.TabWidth, style.Padding, style.PadChar, style.Flags)
 
 	for _, name := range names {
-		flag := s.flags[name]
-		if flag == nil {
+		f := s.flags[name]
+		if f == nil {
 			return "", fmt.Errorf("Value stored against key %s was nil", name) // Should never happen
 		}
 
 		var shorthand string
-		if flag.Short() != NoShortHand {
-			shorthand = "-" + string(flag.Short())
+		if f.Short() != flag.NoShortHand {
+			shorthand = "-" + string(f.Short())
 		} else {
 			shorthand = "N/A"
 		}
@@ -219,8 +220,8 @@ func (s *Set) Usage() (string, error) {
 			"  %s\t--%s\t%s\t%s\n",
 			style.Bold.Text(shorthand),
 			style.Bold.Text(name),
-			flag.Type(),
-			flag.Usage(),
+			f.Type(),
+			f.Usage(),
 		)
 	}
 

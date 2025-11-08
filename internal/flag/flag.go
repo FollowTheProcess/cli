@@ -14,6 +14,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 	"unsafe"
+
+	"go.followtheprocess.codes/cli/flag"
 )
 
 const (
@@ -63,18 +65,10 @@ const (
 	boolTrue = "true"
 )
 
-// NoShortHand should be passed as the "short" argument to [New] if the desired flag
-// should be the long hand version only e.g. --count, not -c/--count.
-const NoShortHand = rune(-1)
-
 var _ Value = Flag[string]{} // This will fail if we violate our Value interface
 
-// Count is a type used for a flag who's job is to increment a counter, e.g. a "verbosity"
-// flag may be passed "-vvv" which should increase the verbosity level to 3.
-type Count uint
-
 // Flag represents a single command line flag.
-type Flag[T Flaggable] struct {
+type Flag[T flag.Flaggable] struct {
 	value *T     // The actual stored value
 	name  string // The name of the flag as appears on the command line, e.g. "force" for a --force flag
 	usage string // One line description of the flag, e.g. "Force deletion without confirmation"
@@ -90,7 +84,7 @@ type Flag[T Flaggable] struct {
 //
 //	var force bool
 //	flag.New(&force, "force", 'f', false, "Force deletion without confirmation")
-func New[T Flaggable](p *T, name string, short rune, value T, usage string) (Flag[T], error) {
+func New[T flag.Flaggable](p *T, name string, short rune, value T, usage string) (Flag[T], error) {
 	if err := validateFlagName(name); err != nil {
 		return Flag[T]{}, fmt.Errorf("invalid flag name %q: %w", name, err)
 	}
@@ -173,7 +167,7 @@ func (f Flag[T]) String() string { //nolint:cyclop // No other way of doing this
 		return formatInt(typ)
 	case int64:
 		return formatInt(typ)
-	case Count:
+	case flag.Count:
 		return formatUint(typ)
 	case uint:
 		return formatUint(typ)
@@ -249,7 +243,7 @@ func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this r
 		return typeInt32
 	case int64:
 		return typeInt64
-	case Count:
+	case flag.Count:
 		return typeCount
 	case uint:
 		return typeUint
@@ -360,11 +354,11 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		*f.value = *cast[T](&val)
 
 		return nil
-	case Count:
+	case flag.Count:
 		// We have to do a bit of custom stuff here as an increment is a read and write op
 		// First read the current value of the flag and cast it to a Count so we
 		// can increment it
-		current, ok := any(*f.value).(Count)
+		current, ok := any(*f.value).(flag.Count)
 		if !ok {
 			// This basically shouldn't ever happen but it's easy enough to handle nicely
 			return errBadType(*f.value)
@@ -378,7 +372,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 			return errParse(f.name, str, typ, err)
 		}
 
-		newValue := current + Count(val)
+		newValue := current + flag.Count(val)
 		*f.value = *cast[T](&newValue)
 
 		return nil
@@ -698,7 +692,7 @@ type signed interface {
 // unsigned is the same as constraints.Unsigned (with Count mixed in) but we don't have to depend
 // on golang/x/exp.
 type unsigned interface {
-	uint | uint8 | uint16 | uint32 | uint64 | uintptr | Count
+	uint | uint8 | uint16 | uint32 | uint64 | uintptr | flag.Count
 }
 
 // cast converts a *T1 to a *T2, we use it here when we know (via generics and compile time checks)
@@ -774,7 +768,7 @@ func validateFlagName(name string) error {
 // it enforces only a single character, so all we have to do is make sure it's a valid ASCII character.
 func validateFlagShort(short rune) error {
 	// If it's the marker for long hand only, this is fine
-	if short == NoShortHand {
+	if short == flag.NoShortHand {
 		return nil
 	}
 
@@ -791,7 +785,7 @@ func validateFlagShort(short rune) error {
 
 // errParse is a helper to quickly return a consistent error in the face of flag
 // value parsing errors.
-func errParse[T Flaggable](name, str string, typ T, err error) error {
+func errParse[T flag.Flaggable](name, str string, typ T, err error) error {
 	return fmt.Errorf(
 		"flag %q received invalid value %q (expected %T), detail: %w",
 		name,
@@ -803,7 +797,7 @@ func errParse[T Flaggable](name, str string, typ T, err error) error {
 
 // errParseSlice is like errParse but for []T flags where the error message
 // needs to be a bit more specific.
-func errParseSlice[T Flaggable](name, str string, typ T, err error) error {
+func errParseSlice[T flag.Flaggable](name, str string, typ T, err error) error {
 	return fmt.Errorf(
 		"flag %q (type %T) cannot append element %q: %w",
 		name,
@@ -815,7 +809,7 @@ func errParseSlice[T Flaggable](name, str string, typ T, err error) error {
 
 // errBadType makes a consistent error in the face of a bad type
 // assertion.
-func errBadType[T Flaggable](value T) error {
+func errBadType[T flag.Flaggable](value T) error {
 	return fmt.Errorf("bad value %v, could not cast to %T", value, value)
 }
 
@@ -911,15 +905,15 @@ func formatStringSlice(slice []string) string {
 // zero value being nil. The primary use of isZeroIsh is to determine whether or not
 // a default value is worth displaying to the user in the help text, and an empty slice
 // is probably not.
-func isZeroIsh[T Flaggable](value T) bool { //nolint:cyclop // Not much else we can do here
+func isZeroIsh[T flag.Flaggable](value T) bool { //nolint:cyclop // Not much else we can do here
 	// Note: all the slice values ([]T) are in their own separate branches because if you
 	// combine them, the resulting value in the body of the case block is 'any' and
 	// you cannot do len(any)
 	switch typ := any(value).(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, uintptr, float32, float64:
 		return typ == 0
-	case Count:
-		return typ == Count(0)
+	case flag.Count:
+		return typ == flag.Count(0)
 	case string:
 		return typ == ""
 	case bool:
