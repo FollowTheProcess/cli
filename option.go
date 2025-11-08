@@ -45,8 +45,8 @@ type config struct {
 	commit        string
 	buildDate     string
 	examples      []example
-	args          []string
-	betterArgs    []internalarg.Value
+	rawArgs       []string
+	args          []internalarg.Value
 	subcommands   []*Command
 	helpCalled    bool
 	versionCalled bool
@@ -71,8 +71,8 @@ func (c *config) build() *Command {
 		commit:        c.commit,
 		buildDate:     c.buildDate,
 		examples:      c.examples,
+		rawArgs:       c.rawArgs,
 		args:          c.args,
-		betterArgs:    c.betterArgs,
 		subcommands:   c.subcommands,
 		helpCalled:    c.helpCalled,
 		versionCalled: c.versionCalled,
@@ -287,7 +287,7 @@ func OverrideArgs(args []string) Option {
 			return errors.New("cannot set Args to nil")
 		}
 
-		cfg.args = args
+		cfg.rawArgs = args
 
 		return nil
 	}
@@ -431,7 +431,7 @@ func Arg[T arg.Argable](p *T, name, usage string) Option {
 			return err
 		}
 
-		cfg.betterArgs = append(cfg.betterArgs, a)
+		cfg.args = append(cfg.args, a)
 
 		return nil
 	}

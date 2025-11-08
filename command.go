@@ -52,7 +52,7 @@ func New(name string, options ...Option) (*Command, error) {
 		stdin:   os.Stdin,
 		stdout:  os.Stdout,
 		stderr:  os.Stderr,
-		args:    os.Args[1:],
+		rawArgs: os.Args[1:],
 		name:    name,
 		version: defaultVersion,
 		short:   defaultShort,
@@ -148,13 +148,13 @@ type Command struct {
 	// examples is examples of how to use the command.
 	examples []example
 
-	// args are the raw arguments passed to the command prior to any parsing, defaulting to [os.Args]
+	// rawArgs are the raw arguments passed to the command prior to any parsing, defaulting to [os.Args]
 	// (excluding the command name, so os.Args[1:]), can be overridden using
 	// the [OverrideArgs] option for e.g. testing.
-	args []string
+	rawArgs []string
 
-	// betterArgs is a placeholder while I work out how to do args in a nicer way.
-	betterArgs []arg.Value
+	// args are the command line arguments declared by the user using the [cli.Args] option.
+	args []arg.Value
 
 	// subcommands is the list of subcommands this command has directly underneath it,
 	// these may have any number of subcommands under them, this is how we form nested
@@ -207,7 +207,7 @@ func (cmd *Command) Execute() error {
 	// we should be invoking and swap that into 'cmd'.
 	//
 	// Slightly magical trick but it simplifies a lot of stuff below.
-	cmd, args := findRequestedCommand(cmd, cmd.args)
+	cmd, args := findRequestedCommand(cmd, cmd.rawArgs)
 
 	if err := cmd.flagSet().Parse(args); err != nil {
 		return fmt.Errorf("failed to parse command flags: %w", err)
@@ -252,11 +252,11 @@ func (cmd *Command) Execute() error {
 		nonExtraArgs = nonExtraArgs[:terminatorIndex]
 	}
 
-	if len(cmd.betterArgs) != len(nonExtraArgs) {
-		return fmt.Errorf("expected %d arguments, got %d", len(cmd.betterArgs), len(nonExtraArgs))
+	if len(cmd.args) != len(nonExtraArgs) {
+		return fmt.Errorf("expected %d arguments, got %d", len(cmd.args), len(nonExtraArgs))
 	}
 
-	for i, argument := range cmd.betterArgs {
+	for i, argument := range cmd.args {
 		str := nonExtraArgs[i]
 		if err := argument.Set(str); err != nil {
 			return fmt.Errorf("could not parse argument %q from provided input %q: %w", argument.Name(), str, err)
@@ -499,7 +499,7 @@ func showHelp(cmd *Command) error {
 		// TODO(@FollowTheProcess): Now we know about args in a much deeper sense we should
 		// be able to make the usage a lot better
 
-		if len(cmd.betterArgs) > 0 {
+		if len(cmd.args) > 0 {
 			s.WriteByte(' ')
 			// If we have named args, use the names in the help text
 			writePositionalArgs(cmd, s)
@@ -511,7 +511,7 @@ func showHelp(cmd *Command) error {
 	}
 
 	// If we have defined, list them explicitly and use their descriptions
-	if len(cmd.betterArgs) != 0 {
+	if len(cmd.args) != 0 {
 		if err := writeArgumentsSection(cmd, s); err != nil {
 			return err
 		}
@@ -530,7 +530,7 @@ func showHelp(cmd *Command) error {
 	}
 
 	// Now options
-	if len(cmd.examples) != 0 || len(cmd.subcommands) != 0 || len(cmd.betterArgs) != 0 {
+	if len(cmd.examples) != 0 || len(cmd.subcommands) != 0 || len(cmd.args) != 0 {
 		// If there were examples or subcommands or named arguments, the last one would have printed a newline
 		s.WriteString("\n")
 	} else {
@@ -557,7 +557,7 @@ func showHelp(cmd *Command) error {
 // writePositionalArgs writes any positional arguments in the correct
 // format for the top level usage string in the help text string builder.
 func writePositionalArgs(cmd *Command, s *strings.Builder) {
-	for _, arg := range cmd.betterArgs {
+	for _, arg := range cmd.args {
 		displayName := strings.ToUpper(arg.Name())
 
 		// TODO(@FollowTheProcess): Args with default values, not sure how to do this
@@ -587,7 +587,7 @@ func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 
 	// TODO(@FollowTheProcess): Default values for args again, maybe we just handle it
 	// inside arg.Usage()
-	for _, arg := range cmd.betterArgs {
+	for _, arg := range cmd.args {
 		fmt.Fprintf(tw, "  %s\t%s\t%s\n", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage())
 
 		// switch arg.defaultValue {
@@ -610,7 +610,7 @@ func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 // writeExamples writes the examples block to the help text string builder.
 func writeExamples(cmd *Command, s *strings.Builder) {
 	// If there were positional args, the last one would have printed a newline
-	if len(cmd.betterArgs) != 0 {
+	if len(cmd.args) != 0 {
 		s.WriteString("\n")
 	} else {
 		// If not, we need a bit more space
