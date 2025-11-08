@@ -7,7 +7,9 @@ import (
 	"slices"
 	"strings"
 
+	"go.followtheprocess.codes/cli/arg"
 	"go.followtheprocess.codes/cli/flag"
+	internalarg "go.followtheprocess.codes/cli/internal/arg"
 	internalflag "go.followtheprocess.codes/cli/internal/flag"
 	"go.followtheprocess.codes/hue"
 )
@@ -28,33 +30,26 @@ func (o option) apply(cfg *config) error {
 	return o(cfg)
 }
 
-// requiredArgMarker is a special string designed to be used as the default value for
-// a required positional argument. This is so we know the argument was required, but still
-// permits the use of the empty string "" as a default. Without this marker, omitting the default
-// value or setting it to the string zero value would accidentally mark it as required.
-const requiredArgMarker = "<required>"
-
 // config represents the internal configuration of a [Command].
 type config struct {
-	stdin          io.Reader
-	stdout         io.Writer
-	stderr         io.Writer
-	run            func(cmd *Command, args []string) error
-	flags          *internalflag.Set
-	parent         *Command
-	argValidator   ArgValidator
-	name           string
-	short          string
-	long           string
-	version        string
-	commit         string
-	buildDate      string
-	examples       []example
-	args           []string
-	positionalArgs []positionalArg
-	subcommands    []*Command
-	helpCalled     bool
-	versionCalled  bool
+	stdin         io.Reader
+	stdout        io.Writer
+	stderr        io.Writer
+	run           func(cmd *Command) error
+	flags         *internalflag.Set
+	parent        *Command
+	name          string
+	short         string
+	long          string
+	version       string
+	commit        string
+	buildDate     string
+	examples      []example
+	rawArgs       []string
+	args          []internalarg.Value
+	subcommands   []*Command
+	helpCalled    bool
+	versionCalled bool
 }
 
 // build builds an returns a Command from the config.
@@ -63,25 +58,24 @@ type config struct {
 // to the config, so is effectively immutable to the user.
 func (c *config) build() *Command {
 	cmd := &Command{
-		stdin:          c.stdin,
-		stdout:         c.stdout,
-		stderr:         c.stderr,
-		run:            c.run,
-		flags:          c.flags,
-		parent:         c.parent,
-		argValidator:   c.argValidator,
-		name:           c.name,
-		short:          c.short,
-		long:           c.long,
-		version:        c.version,
-		commit:         c.commit,
-		buildDate:      c.buildDate,
-		examples:       c.examples,
-		args:           c.args,
-		positionalArgs: c.positionalArgs,
-		subcommands:    c.subcommands,
-		helpCalled:     c.helpCalled,
-		versionCalled:  c.versionCalled,
+		stdin:         c.stdin,
+		stdout:        c.stdout,
+		stderr:        c.stderr,
+		run:           c.run,
+		flags:         c.flags,
+		parent:        c.parent,
+		name:          c.name,
+		short:         c.short,
+		long:          c.long,
+		version:       c.version,
+		commit:        c.commit,
+		buildDate:     c.buildDate,
+		examples:      c.examples,
+		rawArgs:       c.rawArgs,
+		args:          c.args,
+		subcommands:   c.subcommands,
+		helpCalled:    c.helpCalled,
+		versionCalled: c.versionCalled,
 	}
 
 	// Loop through each subcommand and set this command as their immediate parent
@@ -263,7 +257,7 @@ func Example(comment, command string) Option {
 // want it to do when invoked.
 //
 // Successive calls overwrite previous ones.
-func Run(run func(cmd *Command, args []string) error) Option {
+func Run(run func(cmd *Command) error) Option {
 	f := func(cfg *config) error {
 		if run == nil {
 			return errors.New("cannot set Run to nil")
@@ -293,7 +287,7 @@ func OverrideArgs(args []string) Option {
 			return errors.New("cannot set Args to nil")
 		}
 
-		cfg.args = args
+		cfg.rawArgs = args
 
 		return nil
 	}
@@ -390,31 +384,8 @@ func SubCommands(builders ...Builder) Option {
 	return option(f)
 }
 
-// Allow is an [Option] that allows for validating positional arguments to a [Command].
-//
-// You provide a validator function that returns an error if it encounters invalid arguments, and it will
-// be run for you, passing in the non-flag arguments to the [Command] that was called.
-//
-// Successive calls overwrite previous ones, use [Combine] to compose multiple validators.
-//
-//	// No positional arguments allowed
-//	cli.New("test", cli.Allow(cli.NoArgs()))
-func Allow(validator ArgValidator) Option {
-	f := func(cfg *config) error {
-		if validator == nil {
-			return errors.New("cannot set Allow to a nil ArgValidator")
-		}
-
-		cfg.argValidator = validator
-
-		return nil
-	}
-
-	return option(f)
-}
-
-// Flag is an [Option] that adds a flag to a [Command], storing its value in a variable via it's
-// pointer 'p'.
+// Flag is an [Option] that adds a typed flag to a [Command], storing its value in a variable via its
+// pointer 'target'.
 //
 // The variable is set when the flag is parsed during command execution. The value provided
 // by the 'value' argument to [Flag] is used as the default value, which will be used if the
@@ -431,13 +402,13 @@ func Allow(validator ArgValidator) Option {
 //	// Add a force flag
 //	var force bool
 //	cli.New("rm", cli.Flag(&force, "force", 'f', false, "Force deletion without confirmation"))
-func Flag[T flag.Flaggable](p *T, name string, short rune, value T, usage string) Option {
+func Flag[T flag.Flaggable](target *T, name string, short rune, value T, usage string) Option {
 	f := func(cfg *config) error {
 		if _, ok := cfg.flags.Get(name); ok {
 			return fmt.Errorf("flag %q already defined", name)
 		}
 
-		f, err := internalflag.New(p, name, short, value, usage)
+		f, err := internalflag.New(target, name, short, value, usage)
 		if err != nil {
 			return err
 		}
@@ -452,44 +423,38 @@ func Flag[T flag.Flaggable](p *T, name string, short rune, value T, usage string
 	return option(f)
 }
 
-// RequiredArg is an [Option] that adds a required named positional argument to a [Command].
+// Arg is an [Option] that adds a typed argument to a [Command], storing its value in a variable via its
+// pointer 'target'.
 //
-// A required named argument is given a name, and a description that will be shown in
-// the help text. Failure to provide this argument on the command line when the command is
-// invoked will result in an error from [Command.Execute].
+// The variable is set when the argument is parsed during command execution.
 //
-// The order of calls matters, each call to RequiredArg effectively appends a required, named
-// positional argument to the command so the following:
+// Args linked to slice values (e.g. []string) must be defined last as they eagerly consume
+// all remaining command line arguments.
 //
-//	cli.New(
-//	    "cp",
-//	    cli.RequiredArg("src", "The file to copy"),
-//	    cli.RequiredArg("dest", "Where to copy to"),
-//	)
+// The argument may be given a default value with the [ArgDefault] option. Without this option
+// the argument will be required, i.e. failing to provide it on the command line is an error, but
+// when a default is given and the value omitted on the command line, the default is used in
+// its place.
 //
-// results in a command that will expect the following args *in order*
-//
-//	cp src.txt dest.txt
-//
-// If the argument should have a default value if not specified on the command line, use [OptionalArg].
-//
-// Arguments added to the command may be retrieved by name from within command logic with [Command.Arg].
-func RequiredArg(name, description string) Option {
+//	// Add an int arg that defaults to 1
+//	var number int
+//	cli.New("add", cli.Arg(&number, "number", "Add a number", cli.ArgDefault(1)))
+func Arg[T arg.Argable](p *T, name, usage string, options ...ArgOption[T]) Option {
 	f := func(cfg *config) error {
-		if name == "" {
-			return errors.New("invalid name for positional argument, must be non-empty string")
+		var argCfg internalarg.Config[T]
+
+		for _, option := range options {
+			if err := option.apply(&argCfg); err != nil {
+				return fmt.Errorf("could not apply arg option: %w", err)
+			}
 		}
 
-		if description == "" {
-			return errors.New("invalid description for positional argument, must be non-empty string")
+		a, err := internalarg.New(p, name, usage, argCfg)
+		if err != nil {
+			return err
 		}
 
-		arg := positionalArg{
-			name:         name,
-			description:  description,
-			defaultValue: requiredArgMarker, // Internal marker
-		}
-		cfg.positionalArgs = append(cfg.positionalArgs, arg)
+		cfg.args = append(cfg.args, a)
 
 		return nil
 	}
@@ -497,49 +462,20 @@ func RequiredArg(name, description string) Option {
 	return option(f)
 }
 
-// OptionalArg is an [Option] that adds a named positional argument, with a default value, to a [Command].
+// ArgDefault is a [cli.ArgOption] that sets the default value for a positional argument.
 //
-// An optional named argument is given a name, a description, and a default value that will be shown in
-// the help text. If the argument isn't given when the command is invoke, the default value is used
-// in it's place.
+// By default, positional arguments are required, but by providing a default value
+// via this option, you mark the argument as not required.
 //
-// The order of calls matters, each call to OptionalArg effectively appends an optional, named
-// positional argument to the command so the following:
-//
-//	cli.New(
-//	    "cp",
-//	    cli.OptionalArg("src", "The file to copy", "./default-src.txt"),
-//	    cli.OptionalArg("dest", "Where to copy to", "./default-dest.txt"),
-//	)
-//
-// results in a command that will expect the following args *in order*
-//
-//	cp src.txt dest.txt
-//
-// If the argument should be required (e.g. no sensible default), use [RequiredArg].
-//
-// Arguments added to the command may be retrieved by name from within command logic with [Command.Arg].
-func OptionalArg(name, description, value string) Option {
-	f := func(cfg *config) error {
-		if name == "" {
-			return errors.New("invalid name for positional argument, must be non-empty string")
-		}
-
-		if description == "" {
-			return errors.New("invalid description for positional argument, must be non-empty string")
-		}
-
-		arg := positionalArg{
-			name:         name,
-			description:  description,
-			defaultValue: value,
-		}
-		cfg.positionalArgs = append(cfg.positionalArgs, arg)
-
+// If a default is given and the argument is not provided via the command line, the
+// default is used in its place.
+func ArgDefault[T arg.Argable](value T) ArgOption[T] {
+	f := func(cfg *internalarg.Config[T]) error {
+		cfg.DefaultValue = &value
 		return nil
 	}
 
-	return option(f)
+	return argOption[T](f)
 }
 
 // anyDuplicates checks the list of commands for ones with duplicate names, if a duplicate
@@ -560,4 +496,22 @@ func anyDuplicates(cmds ...*Command) (string, bool) {
 	}
 
 	return "", false
+}
+
+// ArgOption is a functional option for configuring an [Arg].
+type ArgOption[T arg.Argable] interface {
+	// Apply the option to the config, returning an error if the
+	// option cannot be applied for whatever reason.
+	apply(cfg *internalarg.Config[T]) error
+}
+
+// option is a function adapter implementing the Option interface, analogous
+// to http.HandlerFunc.
+type argOption[T arg.Argable] func(cfg *internalarg.Config[T]) error
+
+// apply implements the Option interface for option.
+//
+//nolint:unused // This is a false positive, this has to be here
+func (a argOption[T]) apply(cfg *internalarg.Config[T]) error {
+	return a(cfg)
 }

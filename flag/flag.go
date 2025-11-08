@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// NoShortHand should be passed as the "short" argument to [New] if the desired flag
+// NoShortHand should be passed as the "short" value if the desired flag
 // should be the long hand version only e.g. --count, not -c/--count.
 const NoShortHand = rune(-1)
 

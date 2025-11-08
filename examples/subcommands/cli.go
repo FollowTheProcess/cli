@@ -18,7 +18,6 @@ func BuildCLI() (*cli.Command, error) {
 		cli.BuildDate("2024-08-17T10:37:30Z"),
 		cli.Example("A basic subcommand", "demo say hello world"),
 		cli.Example("Can do things", "demo do something --count 3"),
-		cli.Allow(cli.NoArgs()),
 		cli.SubCommands(buildSayCommand, buildDoCommand),
 	)
 }
@@ -38,11 +37,32 @@ func buildSayCommand() (*cli.Command, error) {
 		cli.Short("Print a message"),
 		cli.Example("Say a well known phrase", "demo say hello world"),
 		cli.Example("Now louder", "demo say hello world --shout"),
-		cli.Run(runSay(&options)),
 		cli.Flag(&options.shout, "shout", 's', false, "Say the message louder"),
 		cli.Flag(&options.count, "count", 'c', 0, "Count the things"),
 		cli.Flag(&options.thing, "thing", 't', "", "Name of the thing"),
 		cli.Flag(&options.items, "item", 'i', nil, "Items to add to a list"),
+		cli.Run(func(cmd *cli.Command) error {
+			if options.shout {
+				for _, arg := range cmd.Args() {
+					fmt.Fprintln(cmd.Stdout(), strings.ToUpper(arg), " ")
+				}
+			} else {
+				for _, arg := range cmd.Args() {
+					fmt.Fprintln(cmd.Stdout(), arg, " ")
+				}
+			}
+
+			fmt.Printf(
+				"Shout: %v\nCount: %v\nThing: %v\nItems: %v\n",
+				options.shout,
+				options.count,
+				options.thing,
+				options.items,
+			)
+			fmt.Fprintln(cmd.Stdout())
+
+			return nil
+		}),
 	)
 }
 
@@ -56,6 +76,8 @@ type doOptions struct {
 func buildDoCommand() (*cli.Command, error) {
 	var options doOptions
 
+	var thing string
+
 	return cli.New(
 		"do",
 		cli.Short("Do a thing"),
@@ -63,56 +85,27 @@ func buildDoCommand() (*cli.Command, error) {
 		cli.Example("Do it 3 times", "demo do something --count 3"),
 		cli.Example("Do it for a specific duration", "demo do something --duration 1m30s"),
 		cli.Version("do version"),
-		cli.Allow(cli.ExactArgs(1)), // Only allowed to do one thing
+		cli.Arg(&thing, "thing", "Thing to do"),
 		cli.Flag(&options.count, "count", 'c', 1, "Number of times to do the thing"),
 		cli.Flag(&options.fast, "fast", 'f', false, "Do the thing quickly"),
 		cli.Flag(&options.verbosity, "verbosity", 'v', 0, "Increase the verbosity level"),
 		cli.Flag(&options.duration, "duration", 'd', 1*time.Second, "Do the thing for a specific duration"),
-		cli.Run(runDo(&options)),
+		cli.Run(func(cmd *cli.Command) error {
+			if options.fast {
+				fmt.Fprintf(
+					cmd.Stdout(),
+					"Doing %s %d times, but faster! (will still take %v)\n",
+					thing,
+					options.count,
+					options.duration,
+				)
+			} else {
+				fmt.Fprintf(cmd.Stdout(), "Doing %s %d times for %v\n", thing, options.count, options.duration)
+			}
+
+			fmt.Fprintf(cmd.Stdout(), "Verbosity level was %d\n", options.verbosity)
+
+			return nil
+		}),
 	)
-}
-
-func runSay(options *sayOptions) func(cmd *cli.Command, args []string) error {
-	return func(cmd *cli.Command, args []string) error {
-		if options.shout {
-			for _, arg := range args {
-				fmt.Fprintln(cmd.Stdout(), strings.ToUpper(arg), " ")
-			}
-		} else {
-			for _, arg := range args {
-				fmt.Fprintln(cmd.Stdout(), arg, " ")
-			}
-		}
-
-		fmt.Printf(
-			"Shout: %v\nCount: %v\nThing: %v\nItems: %v\n",
-			options.shout,
-			options.count,
-			options.thing,
-			options.items,
-		)
-		fmt.Fprintln(cmd.Stdout())
-
-		return nil
-	}
-}
-
-func runDo(options *doOptions) func(cmd *cli.Command, args []string) error {
-	return func(cmd *cli.Command, args []string) error {
-		if options.fast {
-			fmt.Fprintf(
-				cmd.Stdout(),
-				"Doing %s %d times, but faster! (will still take %v)\n",
-				args[0],
-				options.count,
-				options.duration,
-			)
-		} else {
-			fmt.Fprintf(cmd.Stdout(), "Doing %s %d times for %v\n", args[0], options.count, options.duration)
-		}
-
-		fmt.Fprintf(cmd.Stdout(), "Verbosity level was %d\n", options.verbosity)
-
-		return nil
-	}
 }
