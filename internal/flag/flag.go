@@ -16,6 +16,7 @@ import (
 	"unsafe"
 
 	"go.followtheprocess.codes/cli/flag"
+	"go.followtheprocess.codes/cli/internal/constraints"
 )
 
 const (
@@ -151,7 +152,9 @@ func (f Flag[T]) NoArgValue() string {
 
 // String implements [fmt.Stringer] for a [Flag], and also implements the String
 // part of [Value], allowing a flag to print itself.
-func (f Flag[T]) String() string { //nolint:cyclop // No other way of doing this realistically
+//
+//nolint:cyclop // No other way of doing this realistically
+func (f Flag[T]) String() string {
 	if f.value == nil {
 		return "<nil>"
 	}
@@ -683,18 +686,6 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 	}
 }
 
-// signed is the same as constraints.Signed but we don't have to depend
-// on golang/x/exp.
-type signed interface {
-	int | int8 | int16 | int32 | int64
-}
-
-// unsigned is the same as constraints.Unsigned (with Count mixed in) but we don't have to depend
-// on golang/x/exp.
-type unsigned interface {
-	uint | uint8 | uint16 | uint32 | uint64 | uintptr | flag.Count
-}
-
 // cast converts a *T1 to a *T2, we use it here when we know (via generics and compile time checks)
 // that e.g. the Flag.value is a string, but we can't directly do Flag.value = "value" because
 // we can't assign a string to a generic 'T', but we *know* that the value *is* a string because when
@@ -816,7 +807,7 @@ func errBadType[T flag.Flaggable](value T) error {
 // parseInt is a generic helper to parse all signed integers, given a bit size.
 //
 // It returns the parsed value or an error.
-func parseInt[T signed](bits int) func(str string) (T, error) {
+func parseInt[T constraints.Signed](bits int) func(str string) (T, error) {
 	return func(str string) (T, error) {
 		val, err := strconv.ParseInt(str, 0, bits)
 		if err != nil {
@@ -830,7 +821,7 @@ func parseInt[T signed](bits int) func(str string) (T, error) {
 // parseUint is a generic helper to parse all signed integers, given a bit size.
 //
 // It returns the parsed value or an error.
-func parseUint[T unsigned](bits int) func(str string) (T, error) {
+func parseUint[T constraints.Unsigned](bits int) func(str string) (T, error) {
 	return func(str string) (T, error) {
 		val, err := strconv.ParseUint(str, 0, bits)
 		if err != nil {
@@ -856,12 +847,12 @@ func parseFloat[T ~float32 | ~float64](bits int) func(str string) (T, error) {
 }
 
 // formatInt is a generic helper to return a string representation of any signed integer.
-func formatInt[T signed](in T) string {
+func formatInt[T constraints.Signed](in T) string {
 	return strconv.FormatInt(int64(in), 10)
 }
 
 // formatUint is a generic helper to return a string representation of any unsigned integer.
-func formatUint[T unsigned](in T) string {
+func formatUint[T constraints.Unsigned](in T) string {
 	return strconv.FormatUint(uint64(in), 10)
 }
 
