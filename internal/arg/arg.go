@@ -305,28 +305,6 @@ func (a Arg[T]) Set(str string) error {
 		*a.value = *cast[T](&val)
 
 		return nil
-	case flag.Count:
-		// We have to do a bit of custom stuff here as an increment is a read and write op
-		// First read the current value of the flag and cast it to a Count so we
-		// can increment it
-		current, ok := any(*a.value).(flag.Count)
-		if !ok {
-			// This basically shouldn't ever happen but it's easy enough to handle nicely
-			return errBadType(*a.value)
-		}
-
-		// Add the count and store it back, we still parse the given str rather
-		// than just +1 every time as this allows people to do e.g. --verbosity=3
-		// as well as -vvv
-		val, err := parseUint[uint](0)(str)
-		if err != nil {
-			return errParse(a.name, str, typ, err)
-		}
-
-		newValue := current + flag.Count(val)
-		*a.value = *cast[T](&newValue)
-
-		return nil
 	case uint:
 		val, err := parseUint[uint](0)(str)
 		if err != nil {
@@ -548,12 +526,6 @@ func errParse[T flag.Flaggable](name, str string, typ T, err error) error {
 		typ,
 		err,
 	)
-}
-
-// errBadType makes a consistent error in the face of a bad type
-// assertion.
-func errBadType[T flag.Flaggable](value T) error {
-	return fmt.Errorf("bad value %v, could not cast to %T", value, value)
 }
 
 // parseInt is a generic helper to parse all signed integers, given a bit size.

@@ -31,6 +31,7 @@ func TestArgableTypes(t *testing.T) {
 		test.Equal(t, i, 42)
 		test.Equal(t, intArg.Type(), "int")
 		test.Equal(t, intArg.String(), "42")
+		test.Equal(t, intArg.Default(), "")
 	})
 
 	t.Run("int invalid", func(t *testing.T) {
