@@ -19,6 +19,10 @@ import (
 	"go.followtheprocess.codes/cli/internal/constraints"
 )
 
+// TODO(@FollowTheProcess): LOTS of duplicated stuff with internal/flag.
+// Once we know this is the direction to go down, then we should combine all the shared
+// stuff and use it from each package
+
 const (
 	_      = 4 << iota // Unused
 	bits8              // 8 bit integer

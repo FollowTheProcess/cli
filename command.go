@@ -245,15 +245,19 @@ func (cmd *Command) Execute() error {
 		return nil
 	}
 
-	// Validate the arguments using the command's allowedArgs function
-	argsWithoutFlags := cmd.flagSet().Args()
+	nonExtraArgs := cmd.flagSet().Args()
+	terminatorIndex := slices.Index(nonExtraArgs, "--")
 
-	if len(cmd.betterArgs) != len(argsWithoutFlags) {
-		return fmt.Errorf("expected %d arguments, got %d", len(cmd.betterArgs), len(argsWithoutFlags))
+	if terminatorIndex != -1 {
+		nonExtraArgs = nonExtraArgs[:terminatorIndex]
+	}
+
+	if len(cmd.betterArgs) != len(nonExtraArgs) {
+		return fmt.Errorf("expected %d arguments, got %d", len(cmd.betterArgs), len(nonExtraArgs))
 	}
 
 	for i, argument := range cmd.betterArgs {
-		str := argsWithoutFlags[i]
+		str := nonExtraArgs[i]
 		if err := argument.Set(str); err != nil {
 			return fmt.Errorf("could not parse argument %q from provided input %q: %w", argument.Name(), str, err)
 		}
