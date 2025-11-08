@@ -88,9 +88,18 @@ func New(name string, options ...Option) (*Command, error) {
 	return cfg.build(), nil
 }
 
-// Command represents a CLI command. In terms of an example, in the line
-// git commit -m <msg>; 'commit' is the command. It can have any number of subcommands
-// which themselves can have subcommands etc. The root command in this example is 'git'.
+// Command represents a CLI command.
+//
+// Commands in cli are recursive, that means that the root command
+// is not different or special compared to any of its subcommands, this structure
+// makes defining complex command trees as simple as creating a single command.
+//
+// In the command line 'git commit -m "Message"' both 'git' and 'commit'
+// would be a clio command, '-m' would be a Flag taking a string argument.
+//
+// Commands are constructed with the [New] function and customised by
+// providing a number of functional options to layer different settings
+// and functionality.
 type Command struct {
 	// stdin is an [io.Reader] from which command input is read.
 	//
