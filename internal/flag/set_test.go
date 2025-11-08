@@ -6,6 +6,7 @@ import (
 	"slices"
 	"testing"
 
+	publicflag "go.followtheprocess.codes/cli/flag"
 	"go.followtheprocess.codes/cli/internal/flag"
 	"go.followtheprocess.codes/snapshot"
 	"go.followtheprocess.codes/test"
@@ -748,7 +749,7 @@ func TestParse(t *testing.T) {
 			name: "no shorthand use long",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(int), "count", flag.NoShortHand, 0, "Count something")
+				f, err := flag.New(new(int), "count", publicflag.NoShortHand, 0, "Count something")
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -776,7 +777,7 @@ func TestParse(t *testing.T) {
 			name: "no shorthand use short",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(int), "count", flag.NoShortHand, 0, "Count something")
+				f, err := flag.New(new(int), "count", publicflag.NoShortHand, 0, "Count something")
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -805,7 +806,7 @@ func TestParse(t *testing.T) {
 			name: "valid count long",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(flag.Count), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(publicflag.Count), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -827,7 +828,7 @@ func TestParse(t *testing.T) {
 			name: "valid count short",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(flag.Count), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(publicflag.Count), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -849,7 +850,7 @@ func TestParse(t *testing.T) {
 			name: "valid count super short",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(flag.Count), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(publicflag.Count), "count", 'c', 0, "Count something")
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -1241,7 +1242,7 @@ func TestUsage(t *testing.T) {
 				version, err := flag.New(new(bool), "version", 'V', false, "Show version info for test")
 				test.Ok(t, err)
 
-				up, err := flag.New(new(bool), "update", flag.NoShortHand, false, "Update something")
+				up, err := flag.New(new(bool), "update", publicflag.NoShortHand, false, "Update something")
 				test.Ok(t, err)
 
 				set := flag.NewSet()
@@ -1267,7 +1268,7 @@ func TestUsage(t *testing.T) {
 				version, err := flag.New(new(bool), "version", 'V', false, "Show version info for test")
 				test.Ok(t, err)
 
-				up, err := flag.New(new(bool), "update", flag.NoShortHand, false, "Update something")
+				up, err := flag.New(new(bool), "update", publicflag.NoShortHand, false, "Update something")
 				test.Ok(t, err)
 
 				count, err := flag.New(new(int), "count", 'c', 0, "Count things")

@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"go.followtheprocess.codes/cli"
+	"go.followtheprocess.codes/cli/flag"
 	"go.followtheprocess.codes/snapshot"
 	"go.followtheprocess.codes/test"
 )
@@ -538,7 +539,7 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.RequiredArg("src", "The file to copy"),                  // This one is required
 				cli.OptionalArg("dest", "Destination to copy to", "./dest"), // This one is optional
-				cli.Flag(new(cli.FlagCount), "verbosity", 'v', 0, "Increase the verbosity level"),
+				cli.Flag(new(flag.Count), "verbosity", 'v', 0, "Increase the verbosity level"),
 				cli.Run(func(cmd *cli.Command, args []string) error { return nil }),
 			},
 			wantErr: false,
@@ -599,9 +600,9 @@ func TestHelp(t *testing.T) {
 				cli.Long("A longer, probably multiline description"),
 				cli.SubCommands(sub1, sub2),
 				cli.Flag(new(bool), "delete", 'd', false, "Delete something"),
-				cli.Flag(new(int), "count", cli.NoShortHand, -1, "Count something"),
-				cli.Flag(new([]string), "things", cli.NoShortHand, nil, "Names of things"),
-				cli.Flag(new([]string), "more", cli.NoShortHand, []string{"one", "two"}, "Names of things with a default"),
+				cli.Flag(new(int), "count", flag.NoShortHand, -1, "Count something"),
+				cli.Flag(new([]string), "things", flag.NoShortHand, nil, "Names of things"),
+				cli.Flag(new([]string), "more", flag.NoShortHand, []string{"one", "two"}, "Names of things with a default"),
 			},
 			wantErr: false,
 		},

@@ -22,5 +22,6 @@ func run() error {
 	if err := cmd.Execute(); err != nil {
 		return fmt.Errorf("could not execute root command: %w", err)
 	}
+
 	return nil
 }
