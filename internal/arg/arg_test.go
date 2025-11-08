@@ -23,7 +23,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("int valid", func(t *testing.T) {
 		var i int
 
-		intArg, err := arg.New(&i, "int", "Set an int value")
+		intArg, err := arg.New(&i, "int", "Set an int value", arg.Config[int]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("42")
@@ -36,7 +36,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("int invalid", func(t *testing.T) {
 		var i int
 
-		intArg, err := arg.New(&i, "int", "Set an int value")
+		intArg, err := arg.New(&i, "int", "Set an int value", arg.Config[int]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("word")
@@ -51,7 +51,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("int8 valid", func(t *testing.T) {
 		var i int8
 
-		intArg, err := arg.New(&i, "int", "Set an int8 value")
+		intArg, err := arg.New(&i, "int", "Set an int8 value", arg.Config[int8]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("42")
@@ -64,7 +64,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("int8 invalid", func(t *testing.T) {
 		var i int8
 
-		intArg, err := arg.New(&i, "int", "Set an int8 value")
+		intArg, err := arg.New(&i, "int", "Set an int8 value", arg.Config[int8]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("word")
@@ -79,7 +79,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("int16 valid", func(t *testing.T) {
 		var i int16
 
-		intArg, err := arg.New(&i, "int", "Set an int16 value")
+		intArg, err := arg.New(&i, "int", "Set an int16 value", arg.Config[int16]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("42")
@@ -92,7 +92,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("int16 invalid", func(t *testing.T) {
 		var i int16
 
-		intArg, err := arg.New(&i, "int", "Set an int16 value")
+		intArg, err := arg.New(&i, "int", "Set an int16 value", arg.Config[int16]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("word")
@@ -107,7 +107,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("int32 valid", func(t *testing.T) {
 		var i int32
 
-		intArg, err := arg.New(&i, "int", "Set an int32 value")
+		intArg, err := arg.New(&i, "int", "Set an int32 value", arg.Config[int32]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("42")
@@ -120,7 +120,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("int32 invalid", func(t *testing.T) {
 		var i int32
 
-		intArg, err := arg.New(&i, "int", "Set an int32 value")
+		intArg, err := arg.New(&i, "int", "Set an int32 value", arg.Config[int32]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("word")
@@ -135,7 +135,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("int64 valid", func(t *testing.T) {
 		var i int64
 
-		intArg, err := arg.New(&i, "int", "Set an int64 value")
+		intArg, err := arg.New(&i, "int", "Set an int64 value", arg.Config[int64]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("42")
@@ -148,7 +148,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("int64 invalid", func(t *testing.T) {
 		var i int64
 
-		intArg, err := arg.New(&i, "int", "Set an int64 value")
+		intArg, err := arg.New(&i, "int", "Set an int64 value", arg.Config[int64]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("word")
@@ -163,7 +163,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("uint valid", func(t *testing.T) {
 		var i uint
 
-		intArg, err := arg.New(&i, "uint", "Set a uint value")
+		intArg, err := arg.New(&i, "uint", "Set a uint value", arg.Config[uint]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("42")
@@ -176,7 +176,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("uint invalid", func(t *testing.T) {
 		var i uint
 
-		intArg, err := arg.New(&i, "uint", "Set a uint value")
+		intArg, err := arg.New(&i, "uint", "Set a uint value", arg.Config[uint]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("word")
@@ -191,7 +191,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("uint8 valid", func(t *testing.T) {
 		var i uint8
 
-		intArg, err := arg.New(&i, "uint", "Set a uint8 value")
+		intArg, err := arg.New(&i, "uint", "Set a uint8 value", arg.Config[uint8]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("42")
@@ -204,7 +204,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("uint8 invalid", func(t *testing.T) {
 		var i uint8
 
-		intArg, err := arg.New(&i, "uint", "Set a uint8 value")
+		intArg, err := arg.New(&i, "uint", "Set a uint8 value", arg.Config[uint8]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("word")
@@ -219,7 +219,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("uint16 valid", func(t *testing.T) {
 		var i uint16
 
-		intArg, err := arg.New(&i, "uint", "Set a uint16 value")
+		intArg, err := arg.New(&i, "uint", "Set a uint16 value", arg.Config[uint16]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("42")
@@ -232,7 +232,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("uint16 invalid", func(t *testing.T) {
 		var i uint16
 
-		intArg, err := arg.New(&i, "uint", "Set a uint16 value")
+		intArg, err := arg.New(&i, "uint", "Set a uint16 value", arg.Config[uint16]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("word")
@@ -247,7 +247,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("uint32 valid", func(t *testing.T) {
 		var i uint32
 
-		intArg, err := arg.New(&i, "uint", "Set a uint32 value")
+		intArg, err := arg.New(&i, "uint", "Set a uint32 value", arg.Config[uint32]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("42")
@@ -260,7 +260,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("uint32 invalid", func(t *testing.T) {
 		var i uint32
 
-		intArg, err := arg.New(&i, "uint", "Set a uint32 value")
+		intArg, err := arg.New(&i, "uint", "Set a uint32 value", arg.Config[uint32]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("word")
@@ -275,7 +275,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("uint64 valid", func(t *testing.T) {
 		var i uint64
 
-		intArg, err := arg.New(&i, "uint", "Set a uint64 value")
+		intArg, err := arg.New(&i, "uint", "Set a uint64 value", arg.Config[uint64]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("42")
@@ -288,7 +288,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("uint64 invalid", func(t *testing.T) {
 		var i uint64
 
-		intArg, err := arg.New(&i, "uint", "Set a uint64 value")
+		intArg, err := arg.New(&i, "uint", "Set a uint64 value", arg.Config[uint64]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("word")
@@ -303,7 +303,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("uintptr valid", func(t *testing.T) {
 		var i uintptr
 
-		intArg, err := arg.New(&i, "uintptr", "Set a uintptr value")
+		intArg, err := arg.New(&i, "uintptr", "Set a uintptr value", arg.Config[uintptr]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("42")
@@ -316,7 +316,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("uintptr invalid", func(t *testing.T) {
 		var i uintptr
 
-		intArg, err := arg.New(&i, "uintptr", "Set a uintptr value")
+		intArg, err := arg.New(&i, "uintptr", "Set a uintptr value", arg.Config[uintptr]{})
 		test.Ok(t, err)
 
 		err = intArg.Set("word")
@@ -331,7 +331,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("float32 valid", func(t *testing.T) {
 		var f float32
 
-		floatArg, err := arg.New(&f, "float", "Set a float32 value")
+		floatArg, err := arg.New(&f, "float", "Set a float32 value", arg.Config[float32]{})
 		test.Ok(t, err)
 
 		err = floatArg.Set("3.14159")
@@ -344,7 +344,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("float32 invalid", func(t *testing.T) {
 		var f float32
 
-		floatArg, err := arg.New(&f, "float", "Set a float32 value")
+		floatArg, err := arg.New(&f, "float", "Set a float32 value", arg.Config[float32]{})
 		test.Ok(t, err)
 
 		err = floatArg.Set("word")
@@ -359,7 +359,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("float64 valid", func(t *testing.T) {
 		var f float64
 
-		floatArg, err := arg.New(&f, "float", "Set a float64 value")
+		floatArg, err := arg.New(&f, "float", "Set a float64 value", arg.Config[float64]{})
 		test.Ok(t, err)
 
 		err = floatArg.Set("3.14159")
@@ -372,7 +372,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("float64 invalid", func(t *testing.T) {
 		var f float64
 
-		floatArg, err := arg.New(&f, "float", "Set a float64 value")
+		floatArg, err := arg.New(&f, "float", "Set a float64 value", arg.Config[float64]{})
 		test.Ok(t, err)
 
 		err = floatArg.Set("word")
@@ -387,7 +387,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("bool valid", func(t *testing.T) {
 		var b bool
 
-		boolArg, err := arg.New(&b, "bool", "Set a bool value")
+		boolArg, err := arg.New(&b, "bool", "Set a bool value", arg.Config[bool]{})
 		test.Ok(t, err)
 
 		err = boolArg.Set("true")
@@ -400,7 +400,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("bool invalid", func(t *testing.T) {
 		var b bool
 
-		boolArg, err := arg.New(&b, "bool", "Set a bool value")
+		boolArg, err := arg.New(&b, "bool", "Set a bool value", arg.Config[bool]{})
 		test.Ok(t, err)
 
 		err = boolArg.Set("word")
@@ -417,7 +417,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("string", func(t *testing.T) {
 		var str string
 
-		strArg, err := arg.New(&str, "string", "Set a string value")
+		strArg, err := arg.New(&str, "string", "Set a string value", arg.Config[string]{})
 		test.Ok(t, err)
 
 		err = strArg.Set("newvalue")
@@ -430,7 +430,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("byte slice valid", func(t *testing.T) {
 		var byt []byte
 
-		byteArg, err := arg.New(&byt, "byte", "Set a byte slice value")
+		byteArg, err := arg.New(&byt, "byte", "Set a byte slice value", arg.Config[[]byte]{})
 		test.Ok(t, err)
 
 		err = byteArg.Set("5e")
@@ -443,7 +443,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("byte slice invalid", func(t *testing.T) {
 		var byt []byte
 
-		byteArg, err := arg.New(&byt, "byte", "Set a byte slice value")
+		byteArg, err := arg.New(&byt, "byte", "Set a byte slice value", arg.Config[[]byte]{})
 		test.Ok(t, err)
 
 		err = byteArg.Set("0xF")
@@ -458,7 +458,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("time.Time valid", func(t *testing.T) {
 		var tyme time.Time
 
-		timeArg, err := arg.New(&tyme, "time", "Set a time value")
+		timeArg, err := arg.New(&tyme, "time", "Set a time value", arg.Config[time.Time]{})
 		test.Ok(t, err)
 
 		err = timeArg.Set("2024-07-17T07:38:05Z")
@@ -474,7 +474,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("time.Time invalid", func(t *testing.T) {
 		var tyme time.Time
 
-		timeArg, err := arg.New(&tyme, "time", "Set a time value")
+		timeArg, err := arg.New(&tyme, "time", "Set a time value", arg.Config[time.Time]{})
 		test.Ok(t, err)
 
 		err = timeArg.Set("not a time")
@@ -489,7 +489,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("time.Duration valid", func(t *testing.T) {
 		var duration time.Duration
 
-		durationArg, err := arg.New(&duration, "duration", "Set a duration value")
+		durationArg, err := arg.New(&duration, "duration", "Set a duration value", arg.Config[time.Duration]{})
 		test.Ok(t, err)
 
 		err = durationArg.Set("300ms")
@@ -505,7 +505,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("time.Duration invalid", func(t *testing.T) {
 		var duration time.Duration
 
-		durationArg, err := arg.New(&duration, "duration", "Set a duration value")
+		durationArg, err := arg.New(&duration, "duration", "Set a duration value", arg.Config[time.Duration]{})
 		test.Ok(t, err)
 
 		err = durationArg.Set("not a duration")
@@ -520,7 +520,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("ip valid", func(t *testing.T) {
 		var ip net.IP
 
-		ipArg, err := arg.New(&ip, "ip", "Set an IP address")
+		ipArg, err := arg.New(&ip, "ip", "Set an IP address", arg.Config[net.IP]{})
 		test.Ok(t, err)
 
 		err = ipArg.Set("192.0.2.1")
@@ -533,7 +533,7 @@ func TestArgableTypes(t *testing.T) {
 	t.Run("ip invalid", func(t *testing.T) {
 		var ip net.IP
 
-		ipArg, err := arg.New(&ip, "ip", "Set an IP address")
+		ipArg, err := arg.New(&ip, "ip", "Set an IP address", arg.Config[net.IP]{})
 		test.Ok(t, err)
 
 		err = ipArg.Set("not an ip")

@@ -15,26 +15,24 @@ func main() {
 	}
 }
 
-type runArgs struct {
-	src   string
-	dest  string
-	count int
+type myArgs struct {
+	src  string
+	dest string
 }
 
 func run() error {
-	var arguments runArgs
+	var arguments myArgs
 
 	cmd, err := cli.New(
 		"copy", // A fictional copy command
 		cli.Short("Copy a file from a src to a destination"),
 		cli.Stdout(os.Stdout),
 		cli.Arg(&arguments.src, "src", "The file to copy from"),
-		cli.Arg(&arguments.dest, "dest", "The file to copy to"),
-		cli.Arg(&arguments.count, "count", "The number of things"),
+		cli.Arg(&arguments.dest, "dest", "The file to copy to", cli.ArgDefault("dest.txt")),
 		cli.Example("Copy a file to somewhere", "copy src.txt ./some/where/else"),
 		cli.Example("Use the default destination", "copy src.txt"),
-		cli.Run(func(cmd *cli.Command, args []string) error {
-			fmt.Fprintf(cmd.Stdout(), "Copying from %s to %s %d times\n", arguments.src, arguments.dest, arguments.count)
+		cli.Run(func(cmd *cli.Command) error {
+			fmt.Fprintf(cmd.Stdout(), "Copying from %s to %s\n", arguments.src, arguments.dest)
 			return nil
 		}),
 	)

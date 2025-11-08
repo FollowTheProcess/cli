@@ -2,7 +2,7 @@ A cool CLI to do things
 
 A longer, probably multiline description
 
-Usage: test [OPTIONS]
+Usage: test [OPTIONS] ARGS...
 
 Options:
 

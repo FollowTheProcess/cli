@@ -17,12 +17,11 @@ func main() {
 		cli.Short("Short description of your command"),
 		cli.Long("Much longer text..."),
 		cli.Version("v1.2.3"),
-		cli.Allow(cli.MinArgs(1)),
 		cli.Stdout(os.Stdout),
 		cli.Example("Do a thing", "demo thing --count"),
 		cli.Flag(&count, "count", 'c', 0, "Count the thing"),
-		cli.Run(func(cmd *cli.Command, args []string) error {
-			fmt.Fprintln(cmd.Stdout(), "Hello from demo")
+		cli.Run(func(cmd *cli.Command) error {
+			fmt.Fprintln(cmd.Stdout(), "Hello from demo, my arguments were: ", cmd.Args())
 			return nil
 		}),
 	)

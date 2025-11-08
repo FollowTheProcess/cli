@@ -16,4 +16,8 @@ type Value interface {
 
 	// Set sets the stored value of an arg by parsing the string "str".
 	Set(str string) error
+
+	// Default returns the default value as a string, or "" if the argument
+	// is required.
+	Default() string
 }

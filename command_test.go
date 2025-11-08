@@ -397,10 +397,9 @@ func TestHelp(t *testing.T) {
 			name: "with named arguments",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--help"}),
-				// TODO(@FollowTheProcess): Optional args
-				cli.Arg(new(string), "src", "The file to copy"),        // This one is required
-				cli.Arg(new(string), "dest", "Destination to copy to"), // This one is optional
-				cli.Arg(new(string), "other", "Something else"),        // This is optional but default is empty
+				cli.Arg(new(string), "src", "The file to copy"),                                       // This one is required
+				cli.Arg(new(string), "dest", "Destination to copy to", cli.ArgDefault("default.txt")), // This one is optional
+				cli.Arg(new(int), "other", "Something else", cli.ArgDefault(0)),
 				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
@@ -409,9 +408,8 @@ func TestHelp(t *testing.T) {
 			name: "with verbosity count",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--help"}),
-				// TODO(@FollowTheProcess): Optional args
-				cli.Arg(new(string), "src", "The file to copy"),        // This one is required
-				cli.Arg(new(string), "dest", "Destination to copy to"), // This one is optional
+				cli.Arg(new(string), "src", "The file to copy"),                                           // This one is required
+				cli.Arg(new(string), "dest", "Destination to copy to", cli.ArgDefault("destination.txt")), // This one is optional
 				cli.Flag(new(flag.Count), "verbosity", 'v', 0, "Increase the verbosity level"),
 				cli.Run(func(cmd *cli.Command) error { return nil }),
 			},

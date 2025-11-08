@@ -252,12 +252,19 @@ func (cmd *Command) Execute() error {
 		nonExtraArgs = nonExtraArgs[:terminatorIndex]
 	}
 
-	if len(cmd.args) != len(nonExtraArgs) {
-		return fmt.Errorf("expected %d arguments, got %d", len(cmd.args), len(nonExtraArgs))
-	}
-
 	for i, argument := range cmd.args {
-		str := nonExtraArgs[i]
+		var str string
+		// The argument has been provided
+		if len(nonExtraArgs) > i {
+			str = nonExtraArgs[i]
+		} else {
+			// It hasn't, use the default
+			str = argument.Default()
+			if str == "" {
+				return fmt.Errorf("argument %q is required and no value was provided", argument.Name())
+			}
+		}
+
 		if err := argument.Set(str); err != nil {
 			return fmt.Errorf("could not parse argument %q from provided input %q: %w", argument.Name(), str, err)
 		}
@@ -496,13 +503,12 @@ func showHelp(cmd *Command) error {
 		// "Usage: {name} [OPTIONS] ARGS..."
 		s.WriteString(" [OPTIONS]")
 
-		// TODO(@FollowTheProcess): Now we know about args in a much deeper sense we should
-		// be able to make the usage a lot better
-
 		if len(cmd.args) > 0 {
-			s.WriteByte(' ')
 			// If we have named args, use the names in the help text
 			writePositionalArgs(cmd, s)
+		} else {
+			// Otherwise, the command accepts arbitrary arguments
+			s.WriteString(" ARGS...")
 		}
 	} else {
 		// We do have subcommands, so usage will instead be:
@@ -558,22 +564,19 @@ func showHelp(cmd *Command) error {
 // format for the top level usage string in the help text string builder.
 func writePositionalArgs(cmd *Command, s *strings.Builder) {
 	for _, arg := range cmd.args {
+		s.WriteString(" ")
+
 		displayName := strings.ToUpper(arg.Name())
 
-		// TODO(@FollowTheProcess): Args with default values, not sure how to do this
-
-		// if arg.defaultValue != requiredArgMarker {
-		// 	// If it has a default, it's an optional argument so wrap it
-		// 	// in brackets e.g. [FILE]
-		// 	s.WriteString("[")
-		// 	s.WriteString(displayName)
-		// 	s.WriteString("]")
-		// } else {
-
-		// It's required, so just FILE
-		s.WriteString(displayName)
-
-		s.WriteString(" ")
+		if arg.Default() != "" {
+			// It has a default so is not required
+			s.WriteString("[")
+			s.WriteString(displayName)
+			s.WriteString("]")
+		} else {
+			// It is required
+			s.WriteString(displayName)
+		}
 	}
 }
 
@@ -585,19 +588,15 @@ func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 	s.WriteString(":\n\n")
 	tw := tabwriter.NewWriter(s, style.MinWidth, style.TabWidth, style.Padding, style.PadChar, style.Flags)
 
-	// TODO(@FollowTheProcess): Default values for args again, maybe we just handle it
-	// inside arg.Usage()
 	for _, arg := range cmd.args {
-		fmt.Fprintf(tw, "  %s\t%s\t%s\n", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage())
-
-		// switch arg.defaultValue {
-		// case requiredArgMarker:
-		// 	fmt.Fprintf(tw, "  %s\t%s\t[required]\n", style.Bold.Text(arg.name), arg.description)
-		// case "":
-		// 	fmt.Fprintf(tw, "  %s\t%s\t[default %q]\n", style.Bold.Text(arg.name), arg.description, arg.defaultValue)
-		// default:
-		// 	fmt.Fprintf(tw, "  %s\t%s\t[default %s]\n", style.Bold.Text(arg.name), arg.description, arg.defaultValue)
-		// }
+		switch arg.Default() {
+		case "":
+			// It's required
+			fmt.Fprintf(tw, "  %s\t%s\t%s\t[required]\n", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage())
+		default:
+			// It has a default
+			fmt.Fprintf(tw, "  %s\t%s\t%s\t[default %s]\n", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage(), arg.Default())
+		}
 	}
 
 	if err := tw.Flush(); err != nil {

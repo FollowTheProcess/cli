@@ -57,13 +57,14 @@ var _ Value = Arg[string]{} // This will fail if we violate our Value interface
 
 // Arg represents a single command line argument.
 type Arg[T arg.Argable] struct {
-	value *T     // The actual stored value
-	name  string // Name of the argument as it appears on the command line
-	usage string // One line description of the argument.
+	value  *T        // The actual stored value
+	config Config[T] // Additional configuration
+	name   string    // Name of the argument as it appears on the command line
+	usage  string    // One line description of the argument.
 }
 
 // New constructs and returns a new [Arg].
-func New[T arg.Argable](p *T, name, usage string) (Arg[T], error) {
+func New[T arg.Argable](p *T, name, usage string, config Config[T]) (Arg[T], error) {
 	if err := validateArgName(name); err != nil {
 		return Arg[T]{}, fmt.Errorf("invalid arg name %q: %w", name, err)
 	}
@@ -73,9 +74,10 @@ func New[T arg.Argable](p *T, name, usage string) (Arg[T], error) {
 	}
 
 	argument := Arg[T]{
-		value: p,
-		name:  name,
-		usage: usage,
+		value:  p,
+		name:   name,
+		usage:  usage,
+		config: config,
 	}
 
 	return argument, nil
@@ -89,6 +91,60 @@ func (a Arg[T]) Name() string {
 // Usage returns the usage line of the Arg.
 func (a Arg[T]) Usage() string {
 	return a.usage
+}
+
+// Default returns the default value of the argument as a string
+// or "" if the argument is required.
+//
+//nolint:cyclop // No other way of doing this
+func (a Arg[T]) Default() string {
+	if a.config.DefaultValue == nil {
+		// DefaultValue is nil, therefore this is a required arg
+		return ""
+	}
+
+	switch typ := any(*a.config.DefaultValue).(type) {
+	case int:
+		return formatInt(typ)
+	case int8:
+		return formatInt(typ)
+	case int16:
+		return formatInt(typ)
+	case int32:
+		return formatInt(typ)
+	case int64:
+		return formatInt(typ)
+	case uint:
+		return formatUint(typ)
+	case uint8:
+		return formatUint(typ)
+	case uint16:
+		return formatUint(typ)
+	case uint32:
+		return formatUint(typ)
+	case uint64:
+		return formatUint(typ)
+	case uintptr:
+		return formatUint(typ)
+	case float32:
+		return formatFloat[float32](bits32)(typ)
+	case float64:
+		return formatFloat[float64](bits64)(typ)
+	case string:
+		return typ
+	case bool:
+		return strconv.FormatBool(typ)
+	case []byte:
+		return hex.EncodeToString(typ)
+	case time.Time:
+		return typ.Format(time.RFC3339)
+	case time.Duration:
+		return typ.String()
+	case net.IP:
+		return typ.String()
+	default:
+		return fmt.Sprintf("Arg.String: unsupported arg type: %T", typ)
+	}
 }
 
 // String returns the string representation of the current value of the arg.

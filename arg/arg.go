@@ -6,9 +6,10 @@ import (
 	"time"
 )
 
+// TODO(@FollowTheProcess): Slices of stuff
+
 // Argable is a type constraint that defines any type capable of being parsed as a command line arg.
 type Argable interface {
-	// TODO(@FollowTheProcess): Slices of stuff
 	int |
 		int8 |
 		int16 |

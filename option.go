@@ -384,8 +384,8 @@ func SubCommands(builders ...Builder) Option {
 	return option(f)
 }
 
-// Flag is an [Option] that adds a flag to a [Command], storing its value in a variable via it's
-// pointer 'p'.
+// Flag is an [Option] that adds a typed flag to a [Command], storing its value in a variable via its
+// pointer 'target'.
 //
 // The variable is set when the flag is parsed during command execution. The value provided
 // by the 'value' argument to [Flag] is used as the default value, which will be used if the
@@ -402,13 +402,13 @@ func SubCommands(builders ...Builder) Option {
 //	// Add a force flag
 //	var force bool
 //	cli.New("rm", cli.Flag(&force, "force", 'f', false, "Force deletion without confirmation"))
-func Flag[T flag.Flaggable](p *T, name string, short rune, value T, usage string) Option {
+func Flag[T flag.Flaggable](target *T, name string, short rune, value T, usage string) Option {
 	f := func(cfg *config) error {
 		if _, ok := cfg.flags.Get(name); ok {
 			return fmt.Errorf("flag %q already defined", name)
 		}
 
-		f, err := internalflag.New(p, name, short, value, usage)
+		f, err := internalflag.New(target, name, short, value, usage)
 		if err != nil {
 			return err
 		}
@@ -423,10 +423,33 @@ func Flag[T flag.Flaggable](p *T, name string, short rune, value T, usage string
 	return option(f)
 }
 
-// Arg is an [Option] that adds a typed argument to a [Command].
-func Arg[T arg.Argable](p *T, name, usage string) Option {
+// Arg is an [Option] that adds a typed argument to a [Command], storing its value in a variable via its
+// pointer 'target'.
+//
+// The variable is set when the argument is parsed during command execution.
+//
+// Args linked to slice values (e.g. []string) must be defined last as they eagerly consume
+// all remaining command line arguments.
+//
+// The argument may be given a default value with the [ArgDefault] option. Without this option
+// the argument will be required, i.e. failing to provide it on the command line is an error, but
+// when a default is given and the value omitted on the command line, the default is used in
+// its place.
+//
+//	// Add an int arg that defaults to 1
+//	var number int
+//	cli.New("add", cli.Arg(&number, "number", "Add a number", cli.ArgDefault(1)))
+func Arg[T arg.Argable](p *T, name, usage string, options ...ArgOption[T]) Option {
 	f := func(cfg *config) error {
-		a, err := internalarg.New(p, name, usage)
+		var argCfg internalarg.Config[T]
+
+		for _, option := range options {
+			if err := option.apply(&argCfg); err != nil {
+				return fmt.Errorf("could not apply arg option: %w", err)
+			}
+		}
+
+		a, err := internalarg.New(p, name, usage, argCfg)
 		if err != nil {
 			return err
 		}
@@ -437,6 +460,22 @@ func Arg[T arg.Argable](p *T, name, usage string) Option {
 	}
 
 	return option(f)
+}
+
+// ArgDefault is a [cli.ArgOption] that sets the default value for a positional argument.
+//
+// By default, positional arguments are required, but by providing a default value
+// via this option, you mark the argument as not required.
+//
+// If a default is given and the argument is not provided via the command line, the
+// default is used in its place.
+func ArgDefault[T arg.Argable](value T) ArgOption[T] {
+	f := func(cfg *internalarg.Config[T]) error {
+		cfg.DefaultValue = &value
+		return nil
+	}
+
+	return argOption[T](f)
 }
 
 // anyDuplicates checks the list of commands for ones with duplicate names, if a duplicate
@@ -457,4 +496,22 @@ func anyDuplicates(cmds ...*Command) (string, bool) {
 	}
 
 	return "", false
+}
+
+// ArgOption is a functional option for configuring an [Arg].
+type ArgOption[T arg.Argable] interface {
+	// Apply the option to the config, returning an error if the
+	// option cannot be applied for whatever reason.
+	apply(cfg *internalarg.Config[T]) error
+}
+
+// option is a function adapter implementing the Option interface, analogous
+// to http.HandlerFunc.
+type argOption[T arg.Argable] func(cfg *internalarg.Config[T]) error
+
+// apply implements the Option interface for option.
+//
+//nolint:unused // This is a false positive, this has to be here
+func (a argOption[T]) apply(cfg *internalarg.Config[T]) error {
+	return a(cfg)
 }
