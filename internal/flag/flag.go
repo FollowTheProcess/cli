@@ -15,57 +15,8 @@ import (
 	"unicode/utf8"
 
 	"go.followtheprocess.codes/cli/flag"
-	"go.followtheprocess.codes/cli/internal/constraints"
+	"go.followtheprocess.codes/cli/internal/format"
 	"go.followtheprocess.codes/cli/internal/parse"
-)
-
-// TODO(@FollowTheProcess): Replace all this stuff with the new format and parse packages
-
-const (
-	_      = 4 << iota // Unused
-	bits8              // 8 bit integer
-	bits16             // 16 bit integer
-	bits32             // 32 bit integer
-	bits64             // 64 bit integer
-)
-
-const (
-	typeInt          = "int"
-	typeInt8         = "int8"
-	typeInt16        = "int16"
-	typeInt32        = "int32"
-	typeInt64        = "int64"
-	typeCount        = "count"
-	typeUint         = "uint"
-	typeUint8        = "uint8"
-	typeUint16       = "uint16"
-	typeUint32       = "uint32"
-	typeUint64       = "uint64"
-	typeUintptr      = "uintptr"
-	typeFloat32      = "float32"
-	typeFloat64      = "float64"
-	typeString       = "string"
-	typeBool         = "bool"
-	typeBytesHex     = "bytesHex"
-	typeTime         = "time"
-	typeDuration     = "duration"
-	typeIP           = "ip"
-	typeIntSlice     = "[]int"
-	typeInt8Slice    = "[]int8"
-	typeInt16Slice   = "[]int16"
-	typeInt32Slice   = "[]int32"
-	typeInt64Slice   = "[]int64"
-	typeUintSlice    = "[]uint"
-	typeUint16Slice  = "[]uint16"
-	typeUint32Slice  = "[]uint32"
-	typeUint64Slice  = "[]uint64"
-	typeFloat32Slice = "[]float32"
-	typeFloat64Slice = "[]float64"
-	typeStringSlice  = "[]string"
-)
-
-const (
-	boolTrue = "true"
 )
 
 var _ Value = Flag[string]{} // This will fail if we violate our Value interface
@@ -141,10 +92,10 @@ func (f Flag[T]) Usage() string {
 // --delete, when passed without arguments implies --delete true.
 func (f Flag[T]) NoArgValue() string {
 	switch f.Type() {
-	case typeBool:
+	case format.TypeBool:
 		// Boolean flags imply passing true, "--force" vs "--force true"
-		return boolTrue
-	case typeCount:
+		return "true"
+	case format.TypeCount:
 		// Count flags imply passing 1, "--count --count" or "-cc" should inc by 2
 		return "1"
 	default:
@@ -163,33 +114,33 @@ func (f Flag[T]) String() string {
 
 	switch typ := any(*f.value).(type) {
 	case int:
-		return formatInt(typ)
+		return format.Int(typ)
 	case int8:
-		return formatInt(typ)
+		return format.Int(typ)
 	case int16:
-		return formatInt(typ)
+		return format.Int(typ)
 	case int32:
-		return formatInt(typ)
+		return format.Int(typ)
 	case int64:
-		return formatInt(typ)
+		return format.Int(typ)
 	case flag.Count:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uint:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uint8:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uint16:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uint32:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uint64:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uintptr:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case float32:
-		return formatFloat[float32](bits32)(typ)
+		return format.Float32(typ)
 	case float64:
-		return formatFloat[float64](bits64)(typ)
+		return format.Float64(typ)
 	case string:
 		return typ
 	case bool:
@@ -239,69 +190,69 @@ func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this r
 
 	switch typ := any(*f.value).(type) {
 	case int:
-		return typeInt
+		return format.TypeInt
 	case int8:
-		return typeInt8
+		return format.TypeInt8
 	case int16:
-		return typeInt16
+		return format.TypeInt16
 	case int32:
-		return typeInt32
+		return format.TypeInt32
 	case int64:
-		return typeInt64
+		return format.TypeInt64
 	case flag.Count:
-		return typeCount
+		return format.TypeCount
 	case uint:
-		return typeUint
+		return format.TypeUint
 	case uint8:
-		return typeUint8
+		return format.TypeUint8
 	case uint16:
-		return typeUint16
+		return format.TypeUint16
 	case uint32:
-		return typeUint32
+		return format.TypeUint32
 	case uint64:
-		return typeUint64
+		return format.TypeUint64
 	case uintptr:
-		return typeUintptr
+		return format.TypeUintptr
 	case float32:
-		return typeFloat32
+		return format.TypeFloat32
 	case float64:
-		return typeFloat64
+		return format.TypeFloat64
 	case string:
-		return typeString
+		return format.TypeString
 	case bool:
-		return typeBool
+		return format.TypeBool
 	case []byte:
-		return typeBytesHex
+		return format.TypeBytesHex
 	case time.Time:
-		return typeTime
+		return format.TypeTime
 	case time.Duration:
-		return typeDuration
+		return format.TypeDuration
 	case net.IP:
-		return typeIP
+		return format.TypeIP
 	case []int:
-		return typeIntSlice
+		return format.TypeIntSlice
 	case []int8:
-		return typeInt8Slice
+		return format.TypeInt8Slice
 	case []int16:
-		return typeInt16Slice
+		return format.TypeInt16Slice
 	case []int32:
-		return typeInt32Slice
+		return format.TypeInt32Slice
 	case []int64:
-		return typeInt64Slice
+		return format.TypeInt64Slice
 	case []uint:
-		return typeUintSlice
+		return format.TypeUintSlice
 	case []uint16:
-		return typeUint16Slice
+		return format.TypeUint16Slice
 	case []uint32:
-		return typeUint32Slice
+		return format.TypeUint32Slice
 	case []uint64:
-		return typeUint64Slice
+		return format.TypeUint64Slice
 	case []float32:
-		return typeFloat32Slice
+		return format.TypeFloat32Slice
 	case []float64:
-		return typeFloat64Slice
+		return format.TypeFloat64Slice
 	case []string:
-		return typeStringSlice
+		return format.TypeStringSlice
 	default:
 		return fmt.Sprintf("%T", typ)
 	}
@@ -315,7 +266,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 	switch typ := any(*f.value).(type) {
 	case int:
-		val, err := parseInt[int](0)(str)
+		val, err := parse.Int(str)
 		if err != nil {
 			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -324,7 +275,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		return nil
 	case int8:
-		val, err := parseInt[int8](bits8)(str)
+		val, err := parse.Int8(str)
 		if err != nil {
 			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -333,7 +284,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		return nil
 	case int16:
-		val, err := parseInt[int16](bits16)(str)
+		val, err := parse.Int16(str)
 		if err != nil {
 			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -342,7 +293,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		return nil
 	case int32:
-		val, err := parseInt[int32](bits32)(str)
+		val, err := parse.Int32(str)
 		if err != nil {
 			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -351,7 +302,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		return nil
 	case int64:
-		val, err := parseInt[int64](bits64)(str)
+		val, err := parse.Int64(str)
 		if err != nil {
 			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -372,7 +323,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		// Add the count and store it back, we still parse the given str rather
 		// than just +1 every time as this allows people to do e.g. --verbosity=3
 		// as well as -vvv
-		val, err := parseUint[uint](0)(str)
+		val, err := parse.Uint(str)
 		if err != nil {
 			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -382,7 +333,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		return nil
 	case uint:
-		val, err := parseUint[uint](0)(str)
+		val, err := parse.Uint(str)
 		if err != nil {
 			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -391,7 +342,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		return nil
 	case uint8:
-		val, err := parseUint[uint8](bits8)(str)
+		val, err := parse.Uint8(str)
 		if err != nil {
 			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -400,7 +351,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		return nil
 	case uint16:
-		val, err := parseUint[uint16](bits16)(str)
+		val, err := parse.Uint16(str)
 		if err != nil {
 			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -409,7 +360,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		return nil
 	case uint32:
-		val, err := parseUint[uint32](bits32)(str)
+		val, err := parse.Uint32(str)
 		if err != nil {
 			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -418,7 +369,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		return nil
 	case uint64:
-		val, err := parseUint[uint64](bits64)(str)
+		val, err := parse.Uint64(str)
 		if err != nil {
 			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -427,7 +378,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		return nil
 	case uintptr:
-		val, err := parseUint[uint64](bits64)(str)
+		val, err := parse.Uint64(str)
 		if err != nil {
 			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -436,7 +387,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		return nil
 	case float32:
-		val, err := parseFloat[float32](bits32)(str)
+		val, err := parse.Float32(str)
 		if err != nil {
 			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -445,7 +396,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		return nil
 	case float64:
-		val, err := parseFloat[float64](bits64)(str)
+		val, err := parse.Float64(str)
 		if err != nil {
 			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -511,7 +462,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		}
 
 		// Append the given value to the slice
-		newValue, err := parseInt[int](0)(str)
+		newValue, err := parse.Int(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -526,7 +477,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 			return errBadType(*f.value)
 		}
 
-		newValue, err := parseInt[int8](bits8)(str)
+		newValue, err := parse.Int8(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -541,7 +492,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 			return errBadType(*f.value)
 		}
 
-		newValue, err := parseInt[int16](bits16)(str)
+		newValue, err := parse.Int16(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -556,7 +507,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 			return errBadType(*f.value)
 		}
 
-		newValue, err := parseInt[int32](bits32)(str)
+		newValue, err := parse.Int32(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -571,7 +522,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 			return errBadType(*f.value)
 		}
 
-		newValue, err := parseInt[int64](bits64)(str)
+		newValue, err := parse.Int64(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -588,7 +539,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		}
 
 		// Append the given value to the slice
-		newValue, err := parseUint[uint](0)(str)
+		newValue, err := parse.Uint(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -603,7 +554,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 			return errBadType(*f.value)
 		}
 
-		newValue, err := parseUint[uint16](bits16)(str)
+		newValue, err := parse.Uint16(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -618,7 +569,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 			return errBadType(*f.value)
 		}
 
-		newValue, err := parseUint[uint32](bits32)(str)
+		newValue, err := parse.Uint32(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -633,7 +584,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 			return errBadType(*f.value)
 		}
 
-		newValue, err := parseUint[uint64](bits64)(str)
+		newValue, err := parse.Uint64(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -648,7 +599,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 			return errBadType(*f.value)
 		}
 
-		newValue, err := parseFloat[float32](bits32)(str)
+		newValue, err := parse.Float32(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -663,7 +614,7 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 			return errBadType(*f.value)
 		}
 
-		newValue, err := parseFloat[float64](bits64)(str)
+		newValue, err := parse.Float64(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
@@ -756,65 +707,6 @@ func validateFlagShort(short rune) error {
 // assertion.
 func errBadType[T flag.Flaggable](value T) error {
 	return fmt.Errorf("bad value %v, could not cast to %T", value, value)
-}
-
-// parseInt is a generic helper to parse all signed integers, given a bit size.
-//
-// It returns the parsed value or an error.
-func parseInt[T constraints.Signed](bits int) func(str string) (T, error) {
-	return func(str string) (T, error) {
-		val, err := strconv.ParseInt(str, 0, bits)
-		if err != nil {
-			return 0, err
-		}
-
-		return T(val), nil
-	}
-}
-
-// parseUint is a generic helper to parse all signed integers, given a bit size.
-//
-// It returns the parsed value or an error.
-func parseUint[T constraints.Unsigned](bits int) func(str string) (T, error) {
-	return func(str string) (T, error) {
-		val, err := strconv.ParseUint(str, 0, bits)
-		if err != nil {
-			return 0, err
-		}
-
-		return T(val), nil
-	}
-}
-
-// parseFloat is a generic helper to parse floating point numbers, given a bit size.
-//
-// It returns the parsed value or an error.
-func parseFloat[T ~float32 | ~float64](bits int) func(str string) (T, error) {
-	return func(str string) (T, error) {
-		val, err := strconv.ParseFloat(str, bits)
-		if err != nil {
-			return 0, err
-		}
-
-		return T(val), nil
-	}
-}
-
-// formatInt is a generic helper to return a string representation of any signed integer.
-func formatInt[T constraints.Signed](in T) string {
-	return strconv.FormatInt(int64(in), 10)
-}
-
-// formatUint is a generic helper to return a string representation of any unsigned integer.
-func formatUint[T constraints.Unsigned](in T) string {
-	return strconv.FormatUint(uint64(in), 10)
-}
-
-// formatFloat is a generic helper to return a string representation of any floating point digit.
-func formatFloat[T ~float32 | ~float64](bits int) func(T) string {
-	return func(in T) string {
-		return strconv.FormatFloat(float64(in), 'g', -1, bits)
-	}
 }
 
 // formatSlice is a generic helper to return a string representation of a slice.
