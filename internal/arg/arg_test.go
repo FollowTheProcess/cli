@@ -26,8 +26,9 @@ func TestArgableTypes(t *testing.T) {
 		err = intArg.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, i, 42)
-		test.Equal(t, intArg.Type(), "int")
+		test.Equal(t, intArg.Type(), format.TypeInt)
 		test.Equal(t, intArg.String(), "42")
+		test.Equal(t, intArg.Usage(), "Set an int value")
 		test.Equal(t, intArg.Default(), "")
 	})
 
@@ -51,7 +52,8 @@ func TestArgableTypes(t *testing.T) {
 		err = intArg.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, i, int8(42))
-		test.Equal(t, intArg.Type(), "int8")
+		test.Equal(t, intArg.Type(), format.TypeInt8)
+		test.Equal(t, intArg.Usage(), "Set an int8 value")
 		test.Equal(t, intArg.String(), "42")
 	})
 
@@ -75,7 +77,8 @@ func TestArgableTypes(t *testing.T) {
 		err = intArg.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, i, int16(42))
-		test.Equal(t, intArg.Type(), "int16")
+		test.Equal(t, intArg.Type(), format.TypeInt16)
+		test.Equal(t, intArg.Usage(), "Set an int16 value")
 		test.Equal(t, intArg.String(), "42")
 	})
 
@@ -99,7 +102,8 @@ func TestArgableTypes(t *testing.T) {
 		err = intArg.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, i, int32(42))
-		test.Equal(t, intArg.Type(), "int32")
+		test.Equal(t, intArg.Type(), format.TypeInt32)
+		test.Equal(t, intArg.Usage(), "Set an int32 value")
 		test.Equal(t, intArg.String(), "42")
 	})
 
@@ -123,7 +127,8 @@ func TestArgableTypes(t *testing.T) {
 		err = intArg.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, i, int64(42))
-		test.Equal(t, intArg.Type(), "int64")
+		test.Equal(t, intArg.Type(), format.TypeInt64)
+		test.Equal(t, intArg.Usage(), "Set an int64 value")
 		test.Equal(t, intArg.String(), "42")
 	})
 
@@ -147,7 +152,8 @@ func TestArgableTypes(t *testing.T) {
 		err = intArg.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, i, 42)
-		test.Equal(t, intArg.Type(), "uint")
+		test.Equal(t, intArg.Type(), format.TypeUint)
+		test.Equal(t, intArg.Usage(), "Set a uint value")
 		test.Equal(t, intArg.String(), "42")
 	})
 
@@ -172,6 +178,7 @@ func TestArgableTypes(t *testing.T) {
 		test.Ok(t, err)
 		test.Equal(t, i, uint8(42))
 		test.Equal(t, intArg.Type(), "uint8")
+		test.Equal(t, intArg.Usage(), "Set a uint8 value")
 		test.Equal(t, intArg.String(), "42")
 	})
 
@@ -195,7 +202,8 @@ func TestArgableTypes(t *testing.T) {
 		err = intArg.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, i, uint16(42))
-		test.Equal(t, intArg.Type(), "uint16")
+		test.Equal(t, intArg.Type(), format.TypeUint16)
+		test.Equal(t, intArg.Usage(), "Set a uint16 value")
 		test.Equal(t, intArg.String(), "42")
 	})
 
@@ -219,7 +227,8 @@ func TestArgableTypes(t *testing.T) {
 		err = intArg.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, i, uint32(42))
-		test.Equal(t, intArg.Type(), "uint32")
+		test.Equal(t, intArg.Type(), format.TypeUint32)
+		test.Equal(t, intArg.Usage(), "Set a uint32 value")
 		test.Equal(t, intArg.String(), "42")
 	})
 
@@ -243,7 +252,8 @@ func TestArgableTypes(t *testing.T) {
 		err = intArg.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, i, uint64(42))
-		test.Equal(t, intArg.Type(), "uint64")
+		test.Equal(t, intArg.Type(), format.TypeUint64)
+		test.Equal(t, intArg.Usage(), "Set a uint64 value")
 		test.Equal(t, intArg.String(), "42")
 	})
 
@@ -267,7 +277,8 @@ func TestArgableTypes(t *testing.T) {
 		err = intArg.Set("42")
 		test.Ok(t, err)
 		test.Equal(t, i, uintptr(42))
-		test.Equal(t, intArg.Type(), "uintptr")
+		test.Equal(t, intArg.Type(), format.TypeUintptr)
+		test.Equal(t, intArg.Usage(), "Set a uintptr value")
 		test.Equal(t, intArg.String(), "42")
 	})
 
@@ -291,7 +302,8 @@ func TestArgableTypes(t *testing.T) {
 		err = floatArg.Set("3.14159")
 		test.Ok(t, err)
 		test.Equal(t, f, 3.14159)
-		test.Equal(t, floatArg.Type(), "float32")
+		test.Equal(t, floatArg.Type(), format.TypeFloat32)
+		test.Equal(t, floatArg.Usage(), "Set a float32 value")
 		test.Equal(t, floatArg.String(), "3.14159")
 	})
 
@@ -315,7 +327,8 @@ func TestArgableTypes(t *testing.T) {
 		err = floatArg.Set("3.14159")
 		test.Ok(t, err)
 		test.Equal(t, f, 3.14159)
-		test.Equal(t, floatArg.Type(), "float64")
+		test.Equal(t, floatArg.Type(), format.TypeFloat64)
+		test.Equal(t, floatArg.Usage(), "Set a float64 value")
 		test.Equal(t, floatArg.String(), "3.14159")
 	})
 
@@ -339,7 +352,8 @@ func TestArgableTypes(t *testing.T) {
 		err = boolArg.Set(format.True)
 		test.Ok(t, err)
 		test.Equal(t, b, true)
-		test.Equal(t, boolArg.Type(), "bool")
+		test.Equal(t, boolArg.Type(), format.TypeBool)
+		test.Equal(t, boolArg.Usage(), "Set a bool value")
 		test.Equal(t, boolArg.String(), format.True)
 	})
 
@@ -365,7 +379,8 @@ func TestArgableTypes(t *testing.T) {
 		err = strArg.Set("newvalue")
 		test.Ok(t, err)
 		test.Equal(t, str, "newvalue")
-		test.Equal(t, strArg.Type(), "string")
+		test.Equal(t, strArg.Type(), format.TypeString)
+		test.Equal(t, strArg.Usage(), "Set a string value")
 		test.Equal(t, strArg.String(), "newvalue")
 	})
 
@@ -378,7 +393,8 @@ func TestArgableTypes(t *testing.T) {
 		err = byteArg.Set("5e")
 		test.Ok(t, err)
 		test.EqualFunc(t, byt, []byte("^"), bytes.Equal)
-		test.Equal(t, byteArg.Type(), "bytesHex")
+		test.Equal(t, byteArg.Type(), format.TypeBytesHex)
+		test.Equal(t, byteArg.Usage(), "Set a byte slice value")
 		test.Equal(t, byteArg.String(), "5e")
 	})
 
@@ -405,7 +421,8 @@ func TestArgableTypes(t *testing.T) {
 		want, err := time.Parse(time.RFC3339, "2024-07-17T07:38:05Z")
 		test.Ok(t, err)
 		test.Equal(t, tyme, want)
-		test.Equal(t, timeArg.Type(), "time")
+		test.Equal(t, timeArg.Type(), format.TypeTime)
+		test.Equal(t, timeArg.Usage(), "Set a time value")
 		test.Equal(t, timeArg.String(), "2024-07-17T07:38:05Z")
 	})
 
@@ -432,7 +449,8 @@ func TestArgableTypes(t *testing.T) {
 		want, err := time.ParseDuration("300ms")
 		test.Ok(t, err)
 		test.Equal(t, duration, want)
-		test.Equal(t, durationArg.Type(), "duration")
+		test.Equal(t, durationArg.Type(), format.TypeDuration)
+		test.Equal(t, durationArg.Usage(), "Set a duration value")
 		test.Equal(t, durationArg.String(), "300ms")
 	})
 
@@ -456,7 +474,8 @@ func TestArgableTypes(t *testing.T) {
 		err = ipArg.Set("192.0.2.1")
 		test.Ok(t, err)
 		test.DiffBytes(t, ip, net.ParseIP("192.0.2.1"))
-		test.Equal(t, ipArg.Type(), "ip")
+		test.Equal(t, ipArg.Type(), format.TypeIP)
+		test.Equal(t, ipArg.Usage(), "Set an IP address")
 		test.Equal(t, ipArg.String(), "192.0.2.1")
 	})
 
@@ -470,4 +489,20 @@ func TestArgableTypes(t *testing.T) {
 		test.Err(t, err)
 		test.True(t, errors.Is(err, parse.Err))
 	})
+}
+
+func TestDefaults(t *testing.T) {
+	str, err := arg.New(new(string), "str", "A string", arg.Config[string]{DefaultValue: pointer("hello")})
+	test.Ok(t, err)
+
+	intArg, err := arg.New(new(int), "int", "A string", arg.Config[int]{DefaultValue: pointer(27)})
+	test.Ok(t, err)
+
+	test.Equal(t, str.Default(), "hello")
+	test.Equal(t, intArg.Default(), "27")
+}
+
+// pointer creates a new variable of the given value and returns its pointer.
+func pointer[T any](value T) *T {
+	return &value
 }
