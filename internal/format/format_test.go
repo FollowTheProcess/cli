@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"testing"
 	"testing/quick"
+
+	"go.followtheprocess.codes/test"
 )
 
 func TestInt(t *testing.T) {
@@ -58,4 +60,16 @@ func TestFloat64(t *testing.T) {
 	if err := quick.CheckEqual(test, reference, nil); err != nil {
 		t.Error(err)
 	}
+}
+
+func TestSlice(t *testing.T) {
+	strings := []string{"one", "two", "three"}
+	ints := []int{1, 2, 3}
+	floats := []float64{1.0, 2.0, 3.0}
+	bools := []bool{true, true, false}
+
+	test.Equal(t, Slice(strings), `["one", "two", "three"]`, test.Context("strings"))
+	test.Equal(t, Slice(ints), "[1, 2, 3]", test.Context("ints"))
+	test.Equal(t, Slice(floats), "[1, 2, 3]", test.Context("floats"))
+	test.Equal(t, Slice(bools), "[true, true, false]", test.Context("bools"))
 }
