@@ -15,8 +15,8 @@ import (
 	"unsafe"
 
 	"go.followtheprocess.codes/cli/arg"
-	"go.followtheprocess.codes/cli/flag"
 	"go.followtheprocess.codes/cli/internal/constraints"
+	"go.followtheprocess.codes/cli/internal/parse"
 )
 
 // TODO(@FollowTheProcess): LOTS of duplicated stuff with internal/flag.
@@ -261,99 +261,99 @@ func (a Arg[T]) Set(str string) error {
 
 	switch typ := any(*a.value).(type) {
 	case int:
-		val, err := parseInt[int](0)(str)
+		val, err := parse.Int(str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
 
 		return nil
 	case int8:
-		val, err := parseInt[int8](bits8)(str)
+		val, err := parse.Int8(str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
 
 		return nil
 	case int16:
-		val, err := parseInt[int16](bits16)(str)
+		val, err := parse.Int16(str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
 
 		return nil
 	case int32:
-		val, err := parseInt[int32](bits32)(str)
+		val, err := parse.Int32(str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
 
 		return nil
 	case int64:
-		val, err := parseInt[int64](bits64)(str)
+		val, err := parse.Int64(str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
 
 		return nil
 	case uint:
-		val, err := parseUint[uint](0)(str)
+		val, err := parse.Uint(str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
 
 		return nil
 	case uint8:
-		val, err := parseUint[uint8](bits8)(str)
+		val, err := parse.Uint8(str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
 
 		return nil
 	case uint16:
-		val, err := parseUint[uint16](bits16)(str)
+		val, err := parse.Uint16(str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
 
 		return nil
 	case uint32:
-		val, err := parseUint[uint32](bits32)(str)
+		val, err := parse.Uint32(str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
 
 		return nil
 	case uint64:
-		val, err := parseUint[uint64](bits64)(str)
+		val, err := parse.Uint64(str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
 
 		return nil
 	case uintptr:
-		val, err := parseUint[uint64](bits64)(str)
+		val, err := parse.Uint64(str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
@@ -362,7 +362,7 @@ func (a Arg[T]) Set(str string) error {
 	case float32:
 		val, err := parseFloat[float32](bits32)(str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
@@ -371,7 +371,7 @@ func (a Arg[T]) Set(str string) error {
 	case float64:
 		val, err := parseFloat[float64](bits64)(str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
@@ -385,7 +385,7 @@ func (a Arg[T]) Set(str string) error {
 	case bool:
 		val, err := strconv.ParseBool(str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
@@ -394,7 +394,7 @@ func (a Arg[T]) Set(str string) error {
 	case []byte:
 		val, err := hex.DecodeString(strings.TrimSpace(str))
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
@@ -403,7 +403,7 @@ func (a Arg[T]) Set(str string) error {
 	case time.Time:
 		val, err := time.Parse(time.RFC3339, str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
@@ -412,7 +412,7 @@ func (a Arg[T]) Set(str string) error {
 	case time.Duration:
 		val, err := time.ParseDuration(str)
 		if err != nil {
-			return errParse(a.name, str, typ, err)
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
 		}
 
 		*a.value = *cast[T](&val)
@@ -421,7 +421,7 @@ func (a Arg[T]) Set(str string) error {
 	case net.IP:
 		val := net.ParseIP(str)
 		if val == nil {
-			return errParse(a.name, str, typ, errors.New("invalid IP address"))
+			return parse.Error(parse.KindArgument, a.name, str, typ, errors.New("invalid IP address"))
 		}
 
 		*a.value = *cast[T](&val)
@@ -514,46 +514,6 @@ func formatFloat[T ~float32 | ~float64](bits int) func(T) string {
 // compiler to be equivalent.
 func cast[T2, T1 any](v *T1) *T2 {
 	return (*T2)(unsafe.Pointer(v))
-}
-
-// errParse is a helper to quickly return a consistent error in the face of flag
-// value parsing errors.
-func errParse[T flag.Flaggable](name, str string, typ T, err error) error {
-	return fmt.Errorf(
-		"arg %q received invalid value %q (expected %T), detail: %w",
-		name,
-		str,
-		typ,
-		err,
-	)
-}
-
-// parseInt is a generic helper to parse all signed integers, given a bit size.
-//
-// It returns the parsed value or an error.
-func parseInt[T constraints.Signed](bits int) func(str string) (T, error) {
-	return func(str string) (T, error) {
-		val, err := strconv.ParseInt(str, 0, bits)
-		if err != nil {
-			return 0, err
-		}
-
-		return T(val), nil
-	}
-}
-
-// parseUint is a generic helper to parse all signed integers, given a bit size.
-//
-// It returns the parsed value or an error.
-func parseUint[T constraints.Unsigned](bits int) func(str string) (T, error) {
-	return func(str string) (T, error) {
-		val, err := strconv.ParseUint(str, 0, bits)
-		if err != nil {
-			return 0, err
-		}
-
-		return T(val), nil
-	}
 }
 
 // parseFloat is a generic helper to parse floating point numbers, given a bit size.
