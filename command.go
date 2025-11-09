@@ -13,8 +13,6 @@ import (
 	"go.followtheprocess.codes/cli/internal/arg"
 	"go.followtheprocess.codes/cli/internal/flag"
 	"go.followtheprocess.codes/cli/internal/style"
-
-	"go.followtheprocess.codes/hue/tabwriter"
 )
 
 const (
@@ -581,7 +579,7 @@ func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 	s.WriteString("\n\n")
 	s.WriteString(style.Title.Text("Arguments"))
 	s.WriteString(":\n\n")
-	tw := tabwriter.NewWriter(s, style.MinWidth, style.TabWidth, style.Padding, style.PadChar, style.Flags)
+	tw := style.Tabwriter(s)
 
 	for _, arg := range cmd.args {
 		switch arg.Default() {
@@ -646,7 +644,7 @@ func writeSubcommands(cmd *Command, s *strings.Builder) error {
 	s.WriteByte(':')
 	s.WriteString("\n\n")
 
-	tw := tabwriter.NewWriter(s, style.MinWidth, style.TabWidth, style.Padding, style.PadChar, style.Flags)
+	tw := style.Tabwriter(s)
 	for _, subcommand := range cmd.subcommands {
 		fmt.Fprintf(tw, "  %s\t%s\n", style.Bold.Text(subcommand.name), subcommand.short)
 	}

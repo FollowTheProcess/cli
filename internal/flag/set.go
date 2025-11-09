@@ -10,7 +10,6 @@ import (
 	"go.followtheprocess.codes/cli/flag"
 	"go.followtheprocess.codes/cli/internal/format"
 	"go.followtheprocess.codes/cli/internal/style"
-	"go.followtheprocess.codes/hue/tabwriter"
 )
 
 // usageBufferSize is sufficient to hold most commands flag usage text.
@@ -201,7 +200,7 @@ func (s *Set) Usage() (string, error) {
 
 	slices.Sort(names)
 
-	tw := tabwriter.NewWriter(buf, style.MinWidth, style.TabWidth, style.Padding, style.PadChar, style.Flags)
+	tw := style.Tabwriter(buf)
 
 	for _, name := range names {
 		f := s.flags[name]
