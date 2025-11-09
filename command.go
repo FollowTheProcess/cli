@@ -181,11 +181,6 @@ type example struct {
 	command string // The command string for the example.
 }
 
-// String implements [fmt.Stringer] for [Example].
-func (e example) String() string {
-	return fmt.Sprintf("\n  # %s\n  $ %s\n", e.comment, e.command)
-}
-
 // Execute parses the flags and arguments, and invokes the Command's Run
 // function, returning any error.
 //
