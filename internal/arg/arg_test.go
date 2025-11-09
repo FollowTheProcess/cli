@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"go.followtheprocess.codes/cli/internal/arg"
+	"go.followtheprocess.codes/cli/internal/format"
 	"go.followtheprocess.codes/cli/internal/parse"
 	"go.followtheprocess.codes/test"
 )
@@ -341,11 +342,11 @@ func TestArgableTypes(t *testing.T) {
 		boolArg, err := arg.New(&b, "bool", "Set a bool value", arg.Config[bool]{})
 		test.Ok(t, err)
 
-		err = boolArg.Set("true")
+		err = boolArg.Set(format.True)
 		test.Ok(t, err)
 		test.Equal(t, b, true)
 		test.Equal(t, boolArg.Type(), "bool")
-		test.Equal(t, boolArg.String(), "true")
+		test.Equal(t, boolArg.String(), format.True)
 	})
 
 	t.Run("bool invalid", func(t *testing.T) {
