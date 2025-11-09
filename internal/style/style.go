@@ -4,7 +4,12 @@
 // [hue]: https://github.com/FollowTheProcess/hue
 package style
 
-import "go.followtheprocess.codes/hue"
+import (
+	"io"
+
+	"go.followtheprocess.codes/hue"
+	"go.followtheprocess.codes/hue/tabwriter"
+)
 
 const (
 	// Title is the style for titles of help text sections like arguments or commands.
@@ -13,18 +18,23 @@ const (
 	// Bold is simply plain bold text.
 	Bold = hue.Bold
 
-	// MinWidth is the minimum cell width for hue's colour-enabled tabwriter.
-	MinWidth = 1
+	// minWidth is the minimum cell width for hue's colour-enabled tabwriter.
+	minWidth = 1
 
-	// TabWidth is the width of tabs in spaces for tabwriter.
-	TabWidth = 8
+	// tabWidth is the width of tabs in spaces for tabwriter.
+	tabWidth = 8
 
-	// Padding is the number of PadChars to pad table cells with.
-	Padding = 2
+	// padding is the number of PadChars to pad table cells with.
+	padding = 2
 
-	// PadChar is the character with which to pad table cells.
-	PadChar = ' '
+	// padChar is the character with which to pad table cells.
+	padChar = ' '
 
-	// Flags is the tabwriter config flags.
-	Flags = 0
+	// flags is the tabwriter config flags.
+	flags = 0
 )
+
+// Tabwriter returns a [hue.Tabwriter] configured with cli house style.
+func Tabwriter(w io.Writer) *tabwriter.Writer {
+	return tabwriter.NewWriter(w, minWidth, tabWidth, padding, padChar, flags)
+}
