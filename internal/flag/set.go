@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"go.followtheprocess.codes/cli/flag"
+	"go.followtheprocess.codes/cli/internal/format"
 	"go.followtheprocess.codes/cli/internal/style"
 	"go.followtheprocess.codes/hue/tabwriter"
 )
@@ -101,12 +102,12 @@ func (s *Set) Help() (value, ok bool) {
 		return false, false
 	}
 	// Is it a bool flag?
-	if flag.Type() != typeBool {
+	if flag.Type() != format.TypeBool {
 		return false, false
 	}
 	// It is there, we can infer from the string value what it's set to
 	// avoid unnecessary type conversions
-	return flag.String() == boolTrue, true
+	return flag.String() == format.True, true
 }
 
 // Version returns whether the [Set] has a boolean flag named "version" and what the value
@@ -118,12 +119,12 @@ func (s *Set) Version() (value, ok bool) {
 		return false, false
 	}
 	// Is it a bool flag?
-	if flag.Type() != typeBool {
+	if flag.Type() != format.TypeBool {
 		return false, false
 	}
 	// It is there, we can infer from the string value what it's set to
 	// avoid unnecessary type conversions
-	return flag.String() == boolTrue, true
+	return flag.String() == format.True, true
 }
 
 // Args returns a slice of all the non-flag arguments, including any

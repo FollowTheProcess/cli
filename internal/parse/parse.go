@@ -56,6 +56,17 @@ func Error[T any](kind Kind, name, str string, typ T, err error) error {
 	return fmt.Errorf("%w: %s %q received invalid value %q (expected %T): %w", Err, kind, name, str, typ, err)
 }
 
+// ErrorSlice produces a formatted parse error for a slice type.
+//
+// The kind should must be [KindArgument] or [KindFlag], with name and str being the
+// name of the arg/flag and the invalid text that triggered the error.
+//
+// The type T is the type we were parsing str into and err is any underlying
+// error e.g. from strconv.
+func ErrorSlice[T any](kind Kind, name, str string, typ T, err error) error {
+	return fmt.Errorf("%w: %s %q (type %T) cannot append element %q: %w", Err, kind, name, typ, str, err)
+}
+
 // Int parses an int from a string.
 func Int(str string) (int, error) {
 	val, err := strconv.ParseInt(str, base10, 0)
