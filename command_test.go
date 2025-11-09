@@ -64,6 +64,28 @@ func TestExecute(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name:   "bad arg",
+			stdout: "",
+			stderr: "",
+			options: []cli.Option{
+				cli.OverrideArgs([]string{"arg1", "notanumber"}), // Provided arg for 'second' is not an int
+				cli.Arg(new(string), "first", "The first arg"),
+				cli.Arg(new(int), "second", "The second arg"),
+			},
+			wantErr: true,
+		},
+		{
+			name:   "missing required argument",
+			stdout: "",
+			stderr: "",
+			options: []cli.Option{
+				cli.OverrideArgs([]string{"hello"}),             // "second" is not provided
+				cli.Arg(new(string), "first", "The first word"), // Expect the positional arguments
+				cli.Arg(new(string), "second", "The second word"),
+			},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
