@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"unsafe"
 )
 
 // Kind is the kind of parsing being done, either argument or flag.
@@ -153,4 +154,48 @@ func Uint64(str string) (uint64, error) {
 	}
 
 	return val, nil
+}
+
+// Float32 parses a float32 from a string.
+func Float32(str string) (float32, error) {
+	val, err := strconv.ParseFloat(str, bits32)
+	if err != nil {
+		return 0, err
+	}
+
+	return float32(val), nil
+}
+
+// Float64 parses a float64 from a string.
+func Float64(str string) (float64, error) {
+	val, err := strconv.ParseFloat(str, bits64)
+	if err != nil {
+		return 0, err
+	}
+
+	return float64(val), nil
+}
+
+// Cast converts a *T1 to a *T2, we use it here when we know (via generics and compile time checks)
+// that e.g. the Flag.value is a string, but we can't directly do Flag.value = "value" because
+// we can't assign a string to a generic 'T', but we *know* that the value *is* a string because when
+// instantiating a Flag[T], you have to provide (or compiler has to infer) Flag[string].
+//
+// # Safety
+//
+// This function uses [unsafe.Pointer] underneath to reassign the types but we know this is safe to do
+// based on the compile time checks provided by generics. Further, it fits the following valid pattern
+// specified in the docs for [unsafe.Pointer].
+//
+// Conversion of a *T1 to Pointer to *T2
+//
+// Provided that T2 is no larger than T1 and that the two share an equivalent
+// memory layout, this conversion allows reinterpreting data of one type as
+// data of another type.
+//
+// This describes our use case as we're converting a *T to e.g a *string but *only* when we know
+// that a Flag[T] is actually Flag[string], so the memory layout and size is guaranteed by the
+// compiler to be equivalent.
+func Cast[T2, T1 any](v *T1) *T2 {
+	return (*T2)(unsafe.Pointer(v))
 }

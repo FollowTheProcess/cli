@@ -139,3 +139,29 @@ func TestUint64(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestFloat32(t *testing.T) {
+	test := Float32
+
+	reference := func(str string) (float32, error) {
+		val, err := strconv.ParseFloat(str, bits32)
+		return float32(val), err
+	}
+
+	if err := quick.CheckEqual(test, reference, nil); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestFloat64(t *testing.T) {
+	test := Float64
+
+	reference := func(str string) (float64, error) {
+		val, err := strconv.ParseFloat(str, bits64)
+		return float64(val), err
+	}
+
+	if err := quick.CheckEqual(test, reference, nil); err != nil {
+		t.Error(err)
+	}
+}
