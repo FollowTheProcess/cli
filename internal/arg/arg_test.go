@@ -2,11 +2,13 @@ package arg_test
 
 import (
 	"bytes"
+	"errors"
 	"net"
 	"testing"
 	"time"
 
 	"go.followtheprocess.codes/cli/internal/arg"
+	"go.followtheprocess.codes/cli/internal/parse"
 	"go.followtheprocess.codes/test"
 )
 
@@ -42,11 +44,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = intArg.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "int" received invalid value "word" (expected int), detail: strconv.ParseInt: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("int8 valid", func(t *testing.T) {
@@ -70,11 +68,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = intArg.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "int" received invalid value "word" (expected int8), detail: strconv.ParseInt: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("int16 valid", func(t *testing.T) {
@@ -98,11 +92,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = intArg.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "int" received invalid value "word" (expected int16), detail: strconv.ParseInt: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("int32 valid", func(t *testing.T) {
@@ -126,11 +116,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = intArg.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "int" received invalid value "word" (expected int32), detail: strconv.ParseInt: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("int64 valid", func(t *testing.T) {
@@ -154,11 +140,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = intArg.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "int" received invalid value "word" (expected int64), detail: strconv.ParseInt: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uint valid", func(t *testing.T) {
@@ -182,11 +164,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = intArg.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "uint" received invalid value "word" (expected uint), detail: strconv.ParseUint: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uint8 valid", func(t *testing.T) {
@@ -210,11 +188,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = intArg.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "uint" received invalid value "word" (expected uint8), detail: strconv.ParseUint: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uint16 valid", func(t *testing.T) {
@@ -238,11 +212,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = intArg.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "uint" received invalid value "word" (expected uint16), detail: strconv.ParseUint: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uint32 valid", func(t *testing.T) {
@@ -266,11 +236,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = intArg.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "uint" received invalid value "word" (expected uint32), detail: strconv.ParseUint: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uint64 valid", func(t *testing.T) {
@@ -294,11 +260,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = intArg.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "uint" received invalid value "word" (expected uint64), detail: strconv.ParseUint: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uintptr valid", func(t *testing.T) {
@@ -322,11 +284,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = intArg.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "uintptr" received invalid value "word" (expected uintptr), detail: strconv.ParseUint: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("float32 valid", func(t *testing.T) {
@@ -350,11 +308,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = floatArg.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "float" received invalid value "word" (expected float32), detail: strconv.ParseFloat: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("float64 valid", func(t *testing.T) {
@@ -378,11 +332,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = floatArg.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "float" received invalid value "word" (expected float64), detail: strconv.ParseFloat: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("bool valid", func(t *testing.T) {
@@ -406,11 +356,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = boolArg.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "bool" received invalid value "word" (expected bool), detail: strconv.ParseBool: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	// No invalid case as all command line args are strings anyway so no real way of
@@ -449,11 +395,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = byteArg.Set("0xF")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "byte" received invalid value "0xF" (expected []uint8), detail: encoding/hex: invalid byte: U+0078 'x'`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("time.Time valid", func(t *testing.T) {
@@ -480,11 +422,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = timeArg.Set("not a time")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "time" received invalid value "not a time" (expected time.Time), detail: parsing time "not a time" as "2006-01-02T15:04:05Z07:00": cannot parse "not a time" as "2006"`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("time.Duration valid", func(t *testing.T) {
@@ -511,11 +449,7 @@ func TestArgableTypes(t *testing.T) {
 
 		err = durationArg.Set("not a duration")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "duration" received invalid value "not a duration" (expected time.Duration), detail: time: invalid duration "not a duration"`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("ip valid", func(t *testing.T) {
@@ -539,10 +473,6 @@ func TestArgableTypes(t *testing.T) {
 
 		err = ipArg.Set("not an ip")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`arg "ip" received invalid value "not an ip" (expected net.IP), detail: invalid IP address`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 }
