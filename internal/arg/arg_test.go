@@ -13,12 +13,6 @@ import (
 	"go.followtheprocess.codes/test"
 )
 
-// TODO(@FollowTheProcess): Again a LOT of this is a straight copy paste from flag to get some confidence
-// in the parsing.
-//
-// I think we should make an internal parse package or something and shunt all of this stuff in there as it's
-// really only testing our Set logic.
-
 func TestArgableTypes(t *testing.T) {
 	// We can't do table testing here because Arg[T] is a different type for each test
 	// so we can't do a []Arg[T] which is needed to define the test cases
