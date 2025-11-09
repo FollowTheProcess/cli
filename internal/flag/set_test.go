@@ -525,7 +525,7 @@ func TestParse(t *testing.T) {
 			},
 			args:    []string{"--number", "-8"}, // Trying to set a uint flag to negative number
 			wantErr: true,
-			errMsg:  `flag "number" received invalid value "-8" (expected uint), detail: strconv.ParseUint: parsing "-8": invalid syntax`,
+			errMsg:  `parse error: flag "number" received invalid value "-8" (expected uint): strconv.ParseUint: parsing "-8": invalid syntax`,
 		},
 		{
 			name: "valid short value",
@@ -612,7 +612,7 @@ func TestParse(t *testing.T) {
 			},
 			args:    []string{"-n", "-8"}, // Trying to set a uint flag to negative number
 			wantErr: true,
-			errMsg:  `flag "number" received invalid value "-8" (expected uint), detail: strconv.ParseUint: parsing "-8": invalid syntax`,
+			errMsg:  `parse error: flag "number" received invalid value "-8" (expected uint): strconv.ParseUint: parsing "-8": invalid syntax`,
 		},
 		{
 			name: "valid long equals value",
@@ -681,7 +681,7 @@ func TestParse(t *testing.T) {
 			},
 			args:    []string{"--number=-8"}, // Trying to set a uint flag to negative number
 			wantErr: true,
-			errMsg:  `flag "number" received invalid value "-8" (expected uint), detail: strconv.ParseUint: parsing "-8": invalid syntax`,
+			errMsg:  `parse error: flag "number" received invalid value "-8" (expected uint): strconv.ParseUint: parsing "-8": invalid syntax`,
 		},
 		{
 			name: "valid short equals value",

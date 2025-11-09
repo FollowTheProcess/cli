@@ -13,11 +13,13 @@ import (
 	"time"
 	"unicode"
 	"unicode/utf8"
-	"unsafe"
 
 	"go.followtheprocess.codes/cli/flag"
 	"go.followtheprocess.codes/cli/internal/constraints"
+	"go.followtheprocess.codes/cli/internal/parse"
 )
+
+// TODO(@FollowTheProcess): Replace all this stuff with the new format and parse packages
 
 const (
 	_      = 4 << iota // Unused
@@ -315,46 +317,46 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 	case int:
 		val, err := parseInt[int](0)(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case int8:
 		val, err := parseInt[int8](bits8)(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case int16:
 		val, err := parseInt[int16](bits16)(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case int32:
 		val, err := parseInt[int32](bits32)(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case int64:
 		val, err := parseInt[int64](bits64)(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case flag.Count:
@@ -372,133 +374,133 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		// as well as -vvv
 		val, err := parseUint[uint](0)(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
 		newValue := current + flag.Count(val)
-		*f.value = *cast[T](&newValue)
+		*f.value = *parse.Cast[T](&newValue)
 
 		return nil
 	case uint:
 		val, err := parseUint[uint](0)(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case uint8:
 		val, err := parseUint[uint8](bits8)(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case uint16:
 		val, err := parseUint[uint16](bits16)(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case uint32:
 		val, err := parseUint[uint32](bits32)(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case uint64:
 		val, err := parseUint[uint64](bits64)(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case uintptr:
 		val, err := parseUint[uint64](bits64)(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case float32:
 		val, err := parseFloat[float32](bits32)(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case float64:
 		val, err := parseFloat[float64](bits64)(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case string:
 		val := str
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case bool:
 		val, err := strconv.ParseBool(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case []byte:
 		val, err := hex.DecodeString(strings.TrimSpace(str))
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case time.Time:
 		val, err := time.Parse(time.RFC3339, str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case time.Duration:
 		val, err := time.ParseDuration(str)
 		if err != nil {
-			return errParse(f.name, str, typ, err)
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case net.IP:
 		val := net.ParseIP(str)
 		if val == nil {
-			return errParse(f.name, str, typ, errors.New("invalid IP address"))
+			return parse.Error(parse.KindFlag, f.name, str, typ, errors.New("invalid IP address"))
 		}
 
-		*f.value = *cast[T](&val)
+		*f.value = *parse.Cast[T](&val)
 
 		return nil
 	case []int:
@@ -511,11 +513,11 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		// Append the given value to the slice
 		newValue, err := parseInt[int](0)(str)
 		if err != nil {
-			return errParseSlice(f.name, str, typ, err)
+			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
 		slice = append(slice, newValue)
-		*f.value = *cast[T](&slice)
+		*f.value = *parse.Cast[T](&slice)
 
 		return nil
 	case []int8:
@@ -526,11 +528,11 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		newValue, err := parseInt[int8](bits8)(str)
 		if err != nil {
-			return errParseSlice(f.name, str, typ, err)
+			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
 		slice = append(slice, newValue)
-		*f.value = *cast[T](&slice)
+		*f.value = *parse.Cast[T](&slice)
 
 		return nil
 	case []int16:
@@ -541,11 +543,11 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		newValue, err := parseInt[int16](bits16)(str)
 		if err != nil {
-			return errParseSlice(f.name, str, typ, err)
+			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
 		slice = append(slice, newValue)
-		*f.value = *cast[T](&slice)
+		*f.value = *parse.Cast[T](&slice)
 
 		return nil
 	case []int32:
@@ -556,11 +558,11 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		newValue, err := parseInt[int32](bits32)(str)
 		if err != nil {
-			return errParseSlice(f.name, str, typ, err)
+			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
 		slice = append(slice, newValue)
-		*f.value = *cast[T](&slice)
+		*f.value = *parse.Cast[T](&slice)
 
 		return nil
 	case []int64:
@@ -571,11 +573,11 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		newValue, err := parseInt[int64](bits64)(str)
 		if err != nil {
-			return errParseSlice(f.name, str, typ, err)
+			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
 		slice = append(slice, newValue)
-		*f.value = *cast[T](&slice)
+		*f.value = *parse.Cast[T](&slice)
 
 		return nil
 
@@ -588,11 +590,11 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 		// Append the given value to the slice
 		newValue, err := parseUint[uint](0)(str)
 		if err != nil {
-			return errParseSlice(f.name, str, typ, err)
+			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
 		slice = append(slice, newValue)
-		*f.value = *cast[T](&slice)
+		*f.value = *parse.Cast[T](&slice)
 
 		return nil
 	case []uint16:
@@ -603,11 +605,11 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		newValue, err := parseUint[uint16](bits16)(str)
 		if err != nil {
-			return errParseSlice(f.name, str, typ, err)
+			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
 		slice = append(slice, newValue)
-		*f.value = *cast[T](&slice)
+		*f.value = *parse.Cast[T](&slice)
 
 		return nil
 	case []uint32:
@@ -618,11 +620,11 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		newValue, err := parseUint[uint32](bits32)(str)
 		if err != nil {
-			return errParseSlice(f.name, str, typ, err)
+			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
 		slice = append(slice, newValue)
-		*f.value = *cast[T](&slice)
+		*f.value = *parse.Cast[T](&slice)
 
 		return nil
 	case []uint64:
@@ -633,11 +635,11 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		newValue, err := parseUint[uint64](bits64)(str)
 		if err != nil {
-			return errParseSlice(f.name, str, typ, err)
+			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
 		slice = append(slice, newValue)
-		*f.value = *cast[T](&slice)
+		*f.value = *parse.Cast[T](&slice)
 
 		return nil
 	case []float32:
@@ -648,11 +650,11 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		newValue, err := parseFloat[float32](bits32)(str)
 		if err != nil {
-			return errParseSlice(f.name, str, typ, err)
+			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
 		slice = append(slice, newValue)
-		*f.value = *cast[T](&slice)
+		*f.value = *parse.Cast[T](&slice)
 
 		return nil
 	case []float64:
@@ -663,11 +665,11 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		newValue, err := parseFloat[float64](bits64)(str)
 		if err != nil {
-			return errParseSlice(f.name, str, typ, err)
+			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
 		slice = append(slice, newValue)
-		*f.value = *cast[T](&slice)
+		*f.value = *parse.Cast[T](&slice)
 
 		return nil
 	case []string:
@@ -678,36 +680,12 @@ func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other wa
 
 		// No parsing to do because a string is... well, a string
 		slice = append(slice, str)
-		*f.value = *cast[T](&slice)
+		*f.value = *parse.Cast[T](&slice)
 
 		return nil
 	default:
 		return fmt.Errorf("Flag.Set: unsupported flag type: %T", typ)
 	}
-}
-
-// cast converts a *T1 to a *T2, we use it here when we know (via generics and compile time checks)
-// that e.g. the Flag.value is a string, but we can't directly do Flag.value = "value" because
-// we can't assign a string to a generic 'T', but we *know* that the value *is* a string because when
-// instantiating a Flag[T], you have to provide (or compiler has to infer) Flag[string].
-//
-// # Safety
-//
-// This function uses [unsafe.Pointer] underneath to reassign the types but we know this is safe to do
-// based on the compile time checks provided by generics. Further, it fits the following valid pattern
-// specified in the docs for [unsafe.Pointer].
-//
-// Conversion of a *T1 to Pointer to *T2
-//
-// Provided that T2 is no larger than T1 and that the two share an equivalent
-// memory layout, this conversion allows reinterpreting data of one type as
-// data of another type.
-//
-// This describes our use case as we're converting a *T to e.g a *string but *only* when we know
-// that a Flag[T] is actually Flag[string], so the memory layout and size is guaranteed by the
-// compiler to be equivalent.
-func cast[T2, T1 any](v *T1) *T2 {
-	return (*T2)(unsafe.Pointer(v))
 }
 
 // validateFlagName ensures a flag name is valid, returning an error if it's not.
@@ -772,30 +750,6 @@ func validateFlagShort(short rune) error {
 	}
 
 	return nil
-}
-
-// errParse is a helper to quickly return a consistent error in the face of flag
-// value parsing errors.
-func errParse[T flag.Flaggable](name, str string, typ T, err error) error {
-	return fmt.Errorf(
-		"flag %q received invalid value %q (expected %T), detail: %w",
-		name,
-		str,
-		typ,
-		err,
-	)
-}
-
-// errParseSlice is like errParse but for []T flags where the error message
-// needs to be a bit more specific.
-func errParseSlice[T flag.Flaggable](name, str string, typ T, err error) error {
-	return fmt.Errorf(
-		"flag %q (type %T) cannot append element %q: %w",
-		name,
-		typ,
-		str,
-		err,
-	)
 }
 
 // errBadType makes a consistent error in the face of a bad type

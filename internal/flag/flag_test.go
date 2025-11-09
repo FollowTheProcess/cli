@@ -2,6 +2,7 @@ package flag_test
 
 import (
 	"bytes"
+	"errors"
 	"net"
 	"slices"
 	"testing"
@@ -9,6 +10,7 @@ import (
 
 	publicflag "go.followtheprocess.codes/cli/flag"
 	"go.followtheprocess.codes/cli/internal/flag"
+	"go.followtheprocess.codes/cli/internal/parse"
 	"go.followtheprocess.codes/test"
 )
 
@@ -37,11 +39,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "int" received invalid value "word" (expected int), detail: strconv.ParseInt: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("int8 valid", func(t *testing.T) {
@@ -65,11 +63,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "int" received invalid value "word" (expected int8), detail: strconv.ParseInt: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("int16 valid", func(t *testing.T) {
@@ -93,11 +87,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "int" received invalid value "word" (expected int16), detail: strconv.ParseInt: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("int32 valid", func(t *testing.T) {
@@ -121,11 +111,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "int" received invalid value "word" (expected int32), detail: strconv.ParseInt: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("int64 valid", func(t *testing.T) {
@@ -149,11 +135,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "int" received invalid value "word" (expected int64), detail: strconv.ParseInt: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("count valid", func(t *testing.T) {
@@ -192,11 +174,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = countFlag.Set("a word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "count" received invalid value "a word" (expected flag.Count), detail: strconv.ParseUint: parsing "a word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uint valid", func(t *testing.T) {
@@ -220,11 +198,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "uint" received invalid value "word" (expected uint), detail: strconv.ParseUint: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uint8 valid", func(t *testing.T) {
@@ -248,11 +222,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "uint" received invalid value "word" (expected uint8), detail: strconv.ParseUint: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uint16 valid", func(t *testing.T) {
@@ -276,11 +246,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "uint" received invalid value "word" (expected uint16), detail: strconv.ParseUint: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uint32 valid", func(t *testing.T) {
@@ -304,11 +270,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "uint" received invalid value "word" (expected uint32), detail: strconv.ParseUint: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uint64 valid", func(t *testing.T) {
@@ -332,11 +294,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "uint" received invalid value "word" (expected uint64), detail: strconv.ParseUint: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uintptr valid", func(t *testing.T) {
@@ -360,11 +318,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = intFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "uintptr" received invalid value "word" (expected uintptr), detail: strconv.ParseUint: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("float32 valid", func(t *testing.T) {
@@ -388,11 +342,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = floatFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "float" received invalid value "word" (expected float32), detail: strconv.ParseFloat: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("float64 valid", func(t *testing.T) {
@@ -416,11 +366,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = floatFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "float" received invalid value "word" (expected float64), detail: strconv.ParseFloat: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("bool valid", func(t *testing.T) {
@@ -444,11 +390,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = boolFlag.Set("word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "bool" received invalid value "word" (expected bool), detail: strconv.ParseBool: parsing "word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	// No invalid case as all command line args are strings anyway so no real way of
@@ -487,11 +429,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = byteFlag.Set("0xF")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "byte" received invalid value "0xF" (expected []uint8), detail: encoding/hex: invalid byte: U+0078 'x'`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("time.Time valid", func(t *testing.T) {
@@ -518,11 +456,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = timeFlag.Set("not a time")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "time" received invalid value "not a time" (expected time.Time), detail: parsing time "not a time" as "2006-01-02T15:04:05Z07:00": cannot parse "not a time" as "2006"`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("time.Duration valid", func(t *testing.T) {
@@ -561,11 +495,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = durationFlag.Set("not a duration")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "duration" received invalid value "not a duration" (expected time.Duration), detail: time: invalid duration "not a duration"`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("ip valid", func(t *testing.T) {
@@ -589,11 +519,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = ipFlag.Set("not an ip")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "ip" received invalid value "not an ip" (expected net.IP), detail: invalid IP address`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("int slice valid", func(t *testing.T) {
@@ -625,11 +551,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = sliceFlag.Set("a word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "slice" (type []int) cannot append element "a word": strconv.ParseInt: parsing "a word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("int8 slice valid", func(t *testing.T) {
@@ -661,11 +583,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = sliceFlag.Set("cheese")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "slice" (type []int8) cannot append element "cheese": strconv.ParseInt: parsing "cheese": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("int16 slice valid", func(t *testing.T) {
@@ -697,11 +615,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = sliceFlag.Set("balls")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "slice" (type []int16) cannot append element "balls": strconv.ParseInt: parsing "balls": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("int32 slice valid", func(t *testing.T) {
@@ -733,11 +647,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = sliceFlag.Set("balls")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "slice" (type []int32) cannot append element "balls": strconv.ParseInt: parsing "balls": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("int64 slice valid", func(t *testing.T) {
@@ -769,11 +679,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = sliceFlag.Set("balls")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "slice" (type []int64) cannot append element "balls": strconv.ParseInt: parsing "balls": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uint slice valid", func(t *testing.T) {
@@ -805,11 +711,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = sliceFlag.Set("a word")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "slice" (type []uint) cannot append element "a word": strconv.ParseUint: parsing "a word": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uint16 slice valid", func(t *testing.T) {
@@ -841,11 +743,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = sliceFlag.Set("balls")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "slice" (type []uint16) cannot append element "balls": strconv.ParseUint: parsing "balls": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uint32 slice valid", func(t *testing.T) {
@@ -877,11 +775,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = sliceFlag.Set("balls")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "slice" (type []uint32) cannot append element "balls": strconv.ParseUint: parsing "balls": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("uint64 slice valid", func(t *testing.T) {
@@ -913,11 +807,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = sliceFlag.Set("balls")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "slice" (type []uint64) cannot append element "balls": strconv.ParseUint: parsing "balls": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("float32 slice valid", func(t *testing.T) {
@@ -949,11 +839,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = sliceFlag.Set("balls")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "slice" (type []float32) cannot append element "balls": strconv.ParseFloat: parsing "balls": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("float64 slice valid", func(t *testing.T) {
@@ -985,11 +871,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		err = sliceFlag.Set("balls")
 		test.Err(t, err)
-		test.Equal(
-			t,
-			err.Error(),
-			`flag "slice" (type []float64) cannot append element "balls": strconv.ParseFloat: parsing "balls": invalid syntax`,
-		)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("string slice valid", func(t *testing.T) {
