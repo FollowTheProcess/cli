@@ -20,6 +20,29 @@ const (
 	bits64
 )
 
+// Type names.
+const (
+	TypeInt      = "int"
+	TypeInt8     = "int8"
+	TypeInt16    = "int16"
+	TypeInt32    = "int32"
+	TypeInt64    = "int64"
+	TypeUint     = "uint"
+	TypeUint8    = "uint8"
+	TypeUint16   = "uint16"
+	TypeUint32   = "uint32"
+	TypeUint64   = "uint64"
+	TypeUintptr  = "uintptr"
+	TypeFloat32  = "float32"
+	TypeFloat64  = "float64"
+	TypeString   = "string"
+	TypeBool     = "bool"
+	TypeBytesHex = "bytesHex"
+	TypeTime     = "time"
+	TypeDuration = "duration"
+	TypeIP       = "ip"
+)
+
 // Int returns a string representation of an integer.
 func Int[T constraints.Signed](n T) string {
 	return strconv.FormatInt(int64(n), base10)

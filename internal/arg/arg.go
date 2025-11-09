@@ -18,32 +18,6 @@ import (
 	"go.followtheprocess.codes/cli/internal/parse"
 )
 
-// TODO(@FollowTheProcess): LOTS of duplicated stuff with internal/flag.
-// Once we know this is the direction to go down, then we should combine all the shared
-// stuff and use it from each package
-
-const (
-	typeInt      = "int"
-	typeInt8     = "int8"
-	typeInt16    = "int16"
-	typeInt32    = "int32"
-	typeInt64    = "int64"
-	typeUint     = "uint"
-	typeUint8    = "uint8"
-	typeUint16   = "uint16"
-	typeUint32   = "uint32"
-	typeUint64   = "uint64"
-	typeUintptr  = "uintptr"
-	typeFloat32  = "float32"
-	typeFloat64  = "float64"
-	typeString   = "string"
-	typeBool     = "bool"
-	typeBytesHex = "bytesHex"
-	typeTime     = "time"
-	typeDuration = "duration"
-	typeIP       = "ip"
-)
-
 var _ Value = Arg[string]{} // This will fail if we violate our Value interface
 
 // Arg represents a single command line argument.
@@ -200,43 +174,43 @@ func (a Arg[T]) Type() string {
 
 	switch typ := any(*a.value).(type) {
 	case int:
-		return typeInt
+		return format.TypeInt
 	case int8:
-		return typeInt8
+		return format.TypeInt8
 	case int16:
-		return typeInt16
+		return format.TypeInt16
 	case int32:
-		return typeInt32
+		return format.TypeInt32
 	case int64:
-		return typeInt64
+		return format.TypeInt64
 	case uint:
-		return typeUint
+		return format.TypeUint
 	case uint8:
-		return typeUint8
+		return format.TypeUint8
 	case uint16:
-		return typeUint16
+		return format.TypeUint16
 	case uint32:
-		return typeUint32
+		return format.TypeUint32
 	case uint64:
-		return typeUint64
+		return format.TypeUint64
 	case uintptr:
-		return typeUintptr
+		return format.TypeUintptr
 	case float32:
-		return typeFloat32
+		return format.TypeFloat32
 	case float64:
-		return typeFloat64
+		return format.TypeFloat64
 	case string:
-		return typeString
+		return format.TypeString
 	case bool:
-		return typeBool
+		return format.TypeBool
 	case []byte:
-		return typeBytesHex
+		return format.TypeBytesHex
 	case time.Time:
-		return typeTime
+		return format.TypeTime
 	case time.Duration:
-		return typeDuration
+		return format.TypeDuration
 	case net.IP:
-		return typeIP
+		return format.TypeIP
 	default:
 		return fmt.Sprintf("%T", typ)
 	}
