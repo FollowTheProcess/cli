@@ -154,29 +154,29 @@ func (f Flag[T]) String() string {
 	case net.IP:
 		return typ.String()
 	case []int:
-		return formatSlice(typ)
+		return format.Slice(typ)
 	case []int8:
-		return formatSlice(typ)
+		return format.Slice(typ)
 	case []int16:
-		return formatSlice(typ)
+		return format.Slice(typ)
 	case []int32:
-		return formatSlice(typ)
+		return format.Slice(typ)
 	case []int64:
-		return formatSlice(typ)
+		return format.Slice(typ)
 	case []uint:
-		return formatSlice(typ)
+		return format.Slice(typ)
 	case []uint16:
-		return formatSlice(typ)
+		return format.Slice(typ)
 	case []uint32:
-		return formatSlice(typ)
+		return format.Slice(typ)
 	case []uint64:
-		return formatSlice(typ)
+		return format.Slice(typ)
 	case []float32:
-		return formatSlice(typ)
+		return format.Slice(typ)
 	case []float64:
-		return formatSlice(typ)
+		return format.Slice(typ)
 	case []string:
-		return formatStringSlice(typ)
+		return format.Slice(typ)
 	default:
 		return fmt.Sprintf("Flag.String: unsupported flag type: %T", typ)
 	}
@@ -707,33 +707,6 @@ func validateFlagShort(short rune) error {
 // assertion.
 func errBadType[T flag.Flaggable](value T) error {
 	return fmt.Errorf("bad value %v, could not cast to %T", value, value)
-}
-
-// formatSlice is a generic helper to return a string representation of a slice.
-func formatSlice[T any](slice []T) string {
-	return fmt.Sprintf("%v", slice)
-}
-
-// formatStringSlice is a specialisation of formatSlice because for string
-// slices we want to quote the individual strings, which is not an available
-// option using one of the format verbs.
-func formatStringSlice(slice []string) string {
-	length := len(slice)
-	s := &strings.Builder{}
-	s.WriteByte('[')
-
-	for index, elem := range slice {
-		s.WriteString(strconv.Quote(elem))
-		// Write commas and a space on every element other than the last one
-		if index < length-1 {
-			s.WriteByte(',')
-			s.WriteByte(' ')
-		}
-	}
-
-	s.WriteByte(']')
-
-	return s.String()
 }
 
 // isZeroIsh reports whether value is the zero value (ish) for it's type.

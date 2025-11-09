@@ -541,7 +541,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		test.EqualFunc(t, slice, []int{1, 2}, slices.Equal)
 		test.Equal(t, sliceFlag.Type(), "[]int")
-		test.Equal(t, sliceFlag.String(), "[1 2]")
+		test.Equal(t, sliceFlag.String(), "[1, 2]")
 	})
 
 	t.Run("int slice invalid", func(t *testing.T) {
@@ -573,7 +573,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		test.EqualFunc(t, slice, []int8{1, 2}, slices.Equal)
 		test.Equal(t, sliceFlag.Type(), "[]int8")
-		test.Equal(t, sliceFlag.String(), "[1 2]")
+		test.Equal(t, sliceFlag.String(), "[1, 2]")
 	})
 
 	t.Run("int8 slice invalid", func(t *testing.T) {
@@ -605,7 +605,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		test.EqualFunc(t, slice, []int16{1, 2}, slices.Equal)
 		test.Equal(t, sliceFlag.Type(), "[]int16")
-		test.Equal(t, sliceFlag.String(), "[1 2]")
+		test.Equal(t, sliceFlag.String(), "[1, 2]")
 	})
 
 	t.Run("int16 slice invalid", func(t *testing.T) {
@@ -637,7 +637,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		test.EqualFunc(t, slice, []int32{1, 2}, slices.Equal)
 		test.Equal(t, sliceFlag.Type(), "[]int32")
-		test.Equal(t, sliceFlag.String(), "[1 2]")
+		test.Equal(t, sliceFlag.String(), "[1, 2]")
 	})
 
 	t.Run("int32 slice invalid", func(t *testing.T) {
@@ -669,7 +669,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		test.EqualFunc(t, slice, []int64{1, 2}, slices.Equal)
 		test.Equal(t, sliceFlag.Type(), "[]int64")
-		test.Equal(t, sliceFlag.String(), "[1 2]")
+		test.Equal(t, sliceFlag.String(), "[1, 2]")
 	})
 
 	t.Run("int64 slice invalid", func(t *testing.T) {
@@ -701,7 +701,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		test.EqualFunc(t, slice, []uint{1, 2}, slices.Equal)
 		test.Equal(t, sliceFlag.Type(), "[]uint")
-		test.Equal(t, sliceFlag.String(), "[1 2]")
+		test.Equal(t, sliceFlag.String(), "[1, 2]")
 	})
 
 	t.Run("uint slice invalid", func(t *testing.T) {
@@ -733,7 +733,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		test.EqualFunc(t, slice, []uint16{1, 2}, slices.Equal)
 		test.Equal(t, sliceFlag.Type(), "[]uint16")
-		test.Equal(t, sliceFlag.String(), "[1 2]")
+		test.Equal(t, sliceFlag.String(), "[1, 2]")
 	})
 
 	t.Run("uint16 slice invalid", func(t *testing.T) {
@@ -765,7 +765,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		test.EqualFunc(t, slice, []uint32{1, 2}, slices.Equal)
 		test.Equal(t, sliceFlag.Type(), "[]uint32")
-		test.Equal(t, sliceFlag.String(), "[1 2]")
+		test.Equal(t, sliceFlag.String(), "[1, 2]")
 	})
 
 	t.Run("uint32 slice invalid", func(t *testing.T) {
@@ -797,7 +797,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		test.EqualFunc(t, slice, []uint64{1, 2}, slices.Equal)
 		test.Equal(t, sliceFlag.Type(), "[]uint64")
-		test.Equal(t, sliceFlag.String(), "[1 2]")
+		test.Equal(t, sliceFlag.String(), "[1, 2]")
 	})
 
 	t.Run("uint64 slice invalid", func(t *testing.T) {
@@ -829,7 +829,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		test.EqualFunc(t, slice, []float32{3.14159, 2.7128}, slices.Equal)
 		test.Equal(t, sliceFlag.Type(), "[]float32")
-		test.Equal(t, sliceFlag.String(), "[3.14159 2.7128]")
+		test.Equal(t, sliceFlag.String(), "[3.14159, 2.7128]")
 	})
 
 	t.Run("float32 slice invalid", func(t *testing.T) {
@@ -861,7 +861,7 @@ func TestFlaggableTypes(t *testing.T) {
 
 		test.EqualFunc(t, slice, []float64{3.14159, 2.7128}, slices.Equal)
 		test.Equal(t, sliceFlag.Type(), "[]float64")
-		test.Equal(t, sliceFlag.String(), "[3.14159 2.7128]")
+		test.Equal(t, sliceFlag.String(), "[3.14159, 2.7128]")
 	})
 
 	t.Run("float64 slice invalid", func(t *testing.T) {

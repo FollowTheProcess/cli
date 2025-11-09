@@ -4,7 +4,10 @@
 package format
 
 import (
+	"fmt"
+	"reflect"
 	"strconv"
+	"strings"
 
 	"go.followtheprocess.codes/cli/internal/constraints"
 )
@@ -81,4 +84,44 @@ func Float32(f float32) string {
 // Float64 returns a string representation of a float64.
 func Float64(f float64) string {
 	return strconv.FormatFloat(float64(f), floatFmt, floatPrecision, bits64)
+}
+
+// Slice returns a string representation of a slice.
+//
+// It will return a bracketed, comma separated list of items. If T is
+// a string, the items will be quoted.
+//
+//	Slice([]int{1, 2, 3, 4}) // "[1, 2, 3, 4]"
+//	Slice([]string{"one", "two", "three"}) // `["one", "two", "three"]`
+func Slice[T any](s []T) string {
+	length := len(s)
+
+	if length == 0 {
+		// If it's empty or nil, avoid doing the work below
+		// and just return "[]"
+		return slice
+	}
+
+	builder := &strings.Builder{}
+	builder.WriteByte('[')
+
+	typ := reflect.TypeFor[T]().Kind()
+
+	for index, element := range s {
+		str := fmt.Sprintf("%v", element)
+		if typ == reflect.String {
+			// If it's a string, quote it
+			str = strconv.Quote(str)
+		}
+
+		builder.WriteString(str)
+
+		if index < length-1 {
+			builder.WriteString(", ")
+		}
+	}
+
+	builder.WriteByte(']')
+
+	return builder.String()
 }
