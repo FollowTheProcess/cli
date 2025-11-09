@@ -255,8 +255,12 @@ cli.New(
 )
 ```
 
-And just like [Flags](#flags), your argument types are all inferred and parsed automatically ✨, and you get nicer `--help` output too! Have a look at the [`./examples`](https://github.com/FollowTheProcess/cli/tree/main/examples)
-to see more!
+And just like [Flags](#flags), your argument types are all inferred and parsed automatically ✨, and you get nicer `--help` output too!
+
+Have a look at the [`./examples`](https://github.com/FollowTheProcess/cli/tree/main/examples) to see more!
+
+Other CLI libraries that do this sort of thing rely heavily on reflection and struct tags, `cli` does things differently! We prefer Go code
+to be 100% type safe and statically checkable, so all this is implemented using generics and compile time checks 🚀
 
 > [!NOTE]
 > Just like flags, you can't really get this wrong. The types you can use for arguments are part of a generic constraint so using the wrong type results in a compiler error

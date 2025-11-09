@@ -22,6 +22,9 @@ coverage.html
 # Taskfile
 .task
 
+# rumdl
+.rumdl-cache
+
 # Comparative benchmarks
 before.txt
 after.txt
