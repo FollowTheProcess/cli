@@ -14,21 +14,13 @@ import (
 	"unicode"
 
 	"go.followtheprocess.codes/cli/arg"
-	"go.followtheprocess.codes/cli/internal/constraints"
+	"go.followtheprocess.codes/cli/internal/format"
 	"go.followtheprocess.codes/cli/internal/parse"
 )
 
 // TODO(@FollowTheProcess): LOTS of duplicated stuff with internal/flag.
 // Once we know this is the direction to go down, then we should combine all the shared
 // stuff and use it from each package
-
-const (
-	_      = 4 << iota // Unused
-	bits8              // 8 bit integer
-	bits16             // 16 bit integer
-	bits32             // 32 bit integer
-	bits64             // 64 bit integer
-)
 
 const (
 	typeInt      = "int"
@@ -104,31 +96,31 @@ func (a Arg[T]) Default() string {
 
 	switch typ := any(*a.config.DefaultValue).(type) {
 	case int:
-		return formatInt(typ)
+		return format.Int(typ)
 	case int8:
-		return formatInt(typ)
+		return format.Int(typ)
 	case int16:
-		return formatInt(typ)
+		return format.Int(typ)
 	case int32:
-		return formatInt(typ)
+		return format.Int(typ)
 	case int64:
-		return formatInt(typ)
+		return format.Int(typ)
 	case uint:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uint8:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uint16:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uint32:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uint64:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uintptr:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case float32:
-		return formatFloat[float32](bits32)(typ)
+		return format.Float32(typ)
 	case float64:
-		return formatFloat[float64](bits64)(typ)
+		return format.Float64(typ)
 	case string:
 		return typ
 	case bool:
@@ -156,31 +148,31 @@ func (a Arg[T]) String() string {
 
 	switch typ := any(*a.value).(type) {
 	case int:
-		return formatInt(typ)
+		return format.Int(typ)
 	case int8:
-		return formatInt(typ)
+		return format.Int(typ)
 	case int16:
-		return formatInt(typ)
+		return format.Int(typ)
 	case int32:
-		return formatInt(typ)
+		return format.Int(typ)
 	case int64:
-		return formatInt(typ)
+		return format.Int(typ)
 	case uint:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uint8:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uint16:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uint32:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uint64:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case uintptr:
-		return formatUint(typ)
+		return format.Uint(typ)
 	case float32:
-		return formatFloat[float32](bits32)(typ)
+		return format.Float32(typ)
 	case float64:
-		return formatFloat[float64](bits64)(typ)
+		return format.Float64(typ)
 	case string:
 		return typ
 	case bool:
@@ -472,21 +464,4 @@ func validateArgName(name string) error {
 	}
 
 	return nil
-}
-
-// formatInt is a generic helper to return a string representation of any signed integer.
-func formatInt[T constraints.Signed](in T) string {
-	return strconv.FormatInt(int64(in), 10)
-}
-
-// formatUint is a generic helper to return a string representation of any unsigned integer.
-func formatUint[T constraints.Unsigned](in T) string {
-	return strconv.FormatUint(uint64(in), 10)
-}
-
-// formatFloat is a generic helper to return a string representation of any floating point digit.
-func formatFloat[T ~float32 | ~float64](bits int) func(T) string {
-	return func(in T) string {
-		return strconv.FormatFloat(float64(in), 'g', -1, bits)
-	}
 }
