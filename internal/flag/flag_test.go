@@ -10,6 +10,7 @@ import (
 
 	publicflag "go.followtheprocess.codes/cli/flag"
 	"go.followtheprocess.codes/cli/internal/flag"
+	"go.followtheprocess.codes/cli/internal/format"
 	"go.followtheprocess.codes/cli/internal/parse"
 	"go.followtheprocess.codes/test"
 )
@@ -375,11 +376,11 @@ func TestFlaggableTypes(t *testing.T) {
 		boolFlag, err := flag.New(&b, "bool", 'b', false, "Set a bool value")
 		test.Ok(t, err)
 
-		err = boolFlag.Set("true")
+		err = boolFlag.Set(format.True)
 		test.Ok(t, err)
 		test.Equal(t, b, true)
 		test.Equal(t, boolFlag.Type(), "bool")
-		test.Equal(t, boolFlag.String(), "true")
+		test.Equal(t, boolFlag.String(), format.True)
 	})
 
 	t.Run("bool invalid", func(t *testing.T) {
@@ -1030,7 +1031,7 @@ func TestFlagNilSafety(t *testing.T) {
 		test.Equal(t, flag.String(), "<nil>")
 		test.Equal(t, flag.Type(), "<nil>")
 
-		err := flag.Set("true")
+		err := flag.Set(format.True)
 		test.Err(t, err)
 		test.Equal(t, err.Error(), "cannot set value true, flag.value was nil")
 	})

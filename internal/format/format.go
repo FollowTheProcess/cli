@@ -13,6 +13,7 @@ const (
 	base10         = 10
 	floatFmt       = 'g'
 	floatPrecision = -1
+	slice          = "[]"
 )
 
 const (
@@ -42,19 +43,25 @@ const (
 	TypeTime         = "time"
 	TypeDuration     = "duration"
 	TypeIP           = "ip"
-	TypeIntSlice     = "[]int"
-	TypeInt8Slice    = "[]int8"
-	TypeInt16Slice   = "[]int16"
-	TypeInt32Slice   = "[]int32"
-	TypeInt64Slice   = "[]int64"
-	TypeUintSlice    = "[]uint"
-	TypeUint16Slice  = "[]uint16"
-	TypeUint32Slice  = "[]uint32"
-	TypeUint64Slice  = "[]uint64"
-	TypeFloat32Slice = "[]float32"
-	TypeFloat64Slice = "[]float64"
-	TypeStringSlice  = "[]string"
+	TypeIntSlice     = slice + TypeInt
+	TypeInt8Slice    = slice + TypeInt8
+	TypeInt16Slice   = slice + TypeInt16
+	TypeInt32Slice   = slice + TypeInt32
+	TypeInt64Slice   = slice + TypeInt64
+	TypeUintSlice    = slice + TypeUint
+	TypeUint16Slice  = slice + TypeUint16
+	TypeUint32Slice  = slice + TypeUint32
+	TypeUint64Slice  = slice + TypeUint64
+	TypeFloat32Slice = slice + TypeFloat32
+	TypeFloat64Slice = slice + TypeFloat64
+	TypeStringSlice  = slice + TypeString
 )
+
+// True is the literal boolean true as a string.
+//
+// We check for "true" when scanning boolean flags, interpreting
+// default values and when flags have a NoArgValue.
+const True = "true"
 
 // Int returns a string representation of an integer.
 func Int[T constraints.Signed](n T) string {

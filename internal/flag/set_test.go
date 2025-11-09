@@ -8,6 +8,7 @@ import (
 
 	publicflag "go.followtheprocess.codes/cli/flag"
 	"go.followtheprocess.codes/cli/internal/flag"
+	"go.followtheprocess.codes/cli/internal/format"
 	"go.followtheprocess.codes/snapshot"
 	"go.followtheprocess.codes/test"
 )
@@ -280,7 +281,7 @@ func TestParse(t *testing.T) {
 				test.True(t, exists)
 
 				test.Equal(t, flag.Type(), "bool")
-				test.Equal(t, flag.String(), "true")
+				test.Equal(t, flag.String(), format.True)
 
 				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
@@ -304,7 +305,7 @@ func TestParse(t *testing.T) {
 				test.True(t, exists)
 
 				test.Equal(t, flag.Type(), "bool")
-				test.Equal(t, flag.String(), "true")
+				test.Equal(t, flag.String(), format.True)
 
 				test.EqualFunc(t, set.Args(), []string{"some", "subcommand", "extra", "args"}, slices.Equal)
 				test.EqualFunc(t, set.ExtraArgs(), []string{"extra", "args"}, slices.Equal)
@@ -330,14 +331,14 @@ func TestParse(t *testing.T) {
 				test.True(t, exists)
 
 				test.Equal(t, flag.Type(), "bool")
-				test.Equal(t, flag.String(), "true")
+				test.Equal(t, flag.String(), format.True)
 
 				// Get by short
 				flag, exists = set.GetShort('d')
 				test.True(t, exists)
 
 				test.Equal(t, flag.Type(), "bool")
-				test.Equal(t, flag.String(), "true")
+				test.Equal(t, flag.String(), format.True)
 
 				test.EqualFunc(t, set.Args(), nil, slices.Equal)
 			},
@@ -392,14 +393,14 @@ func TestParse(t *testing.T) {
 				test.True(t, exists)
 
 				test.Equal(t, flag.Type(), "bool")
-				test.Equal(t, flag.String(), "true")
+				test.Equal(t, flag.String(), format.True)
 
 				// Get by short
 				flag, exists = set.Get("delete")
 				test.True(t, exists)
 
 				test.Equal(t, flag.Type(), "bool")
-				test.Equal(t, flag.String(), "true")
+				test.Equal(t, flag.String(), format.True)
 
 				test.EqualFunc(t, set.Args(), []string{"some", "arg"}, slices.Equal)
 			},

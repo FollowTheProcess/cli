@@ -107,7 +107,7 @@ func (s *Set) Help() (value, ok bool) {
 	}
 	// It is there, we can infer from the string value what it's set to
 	// avoid unnecessary type conversions
-	return flag.String() == "true", true
+	return flag.String() == format.True, true
 }
 
 // Version returns whether the [Set] has a boolean flag named "version" and what the value
@@ -124,7 +124,7 @@ func (s *Set) Version() (value, ok bool) {
 	}
 	// It is there, we can infer from the string value what it's set to
 	// avoid unnecessary type conversions
-	return flag.String() == "true", true
+	return flag.String() == format.True, true
 }
 
 // Args returns a slice of all the non-flag arguments, including any

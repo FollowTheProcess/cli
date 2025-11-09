@@ -94,7 +94,7 @@ func (f Flag[T]) NoArgValue() string {
 	switch f.Type() {
 	case format.TypeBool:
 		// Boolean flags imply passing true, "--force" vs "--force true"
-		return "true"
+		return format.True
 	case format.TypeCount:
 		// Count flags imply passing 1, "--count --count" or "-cc" should inc by 2
 		return "1"
