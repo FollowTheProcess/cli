@@ -107,7 +107,16 @@ func Slice[T any](s []T) string {
 
 	typ := reflect.TypeFor[T]().Kind()
 
-	for index, element := range s {
+	first := fmt.Sprintf("%v", s[0])
+	if typ == reflect.String {
+		first = strconv.Quote(first)
+	}
+
+	builder.WriteString(first)
+
+	for _, element := range s[1:] {
+		builder.WriteString(", ")
+
 		str := fmt.Sprintf("%v", element)
 		if typ == reflect.String {
 			// If it's a string, quote it
@@ -115,10 +124,6 @@ func Slice[T any](s []T) string {
 		}
 
 		builder.WriteString(str)
-
-		if index < length-1 {
-			builder.WriteString(", ")
-		}
 	}
 
 	builder.WriteByte(']')
