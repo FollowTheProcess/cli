@@ -63,11 +63,15 @@ func TestFloat64(t *testing.T) {
 }
 
 func TestSlice(t *testing.T) {
+	oneString := []string{"one"}
+	twoStrings := []string{"one", "two"}
 	strings := []string{"one", "two", "three"}
 	ints := []int{1, 2, 3}
 	floats := []float64{1.0, 2.0, 3.0}
 	bools := []bool{true, true, false}
 
+	test.Equal(t, Slice(oneString), `["one"]`)
+	test.Equal(t, Slice(twoStrings), `["one", "two"]`)
 	test.Equal(t, Slice(strings), `["one", "two", "three"]`, test.Context("strings"))
 	test.Equal(t, Slice(ints), "[1, 2, 3]", test.Context("ints"))
 	test.Equal(t, Slice(floats), "[1, 2, 3]", test.Context("floats"))
