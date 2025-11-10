@@ -41,6 +41,7 @@ const (
 	TypeFloat32      = "float32"
 	TypeFloat64      = "float64"
 	TypeString       = "string"
+	TypeURL          = "url"
 	TypeBool         = "bool"
 	TypeBytesHex     = "bytesHex"
 	TypeTime         = "time"
@@ -58,6 +59,7 @@ const (
 	TypeFloat32Slice = slice + TypeFloat32
 	TypeFloat64Slice = slice + TypeFloat64
 	TypeStringSlice  = slice + TypeString
+	TypeURLSlice     = slice + TypeURL
 )
 
 // True is the literal boolean true as a string.

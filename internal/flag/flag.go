@@ -251,8 +251,6 @@ func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this r
 		return format.TypeFloat32Slice
 	case []float64:
 		return format.TypeFloat64Slice
-	case []string:
-		return format.TypeStringSlice
 	default:
 		return fmt.Sprintf("%T", typ)
 	}
