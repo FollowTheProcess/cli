@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"net"
+	"net/url"
 	"testing"
 	"time"
 
@@ -382,6 +383,39 @@ func TestArgableTypes(t *testing.T) {
 		test.Equal(t, strArg.Type(), format.TypeString)
 		test.Equal(t, strArg.Usage(), "Set a string value")
 		test.Equal(t, strArg.String(), "newvalue")
+	})
+
+	t.Run("url valid", func(t *testing.T) {
+		var u *url.URL
+
+		urlArg, err := arg.New(&u, "url", "Set a url value", arg.Config[*url.URL]{})
+		test.Ok(t, err)
+
+		rawURL := "https://github.com/FollowTheProcess/cli"
+
+		want, err := url.ParseRequestURI(rawURL)
+		test.Ok(t, err)
+
+		err = urlArg.Set(rawURL)
+		test.Ok(t, err)
+		test.Equal(t, u.Scheme, want.Scheme)
+		test.Equal(t, u.Host, want.Host)
+		test.Equal(t, u.Path, want.Path)
+
+		test.Equal(t, urlArg.Type(), format.TypeURL)
+		test.Equal(t, urlArg.Usage(), "Set a url value")
+		test.Equal(t, urlArg.String(), rawURL)
+	})
+
+	t.Run("url invalid", func(t *testing.T) {
+		var u *url.URL
+
+		urlArg, err := arg.New(&u, "url", "Set a url value", arg.Config[*url.URL]{})
+		test.Ok(t, err)
+
+		err = urlArg.Set("word")
+		test.Err(t, err)
+		test.True(t, errors.Is(err, parse.Err))
 	})
 
 	t.Run("byte slice valid", func(t *testing.T) {
