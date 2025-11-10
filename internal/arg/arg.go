@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -97,6 +98,8 @@ func (a Arg[T]) Default() string {
 		return format.Float64(typ)
 	case string:
 		return typ
+	case *url.URL:
+		return typ.String()
 	case bool:
 		return strconv.FormatBool(typ)
 	case []byte:
@@ -149,6 +152,8 @@ func (a Arg[T]) String() string {
 		return format.Float64(typ)
 	case string:
 		return typ
+	case *url.URL:
+		return typ.String()
 	case bool:
 		return strconv.FormatBool(typ)
 	case []byte:
@@ -201,6 +206,8 @@ func (a Arg[T]) Type() string {
 		return format.TypeFloat64
 	case string:
 		return format.TypeString
+	case *url.URL:
+		return format.TypeURL
 	case bool:
 		return format.TypeBool
 	case []byte:
@@ -344,6 +351,15 @@ func (a Arg[T]) Set(str string) error {
 		return nil
 	case string:
 		val := str
+		*a.value = *parse.Cast[T](&val)
+
+		return nil
+	case *url.URL:
+		val, err := url.ParseRequestURI(str)
+		if err != nil {
+			return parse.Error(parse.KindArgument, a.name, str, typ, err)
+		}
+
 		*a.value = *parse.Cast[T](&val)
 
 		return nil

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -76,7 +77,7 @@ type doOptions struct {
 func buildDoCommand() (*cli.Command, error) {
 	var options doOptions
 
-	var thing string
+	var thing *url.URL
 
 	return cli.New(
 		"do",
