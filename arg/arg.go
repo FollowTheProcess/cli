@@ -3,6 +3,7 @@ package arg
 
 import (
 	"net"
+	"net/url"
 	"time"
 )
 
@@ -24,6 +25,7 @@ type Argable interface {
 		float32 |
 		float64 |
 		string |
+		*url.URL |
 		bool |
 		[]byte |
 		time.Time |

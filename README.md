@@ -281,6 +281,7 @@ The types you can currently use for positional args are:
 - `float32`
 - `float64`
 - `string`
+- `*url.URL`
 - `bool`
 - `[]byte` (interpreted as a hex string)
 - `time.Time`
