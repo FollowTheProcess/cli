@@ -459,7 +459,7 @@ func stripFlags(cmd *Command, args []string) []string {
 // showHelp is the default for a command's helpFunc.
 func showHelp(cmd *Command) error {
 	if cmd == nil {
-		return errors.New("defaultHelp called on a nil Command")
+		return errors.New("showHelp called on a nil Command")
 	}
 
 	usage, err := cmd.flagSet().Usage()
