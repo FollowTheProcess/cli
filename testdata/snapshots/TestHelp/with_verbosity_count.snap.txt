@@ -9,6 +9,6 @@ Arguments:
 
 Options:
 
-  -h  --help       bool   Show help for test
-  -v  --verbosity  count  Increase the verbosity level
-  -V  --version    bool   Show version info for test
+  -h  --help       bool   Show help for test            
+  -v  --verbosity  count  Increase the verbosity level  
+  -V  --version    bool   Show version info for test    
