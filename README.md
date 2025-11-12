@@ -77,7 +77,7 @@ func run() error {
         cli.Stdout(os.Stdout),
         cli.Example("Do a thing", "quickstart something"),
         cli.Example("Count the things", "quickstart something --count 3"),
-        cli.Flag(&count, "count", 'c', 0, "Count the things"),
+        cli.Flag(&count, "count", 'c', "Count the things"),
         cli.Run(func(ctx context.Context, cmd *cli.Command) error {
             fmt.Fprintf(cmd.Stdout(), "Hello from quickstart!, my args were: %v, count was %d\n", cmd.Args(), count)
             return nil
@@ -168,10 +168,10 @@ func buildCmd() (*cli.Command, error) {
     return cli.New(
         // ...
         // Signature is cli.Flag(*T, name, shorthand, default, description)
-        cli.Flag(&options.name, "name", 'n', "", "The name of something"),
-        cli.Flag(&options.force, "force", cli.NoShortHand, false, "Force delete without confirmation"),
-        cli.Flag(&options.size, "size", 's', 0, "Size of something"),
-        cli.Flag(&options.items, "items", 'i', nil, "Items to include"),
+        cli.Flag(&options.name, "name", 'n', "The name of something"),
+        cli.Flag(&options.force, "force", cli.NoShortHand, "Force delete without confirmation"),
+        cli.Flag(&options.size, "size", 's', "Size of something"),
+        cli.Flag(&options.items, "items", 'i', "Items to include"),
         // ...
     )
 }
@@ -374,7 +374,7 @@ Consider the following example of a bad shorthand value:
 var delete bool
 
 // Note: "de" is a bad shorthand, it's two letters
-cli.New("demo", cli.Flag(&delete, "delete", "de", false, "Delete something"))
+cli.New("demo", cli.Flag(&delete, "delete", "de", "Delete something"))
 ```
 
 In `cli` this is impossible as we use `rune` as the type for a flag shorthand, so the above example would not compile. Instead you must specify a valid rune:
@@ -383,14 +383,14 @@ In `cli` this is impossible as we use `rune` as the type for a flag shorthand, s
 var delete bool
 
 // Ahhh, that's better
-cli.New("demo", cli.Flag(&delete, "delete", 'd', false, "Delete something"))
+cli.New("demo", cli.Flag(&delete, "delete", 'd', "Delete something"))
 ```
 
 And if you don't want a shorthand? i.e. just `--delete` with no `-d` option:
 
 ```go
 var delete bool
-cli.New("demo", cli.Flag(&delete, "delete", cli.NoShortHand, false, "Delete something"))
+cli.New("demo", cli.Flag(&delete, "delete", cli.NoShortHand, "Delete something"))
 ```
 
 ## In the Wild

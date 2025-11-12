@@ -39,10 +39,10 @@ func buildSayCommand() (*cli.Command, error) {
 		cli.Short("Print a message"),
 		cli.Example("Say a well known phrase", "demo say hello world"),
 		cli.Example("Now louder", "demo say hello world --shout"),
-		cli.Flag(&options.shout, "shout", 's', false, "Say the message louder"),
-		cli.Flag(&options.count, "count", 'c', 0, "Count the things"),
-		cli.Flag(&options.thing, "thing", 't', "", "Name of the thing"),
-		cli.Flag(&options.items, "item", 'i', nil, "Items to add to a list"),
+		cli.Flag(&options.shout, "shout", 's', "Say the message louder"),
+		cli.Flag(&options.count, "count", 'c', "Count the things"),
+		cli.Flag(&options.thing, "thing", 't', "Name of the thing"),
+		cli.Flag(&options.items, "item", 'i', "Items to add to a list"),
 		cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 			if options.shout {
 				for _, arg := range cmd.Args() {
@@ -88,10 +88,10 @@ func buildDoCommand() (*cli.Command, error) {
 		cli.Example("Do it for a specific duration", "demo do something --duration 1m30s"),
 		cli.Version("do version"),
 		cli.Arg(&thing, "thing", "Thing to do"),
-		cli.Flag(&options.count, "count", 'c', 1, "Number of times to do the thing"),
-		cli.Flag(&options.fast, "fast", 'f', false, "Do the thing quickly"),
-		cli.Flag(&options.verbosity, "verbosity", 'v', 0, "Increase the verbosity level"),
-		cli.Flag(&options.duration, "duration", 'd', 1*time.Second, "Do the thing for a specific duration"),
+		cli.Flag(&options.count, "count", 'c', "Number of times to do the thing", cli.FlagDefault(1)),
+		cli.Flag(&options.fast, "fast", 'f', "Do the thing quickly"),
+		cli.Flag(&options.verbosity, "verbosity", 'v', "Increase the verbosity level"),
+		cli.Flag(&options.duration, "duration", 'd', "Do the thing for a specific duration", cli.FlagDefault(1*time.Second)),
 		cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 			if options.fast {
 				fmt.Fprintf(
