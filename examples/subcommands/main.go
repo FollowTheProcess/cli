@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 )
@@ -19,7 +20,7 @@ func run() error {
 		return fmt.Errorf("could not build root command: %w", err)
 	}
 
-	if err := cmd.Execute(); err != nil {
+	if err := cmd.Execute(context.Background()); err != nil {
 		return fmt.Errorf("could not execute root command: %w", err)
 	}
 

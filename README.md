@@ -50,6 +50,7 @@ go get go.followtheprocess.codes/cli@latest
 package main
 
 import (
+	  "context"
     "fmt"
     "os"
 
@@ -77,7 +78,7 @@ func run() error {
         cli.Example("Do a thing", "quickstart something"),
         cli.Example("Count the things", "quickstart something --count 3"),
         cli.Flag(&count, "count", 'c', 0, "Count the things"),
-        cli.Run(func(cmd *cli.Command) error {
+        cli.Run(func(ctx context.Context, cmd *cli.Command) error {
             fmt.Fprintf(cmd.Stdout(), "Hello from quickstart!, my args were: %v, count was %d\n", cmd.Args(), count)
             return nil
         }),
@@ -86,7 +87,7 @@ func run() error {
         return err
     }
 
-    return cmd.Execute()
+    return cmd.Execute(context.Background())
 }
 ```
 
@@ -107,9 +108,9 @@ To create CLI commands, you simply call `cli.New`:
 cmd, err := cli.New(
     "name", // The name of your command
     cli.Short("A new command") // Shown in the help
-    cli.Run(func(cmd *cli.Command, args []string) error {
+    cli.Run(func(ctx context.Context, cmd *cli.Command) error {
         // This function is what your command does
-        fmt.Printf("name called with args: %v\n", args)
+        fmt.Printf("name called with args: %v\n", cmd.Args())
         return nil
     })
 )
@@ -124,7 +125,7 @@ To add a subcommand underneath the command you've just created, it's again `cli.
 
 ```go
 // Best to abstract it into a function
-func buildSubcommand() (*cli.Command, error) {
+func buildSubcommand(ctx context.Context) (*cli.Command, error) {
     return cli.New(
         "sub", // Name of the sub command e.g. 'clone' for 'git clone'
         cli.Short("A sub command"),
@@ -136,11 +137,13 @@ func buildSubcommand() (*cli.Command, error) {
 And add it to your parent command:
 
 ```go
+ctx := context.Background()
+
 // From the example above
 cmd, err := cli.New(
     "name", // The name of your command
     // ...
-    cli.SubCommands(buildSubcommand),
+    cli.SubCommands(buildSubcommand(ctx)),
 )
 ```
 
@@ -151,6 +154,8 @@ This pattern can be repeated recursively to create complex command structures.
 Flags in `cli` are generic, that is, there is *one* way to add a flag to your command, and that's with the `cli.Flag` option to `cli.New`
 
 ```go
+// These will get set at command line parse time
+// based on your flags
 type options struct {
     name string
     force bool
@@ -167,7 +172,7 @@ func buildCmd() (*cli.Command, error) {
         cli.Flag(&options.force, "force", cli.NoShortHand, false, "Force delete without confirmation"),
         cli.Flag(&options.size, "size", 's', 0, "Size of something"),
         cli.Flag(&options.items, "items", 'i', nil, "Items to include"),
-        cli.Run(runCmd(&options)), // Pass the parsed flag values to your command run function
+        // ...
     )
 }
 ```
@@ -220,7 +225,7 @@ There are two approaches to positional arguments in `cli`, you can either just g
 cli.New(
     "my-command",
     // ...
-    cli.Run(func(cmd *cli.Command) error {
+    cli.Run(func(ctx context.Context, cmd *cli.Command) error {
         fmt.Fprintf(cmd.Stdout(), "Hello! My arguments were: %v\n", cmd.Args())
         return nil
     })
