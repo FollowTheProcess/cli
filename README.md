@@ -50,7 +50,7 @@ go get go.followtheprocess.codes/cli@latest
 package main
 
 import (
-	  "context"
+    "context"
     "fmt"
     "os"
 
