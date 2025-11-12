@@ -12,5 +12,5 @@ Examples:
 
 Options:
 
-  -h  --help     bool  Show help for test
-  -V  --version  bool  Show version info for test
+  -h  --help     bool  Show help for test          
+  -V  --version  bool  Show version info for test  
