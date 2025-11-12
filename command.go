@@ -65,10 +65,10 @@ func New(name string, options ...Option) (*Command, error) {
 	}
 
 	// Ensure we always have at least help and version flags
-	err := Flag(&cfg.helpCalled, "help", 'h', false, "Show help for "+name).apply(&cfg)
+	err := Flag(&cfg.helpCalled, "help", 'h', "Show help for "+name).apply(&cfg)
 	errs = errors.Join(errs, err) // nil errors are discarded in join
 
-	err = Flag(&cfg.versionCalled, "version", 'V', false, "Show version info for "+name).apply(&cfg)
+	err = Flag(&cfg.versionCalled, "version", 'V', "Show version info for "+name).apply(&cfg)
 
 	errs = errors.Join(errs, err)
 	if errs != nil {

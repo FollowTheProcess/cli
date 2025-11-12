@@ -33,12 +33,7 @@ type Flag[T flag.Flaggable] struct {
 //
 // The name should be as it appears on the command line, e.g. "force" for a --force flag. An optional
 // shorthand can be created by setting short to a single letter value, e.g. "f" to also create a -f version of "force".
-//
-// If you want the flag to be longhand only, pass "" for short.
-//
-//	var force bool
-//	flag.New(&force, "force", 'f', false, "Force deletion without confirmation")
-func New[T flag.Flaggable](p *T, name string, short rune, value T, usage string) (Flag[T], error) {
+func New[T flag.Flaggable](p *T, name string, short rune, usage string, config Config[T]) (Flag[T], error) {
 	if err := validateFlagName(name); err != nil {
 		return Flag[T]{}, fmt.Errorf("invalid flag name %q: %w", name, err)
 	}
@@ -51,14 +46,14 @@ func New[T flag.Flaggable](p *T, name string, short rune, value T, usage string)
 		p = new(T)
 	}
 
-	*p = value
+	*p = config.DefaultValue
 
 	// If the default value is not the zero value for the type, it is treated as
 	// significant and shown to the user
-	if !isZeroIsh(value) {
+	if !isZeroIsh(*p) {
 		// \t so that defaults get aligned by tabwriter when the command
 		// dumps the flags
-		usage += fmt.Sprintf("\t[default: %v]", value)
+		usage += fmt.Sprintf("\t[default: %v]", *p)
 	}
 
 	flag := Flag[T]{

@@ -388,9 +388,9 @@ func SubCommands(builders ...Builder) Option {
 // Flag is an [Option] that adds a typed flag to a [Command], storing its value in a variable via its
 // pointer 'target'.
 //
-// The variable is set when the flag is parsed during command execution. The value provided
-// by the 'value' argument to [Flag] is used as the default value, which will be used if the
-// flag value was not given via the command line.
+// The variable is set when the flag is parsed during command execution. By default, the flag
+// will assume the zero value for its type, the default may be provided explicitly using
+// the [FlagDefault] option.
 //
 // If the default value is not the zero value for the type T, the flags usage message will
 // show the default value in the commands help text.
@@ -402,14 +402,22 @@ func SubCommands(builders ...Builder) Option {
 //
 //	// Add a force flag
 //	var force bool
-//	cli.New("rm", cli.Flag(&force, "force", 'f', false, "Force deletion without confirmation"))
-func Flag[T flag.Flaggable](target *T, name string, short rune, value T, usage string) Option {
+//	cli.New("rm", cli.Flag(&force, "force", 'f', "Force deletion without confirmation"))
+func Flag[T flag.Flaggable](target *T, name string, short rune, usage string, options ...FlagOption[T]) Option {
 	f := func(cfg *config) error {
 		if _, ok := cfg.flags.Get(name); ok {
 			return fmt.Errorf("flag %q already defined", name)
 		}
 
-		f, err := internalflag.New(target, name, short, value, usage)
+		var flagCfg internalflag.Config[T]
+
+		for _, option := range options {
+			if err := option.apply(&flagCfg); err != nil {
+				return fmt.Errorf("could not apply flag option: %w", err)
+			}
+		}
+
+		f, err := internalflag.New(target, name, short, usage, flagCfg)
 		if err != nil {
 			return err
 		}
@@ -479,6 +487,20 @@ func ArgDefault[T arg.Argable](value T) ArgOption[T] {
 	return argOption[T](f)
 }
 
+// FlagDefault is a [cli.FlagOption] that sets the default value for command line flag.
+//
+// By default, a flag's default value is the zero value for its type. But using this
+// option, you may set a non-zero default value that the flag should inherit if not
+// provided on the command line.
+func FlagDefault[T flag.Flaggable](value T) FlagOption[T] {
+	f := func(cfg *internalflag.Config[T]) error {
+		cfg.DefaultValue = value
+		return nil
+	}
+
+	return flagOption[T](f)
+}
+
 // anyDuplicates checks the list of commands for ones with duplicate names, if a duplicate
 // is found, it's name and true are returned, else "", false.
 func anyDuplicates(cmds ...*Command) (string, bool) {
@@ -515,4 +537,22 @@ type argOption[T arg.Argable] func(cfg *internalarg.Config[T]) error
 //nolint:unused // This is a false positive, this has to be here
 func (a argOption[T]) apply(cfg *internalarg.Config[T]) error {
 	return a(cfg)
+}
+
+// FlagOption is a functional option for configuring a [Flag].
+type FlagOption[T flag.Flaggable] interface {
+	// Apply the option to the config, returning an error if the
+	// option cannot be applied for whatever reason.
+	apply(cfg *internalflag.Config[T]) error
+}
+
+// option is a function adapter implementing the Option interface, analogous
+// to http.HandlerFunc.
+type flagOption[T flag.Flaggable] func(cfg *internalflag.Config[T]) error
+
+// apply implements the Option interface for option.
+//
+//nolint:unused // This is a false positive, this has to be here
+func (f flagOption[T]) apply(cfg *internalflag.Config[T]) error {
+	return f(cfg)
 }
