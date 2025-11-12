@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -29,7 +30,7 @@ func run() error {
 		cli.Example("Do a thing", "quickstart something"),
 		cli.Example("Count the things", "quickstart something --count 3"),
 		cli.Flag(&count, "count", 'c', 0, "Count the things"),
-		cli.Run(func(cmd *cli.Command) error {
+		cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 			fmt.Fprintf(cmd.Stdout(), "Hello from quickstart!, my args were: %v, count was %d\n", cmd.Args(), count)
 			return nil
 		}),
@@ -38,5 +39,5 @@ func run() error {
 		return err
 	}
 
-	return cmd.Execute()
+	return cmd.Execute(context.Background())
 }
