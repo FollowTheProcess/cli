@@ -48,19 +48,24 @@ func New[T flag.Flaggable](p *T, name string, short rune, usage string, config C
 
 	*p = config.DefaultValue
 
-	// If the default value is not the zero value for the type, it is treated as
-	// significant and shown to the user
-	if !isZeroIsh(*p) {
-		// \t so that defaults get aligned by tabwriter when the command
-		// dumps the flags
-		usage += fmt.Sprintf("\t[default: %v]", *p)
-	}
-
 	flag := Flag[T]{
 		value: p,
 		name:  name,
 		usage: usage,
 		short: short,
+	}
+
+	// TODO(@FollowTheProcess): This needs to live in command.go and we should iterate over the flagset
+	// adding the values to the tabwriter as we go rather than relying on the flagset.Usage() method
+	// to provide *all* the usage
+
+	// If the default value is not the zero value for the type, it is treated as
+	// significant and shown to the user
+	flag.usage += "\t"
+	if !isZeroIsh(*p) {
+		// \t so that defaults get aligned by tabwriter when the command
+		// dumps the flags
+		flag.usage += fmt.Sprintf("[default: %s]", flag.String())
 	}
 
 	return flag, nil
