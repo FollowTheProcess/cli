@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
@@ -42,7 +43,7 @@ func buildSayCommand() (*cli.Command, error) {
 		cli.Flag(&options.count, "count", 'c', 0, "Count the things"),
 		cli.Flag(&options.thing, "thing", 't', "", "Name of the thing"),
 		cli.Flag(&options.items, "item", 'i', nil, "Items to add to a list"),
-		cli.Run(func(cmd *cli.Command) error {
+		cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 			if options.shout {
 				for _, arg := range cmd.Args() {
 					fmt.Fprintln(cmd.Stdout(), strings.ToUpper(arg), " ")
@@ -91,7 +92,7 @@ func buildDoCommand() (*cli.Command, error) {
 		cli.Flag(&options.fast, "fast", 'f', false, "Do the thing quickly"),
 		cli.Flag(&options.verbosity, "verbosity", 'v', 0, "Increase the verbosity level"),
 		cli.Flag(&options.duration, "duration", 'd', 1*time.Second, "Do the thing for a specific duration"),
-		cli.Run(func(cmd *cli.Command) error {
+		cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 			if options.fast {
 				fmt.Fprintf(
 					cmd.Stdout(),

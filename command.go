@@ -2,6 +2,7 @@
 package cli // import "go.followtheprocess.codes/cli"
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -116,7 +117,7 @@ type Command struct {
 
 	// run is the function actually implementing the command, the command is passed into the function for access
 	// to things like cmd.Stdout().
-	run func(cmd *Command) error
+	run func(ctx context.Context, cmd *Command) error
 
 	// flags is the set of flags for this command.
 	flags *flag.Set
@@ -184,7 +185,7 @@ type example struct {
 //
 // If the flags fail to parse, an error will be returned and the Run function
 // will not be called.
-func (cmd *Command) Execute() error {
+func (cmd *Command) Execute(ctx context.Context) error {
 	if cmd == nil {
 		return errors.New("Execute called on a nil Command")
 	}
@@ -265,7 +266,7 @@ func (cmd *Command) Execute() error {
 
 	// If the command is runnable, go and execute its run function
 	if cmd.run != nil {
-		return cmd.run(cmd)
+		return cmd.run(ctx, cmd)
 	}
 
 	// The only way we get here is if the command has subcommands defined but got no arguments given to it
