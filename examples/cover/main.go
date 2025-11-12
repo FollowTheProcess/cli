@@ -20,7 +20,7 @@ func main() {
 		cli.Version("v1.2.3"),
 		cli.Stdout(os.Stdout),
 		cli.Example("Do a thing", "demo thing --count"),
-		cli.Flag(&count, "count", 'c', 0, "Count the thing"),
+		cli.Flag(&count, "count", 'c', "Count the thing"),
 		cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 			fmt.Fprintln(cmd.Stdout(), "Hello from demo, my arguments were: ", cmd.Args())
 			return nil
