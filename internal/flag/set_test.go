@@ -205,7 +205,7 @@ func TestParse(t *testing.T) {
 		{
 			name: "bad syntax short trailing whitespace",
 			newSet: func(t *testing.T) *flag.Set {
-				f, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
+				f, err := flag.New(new(bool), "delete", 'd', "Delete something", flag.Config[bool]{})
 				test.Ok(t, err)
 
 				set := flag.NewSet()
@@ -268,7 +268,7 @@ func TestParse(t *testing.T) {
 			name: "valid long",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
+				f, err := flag.New(new(bool), "delete", 'd', "Delete something", flag.Config[bool]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -292,7 +292,7 @@ func TestParse(t *testing.T) {
 			name: "valid long with args",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
+				f, err := flag.New(new(bool), "delete", 'd', "Delete something", flag.Config[bool]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -317,7 +317,7 @@ func TestParse(t *testing.T) {
 			name: "valid short",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
+				f, err := flag.New(new(bool), "delete", 'd', "Delete something", flag.Config[bool]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -349,7 +349,7 @@ func TestParse(t *testing.T) {
 			name: "valid shortvalue",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(int), "number", 'n', 0, "Number of something")
+				f, err := flag.New(new(int), "number", 'n', "Number of something", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -379,7 +379,7 @@ func TestParse(t *testing.T) {
 			name: "valid short with args",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
+				f, err := flag.New(new(bool), "delete", 'd', "Delete something", flag.Config[bool]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -411,7 +411,7 @@ func TestParse(t *testing.T) {
 			name: "valid long value",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -435,7 +435,7 @@ func TestParse(t *testing.T) {
 			name: "valid long missing value",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -460,7 +460,7 @@ func TestParse(t *testing.T) {
 			name: "valid short missing value",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -485,7 +485,7 @@ func TestParse(t *testing.T) {
 			name: "valid long value with args",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -509,7 +509,7 @@ func TestParse(t *testing.T) {
 			name: "invalid long value",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(uint), "number", 'n', 0, "Uint")
+				f, err := flag.New(new(uint), "number", 'n', "Uint", flag.Config[uint]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -532,7 +532,7 @@ func TestParse(t *testing.T) {
 			name: "valid short value",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -564,7 +564,7 @@ func TestParse(t *testing.T) {
 			name: "valid short value with args",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -596,7 +596,7 @@ func TestParse(t *testing.T) {
 			name: "invalid short value",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(uint), "number", 'n', 0, "Uint")
+				f, err := flag.New(new(uint), "number", 'n', "Uint", flag.Config[uint]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -619,7 +619,7 @@ func TestParse(t *testing.T) {
 			name: "valid long equals value",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -641,7 +641,7 @@ func TestParse(t *testing.T) {
 			name: "valid long equals value with args",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -665,7 +665,7 @@ func TestParse(t *testing.T) {
 			name: "invalid long equals value",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(uint), "number", 'n', 0, "Uint")
+				f, err := flag.New(new(uint), "number", 'n', "Uint", flag.Config[uint]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -688,7 +688,7 @@ func TestParse(t *testing.T) {
 			name: "valid short equals value",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -718,7 +718,7 @@ func TestParse(t *testing.T) {
 			name: "valid short equals value with args",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -750,7 +750,7 @@ func TestParse(t *testing.T) {
 			name: "no shorthand use long",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(int), "count", publicflag.NoShortHand, 0, "Count something")
+				f, err := flag.New(new(int), "count", publicflag.NoShortHand, "Count something", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -778,7 +778,7 @@ func TestParse(t *testing.T) {
 			name: "no shorthand use short",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(int), "count", publicflag.NoShortHand, 0, "Count something")
+				f, err := flag.New(new(int), "count", publicflag.NoShortHand, "Count something", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -807,7 +807,7 @@ func TestParse(t *testing.T) {
 			name: "valid count long",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(publicflag.Count), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(publicflag.Count), "count", 'c', "Count something", flag.Config[publicflag.Count]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -829,7 +829,7 @@ func TestParse(t *testing.T) {
 			name: "valid count short",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(publicflag.Count), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(publicflag.Count), "count", 'c', "Count something", flag.Config[publicflag.Count]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -851,7 +851,7 @@ func TestParse(t *testing.T) {
 			name: "valid count super short",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(publicflag.Count), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(publicflag.Count), "count", 'c', "Count something", flag.Config[publicflag.Count]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -944,7 +944,7 @@ func TestFlagSet(t *testing.T) {
 				return nil // uh oh
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				f, err := flag.New(new(bool), "force", 'f', false, "Force something")
+				f, err := flag.New(new(bool), "force", 'f', "Force something", flag.Config[bool]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -984,7 +984,7 @@ func TestFlagSet(t *testing.T) {
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -1005,10 +1005,10 @@ func TestFlagSet(t *testing.T) {
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
 				test.Ok(t, err)
 
-				f2, err := flag.New(new(uint), "count", 'c', 0, "Count something 2")
+				f2, err := flag.New(new(uint), "count", 'c', "Count something 2", flag.Config[uint]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -1029,10 +1029,10 @@ func TestFlagSet(t *testing.T) {
 				return flag.NewSet()
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+				f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
 				test.Ok(t, err)
 
-				f2, err := flag.New(new(string), "config", 'c', "", "Choose a config file")
+				f2, err := flag.New(new(string), "config", 'c', "Choose a config file", flag.Config[string]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -1090,7 +1090,7 @@ func TestHelpVersion(t *testing.T) {
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
 
-				f, err := flag.New(new(bool), "help", 'h', false, "Show help")
+				f, err := flag.New(new(bool), "help", 'h', "Show help", flag.Config[bool]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -1109,7 +1109,7 @@ func TestHelpVersion(t *testing.T) {
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
 
-				f, err := flag.New(new(int), "help", 'h', 0, "Show help")
+				f, err := flag.New(new(int), "help", 'h', "Show help", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -1128,7 +1128,7 @@ func TestHelpVersion(t *testing.T) {
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
 
-				f, err := flag.New(new(bool), "help", 'h', true, "Show help")
+				f, err := flag.New(new(bool), "help", 'h', "Show help", flag.Config[bool]{DefaultValue: true})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -1147,7 +1147,7 @@ func TestHelpVersion(t *testing.T) {
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
 
-				f, err := flag.New(new(bool), "version", 'v', false, "Show version")
+				f, err := flag.New(new(bool), "version", 'v', "Show version", flag.Config[bool]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -1166,7 +1166,7 @@ func TestHelpVersion(t *testing.T) {
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
 
-				f, err := flag.New(new(int), "version", 'v', 0, "Show version")
+				f, err := flag.New(new(int), "version", 'v', "Show version", flag.Config[int]{})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -1185,7 +1185,7 @@ func TestHelpVersion(t *testing.T) {
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
 
-				f, err := flag.New(new(bool), "version", 'v', true, "Show version")
+				f, err := flag.New(new(bool), "version", 'v', "Show version", flag.Config[bool]{DefaultValue: true})
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -1217,10 +1217,10 @@ func TestUsage(t *testing.T) {
 		{
 			name: "simple",
 			newSet: func(t *testing.T) *flag.Set {
-				help, err := flag.New(new(bool), "help", 'h', false, "Show help for test")
+				help, err := flag.New(new(bool), "help", 'h', "Show help for test", flag.Config[bool]{})
 				test.Ok(t, err)
 
-				version, err := flag.New(new(bool), "version", 'V', false, "Show version info for test")
+				version, err := flag.New(new(bool), "version", 'V', "Show version info for test", flag.Config[bool]{})
 				test.Ok(t, err)
 
 				set := flag.NewSet()
@@ -1237,13 +1237,13 @@ func TestUsage(t *testing.T) {
 		{
 			name: "no shorthand",
 			newSet: func(t *testing.T) *flag.Set {
-				help, err := flag.New(new(bool), "help", 'h', false, "Show help for test")
+				help, err := flag.New(new(bool), "help", 'h', "Show help for test", flag.Config[bool]{})
 				test.Ok(t, err)
 
-				version, err := flag.New(new(bool), "version", 'V', false, "Show version info for test")
+				version, err := flag.New(new(bool), "version", 'V', "Show version info for test", flag.Config[bool]{})
 				test.Ok(t, err)
 
-				up, err := flag.New(new(bool), "update", publicflag.NoShortHand, false, "Update something")
+				up, err := flag.New(new(bool), "update", publicflag.NoShortHand, "Update something", flag.Config[bool]{})
 				test.Ok(t, err)
 
 				set := flag.NewSet()
@@ -1263,19 +1263,19 @@ func TestUsage(t *testing.T) {
 		{
 			name: "full",
 			newSet: func(t *testing.T) *flag.Set {
-				help, err := flag.New(new(bool), "help", 'h', false, "Show help for test")
+				help, err := flag.New(new(bool), "help", 'h', "Show help for test", flag.Config[bool]{})
 				test.Ok(t, err)
 
-				version, err := flag.New(new(bool), "version", 'V', false, "Show version info for test")
+				version, err := flag.New(new(bool), "version", 'V', "Show version info for test", flag.Config[bool]{})
 				test.Ok(t, err)
 
-				up, err := flag.New(new(bool), "update", publicflag.NoShortHand, false, "Update something")
+				up, err := flag.New(new(bool), "update", publicflag.NoShortHand, "Update something", flag.Config[bool]{})
 				test.Ok(t, err)
 
-				count, err := flag.New(new(int), "count", 'c', 0, "Count things")
+				count, err := flag.New(new(int), "count", 'c', "Count things", flag.Config[int]{})
 				test.Ok(t, err)
 
-				thing, err := flag.New(new(string), "thing", 't', "", "Name the thing")
+				thing, err := flag.New(new(string), "thing", 't', "Name the thing", flag.Config[string]{})
 				test.Ok(t, err)
 
 				set := flag.NewSet()
@@ -1319,13 +1319,13 @@ func TestUsage(t *testing.T) {
 
 func BenchmarkParse(b *testing.B) {
 	set := flag.NewSet()
-	f, err := flag.New(new(int), "count", 'c', 0, "Count something")
+	f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
 	test.Ok(b, err)
 
-	f2, err := flag.New(new(bool), "delete", 'd', false, "Delete something")
+	f2, err := flag.New(new(bool), "delete", 'd', "Delete something", flag.Config[bool]{})
 	test.Ok(b, err)
 
-	f3, err := flag.New(new(string), "name", 'n', "", "Name something")
+	f3, err := flag.New(new(string), "name", 'n', "Name something", flag.Config[string]{})
 	test.Ok(b, err)
 
 	err = flag.AddToSet(set, f)

@@ -105,7 +105,7 @@ func TestExecute(t *testing.T) {
 
 					return nil
 				}),
-				cli.Flag(&force, "force", 'f', false, "Force something"),
+				cli.Flag(&force, "force", 'f', "Force something"),
 			}
 
 			cmd, err := cli.New("test", slices.Concat(options, tt.options)...)
@@ -270,8 +270,8 @@ func TestSubCommandExecute(t *testing.T) {
 
 			sub1 := func() (*cli.Command, error) {
 				defaultOpts := []cli.Option{
-					cli.Flag(&force, "force", 'f', false, "Force for sub1"),
-					cli.Flag(&something, "something", 's', "", "Something for sub1"),
+					cli.Flag(&force, "force", 'f', "Force for sub1"),
+					cli.Flag(&something, "something", 's', "Something for sub1"),
 					cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 						if something == "" {
 							something = "<empty>"
@@ -315,8 +315,8 @@ func TestSubCommandExecute(t *testing.T) {
 
 						return nil
 					}),
-					cli.Flag(&deleteMe, "delete", 'd', false, "Delete for sub2"),
-					cli.Flag(&number, "number", 'n', -1, "Number for sub2"),
+					cli.Flag(&deleteMe, "delete", 'd', "Delete for sub2"),
+					cli.Flag(&number, "number", 'n', "Number for sub2", cli.FlagDefault(-1)),
 				}
 
 				opts := slices.Concat(defaultOpts, tt.sub2Options)
@@ -433,7 +433,7 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.Arg(new(string), "src", "The file to copy"),                                           // This one is required
 				cli.Arg(new(string), "dest", "Destination to copy to", cli.ArgDefault("destination.txt")), // This one is optional
-				cli.Flag(new(flag.Count), "verbosity", 'v', 0, "Increase the verbosity level"),
+				cli.Flag(new(flag.Count), "verbosity", 'v', "Increase the verbosity level"),
 				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
@@ -493,10 +493,16 @@ func TestHelp(t *testing.T) {
 				cli.Short("A cool CLI to do things"),
 				cli.Long("A longer, probably multiline description"),
 				cli.SubCommands(sub1, sub2),
-				cli.Flag(new(bool), "delete", 'd', false, "Delete something"),
-				cli.Flag(new(int), "count", flag.NoShortHand, -1, "Count something"),
-				cli.Flag(new([]string), "things", flag.NoShortHand, nil, "Names of things"),
-				cli.Flag(new([]string), "more", flag.NoShortHand, []string{"one", "two"}, "Names of things with a default"),
+				cli.Flag(new(bool), "delete", 'd', "Delete something"),
+				cli.Flag(new(int), "count", flag.NoShortHand, "Count something", cli.FlagDefault(-1)),
+				cli.Flag(new([]string), "things", flag.NoShortHand, "Names of things"),
+				cli.Flag(
+					new([]string),
+					"more",
+					flag.NoShortHand,
+					"Names of things with a default",
+					cli.FlagDefault([]string{"one", "two"}),
+				),
 			},
 			wantErr: false,
 		},
@@ -735,16 +741,16 @@ func TestOptionValidation(t *testing.T) {
 		{
 			name: "flag already exists",
 			options: []cli.Option{
-				cli.Flag(new(int), "count", 'c', 0, "Count something"),
-				cli.Flag(new(int), "count", 'c', 0, "Count something (again)"),
+				cli.Flag(new(int), "count", 'c', "Count something"),
+				cli.Flag(new(int), "count", 'c', "Count something (again)"),
 			},
 			errMsg: `flag "count" already defined`,
 		},
 		{
 			name: "flag short already exists",
 			options: []cli.Option{
-				cli.Flag(new(int), "count", 'c', 0, "Count something"),
-				cli.Flag(new(string), "config", 'c', "", "Path to config file"),
+				cli.Flag(new(int), "count", 'c', "Count something"),
+				cli.Flag(new(string), "config", 'c', "Path to config file"),
 			},
 			errMsg: `could not add flag "config" to command "test": shorthand "c" already in use for flag "count"`,
 		},
@@ -884,8 +890,8 @@ func TestCommandOptionOrder(t *testing.T) {
 		cli.Arg(new(string), "third", "Third arg"),
 		cli.Version("v1.2.3"),
 		cli.SubCommands(sub),
-		cli.Flag(&f, "flag", 'f', false, "Set a bool flag"),
-		cli.Flag(&count, "count", 'c', 0, "Count a thing"),
+		cli.Flag(&f, "flag", 'f', "Set a bool flag"),
+		cli.Flag(&count, "count", 'c', "Count a thing"),
 	}
 
 	baseLineOptions := slices.Concat(
@@ -1001,9 +1007,9 @@ func BenchmarkNew(b *testing.B) {
 			cli.Version("dev"),
 			cli.Commit("dfdddaf"),
 			cli.Example("An example", "bench --help"),
-			cli.Flag(new(bool), "force", 'f', false, "Force something"),
-			cli.Flag(new(string), "name", 'n', "", "The name of something"),
-			cli.Flag(new(int), "count", 'c', 1, "Count something"),
+			cli.Flag(new(bool), "force", 'f', "Force something"),
+			cli.Flag(new(string), "name", 'n', "The name of something"),
+			cli.Flag(new(int), "count", 'c', "Count something", cli.FlagDefault(1)),
 			cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 		)
 		if err != nil {

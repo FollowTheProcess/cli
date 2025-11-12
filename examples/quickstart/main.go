@@ -29,7 +29,7 @@ func run() error {
 		cli.Stdout(os.Stdout),
 		cli.Example("Do a thing", "quickstart something"),
 		cli.Example("Count the things", "quickstart something --count 3"),
-		cli.Flag(&count, "count", 'c', 0, "Count the things"),
+		cli.Flag(&count, "count", 'c', "Count the things"),
 		cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 			fmt.Fprintf(cmd.Stdout(), "Hello from quickstart!, my args were: %v, count was %d\n", cmd.Args(), count)
 			return nil
