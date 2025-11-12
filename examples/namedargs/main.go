@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -31,7 +32,7 @@ func run() error {
 		cli.Arg(&arguments.dest, "dest", "The file to copy to", cli.ArgDefault("dest.txt")),
 		cli.Example("Copy a file to somewhere", "copy src.txt ./some/where/else"),
 		cli.Example("Use the default destination", "copy src.txt"),
-		cli.Run(func(cmd *cli.Command) error {
+		cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 			fmt.Fprintf(cmd.Stdout(), "Copying from %s to %s\n", arguments.src, arguments.dest)
 			return nil
 		}),
@@ -40,5 +41,5 @@ func run() error {
 		return err
 	}
 
-	return cmd.Execute()
+	return cmd.Execute(context.Background())
 }

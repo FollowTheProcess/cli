@@ -2,6 +2,7 @@ package cli_test
 
 import (
 	"bytes"
+	"context"
 	goflag "flag"
 	"fmt"
 	"io"
@@ -99,7 +100,7 @@ func TestExecute(t *testing.T) {
 			options := []cli.Option{
 				cli.Stdout(stdout),
 				cli.Stderr(stderr),
-				cli.Run(func(cmd *cli.Command) error {
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 					fmt.Fprintf(cmd.Stdout(), "My arguments were: %v\nForce was: %v\n", cmd.Args(), force)
 
 					return nil
@@ -110,7 +111,7 @@ func TestExecute(t *testing.T) {
 			cmd, err := cli.New("test", slices.Concat(options, tt.options)...)
 			test.Ok(t, err)
 
-			err = cmd.Execute()
+			err = cmd.Execute(t.Context())
 			test.WantErr(t, err, tt.wantErr)
 
 			test.Equal(t, stdout.String(), tt.stdout)
@@ -271,7 +272,7 @@ func TestSubCommandExecute(t *testing.T) {
 				defaultOpts := []cli.Option{
 					cli.Flag(&force, "force", 'f', false, "Force for sub1"),
 					cli.Flag(&something, "something", 's', "", "Something for sub1"),
-					cli.Run(func(cmd *cli.Command) error {
+					cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 						if something == "" {
 							something = "<empty>"
 						}
@@ -303,7 +304,7 @@ func TestSubCommandExecute(t *testing.T) {
 
 			sub2 := func() (*cli.Command, error) {
 				defaultOpts := []cli.Option{
-					cli.Run(func(cmd *cli.Command) error {
+					cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 						fmt.Fprintf(
 							cmd.Stdout(),
 							"Hello from sub2, my args were: %v, delete was %v, number was %d",
@@ -337,7 +338,7 @@ func TestSubCommandExecute(t *testing.T) {
 			test.Ok(t, err)
 
 			// Execute the command, we should see the sub commands get executed based on what args we provide
-			err = root.Execute()
+			err = root.Execute(t.Context())
 			test.WantErr(t, err, tt.wantErr)
 
 			if !tt.wantErr {
@@ -353,7 +354,7 @@ func TestHelp(t *testing.T) {
 		return cli.New(
 			"sub1",
 			cli.Short("Do one thing"),
-			cli.Run(func(cmd *cli.Command) error {
+			cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub1")
 
 				return nil
@@ -364,7 +365,7 @@ func TestHelp(t *testing.T) {
 		return cli.New(
 			"sub2",
 			cli.Short("Do another thing"),
-			cli.Run(func(cmd *cli.Command) error {
+			cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub2")
 
 				return nil
@@ -376,7 +377,7 @@ func TestHelp(t *testing.T) {
 		return cli.New(
 			"very-long-subcommand",
 			cli.Short("Wow so long"),
-			cli.Run(func(cmd *cli.Command) error {
+			cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub3")
 
 				return nil
@@ -393,7 +394,7 @@ func TestHelp(t *testing.T) {
 			name: "default long",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--help"}),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -401,7 +402,7 @@ func TestHelp(t *testing.T) {
 			name: "default short",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"-h"}),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -411,7 +412,7 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.Example("Do a thing", "test do thing --now"),
 				cli.Example("Do a different thing", "test do thing --different"),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -422,7 +423,7 @@ func TestHelp(t *testing.T) {
 				cli.Arg(new(string), "src", "The file to copy"),                                       // This one is required
 				cli.Arg(new(string), "dest", "Destination to copy to", cli.ArgDefault("default.txt")), // This one is optional
 				cli.Arg(new(int), "other", "Something else", cli.ArgDefault(0)),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -433,7 +434,7 @@ func TestHelp(t *testing.T) {
 				cli.Arg(new(string), "src", "The file to copy"),                                           // This one is required
 				cli.Arg(new(string), "dest", "Destination to copy to", cli.ArgDefault("destination.txt")), // This one is optional
 				cli.Flag(new(flag.Count), "verbosity", 'v', 0, "Increase the verbosity level"),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -443,7 +444,7 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.Short("A cool CLI to do things"),
 				cli.Long("A longer, probably multiline description"),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -453,7 +454,7 @@ func TestHelp(t *testing.T) {
 				cli.OverrideArgs([]string{"--help"}),
 				cli.Short("  \t\n A cool CLI to do things   \n "),
 				cli.Long("  \t\n\n A longer, probably multiline description \t\n\n "),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -461,7 +462,7 @@ func TestHelp(t *testing.T) {
 			name: "with no description",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--help"}),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			wantErr: false,
 		},
@@ -519,7 +520,7 @@ func TestHelp(t *testing.T) {
 
 			test.Ok(t, err)
 
-			err = cmd.Execute()
+			err = cmd.Execute(t.Context())
 			test.WantErr(t, err, tt.wantErr)
 
 			if *debug {
@@ -541,7 +542,7 @@ func TestVersion(t *testing.T) {
 			"sub1",
 			cli.Short("Do one thing"),
 			// No version set on sub1
-			cli.Run(func(cmd *cli.Command) error {
+			cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub1")
 
 				return nil
@@ -553,7 +554,7 @@ func TestVersion(t *testing.T) {
 			"sub2",
 			cli.Short("Do another thing"),
 			cli.Version("sub2 version text"),
-			cli.Run(func(cmd *cli.Command) error {
+			cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub2")
 
 				return nil
@@ -571,7 +572,7 @@ func TestVersion(t *testing.T) {
 			name: "default long",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--version"}),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: dev\n",
 			wantErr: false,
@@ -580,7 +581,7 @@ func TestVersion(t *testing.T) {
 			name: "default short",
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"-V"}),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: dev\n",
 			wantErr: false,
@@ -590,7 +591,7 @@ func TestVersion(t *testing.T) {
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--version"}),
 				cli.Version("v3.1.7"),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: v3.1.7\n",
 			wantErr: false,
@@ -600,7 +601,7 @@ func TestVersion(t *testing.T) {
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--version"}),
 				cli.Commit("eedb45b"),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: dev\nCommit: eedb45b\n",
 			wantErr: false,
@@ -610,7 +611,7 @@ func TestVersion(t *testing.T) {
 			options: []cli.Option{
 				cli.OverrideArgs([]string{"--version"}),
 				cli.BuildDate("2024-04-11T02:23:42Z"),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: dev\nBuildDate: 2024-04-11T02:23:42Z\n",
 			wantErr: false,
@@ -621,7 +622,7 @@ func TestVersion(t *testing.T) {
 				cli.OverrideArgs([]string{"--version"}),
 				cli.Version("v8.17.6"),
 				cli.Commit("b9aaafd"),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: v8.17.6\nCommit: b9aaafd\n",
 			wantErr: false,
@@ -633,7 +634,7 @@ func TestVersion(t *testing.T) {
 				cli.Version("v8.17.6"),
 				cli.Commit("b9aaafd"),
 				cli.BuildDate("2024-08-17T10:37:30Z"),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			stderr:  "version-test\n\nVersion: v8.17.6\nCommit: b9aaafd\nBuildDate: 2024-08-17T10:37:30Z\n",
 			wantErr: false,
@@ -646,7 +647,7 @@ func TestVersion(t *testing.T) {
 				cli.Commit("b9aaafd"),
 				cli.BuildDate("2024-08-17T10:37:30Z"),
 				cli.SubCommands(sub1, sub2),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			// Should show the root commands version info
 			stderr:  "sub1\n\nVersion: v8.17.6\nCommit: b9aaafd\nBuildDate: 2024-08-17T10:37:30Z\n",
@@ -660,7 +661,7 @@ func TestVersion(t *testing.T) {
 				cli.Commit("b9aaafd"),
 				cli.BuildDate("2024-08-17T10:37:30Z"),
 				cli.SubCommands(sub1, sub2),
-				cli.Run(func(cmd *cli.Command) error { return nil }),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 			},
 			// Should show sub2's version text
 			stderr:  "sub2\n\nVersion: sub2 version text\n",
@@ -683,7 +684,7 @@ func TestVersion(t *testing.T) {
 			cmd, err := cli.New("version-test", slices.Concat(options, tt.options)...)
 			test.Ok(t, err)
 
-			err = cmd.Execute()
+			err = cmd.Execute(t.Context())
 			test.WantErr(t, err, tt.wantErr)
 
 			// Should have no output to stdout
@@ -792,21 +793,21 @@ func TestDuplicateSubCommands(t *testing.T) {
 	sub1 := func() (*cli.Command, error) {
 		return cli.New(
 			"sub1",
-			cli.Run(func(cmd *cli.Command) error { return nil }),
+			cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 		)
 	}
 
 	sub2 := func() (*cli.Command, error) {
 		return cli.New(
 			"sub2",
-			cli.Run(func(cmd *cli.Command) error { return nil }),
+			cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 		)
 	}
 
 	sub1Again := func() (*cli.Command, error) {
 		return cli.New(
 			"sub1",
-			cli.Run(func(cmd *cli.Command) error { return nil }),
+			cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 		)
 	}
 
@@ -834,7 +835,7 @@ func TestCommandNoRunNoSub(t *testing.T) {
 func TestExecuteNilCommand(t *testing.T) {
 	var cmd *cli.Command
 
-	err := cmd.Execute()
+	err := cmd.Execute(t.Context())
 	test.Err(t, err)
 
 	if err != nil {
@@ -860,7 +861,7 @@ func TestCommandOptionOrder(t *testing.T) {
 	sub := func() (*cli.Command, error) {
 		return cli.New(
 			"sub",
-			cli.Run(func(cmd *cli.Command) error {
+			cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub")
 
 				return nil
@@ -873,7 +874,7 @@ func TestCommandOptionOrder(t *testing.T) {
 		cli.Short("Short description"),
 		cli.Long("Long description"),
 		cli.Example("Do a thing", "demo run something --flag"),
-		cli.Run(func(cmd *cli.Command) error {
+		cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 			fmt.Fprintf(cmd.Stdout(), "args: %v, flag: %v, count: %v\n", cmd.Args(), f, count)
 
 			return nil
@@ -897,7 +898,7 @@ func TestCommandOptionOrder(t *testing.T) {
 	baseline, err := cli.New("baseline", baseLineOptions...)
 	test.Ok(t, err)
 
-	err = baseline.Execute()
+	err = baseline.Execute(t.Context())
 	test.Ok(t, err)
 
 	// Make sure the baseline is behaving as expected
@@ -922,7 +923,7 @@ func TestCommandOptionOrder(t *testing.T) {
 		test.Ok(t, err)
 
 		// The two commands should behave equivalently
-		err = shuffle.Execute()
+		err = shuffle.Execute(t.Context())
 		test.Ok(t, err)
 
 		test.Equal(t, shuffleStdout.String(), baseLineStdout.String())
@@ -939,7 +940,7 @@ func BenchmarkExecuteHelp(b *testing.B) {
 		return cli.New(
 			"sub1",
 			cli.Short("Do one thing"),
-			cli.Run(func(cmd *cli.Command) error {
+			cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub1")
 
 				return nil
@@ -951,7 +952,7 @@ func BenchmarkExecuteHelp(b *testing.B) {
 		return cli.New(
 			"sub2",
 			cli.Short("Do another thing"),
-			cli.Run(func(cmd *cli.Command) error {
+			cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub2")
 
 				return nil
@@ -963,7 +964,7 @@ func BenchmarkExecuteHelp(b *testing.B) {
 		return cli.New(
 			"very-long-subcommand",
 			cli.Short("Wow so long"),
-			cli.Run(func(cmd *cli.Command) error {
+			cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub3")
 
 				return nil
@@ -984,7 +985,7 @@ func BenchmarkExecuteHelp(b *testing.B) {
 	test.Ok(b, err)
 
 	for b.Loop() {
-		err := cmd.Execute()
+		err := cmd.Execute(b.Context())
 		if err != nil {
 			b.Fatalf("Execute returned an error: %v", err)
 		}
@@ -1003,7 +1004,7 @@ func BenchmarkNew(b *testing.B) {
 			cli.Flag(new(bool), "force", 'f', false, "Force something"),
 			cli.Flag(new(string), "name", 'n', "", "The name of something"),
 			cli.Flag(new(int), "count", 'c', 1, "Count something"),
-			cli.Run(func(cmd *cli.Command) error { return nil }),
+			cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 		)
 		if err != nil {
 			b.Fatal(err)
@@ -1021,12 +1022,12 @@ func BenchmarkVersion(b *testing.B) {
 		cli.OverrideArgs([]string{"--version"}),
 		cli.Stderr(io.Discard),
 		cli.Stdout(io.Discard),
-		cli.Run(func(cmd *cli.Command) error { return nil }),
+		cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
 	)
 	test.Ok(b, err)
 
 	for b.Loop() {
-		err := cmd.Execute()
+		err := cmd.Execute(b.Context())
 		if err != nil {
 			b.Fatalf("Execute returned an error: %v", err)
 		}
