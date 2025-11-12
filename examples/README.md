@@ -7,6 +7,7 @@ This directory contains a bunch of example programs built with `cli` to show you
   - [`./quickstart`](#quickstart)
   - [`./subcommands`](#subcommands)
   - [`./namedargs`](#namedargs)
+  - [`./cancel`](#cancel)
     - [TODO](#todo)
 
 ## `./cover`
@@ -30,6 +31,12 @@ A CLI with multiple subcommands, each with their own flags and expected argument
 A CLI with named positional arguments that may or may not have default values. Shows how to retrieve these arguments by name and use them without having to care if they were provided or you're using the default.
 
 ![namedargs](../docs/img/namedargs.gif)
+
+## `./cancel`
+
+This examples shows how `cli` requiring you to pass a `context.Context` to your run functions leads to elegant and resilient cancellation and `CTRL+C` handling.
+
+![cancel](../docs/img/cancel.gif)
 
 ### TODO
 

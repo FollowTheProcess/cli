@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -35,7 +36,7 @@ type config struct {
 	stdin         io.Reader
 	stdout        io.Writer
 	stderr        io.Writer
-	run           func(cmd *Command) error
+	run           func(ctx context.Context, cmd *Command) error
 	flags         *internalflag.Set
 	parent        *Command
 	name          string
@@ -257,7 +258,7 @@ func Example(comment, command string) Option {
 // want it to do when invoked.
 //
 // Successive calls overwrite previous ones.
-func Run(run func(cmd *Command) error) Option {
+func Run(run func(ctx context.Context, cmd *Command) error) Option {
 	f := func(cfg *config) error {
 		if run == nil {
 			return errors.New("cannot set Run to nil")

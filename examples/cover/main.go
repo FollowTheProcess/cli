@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -20,7 +21,7 @@ func main() {
 		cli.Stdout(os.Stdout),
 		cli.Example("Do a thing", "demo thing --count"),
 		cli.Flag(&count, "count", 'c', 0, "Count the thing"),
-		cli.Run(func(cmd *cli.Command) error {
+		cli.Run(func(ctx context.Context, cmd *cli.Command) error {
 			fmt.Fprintln(cmd.Stdout(), "Hello from demo, my arguments were: ", cmd.Args())
 			return nil
 		}),
@@ -29,7 +30,10 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	if err := cmd.Execute(); err != nil {
+	// Good command line tools allow for timeouts, cancellations etc.
+	// so in cli, you pass a context.Context to your root command, and
+	// it gets passed down to your Run function.
+	if err := cmd.Execute(context.Background()); err != nil {
 		log.Fatalln(err)
 	}
 }

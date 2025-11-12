@@ -26,16 +26,12 @@ tasks:
     preconditions:
       - sh: command -v golangci-lint
         msg: golangci-lint not installed, see https://golangci-lint.run/usage/install/#local-installation
-
-      - sh: command -v rumdl
-        msg: rumdl not installed, see https://github.com/rvben/rumdl#installation
     sources:
       - "**/*.go"
       - .golangci.yml
       - "**/*.md"
     cmds:
       - golangci-lint fmt ./...
-      - rumdl fmt --fix .
 
   test:
     desc: Run the test suite
@@ -73,12 +69,8 @@ tasks:
 
       - sh: command -v typos
         msg: requires typos-cli, run `brew install typos-cli`
-
-      - sh: command -v rumdl
-        msg: rumdl not installed, see https://github.com/rvben/rumdl#installation
     cmds:
       - golangci-lint run --fix
-      - rumdl check --fix .
       - typos
       - nilaway ./...
 
