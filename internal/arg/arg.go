@@ -225,7 +225,7 @@ func (a Arg[T]) Type() string {
 
 // Set sets an [Arg] value by parsing it's string value.
 //
-//nolint:cyclop // No other way of doing this realistically
+//nolint:gocognit,maintidx // No other way of doing this realistically
 func (a Arg[T]) Set(str string) error {
 	if a.value == nil {
 		return fmt.Errorf("cannot set value %s, arg.value was nil", str)

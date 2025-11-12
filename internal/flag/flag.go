@@ -257,7 +257,9 @@ func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this r
 }
 
 // Set sets a [Flag] value based on string input, i.e. parsing from the command line.
-func (f Flag[T]) Set(str string) error { //nolint:gocognit,cyclop // No other way of doing this realistically
+//
+//nolint:gocognit,maintidx // No other way of doing this realistically
+func (f Flag[T]) Set(str string) error {
 	if f.value == nil {
 		return fmt.Errorf("cannot set value %s, flag.value was nil", str)
 	}
