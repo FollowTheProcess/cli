@@ -18,29 +18,25 @@ formatters:
 linters:
   default: all
   disable:
+    - cyclop # I prefer cognitive complexity
     - decorder # Don't care about this
     - dupl # Basically every table driven test ever triggers this
     - dupword # Messes with test cases more often than not
-    - err113 # Out of date
+    - err113 # Opaque errors are fine
     - exhaustruct # No
     - forbidigo # Nothing to forbid
     - funlen # Bad metric for complexity
-    - ginkgolinter # I don't use whatever this is
-    - gochecknoglobals # Globals are fine sometimes, use common sense
-    - gocognit # Cmplexity with another name, don't need both
-    - gocyclo # cyclop does this instead
+    - gocyclo # I prefer cognitive complexity
     - godox # "todo" and "fixme" comments are allowed
     - goheader # No need
     - gosmopolitan # No need
     - grouper # Imports take care of themselves, rest is common sense
-    - ireturn # This is just not necessary or practical in a real codebase
+    - ireturn # Returning an interface is sometimes a good abstraction
     - lll # Auto formatters do this and what they can't do I don't care about
-    - maintidx # This is just the inverse of complexity... which is cyclop
-    - nestif # cyclop does this
-    - nlreturn # Similar to wsl, I think best left to judgement
+    - nlreturn # Similar to wsl
     - noinlineerr # Inline errors are fine
-    - nonamedreturns # Named returns are often helpful, it's naked returns that are the issue
-    - paralleltest # I've never had Go tests take longer than a few seconds, it's fine
+    - nonamedreturns # Used sparingly in short functions these are fine
+    - paralleltest # This makes go test -v ./... much more difficult to read
     - thelper # Lots of false positives in here due to the way I do table tests
     - unparam # gopls is better and more subtle
     - varnamelen # Lots of false positives of things that are fine
@@ -57,6 +53,8 @@ linters:
         linters:
           - prealloc # These kinds of optimisations will make no difference to test code
           - gosec # Tests don't need security stuff
+          - gochecknoglobals # e.g. global test flags
+          - maintidx # Flags table driven tests
 
   settings:
     cyclop:
