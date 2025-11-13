@@ -386,6 +386,20 @@ func TestFlaggableTypes(t *testing.T) {
 		test.Equal(t, boolFlag.String(), format.True)
 	})
 
+	t.Run("bool help", func(t *testing.T) {
+		var h bool
+
+		boolFlag, err := flag.New(&h, "help", 'h', "Show help", flag.Config[bool]{})
+		test.Ok(t, err)
+
+		err = boolFlag.Set(format.True)
+		test.Ok(t, err)
+		test.Equal(t, h, true)
+		test.Equal(t, boolFlag.Type(), "bool")
+		test.Equal(t, boolFlag.String(), format.True)
+		test.Equal(t, boolFlag.Default(), "") // Special case
+	})
+
 	t.Run("bool invalid", func(t *testing.T) {
 		var b bool
 
