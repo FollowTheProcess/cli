@@ -1,7 +1,6 @@
 package flag
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"iter"
@@ -10,11 +9,7 @@ import (
 
 	"go.followtheprocess.codes/cli/flag"
 	"go.followtheprocess.codes/cli/internal/format"
-	"go.followtheprocess.codes/cli/internal/style"
 )
-
-// usageBufferSize is sufficient to hold most commands flag usage text.
-const usageBufferSize = 256
 
 // Set is a set of command line flags.
 type Set struct {
@@ -205,51 +200,6 @@ func (s *Set) All() iter.Seq2[string, Value] {
 			}
 		}
 	}
-}
-
-// Usage returns a string containing the usage info of all flags in the set.
-func (s *Set) Usage() (string, error) {
-	buf := &bytes.Buffer{}
-	buf.Grow(usageBufferSize)
-
-	// Flags should be sorted alphabetically
-	names := make([]string, 0, len(s.flags))
-	for name := range s.flags {
-		names = append(names, name)
-	}
-
-	slices.Sort(names)
-
-	tw := style.Tabwriter(buf)
-
-	for _, name := range names {
-		f := s.flags[name]
-		if f == nil {
-			return "", fmt.Errorf("Value stored against key %s was nil", name) // Should never happen
-		}
-
-		var shorthand string
-		if f.Short() != flag.NoShortHand {
-			shorthand = "-" + string(f.Short())
-		} else {
-			shorthand = "N/A"
-		}
-
-		fmt.Fprintf(
-			tw,
-			"  %s\t--%s\t%s\t%s\n",
-			style.Bold.Text(shorthand),
-			style.Bold.Text(name),
-			f.Type(),
-			f.Usage(),
-		)
-	}
-
-	if err := tw.Flush(); err != nil {
-		return "", fmt.Errorf("could not format flags: %w", err)
-	}
-
-	return buf.String(), nil
 }
 
 // parseLongFlag parses a single long flag e.g. --delete. It is passed

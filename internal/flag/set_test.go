@@ -1,8 +1,6 @@
 package flag_test
 
 import (
-	goflag "flag"
-	"fmt"
 	"iter"
 	"maps"
 	"slices"
@@ -12,13 +10,7 @@ import (
 	publicflag "go.followtheprocess.codes/cli/flag"
 	"go.followtheprocess.codes/cli/internal/flag"
 	"go.followtheprocess.codes/cli/internal/format"
-	"go.followtheprocess.codes/snapshot"
 	"go.followtheprocess.codes/test"
-)
-
-var (
-	debug  = goflag.Bool("debug", false, "Print debug output during tests")
-	update = goflag.Bool("update", false, "Update golden files")
 )
 
 func TestParse(t *testing.T) {
@@ -1301,114 +1293,6 @@ func TestAll(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			set := tt.newSet(t)
 			tt.test(t, set)
-		})
-	}
-}
-
-func TestUsage(t *testing.T) {
-	tests := []struct {
-		newSet func(t *testing.T) *flag.Set // Function to build the flag set under test
-		name   string                       // Name of the test case
-	}{
-		{
-			name: "simple",
-			newSet: func(t *testing.T) *flag.Set {
-				help, err := flag.New(new(bool), "help", 'h', "Show help for test", flag.Config[bool]{})
-				test.Ok(t, err)
-
-				version, err := flag.New(new(bool), "version", 'V', "Show version info for test", flag.Config[bool]{})
-				test.Ok(t, err)
-
-				set := flag.NewSet()
-
-				err = flag.AddToSet(set, help)
-				test.Ok(t, err)
-
-				err = flag.AddToSet(set, version)
-				test.Ok(t, err)
-
-				return set
-			},
-		},
-		{
-			name: "no shorthand",
-			newSet: func(t *testing.T) *flag.Set {
-				help, err := flag.New(new(bool), "help", 'h', "Show help for test", flag.Config[bool]{})
-				test.Ok(t, err)
-
-				version, err := flag.New(new(bool), "version", 'V', "Show version info for test", flag.Config[bool]{})
-				test.Ok(t, err)
-
-				up, err := flag.New(new(bool), "update", publicflag.NoShortHand, "Update something", flag.Config[bool]{})
-				test.Ok(t, err)
-
-				set := flag.NewSet()
-
-				err = flag.AddToSet(set, help)
-				test.Ok(t, err)
-
-				err = flag.AddToSet(set, version)
-				test.Ok(t, err)
-
-				err = flag.AddToSet(set, up)
-				test.Ok(t, err)
-
-				return set
-			},
-		},
-		{
-			name: "full",
-			newSet: func(t *testing.T) *flag.Set {
-				help, err := flag.New(new(bool), "help", 'h', "Show help for test", flag.Config[bool]{})
-				test.Ok(t, err)
-
-				version, err := flag.New(new(bool), "version", 'V', "Show version info for test", flag.Config[bool]{})
-				test.Ok(t, err)
-
-				up, err := flag.New(new(bool), "update", publicflag.NoShortHand, "Update something", flag.Config[bool]{})
-				test.Ok(t, err)
-
-				count, err := flag.New(new(int), "count", 'c', "Count things", flag.Config[int]{})
-				test.Ok(t, err)
-
-				thing, err := flag.New(new(string), "thing", 't', "Name the thing", flag.Config[string]{})
-				test.Ok(t, err)
-
-				set := flag.NewSet()
-
-				err = flag.AddToSet(set, help)
-				test.Ok(t, err)
-
-				err = flag.AddToSet(set, version)
-				test.Ok(t, err)
-
-				err = flag.AddToSet(set, up)
-				test.Ok(t, err)
-
-				err = flag.AddToSet(set, count)
-				test.Ok(t, err)
-
-				err = flag.AddToSet(set, thing)
-				test.Ok(t, err)
-
-				return set
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			snap := snapshot.New(t, snapshot.Update(*update))
-			set := tt.newSet(t)
-
-			got, err := set.Usage()
-			test.Ok(t, err)
-
-			if *debug {
-				fmt.Printf("DEBUG (%s)\n_____\n\n%s\n", tt.name, got)
-			}
-
-			snap.Snap(got)
 		})
 	}
 }
