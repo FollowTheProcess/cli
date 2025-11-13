@@ -30,6 +30,7 @@ func TestFlaggableTypes(t *testing.T) {
 		test.Equal(t, i, 42)
 		test.Equal(t, intFlag.Type(), "int")
 		test.Equal(t, intFlag.String(), "42")
+		test.Equal(t, intFlag.Default(), "42")
 	})
 
 	t.Run("int invalid", func(t *testing.T) {
@@ -54,6 +55,7 @@ func TestFlaggableTypes(t *testing.T) {
 		test.Equal(t, i, int8(42))
 		test.Equal(t, intFlag.Type(), "int8")
 		test.Equal(t, intFlag.String(), "42")
+		test.Equal(t, intFlag.Default(), "42")
 	})
 
 	t.Run("int8 invalid", func(t *testing.T) {
@@ -78,6 +80,7 @@ func TestFlaggableTypes(t *testing.T) {
 		test.Equal(t, i, int16(42))
 		test.Equal(t, intFlag.Type(), "int16")
 		test.Equal(t, intFlag.String(), "42")
+		test.Equal(t, intFlag.Default(), "42")
 	})
 
 	t.Run("int16 invalid", func(t *testing.T) {
@@ -381,6 +384,20 @@ func TestFlaggableTypes(t *testing.T) {
 		test.Equal(t, b, true)
 		test.Equal(t, boolFlag.Type(), "bool")
 		test.Equal(t, boolFlag.String(), format.True)
+	})
+
+	t.Run("bool help", func(t *testing.T) {
+		var h bool
+
+		boolFlag, err := flag.New(&h, "help", 'h', "Show help", flag.Config[bool]{})
+		test.Ok(t, err)
+
+		err = boolFlag.Set(format.True)
+		test.Ok(t, err)
+		test.Equal(t, h, true)
+		test.Equal(t, boolFlag.Type(), "bool")
+		test.Equal(t, boolFlag.String(), format.True)
+		test.Equal(t, boolFlag.Default(), "") // Special case
 	})
 
 	t.Run("bool invalid", func(t *testing.T) {

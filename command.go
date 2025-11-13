@@ -11,6 +11,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	publicflag "go.followtheprocess.codes/cli/flag"
+
 	"go.followtheprocess.codes/cli/internal/arg"
 	"go.followtheprocess.codes/cli/internal/flag"
 	"go.followtheprocess.codes/cli/internal/style"
@@ -462,11 +464,6 @@ func showHelp(cmd *Command) error {
 		return errors.New("showHelp called on a nil Command")
 	}
 
-	usage, err := cmd.flagSet().Usage()
-	if err != nil {
-		return fmt.Errorf("could not write usage: %w", err)
-	}
-
 	// Note: The decision to not use text/template here is intentional, template calls
 	// reflect.Value.MethodByName() and/or reflect.Type.MethodByName() which disables dead
 	// code elimination in the compiler, meaning any application that uses cli for it's
@@ -540,7 +537,10 @@ func showHelp(cmd *Command) error {
 
 	s.WriteString(style.Title.Text("Options"))
 	s.WriteString(":\n\n")
-	s.WriteString(usage)
+
+	if err := writeFlags(cmd, s); err != nil {
+		return err
+	}
 
 	// Subcommand help
 	if len(cmd.subcommands) != 0 {
@@ -583,14 +583,12 @@ func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 	tw := style.Tabwriter(s)
 
 	for _, arg := range cmd.args {
-		switch arg.Default() {
-		case "":
-			// It's required
-			fmt.Fprintf(tw, "  %s\t%s\t%s\t[required]\n", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage())
-		default:
-			// It has a default
-			fmt.Fprintf(tw, "  %s\t%s\t%s\t[default %s]\n", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage(), arg.Default())
+		line := fmt.Sprintf("  %s\t%s\t%s\t[required]", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage())
+		if arg.Default() != "" {
+			line = fmt.Sprintf("  %s\t%s\t%s\t[default %s]", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage(), arg.Default())
 		}
+
+		fmt.Fprintln(tw, line)
 	}
 
 	if err := tw.Flush(); err != nil {
@@ -652,6 +650,46 @@ func writeSubcommands(cmd *Command, s *strings.Builder) error {
 
 	if err := tw.Flush(); err != nil {
 		return fmt.Errorf("could not format subcommands: %w", err)
+	}
+
+	return nil
+}
+
+// writeFlags writes the flag usage block to the help text string builder.
+func writeFlags(cmd *Command, s *strings.Builder) error {
+	tw := style.Tabwriter(s)
+
+	for name, fl := range cmd.flags.All() {
+		var shorthand string
+		if fl.Short() != publicflag.NoShortHand {
+			shorthand = "-" + string(fl.Short())
+		} else {
+			shorthand = "N/A"
+		}
+
+		line := fmt.Sprintf(
+			"  %s\t--%s\t%s\t%s\t", style.Bold.Text(shorthand),
+			style.Bold.Text(name),
+			fl.Type(),
+			fl.Usage(),
+		)
+
+		if fl.Default() != "" {
+			line = fmt.Sprintf(
+				"  %s\t--%s\t%s\t%s\t[default: %s]",
+				style.Bold.Text(shorthand),
+				style.Bold.Text(name),
+				fl.Type(),
+				fl.Usage(),
+				fl.Default(),
+			)
+		}
+
+		fmt.Fprintln(tw, line)
+	}
+
+	if err := tw.Flush(); err != nil {
+		return fmt.Errorf("could not write flag usage: %w", err)
 	}
 
 	return nil
