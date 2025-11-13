@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"iter"
 	"slices"
 	"strings"
 
@@ -185,6 +186,25 @@ func (s *Set) Parse(args []string) (err error) {
 	}
 
 	return nil
+}
+
+// All returns an iterator through the flags in the flagset
+// in alphabetical order by name.
+func (s *Set) All() iter.Seq2[string, Value] {
+	return func(yield func(string, Value) bool) {
+		names := make([]string, 0, len(s.flags))
+		for name := range s.flags {
+			names = append(names, name)
+		}
+
+		slices.Sort(names)
+
+		for _, name := range names {
+			if !yield(name, s.flags[name]) {
+				return
+			}
+		}
+	}
 }
 
 // Usage returns a string containing the usage info of all flags in the set.
