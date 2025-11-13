@@ -583,14 +583,12 @@ func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 	tw := style.Tabwriter(s)
 
 	for _, arg := range cmd.args {
-		switch arg.Default() {
-		case "":
-			// It's required
-			fmt.Fprintf(tw, "  %s\t%s\t%s\t[required]\n", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage())
-		default:
-			// It has a default
-			fmt.Fprintf(tw, "  %s\t%s\t%s\t[default %s]\n", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage(), arg.Default())
+		line := fmt.Sprintf("  %s\t%s\t%s\t[required]", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage())
+		if arg.Default() != "" {
+			line = fmt.Sprintf("  %s\t%s\t%s\t[default %s]", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage(), arg.Default())
 		}
+
+		fmt.Fprintln(tw, line)
 	}
 
 	if err := tw.Flush(); err != nil {
@@ -669,14 +667,25 @@ func writeFlags(cmd *Command, s *strings.Builder) error {
 			shorthand = "N/A"
 		}
 
-		fmt.Fprintf(
-			tw,
-			"  %s\t--%s\t%s\t%s\n",
-			style.Bold.Text(shorthand),
+		line := fmt.Sprintf(
+			"  %s\t--%s\t%s\t%s\t", style.Bold.Text(shorthand),
 			style.Bold.Text(name),
 			fl.Type(),
 			fl.Usage(),
 		)
+
+		if fl.Default() != "" {
+			line = fmt.Sprintf(
+				"  %s\t--%s\t%s\t%s\t[default: %s]",
+				style.Bold.Text(shorthand),
+				style.Bold.Text(name),
+				fl.Type(),
+				fl.Usage(),
+				fl.Default(),
+			)
+		}
+
+		fmt.Fprintln(tw, line)
 	}
 
 	if err := tw.Flush(); err != nil {
