@@ -30,6 +30,7 @@ func TestFlaggableTypes(t *testing.T) {
 		test.Equal(t, i, 42)
 		test.Equal(t, intFlag.Type(), "int")
 		test.Equal(t, intFlag.String(), "42")
+		test.Equal(t, intFlag.Default(), "42")
 	})
 
 	t.Run("int invalid", func(t *testing.T) {
@@ -54,6 +55,7 @@ func TestFlaggableTypes(t *testing.T) {
 		test.Equal(t, i, int8(42))
 		test.Equal(t, intFlag.Type(), "int8")
 		test.Equal(t, intFlag.String(), "42")
+		test.Equal(t, intFlag.Default(), "42")
 	})
 
 	t.Run("int8 invalid", func(t *testing.T) {
@@ -78,6 +80,7 @@ func TestFlaggableTypes(t *testing.T) {
 		test.Equal(t, i, int16(42))
 		test.Equal(t, intFlag.Type(), "int16")
 		test.Equal(t, intFlag.String(), "42")
+		test.Equal(t, intFlag.Default(), "42")
 	})
 
 	t.Run("int16 invalid", func(t *testing.T) {
