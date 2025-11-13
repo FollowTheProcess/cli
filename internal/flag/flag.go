@@ -55,19 +55,6 @@ func New[T flag.Flaggable](p *T, name string, short rune, usage string, config C
 		short: short,
 	}
 
-	// TODO(@FollowTheProcess): This needs to live in command.go and we should iterate over the flagset
-	// adding the values to the tabwriter as we go rather than relying on the flagset.Usage() method
-	// to provide *all* the usage
-
-	// If the default value is not the zero value for the type, it is treated as
-	// significant and shown to the user
-	flag.usage += "\t"
-	if !isZeroIsh(*p) {
-		// \t so that defaults get aligned by tabwriter when the command
-		// dumps the flags
-		flag.usage += fmt.Sprintf("[default: %s]", flag.String())
-	}
-
 	return flag, nil
 }
 
@@ -85,6 +72,21 @@ func (f Flag[T]) Short() rune {
 // Usage returns the usage line for the flag.
 func (f Flag[T]) Usage() string {
 	return f.usage
+}
+
+// Default returns the default value for the flag, as a string.
+//
+// If the flag's default is unset (i.e. the zero value for its type),
+// an empty string is returned.
+func (f Flag[T]) Default() string {
+	// Special case a --help flag, because if we didn't, when you call --help
+	// it would show up with a default of true because you've passed it
+	// so it's value is true here
+	if isZeroIsh(*f.value) || f.name == "help" {
+		return ""
+	}
+
+	return f.String()
 }
 
 // NoArgValue returns a string representation of value the flag should hold
