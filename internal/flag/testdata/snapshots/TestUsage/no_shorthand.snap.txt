@@ -1,3 +1,0 @@
-  -h   --help     bool  Show help for test          
-  N/A  --update   bool  Update something            
-  -V   --version  bool  Show version info for test  
