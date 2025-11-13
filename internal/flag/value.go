@@ -14,6 +14,12 @@ type Value interface {
 	// String returns the stored value of a flag as a string.
 	String() string
 
+	// Default return the default value of a flag as a string.
+	//
+	// If the flag's default is the zero value for it's type,
+	// an empty string is returned.
+	Default() string
+
 	// NoArgValue returns astring representation of the value of the flag when no
 	// args are passed (e.g --bool implies --bool true).
 	NoArgValue() string
