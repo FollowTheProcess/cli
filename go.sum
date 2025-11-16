@@ -4,6 +4,8 @@ go.followtheprocess.codes/snapshot v0.7.0 h1:tzlaJN2JRdfZail13NxinSr4hx3xjBRr1zK
 go.followtheprocess.codes/snapshot v0.7.0/go.mod h1:3CCSAEz+nbity6iZ9eWid9zLtIqFG7PE3DLhWGHLdIU=
 go.followtheprocess.codes/snapshot v0.8.0 h1:8FizwgnHIlZZa4wSgHeDYFO7OWY3yAzhkA1hIYCzoDo=
 go.followtheprocess.codes/snapshot v0.8.0/go.mod h1:3CCSAEz+nbity6iZ9eWid9zLtIqFG7PE3DLhWGHLdIU=
+go.followtheprocess.codes/snapshot v0.9.0 h1:7M6AkOL/3KFJ9e8epgwwIg+3aGnNPCHMX4/IOpbA2bw=
+go.followtheprocess.codes/snapshot v0.9.0/go.mod h1:3CCSAEz+nbity6iZ9eWid9zLtIqFG7PE3DLhWGHLdIU=
 go.followtheprocess.codes/test v1.0.0 h1:5m2MPOQpohDC9pf5hgqpH+4ldJP5g+YFVdoGQY41aeU=
 go.followtheprocess.codes/test v1.0.0/go.mod h1:e627pR8IhsTV/RfuP/WKYjyL0BmuIbmaw2iKlQBCWrY=
 go.yaml.in/yaml/v4 v4.0.0-rc.3 h1:3h1fjsh1CTAPjW7q/EMe+C8shx5d8ctzZTrLcs/j8Go=

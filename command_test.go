@@ -513,7 +513,6 @@ func TestHelp(t *testing.T) {
 			snap := snapshot.New(
 				t,
 				snapshot.Update(*update),
-				snapshot.Color(os.Getenv("CI") == ""),
 				snapshot.WithFormatter(snapshot.TextFormatter()),
 			)
 
@@ -524,7 +523,6 @@ func TestHelp(t *testing.T) {
 			options := []cli.Option{
 				cli.Stdout(stdout),
 				cli.Stderr(stderr),
-				cli.NoColour(true),
 			}
 
 			cmd, err := cli.New("test", slices.Concat(options, tt.options)...)
