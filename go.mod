@@ -9,7 +9,7 @@ ignore (
 
 require (
 	go.followtheprocess.codes/hue v1.0.0
-	go.followtheprocess.codes/snapshot v0.7.0
+	go.followtheprocess.codes/snapshot v0.8.0
 	go.followtheprocess.codes/test v1.0.0
 )
 
