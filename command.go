@@ -19,8 +19,8 @@ import (
 )
 
 const (
-	helpBufferSize    = 1024                               // helpBufferSize is sufficient to hold most command --help text.
-	versionBufferSize = 256                                // versionBufferSize is sufficient to hold all the --version text.
+	helpBufferSize    = 2048                               // helpBufferSize is sufficient to hold most command --help text.
+	versionBufferSize = 256                                // versionBufferSize is sufficient to hold a full --version text.
 	defaultVersion    = "dev"                              // defaultVersion is the version shown in --version when the user has not provided one.
 	defaultShort      = "A placeholder for something cool" // defaultShort is the default value for cli.Short.
 )
