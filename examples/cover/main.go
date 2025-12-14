@@ -22,6 +22,7 @@ func main() {
 		cli.Example("Do a thing", "demo thing --count"),
 		cli.Flag(&count, "count", 'c', "Count the thing"),
 		cli.Run(func(ctx context.Context, cmd *cli.Command) error {
+			// Here  ^^^ is the context from below, cli passes it in for you
 			fmt.Fprintln(cmd.Stdout(), "Hello from demo, my arguments were: ", cmd.Args())
 			return nil
 		}),
