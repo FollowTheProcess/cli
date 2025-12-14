@@ -125,7 +125,7 @@ To add a subcommand underneath the command you've just created, it's again `cli.
 
 ```go
 // Best to abstract it into a function
-func buildSubcommand(ctx context.Context) (*cli.Command, error) {
+func buildSubcommand() (*cli.Command, error) {
     return cli.New(
         "sub", // Name of the sub command e.g. 'clone' for 'git clone'
         cli.Short("A sub command"),
@@ -143,7 +143,7 @@ ctx := context.Background()
 cmd, err := cli.New(
     "name", // The name of your command
     // ...
-    cli.SubCommands(buildSubcommand(ctx)),
+    cli.SubCommands(buildSubcommand),
 )
 ```
 
@@ -167,7 +167,7 @@ func buildCmd() (*cli.Command, error) {
     var opts options
     return cli.New(
         // ...
-        // Signature is cli.Flag(*T, name, shorthand, default, description)
+        // Signature is cli.Flag(*T, name, shorthand, description)
         cli.Flag(&options.name, "name", 'n', "The name of something"),
         cli.Flag(&options.force, "force", cli.NoShortHand, "Force delete without confirmation"),
         cli.Flag(&options.size, "size", 's', "Size of something"),
@@ -176,6 +176,9 @@ func buildCmd() (*cli.Command, error) {
     )
 }
 ```
+
+> [!TIP]
+> Default values can be provided with the [cli.FlagDefault](https://pkg.go.dev/go.followtheprocess.codes/cli#FlagDefault) Option
 
 The types are all inferred automatically! No more `BoolSliceVarP` ✨
 
@@ -232,7 +235,7 @@ cli.New(
 )
 ```
 
-This will return a `[]string` containing all the positional arguments to your command (not flags, they've already been parsed elsewhere!)
+This will return a `[]string` containing all the positional arguments to your command (not flags, they've already been parsed out!)
 
 Or, if you want to get smarter 🧠 `cli` allows you to define *type safe* representations of your arguments, with or without default values! This follows a similar
 idea to [Flags](#flags)
@@ -294,7 +297,8 @@ The types you can currently use for positional args are:
 - `net.IP`
 
 > [!WARNING]
-> Slice types are not supported (yet), for those you need to use the `cmd.Args()` method to get the arguments manually. I'm working on this!
+> Slice types are not supported (yet), for those you need to use the `cmd.Args()` method to get the arguments manually. I plan to address this but it can be tricky
+> as slice types will eat up the remainder of the arguments so I need to figure out a good DevEx for this as it could lead to confusing outcomes
 
 ## Core Principles
 
