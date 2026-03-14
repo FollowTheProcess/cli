@@ -526,17 +526,12 @@ func TestArgableTypes(t *testing.T) {
 }
 
 func TestDefaults(t *testing.T) {
-	str, err := arg.New(new(string), "str", "A string", arg.Config[string]{DefaultValue: pointer("hello")})
+	str, err := arg.New(new(string), "str", "A string", arg.Config[string]{DefaultValue: new("hello")})
 	test.Ok(t, err)
 
-	intArg, err := arg.New(new(int), "int", "A string", arg.Config[int]{DefaultValue: pointer(27)})
+	intArg, err := arg.New(new(int), "int", "A string", arg.Config[int]{DefaultValue: new(27)})
 	test.Ok(t, err)
 
 	test.Equal(t, str.Default(), "hello")
 	test.Equal(t, intArg.Default(), "27")
-}
-
-// pointer creates a new variable of the given value and returns its pointer.
-func pointer[T any](value T) *T {
-	return &value
 }
