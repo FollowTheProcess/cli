@@ -170,3 +170,6 @@ linters:
 
         - name: var-naming
           disabled: true
+
+        - name: package-naming
+          disabled: true
