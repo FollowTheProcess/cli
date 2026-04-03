@@ -25,6 +25,7 @@ Tiny, simple, but powerful CLI framework for modern Go 🚀
     - [Sub Commands](#sub-commands)
     - [Flags](#flags)
     - [Arguments](#arguments)
+    - [Shell Completion](#shell-completion)
   - [Core Principles](#core-principles)
     - [😱 Well behaved libraries don't panic](#-well-behaved-libraries-dont-panic)
     - [🧘🏻 Keep it Simple](#-keep-it-simple)
@@ -300,6 +301,33 @@ The types you can currently use for positional args are:
 > Slice types are not supported (yet), for those you need to use the `cmd.Args()` method to get the arguments manually. I plan to address this but it can be tricky
 > as slice types will eat up the remainder of the arguments so I need to figure out a good DevEx for this as it could lead to confusing outcomes
 
+### Shell Completion
+
+`cli` has built-in support for shell completions via [carapace-bin]. Wire in `cli.CompletionSubCommand()` alongside your other subcommands:
+
+```go
+cmd, err := cli.New(
+    "mytool",
+    // ...
+    cli.SubCommands(
+        buildServeCommand,
+        buildDeployCommand,
+        cli.CompletionSubCommand(), // add this
+    ),
+)
+```
+
+Running `mytool completion` outputs a [carapace-spec] YAML document describing your full command tree — all subcommands, flags, and descriptions. Redirect it once to register completions with [carapace-bin]:
+
+```shell
+mytool completion > ~/.config/carapace/specs/mytool.yaml
+```
+
+carapace-bin then provides completions across bash, zsh, fish, nushell, PowerShell, and more — no shell-specific scripts required.
+
+> [!TIP]
+> See the [`./examples/completion`](https://github.com/FollowTheProcess/cli/tree/main/examples/completion) example for a working demonstration, and the [carapace-spec] docs for how to extend the generated YAML with semantic completion hints (file paths, environment variables, etc.)
+
 ## Core Principles
 
 When designing and implementing `cli`, I had some core goals and guiding principles for implementation.
@@ -410,3 +438,5 @@ I built `cli` for my own uses really, so I've quickly adopted it across a number
 [spf13/pflag]: https://github.com/spf13/pflag
 [urfave/cli]: https://github.com/urfave/cli
 [functional options]: https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis
+[carapace-bin]: https://github.com/carapace-sh/carapace-bin
+[carapace-spec]: https://github.com/carapace-sh/carapace-spec
