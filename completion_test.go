@@ -3,8 +3,10 @@ package cli_test
 import (
 	"bytes"
 	"context"
+	"net"
 	"slices"
 	"testing"
+	"time"
 
 	"go.followtheprocess.codes/cli"
 	"go.followtheprocess.codes/cli/flag"
@@ -170,6 +172,124 @@ func TestCompletionSpec(t *testing.T) {
 				cli.Flag(new(bool), "verbose", 'v', "Verbose: show all output"),
 				cli.Flag(new(string), "config", 'c', `Config file (default: "~/.config.yaml")`),
 				cli.SubCommands(cli.CompletionSubCommand()),
+			},
+		},
+		{
+			// Subcommands added in non-alphabetical order; output must be sorted.
+			name: "subcommands sorted alphabetically",
+			options: []cli.Option{
+				cli.Short("My tool"),
+				cli.OverrideArgs([]string{"completion"}),
+				cli.SubCommands(
+					func() (*cli.Command, error) {
+						return cli.New("repo",
+							cli.Short("Repository commands"),
+							cli.Run(func(_ context.Context, _ *cli.Command) error { return nil }),
+						)
+					},
+					func() (*cli.Command, error) {
+						return cli.New("deploy",
+							cli.Short("Deploy commands"),
+							cli.Run(func(_ context.Context, _ *cli.Command) error { return nil }),
+						)
+					},
+					cli.CompletionSubCommand(),
+				),
+			},
+		},
+		{
+			// An intermediate command that has both user flags and its own subcommands.
+			name: "mid-level command with flags and subcommands",
+			options: []cli.Option{
+				cli.Short("My tool"),
+				cli.OverrideArgs([]string{"completion"}),
+				cli.SubCommands(
+					cli.CompletionSubCommand(),
+					func() (*cli.Command, error) {
+						return cli.New("repo",
+							cli.Short("Repository commands"),
+							cli.Flag(new(string), "format", flag.NoShortHand, "Output format"),
+							cli.SubCommands(
+								func() (*cli.Command, error) {
+									return cli.New("clone",
+										cli.Short("Clone a repository"),
+										cli.Flag(new(string), "branch", 'b', "Branch to clone"),
+										cli.Run(func(_ context.Context, _ *cli.Command) error { return nil }),
+									)
+								},
+							),
+						)
+					},
+				),
+			},
+		},
+		{
+			// Root has user flags and a deeply nested leaf command also has its own flags.
+			name: "root flags with nested subcommand flags",
+			options: []cli.Option{
+				cli.Short("My tool"),
+				cli.OverrideArgs([]string{"completion"}),
+				cli.Flag(new(bool), "force", 'f', "Force the operation"),
+				cli.SubCommands(
+					cli.CompletionSubCommand(),
+					func() (*cli.Command, error) {
+						return cli.New("deploy",
+							cli.Short("Deploy commands"),
+							cli.SubCommands(
+								func() (*cli.Command, error) {
+									return cli.New("prod",
+										cli.Short("Deploy to production"),
+										cli.Flag(new(bool), "dry-run", flag.NoShortHand, "Dry run mode"),
+										cli.Run(func(_ context.Context, _ *cli.Command) error { return nil }),
+									)
+								},
+							),
+						)
+					},
+				),
+			},
+		},
+		{
+			name: "duration flag",
+			options: []cli.Option{
+				cli.Short("My tool"),
+				cli.OverrideArgs([]string{"completion"}),
+				cli.Flag(new(time.Duration), "timeout", 't', "Request timeout"),
+				cli.SubCommands(cli.CompletionSubCommand()),
+			},
+		},
+		{
+			name: "float flag",
+			options: []cli.Option{
+				cli.Short("My tool"),
+				cli.OverrideArgs([]string{"completion"}),
+				cli.Flag(new(float64), "threshold", flag.NoShortHand, "Minimum threshold"),
+				cli.SubCommands(cli.CompletionSubCommand()),
+			},
+		},
+		{
+			name: "ip flag",
+			options: []cli.Option{
+				cli.Short("My tool"),
+				cli.OverrideArgs([]string{"completion"}),
+				cli.Flag(new(net.IP), "bind", 'b', "Address to bind"),
+				cli.SubCommands(cli.CompletionSubCommand()),
+			},
+		},
+		{
+			// A subcommand without an explicit Short inherits the package default description.
+			name: "subcommand with default description",
+			options: []cli.Option{
+				cli.Short("My tool"),
+				cli.OverrideArgs([]string{"completion"}),
+				cli.SubCommands(
+					cli.CompletionSubCommand(),
+					func() (*cli.Command, error) {
+						return cli.New("frobnicate",
+							cli.Run(func(_ context.Context, _ *cli.Command) error { return nil }),
+						)
+					},
+				),
 			},
 		},
 	}

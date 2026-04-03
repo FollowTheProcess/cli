@@ -159,13 +159,6 @@ func persistentFlagsFrom(cmd *Command) map[string]string {
 
 // specFlagKey encodes a flag name, shorthand, and type into a carapace-spec
 // flag map key.
-//
-// Modifier selection (in order):
-//
-//	bool                    → no suffix    ("--force" or "-f, --force")
-//	count                   → *            ("--verbose*" or "-v, --verbose*")
-//	noArgValue != ""        → ?            (optional-value flag)
-//	everything else         → =            ("--output=" or "-o, --output=")
 func specFlagKey(name string, short rune, typ, noArgValue string) string {
 	var base string
 	if short != publicflag.NoShortHand {
@@ -175,13 +168,15 @@ func specFlagKey(name string, short rune, typ, noArgValue string) string {
 	}
 
 	switch {
+	case noArgValue == "":
+		// Value is required
+		return base + "="
 	case typ == "bool":
 		return base
 	case typ == "count":
 		return base + "*"
-	case noArgValue != "":
-		return base + "?"
 	default:
-		return base + "="
+		// Optional value
+		return base + "?"
 	}
 }
