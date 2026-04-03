@@ -11,11 +11,11 @@ import (
 )
 
 const completionLong = `
-"Outputs a carapace-spec YAML document describing this command's flags and subcommands.
+Outputs a carapace-spec YAML document describing this command's flags and subcommands.
 
 Redirect the output to register completions with carapace-bin:
 
-  mytool completion > ~/.config/carapace/specs/mytool.yaml",
+  mytool completion > ~/.config/carapace/specs/mytool.yaml
 `
 
 // CompletionSubCommand returns a [Builder] that constructs a "completion" subcommand.
