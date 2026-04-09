@@ -1,0 +1,11 @@
+A test command
+
+Usage: test [OPTIONS] ARGS...
+
+Options:
+
+  -c  --count    int     A much longer usage description here    (env: $MYTOOL_COUNT)
+  -f  --force    bool    Force something                         (env: $MYTOOL_FORCE)
+  -h  --help     bool    Show help for test                      
+  -n  --name     string  Name                                    (env: $MYTOOL_NAME)
+  -V  --version  bool    Show version info for test              

@@ -487,18 +487,45 @@ func ArgDefault[T arg.Argable](value T) ArgOption[T] {
 	return argOption[T](f)
 }
 
+// Env is a [FlagOption] that associates an environment variable with a flag.
+//
+// When the flag is not explicitly set on the command line, CLI checks the named
+// environment variable. If it is set and non-empty, its value is parsed using the
+// same mechanism as command-line values. If it is not set or is empty, the flag
+// retains its default value.
+//
+// For scalar flags, command-line values always take priority over environment variables.
+// For slice and count flags, the environment variable provides a base value and any
+// CLI flags accumulate on top.
+//
+// Slice flags accept comma-separated values:
+//
+//	MYTOOL_ITEMS='one,two,three'
+//
+//	var noApprove bool
+//	cli.Flag(&noApprove, "no-approve", cli.NoShortHand, "Skip approval", cli.Env[bool]("MYTOOL_NO_APPROVE"))
+func Env[T flag.Flaggable](name string) FlagOption[T] {
+	return flagOption[T](func(cfg *internalflag.Config[T]) error {
+		if name == "" {
+			return errors.New("env var name cannot be empty")
+		}
+
+		cfg.EnvVar = name
+
+		return nil
+	})
+}
+
 // FlagDefault is a [cli.FlagOption] that sets the default value for command line flag.
 //
 // By default, a flag's default value is the zero value for its type. But using this
 // option, you may set a non-zero default value that the flag should inherit if not
 // provided on the command line.
 func FlagDefault[T flag.Flaggable](value T) FlagOption[T] {
-	f := func(cfg *internalflag.Config[T]) error {
+	return flagOption[T](func(cfg *internalflag.Config[T]) error {
 		cfg.DefaultValue = value
 		return nil
-	}
-
-	return flagOption[T](f)
+	})
 }
 
 // anyDuplicates checks the list of commands for ones with duplicate names, if a duplicate
@@ -546,11 +573,11 @@ type FlagOption[T flag.Flaggable] interface {
 	apply(cfg *internalflag.Config[T]) error
 }
 
-// option is a function adapter implementing the Option interface, analogous
+// flagOption is a function adapter implementing the [FlagOption] interface, analogous
 // to http.HandlerFunc.
 type flagOption[T flag.Flaggable] func(cfg *internalflag.Config[T]) error
 
-// apply implements the Option interface for option.
+// apply implements [FlagOption] for flagOption.
 //
 //nolint:unused // This is a false positive, this has to be here
 func (f flagOption[T]) apply(cfg *internalflag.Config[T]) error {

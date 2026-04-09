@@ -23,10 +23,11 @@ var _ Value = Flag[string]{} // This will fail if we violate our Value interface
 
 // Flag represents a single command line flag.
 type Flag[T flag.Flaggable] struct {
-	value *T     // The actual stored value
-	name  string // The name of the flag as appears on the command line, e.g. "force" for a --force flag
-	usage string // One line description of the flag, e.g. "Force deletion without confirmation"
-	short rune   // Optional shorthand version of the flag, e.g. "f" for a -f flag
+	value  *T     // The actual stored value
+	name   string // The name of the flag as appears on the command line, e.g. "force" for a --force flag
+	usage  string // one line description of the flag, e.g. "Force deletion without confirmation"
+	envVar string // Name of an environment variable that may set this flag's value if the flag is not explicitly provided on the command line
+	short  rune   // Optional shorthand version of the flag, e.g. "f" for a -f flag
 }
 
 // New constructs and returns a new [Flag].
@@ -49,10 +50,11 @@ func New[T flag.Flaggable](p *T, name string, short rune, usage string, config C
 	*p = config.DefaultValue
 
 	flag := Flag[T]{
-		value: p,
-		name:  name,
-		usage: usage,
-		short: short,
+		value:  p,
+		name:   name,
+		usage:  usage,
+		short:  short,
+		envVar: config.EnvVar,
 	}
 
 	return flag, nil
@@ -87,6 +89,29 @@ func (f Flag[T]) Default() string {
 	}
 
 	return f.String()
+}
+
+// EnvVar returns the name of the environment variable associated with this flag,
+// or an empty string if none was configured.
+func (f Flag[T]) EnvVar() string {
+	return f.envVar
+}
+
+// IsSlice reports whether the flag holds a slice value that accumulates repeated
+// calls to Set. Returns false for []byte and net.IP, which are parsed atomically.
+func (f Flag[T]) IsSlice() bool {
+	if f.value == nil {
+		return false
+	}
+
+	switch any(*f.value).(type) {
+	case []int, []int8, []int16, []int32, []int64,
+		[]uint, []uint16, []uint32, []uint64,
+		[]float32, []float64, []string:
+		return true
+	default:
+		return false
+	}
 }
 
 // NoArgValue returns a string representation of value the flag should hold

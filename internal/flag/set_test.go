@@ -3,6 +3,7 @@ package flag_test
 import (
 	"iter"
 	"maps"
+	"net"
 	"slices"
 	"testing"
 	"time"
@@ -862,6 +863,505 @@ func TestParse(t *testing.T) {
 				test.Equal(t, flag.String(), "3") // Should be incremented by 3
 			},
 			args:    []string{"-ccc"},
+			wantErr: false,
+		},
+		{
+			name: "env var applied when flag not set on CLI",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_DELETE", "true")
+
+				var val bool
+
+				f, err := flag.New(&val, "delete", 'd', "Delete something", flag.Config[bool]{EnvVar: "MYTOOL_DELETE"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("delete")
+				test.True(t, exists)
+				test.Equal(t, f.String(), format.True)
+			},
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "CLI long flag overrides env var",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_DELETE", "true")
+
+				var val bool
+
+				f, err := flag.New(&val, "delete", 'd', "Delete something", flag.Config[bool]{EnvVar: "MYTOOL_DELETE"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("delete")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "false")
+			},
+			args:    []string{"--delete=false"},
+			wantErr: false,
+		},
+		{
+			name: "CLI short flag overrides env var",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_DELETE", "true")
+
+				var val bool
+
+				f, err := flag.New(&val, "delete", 'd', "Delete something", flag.Config[bool]{EnvVar: "MYTOOL_DELETE"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("delete")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "false")
+			},
+			args:    []string{"-d=false"},
+			wantErr: false,
+		},
+		{
+			name: "invalid env var value returns error",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_COUNT", "notanumber")
+
+				var val int
+
+				f, err := flag.New(&val, "count", 'c', "Count", flag.Config[int]{EnvVar: "MYTOOL_COUNT"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			args:    []string{},
+			wantErr: true,
+			errMsg:  `could not set flag from env: env var MYTOOL_COUNT: parse error: flag "count" received invalid value "notanumber" (expected int): strconv.ParseInt: parsing "notanumber": invalid syntax`,
+		},
+		{
+			name: "env var not set leaves flag at default",
+			newSet: func(t *testing.T) *flag.Set {
+				// MYTOOL_DELETE is deliberately NOT set in the environment
+				var val bool
+
+				f, err := flag.New(&val, "delete", 'd', "Delete something", flag.Config[bool]{EnvVar: "MYTOOL_DELETE"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("delete")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "false")
+			},
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "env var applied when terminator present",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_DELETE", "true")
+
+				var val bool
+
+				f, err := flag.New(&val, "delete", 'd', "Delete something", flag.Config[bool]{EnvVar: "MYTOOL_DELETE"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("delete")
+				test.True(t, exists)
+				test.Equal(t, f.String(), format.True)
+				test.EqualFunc(t, set.ExtraArgs(), []string{"extra"}, slices.Equal)
+			},
+			args:    []string{"--", "extra"},
+			wantErr: false,
+		},
+		{
+			name: "flag without env var configured is unaffected by environment",
+			newSet: func(t *testing.T) *flag.Set {
+				// Env var is set in the OS but NOT wired to this flag
+				t.Setenv("MYTOOL_DELETE", "true")
+
+				var val bool
+
+				f, err := flag.New(&val, "delete", 'd', "Delete something", flag.Config[bool]{})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("delete")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "false")
+			},
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "slice flag set via comma-separated env var",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_ITEMS", "one,two,three")
+
+				var val []string
+
+				f, err := flag.New(&val, "item", 'i', "Add item", flag.Config[[]string]{EnvVar: "MYTOOL_ITEMS"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("item")
+				test.True(t, exists)
+				test.Equal(t, f.String(), `["one", "two", "three"]`)
+			},
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "count env var and CLI flags both accumulate",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_VERBOSITY", "2")
+
+				var val publicflag.Count
+
+				f, err := flag.New(&val, "verbosity", 'v', "Increase verbosity", flag.Config[publicflag.Count]{EnvVar: "MYTOOL_VERBOSITY"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("verbosity")
+				test.True(t, exists)
+				// Env var contributes 2, CLI contributes 1 more — total 3
+				test.Equal(t, f.String(), "3")
+			},
+			args:    []string{"--verbosity"},
+			wantErr: false,
+		},
+		{
+			name: "slice env var and CLI flags both accumulate",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_ITEMS", "one,two")
+
+				var val []string
+
+				f, err := flag.New(&val, "item", 'i', "Add item", flag.Config[[]string]{EnvVar: "MYTOOL_ITEMS"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("item")
+				test.True(t, exists)
+				test.Equal(t, f.String(), `["one", "two", "three"]`)
+			},
+			args:    []string{"--item", "three"},
+			wantErr: false,
+		},
+		{
+			name: "net.IP flag set via env var",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_HOST", "192.168.1.1")
+
+				var val net.IP
+
+				f, err := flag.New(&val, "host", 'h', "Host IP address", flag.Config[net.IP]{EnvVar: "MYTOOL_HOST"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("host")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "192.168.1.1")
+			},
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "net.IP flag env var is overridden by CLI",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_HOST", "192.168.1.1")
+
+				var val net.IP
+
+				f, err := flag.New(&val, "host", 'h', "Host IP address", flag.Config[net.IP]{EnvVar: "MYTOOL_HOST"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("host")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "10.0.0.1")
+			},
+			args:    []string{"--host", "10.0.0.1"},
+			wantErr: false,
+		},
+		{
+			name: "invalid net.IP env var returns error",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_HOST", "notanip")
+
+				var val net.IP
+
+				f, err := flag.New(&val, "host", 'h', "Host IP address", flag.Config[net.IP]{EnvVar: "MYTOOL_HOST"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			args:    []string{},
+			wantErr: true,
+			errMsg:  `could not set flag from env: env var MYTOOL_HOST: parse error: flag "host" received invalid value "notanip" (expected net.IP): invalid IP address`,
+		},
+		{
+			name: "time.Duration flag set via env var",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_TIMEOUT", "30s")
+
+				var val time.Duration
+
+				f, err := flag.New(&val, "timeout", 't', "Request timeout", flag.Config[time.Duration]{EnvVar: "MYTOOL_TIMEOUT"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("timeout")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "30s")
+			},
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "time.Duration flag env var is overridden by CLI",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_TIMEOUT", "30s")
+
+				var val time.Duration
+
+				f, err := flag.New(&val, "timeout", 't', "Request timeout", flag.Config[time.Duration]{EnvVar: "MYTOOL_TIMEOUT"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("timeout")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "1m0s")
+			},
+			args:    []string{"--timeout", "1m"},
+			wantErr: false,
+		},
+		{
+			name: "invalid time.Duration env var returns error",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_TIMEOUT", "notaduration")
+
+				var val time.Duration
+
+				f, err := flag.New(&val, "timeout", 't', "Request timeout", flag.Config[time.Duration]{EnvVar: "MYTOOL_TIMEOUT"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			args:    []string{},
+			wantErr: true,
+			errMsg:  `could not set flag from env: env var MYTOOL_TIMEOUT: parse error: flag "timeout" received invalid value "notaduration" (expected time.Duration): time: invalid duration "notaduration"`,
+		},
+		{
+			name: "time.Time flag set via env var",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_SINCE", "2024-08-17T10:37:30Z")
+
+				var val time.Time
+
+				f, err := flag.New(
+					&val,
+					"since",
+					publicflag.NoShortHand,
+					"Start time (RFC3339)",
+					flag.Config[time.Time]{EnvVar: "MYTOOL_SINCE"},
+				)
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("since")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "2024-08-17T10:37:30Z")
+			},
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "invalid time.Time env var returns error",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_SINCE", "not-a-time")
+
+				var val time.Time
+
+				f, err := flag.New(
+					&val,
+					"since",
+					publicflag.NoShortHand,
+					"Start time (RFC3339)",
+					flag.Config[time.Time]{EnvVar: "MYTOOL_SINCE"},
+				)
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			args:    []string{},
+			wantErr: true,
+			errMsg:  `could not set flag from env: env var MYTOOL_SINCE: parse error: flag "since" received invalid value "not-a-time" (expected time.Time): parsing time "not-a-time" as "2006-01-02T15:04:05Z07:00": cannot parse "not-a-time" as "2006"`,
+		},
+		{
+			name: "[]int flag set via comma-separated env var",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_PORTS", "8080,8081,8082")
+
+				var val []int
+
+				f, err := flag.New(&val, "port", 'p', "Port numbers", flag.Config[[]int]{EnvVar: "MYTOOL_PORTS"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("port")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "[8080, 8081, 8082]")
+			},
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "invalid value in []int comma-separated env var returns error",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_PORTS", "8080,notaport,8082")
+
+				var val []int
+
+				f, err := flag.New(&val, "port", 'p', "Port numbers", flag.Config[[]int]{EnvVar: "MYTOOL_PORTS"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			args:    []string{},
+			wantErr: true,
+			errMsg:  `could not set flag from env: env var MYTOOL_PORTS: parse error: flag "port" (type []int) cannot append element "notaport": strconv.ParseInt: parsing "notaport": invalid syntax`,
+		},
+		{
+			name: "bytes flag env var is parsed atomically, not split on comma",
+			newSet: func(t *testing.T) *flag.Set {
+				// A hex string that contains a comma should be parsed as-is, not split
+				t.Setenv("MYTOOL_DATA", "deadbeef")
+
+				var val []byte
+
+				f, err := flag.New(&val, "data", 'd', "Raw bytes", flag.Config[[]byte]{EnvVar: "MYTOOL_DATA"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("data")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "deadbeef")
+			},
+			args:    []string{},
 			wantErr: false,
 		},
 	}

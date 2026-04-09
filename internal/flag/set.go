@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"iter"
+	"os"
 	"slices"
 	"strings"
 
@@ -13,10 +14,11 @@ import (
 
 // Set is a set of command line flags.
 type Set struct {
-	flags      map[string]Value // The actual stored flags, can lookup by name
-	shorthands map[rune]Value   // The flags by shorthand
-	args       []string         // Arguments minus flags or flag values
-	extra      []string         // Arguments after "--" was hit
+	flags      map[string]Value  // The actual stored flags, can lookup by name
+	shorthands map[rune]Value    // The flags by shorthand
+	envVars    map[string]string // flag name → env var name
+	args       []string          // Arguments minus flags or flag values
+	extra      []string          // Arguments after "--" was hit
 }
 
 // NewSet builds and returns a new set of flags.
@@ -24,6 +26,7 @@ func NewSet() *Set {
 	return &Set{
 		flags:      make(map[string]Value),
 		shorthands: make(map[rune]Value),
+		envVars:    make(map[string]string),
 	}
 }
 
@@ -49,6 +52,10 @@ func AddToSet[T flag.Flaggable](set *Set, f Flag[T]) error {
 	}
 
 	set.flags[name] = f
+
+	if f.envVar != "" {
+		set.envVars[name] = f.envVar
+	}
 
 	// Only add the shorthand if it wasn't opted out of
 	if short != flag.NoShortHand {
@@ -143,9 +150,15 @@ func (s *Set) ExtraArgs() []string {
 }
 
 // Parse parses flags and their values from the command line.
-func (s *Set) Parse(args []string) (err error) {
+func (s *Set) Parse(args []string) error {
+	var err error
+
 	if s == nil {
 		return errors.New("Parse called on a nil set")
+	}
+
+	if err = s.applyEnvVars(); err != nil {
+		return fmt.Errorf("could not set flag from env: %w", err)
 	}
 
 	for len(args) > 0 {
@@ -200,6 +213,44 @@ func (s *Set) All() iter.Seq2[string, Value] {
 			}
 		}
 	}
+}
+
+// applyEnvVars looks up each configured environment variable and applies its value
+// to the corresponding flag. It is called at the start of Parse so that CLI args
+// parsed afterward naturally override these values.
+//
+// Slice flags accept comma-separated values e.g. MYTOOL_ITEMS='one,two,three'.
+// Empty and unset variables are ignored.
+func (s *Set) applyEnvVars() error {
+	for name, envName := range s.envVars {
+		val, ok := os.LookupEnv(envName)
+		if !ok || val == "" {
+			continue
+		}
+
+		f, ok := s.flags[name]
+		if !ok {
+			return fmt.Errorf("flag %q does not exist", name)
+		}
+
+		if f.IsSlice() {
+			for item := range strings.SplitSeq(val, ",") {
+				if item = strings.TrimSpace(item); item != "" {
+					if err := f.Set(item); err != nil {
+						return fmt.Errorf("env var %s: %w", envName, err)
+					}
+				}
+			}
+
+			continue
+		}
+
+		if err := f.Set(val); err != nil {
+			return fmt.Errorf("env var %s: %w", envName, err)
+		}
+	}
+
+	return nil
 }
 
 // parseLongFlag parses a single long flag e.g. --delete. It is passed
