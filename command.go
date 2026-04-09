@@ -667,23 +667,24 @@ func writeFlags(cmd *Command, s *strings.Builder) error {
 			shorthand = "N/A"
 		}
 
-		line := fmt.Sprintf(
-			"  %s\t--%s\t%s\t%s\t", style.Bold.Text(shorthand),
+		defaultStr := ""
+		if fl.Default() != "" {
+			defaultStr = "[default: " + fl.Default() + "]"
+		}
+
+		envStr := ""
+		if fl.EnvVar() != "" {
+			envStr = "(env: $" + fl.EnvVar() + ")"
+		}
+
+		line := fmt.Sprintf("  %s\t--%s\t%s\t%s\t%s\t%s",
+			style.Bold.Text(shorthand),
 			style.Bold.Text(name),
 			fl.Type(),
 			fl.Usage(),
+			defaultStr,
+			envStr,
 		)
-
-		if fl.Default() != "" {
-			line = fmt.Sprintf(
-				"  %s\t--%s\t%s\t%s\t[default: %s]",
-				style.Bold.Text(shorthand),
-				style.Bold.Text(name),
-				fl.Type(),
-				fl.Usage(),
-				fl.Default(),
-			)
-		}
 
 		fmt.Fprintln(tw, line)
 	}

@@ -20,12 +20,21 @@ type Value interface {
 	// an empty string is returned.
 	Default() string
 
+	// EnvVar returns the name of the environment variable associated with this flag,
+	// or an empty string if none was configured.
+	EnvVar() string
+
 	// NoArgValue returns astring representation of the value of the flag when no
 	// args are passed (e.g --bool implies --bool true).
 	NoArgValue() string
 
 	// Type returns the string representation of the flag type e.g. "bool".
 	Type() string
+
+	// IsSlice reports whether the flag holds a slice value that accumulates
+	// repeated calls to Set (e.g. []string, []int). Note that []byte and net.IP
+	// are NOT slice flags in this sense — they are parsed atomically.
+	IsSlice() bool
 
 	// Set sets the stored value of a flag by parsing the string "str".
 	Set(str string) error

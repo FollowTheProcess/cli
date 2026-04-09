@@ -181,6 +181,35 @@ func buildCmd() (*cli.Command, error) {
 > [!TIP]
 > Default values can be provided with the [cli.FlagDefault](https://pkg.go.dev/go.followtheprocess.codes/cli#FlagDefault) Option
 
+> [!TIP]
+> Flags can also be set via environment variables using the [cli.Env](https://pkg.go.dev/go.followtheprocess.codes/cli#Env) option.
+> Environment variables are always overridden by explicit CLI flags.
+
+```go
+var force bool
+cli.Flag(&force, "force", 'f', "Force deletion", cli.Env[bool]("MYTOOL_FORCE"))
+```
+
+> [!NOTE]
+> `cli.Env` requires an explicit type parameter because Go cannot infer it from the string argument alone.
+> The compiler enforces that the type matches the flag — `cli.Env[string](...)` on a `bool` flag is a compile error.
+
+When `MYTOOL_FORCE=true` is set in the environment, `--force` is implied. Passing `--force=false` on the command line always wins.
+
+Slice flags accept comma-separated env var values:
+
+```sh
+MYTOOL_ITEMS='one,two,three' mytool
+```
+
+The env var name is also shown in `--help` output:
+
+```
+Options:
+
+  -f  --force  bool  Force deletion  (env: $MYTOOL_FORCE)
+```
+
 The types are all inferred automatically! No more `BoolSliceVarP` ✨
 
 The types you can use for flags currently are:

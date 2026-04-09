@@ -1,0 +1,10 @@
+A test command
+
+Usage: test [OPTIONS] ARGS...
+
+Options:
+
+  -c  --count    int     Count things                [default: 5]  (env: $MYTOOL_COUNT)
+  -h  --help     bool    Show help for test                        
+  -n  --name     string  A name                                    (env: $MYTOOL_NAME)
+  -V  --version  bool    Show version info for test                
