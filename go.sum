@@ -1,5 +1,5 @@
-go.followtheprocess.codes/hue v1.0.0 h1:0fYXAGR1o+w7Vja+Q+iVtqeEP3/CE6ET/pniyl8e9yo=
-go.followtheprocess.codes/hue v1.0.0/go.mod h1:gSn5xK6KJapih+eFgQk3woo1qg3/rx9XSrAanUIuDr8=
+go.followtheprocess.codes/hue v1.1.0 h1:bPq21YLdWxQ0ki4lIvXCYtgutaGaDUYaSIENDdrrlNQ=
+go.followtheprocess.codes/hue v1.1.0/go.mod h1:VnCeVmYESGmX7fZJSFs59u8G+5zseCwGdFiJGHCFg4o=
 go.followtheprocess.codes/snapshot v0.9.1 h1:q90k4ZsV4WNrJkAXo6gLqYLgE3RipnzSOXU5o5Moyts=
 go.followtheprocess.codes/snapshot v0.9.1/go.mod h1:IKWetABJnYaG6rZAsINXAc6rB0TxoxdysBC3R2HvwWo=
 go.followtheprocess.codes/test v1.1.0 h1:1v2JyMd3STr7dIXzcHEhct2qvS8/mTtGYbSyhpReciI=
