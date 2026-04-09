@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"net"
+	"net/url"
 	"slices"
 	"testing"
 	"time"
@@ -914,6 +915,32 @@ func TestFlaggableTypes(t *testing.T) {
 		test.Equal(t, sliceFlag.Type(), "[]string")
 		test.Equal(t, sliceFlag.String(), `["a string", "another string"]`)
 	})
+
+	t.Run("url valid", func(t *testing.T) {
+		var u *url.URL
+
+		urlFlag, err := flag.New(&u, "url", 'u', "Set a URL", flag.Config[*url.URL]{})
+		test.Ok(t, err)
+
+		err = urlFlag.Set("https://example.com/path")
+		test.Ok(t, err)
+		test.Equal(t, u.Scheme, "https")
+		test.Equal(t, u.Host, "example.com")
+		test.Equal(t, u.Path, "/path")
+		test.Equal(t, urlFlag.Type(), "url")
+		test.Equal(t, urlFlag.String(), "https://example.com/path")
+	})
+
+	t.Run("url invalid", func(t *testing.T) {
+		var u *url.URL
+
+		urlFlag, err := flag.New(&u, "url", 'u', "Set a URL", flag.Config[*url.URL]{})
+		test.Ok(t, err)
+
+		err = urlFlag.Set("not a url")
+		test.Err(t, err)
+		test.True(t, errors.Is(err, parse.Err))
+	})
 }
 
 func TestFlagValidation(t *testing.T) {
@@ -1045,8 +1072,8 @@ func TestFlagNilSafety(t *testing.T) {
 	t.Run("composite literal", func(t *testing.T) {
 		// Users doing naughty things, should still be nil safe
 		flag := flag.Flag[bool]{}
-		test.Equal(t, flag.String(), "<nil>")
-		test.Equal(t, flag.Type(), "<nil>")
+		test.Equal(t, flag.String(), format.Nil)
+		test.Equal(t, flag.Type(), format.Nil)
 
 		err := flag.Set(format.True)
 		test.Err(t, err)

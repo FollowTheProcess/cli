@@ -68,6 +68,9 @@ const (
 // default values and when flags have a NoArgValue.
 const True = "true"
 
+// Nil is the string representation of a Go nil value.
+const Nil = "<nil>"
+
 // Int returns a string representation of an integer.
 func Int[T constraints.Signed](n T) string {
 	return strconv.FormatInt(int64(n), base10)
