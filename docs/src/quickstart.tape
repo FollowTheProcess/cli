@@ -64,7 +64,7 @@ Set Theme "Catppuccin Macchiato"
 Set WindowBar Colorful
 Set Padding 5
 Set Height 800
-Set Width 1200
+Set Width 1300
 Set Margin 40
 Set MarginFill "#7983FF"
 Set BorderRadius 10
