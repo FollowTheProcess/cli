@@ -3,6 +3,7 @@ package flag
 
 import (
 	"net"
+	"net/url"
 	"time"
 )
 
@@ -46,6 +47,7 @@ type Flaggable interface {
 		time.Time |
 		time.Duration |
 		net.IP |
+		*url.URL |
 		[]int |
 		[]int8 |
 		[]int16 |
