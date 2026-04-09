@@ -234,6 +234,7 @@ The types you can use for flags currently are:
 - `time.Time`
 - `time.Duration`
 - `net.IP`
+- `*url.URL`
 - `[]int`
 - `[]int8`
 - `[]int16`

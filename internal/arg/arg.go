@@ -120,7 +120,7 @@ func (a Arg[T]) Default() string {
 //nolint:cyclop // No other way of doing this realistically
 func (a Arg[T]) String() string {
 	if a.value == nil {
-		return "<nil>"
+		return format.Nil
 	}
 
 	switch typ := any(*a.value).(type) {
@@ -174,7 +174,7 @@ func (a Arg[T]) String() string {
 //nolint:cyclop // No other way of doing this realistically
 func (a Arg[T]) Type() string {
 	if a.value == nil {
-		return "<nil>"
+		return format.Nil
 	}
 
 	switch typ := any(*a.value).(type) {

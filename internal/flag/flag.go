@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -136,7 +137,7 @@ func (f Flag[T]) NoArgValue() string {
 //nolint:cyclop // No other way of doing this realistically
 func (f Flag[T]) String() string {
 	if f.value == nil {
-		return "<nil>"
+		return format.Nil
 	}
 
 	switch typ := any(*f.value).(type) {
@@ -180,6 +181,12 @@ func (f Flag[T]) String() string {
 		return typ.String()
 	case net.IP:
 		return typ.String()
+	case *url.URL:
+		if typ == nil {
+			return format.Nil
+		}
+
+		return typ.String()
 	case []int:
 		return format.Slice(typ)
 	case []int8:
@@ -212,7 +219,7 @@ func (f Flag[T]) String() string {
 // Type returns a string representation of the type of the Flag.
 func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this realistically
 	if f.value == nil {
-		return "<nil>"
+		return format.Nil
 	}
 
 	switch typ := any(*f.value).(type) {
@@ -256,6 +263,8 @@ func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this r
 		return format.TypeDuration
 	case net.IP:
 		return format.TypeIP
+	case *url.URL:
+		return format.TypeURL
 	case []int:
 		return format.TypeIntSlice
 	case []int8:
@@ -476,6 +485,15 @@ func (f Flag[T]) Set(str string) error {
 		val := net.ParseIP(str)
 		if val == nil {
 			return parse.Error(parse.KindFlag, f.name, str, typ, errors.New("invalid IP address"))
+		}
+
+		*f.value = *parse.Cast[T](&val)
+
+		return nil
+	case *url.URL:
+		val, err := url.ParseRequestURI(str)
+		if err != nil {
+			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
 		*f.value = *parse.Cast[T](&val)
@@ -759,6 +777,8 @@ func isZeroIsh[T flag.Flaggable](value T) bool { //nolint:cyclop // Not much els
 		return len(typ) == 0
 	case net.IP:
 		return len(typ) == 0
+	case *url.URL:
+		return typ == nil
 	case []int:
 		return len(typ) == 0
 	case []int8:
