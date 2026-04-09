@@ -506,6 +506,39 @@ func TestHelp(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "flag with env var",
+			options: []cli.Option{
+				cli.OverrideArgs([]string{"--help"}),
+				cli.Short("A test command"),
+				cli.Flag(new(bool), "force", 'f', "Force something", cli.Env[bool]("MYTOOL_FORCE")),
+				cli.Run(func(_ context.Context, _ *cli.Command) error { return nil }),
+			},
+			wantErr: false,
+		},
+		{
+			name: "flags with multiple env vars",
+			options: []cli.Option{
+				cli.OverrideArgs([]string{"--help"}),
+				cli.Short("A test command"),
+				cli.Flag(new(bool), "force", 'f', "Force something", cli.Env[bool]("MYTOOL_FORCE")),
+				cli.Flag(new(int), "count", 'c', "A much longer usage description here", cli.Env[int]("MYTOOL_COUNT")),
+				cli.Flag(new(string), "name", 'n', "Name", cli.Env[string]("MYTOOL_NAME")),
+				cli.Run(func(_ context.Context, _ *cli.Command) error { return nil }),
+			},
+			wantErr: false,
+		},
+		{
+			name: "flag with default and env var",
+			options: []cli.Option{
+				cli.OverrideArgs([]string{"--help"}),
+				cli.Short("A test command"),
+				cli.Flag(new(int), "count", 'c', "Count things", cli.FlagDefault(5), cli.Env[int]("MYTOOL_COUNT")),
+				cli.Flag(new(string), "name", 'n', "A name", cli.Env[string]("MYTOOL_NAME")),
+				cli.Run(func(_ context.Context, _ *cli.Command) error { return nil }),
+			},
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -849,6 +882,85 @@ func TestExecuteNilCommand(t *testing.T) {
 
 	if err != nil {
 		test.Equal(t, err.Error(), "Execute called on a nil Command")
+	}
+}
+
+func TestEnvFlag(t *testing.T) {
+	tests := []struct {
+		name    string
+		setup   func(t *testing.T)
+		stdout  string
+		errMsg  string
+		args    []string
+		wantErr bool
+	}{
+		{
+			name: "bool flag set via env var",
+			setup: func(t *testing.T) {
+				t.Setenv("MYTOOL_FORCE", "true")
+			},
+			stdout:  "force: true\n",
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "CLI bool flag overrides env var",
+			setup: func(t *testing.T) {
+				t.Setenv("MYTOOL_FORCE", "true")
+			},
+			stdout:  "force: false\n",
+			args:    []string{"--force=false"},
+			wantErr: false,
+		},
+		{
+			name:    "env var not set leaves flag at default",
+			stdout:  "force: false\n",
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "invalid env var value propagates error through Execute",
+			setup: func(t *testing.T) {
+				t.Setenv("MYTOOL_FORCE", "notabool")
+			},
+			args:    []string{},
+			wantErr: true,
+			errMsg:  `failed to parse command flags: could not set flag from env: env var MYTOOL_FORCE: parse error: flag "force" received invalid value "notabool" (expected bool): strconv.ParseBool: parsing "notabool": invalid syntax`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.setup != nil {
+				tt.setup(t)
+			}
+
+			var force bool
+
+			stdout := &bytes.Buffer{}
+
+			cmd, err := cli.New("test",
+				cli.Stdout(stdout),
+				cli.Flag(&force, "force", flag.NoShortHand, "Force something", cli.Env[bool]("MYTOOL_FORCE")),
+				cli.OverrideArgs(tt.args),
+				cli.Run(func(ctx context.Context, cmd *cli.Command) error {
+					fmt.Fprintf(cmd.Stdout(), "force: %v\n", force)
+					return nil
+				}),
+			)
+			test.Ok(t, err)
+
+			err = cmd.Execute(t.Context())
+			test.WantErr(t, err, tt.wantErr)
+
+			if tt.wantErr && tt.errMsg != "" {
+				test.Equal(t, err.Error(), tt.errMsg)
+			}
+
+			if !tt.wantErr {
+				test.Equal(t, stdout.String(), tt.stdout)
+			}
+		})
 	}
 }
 

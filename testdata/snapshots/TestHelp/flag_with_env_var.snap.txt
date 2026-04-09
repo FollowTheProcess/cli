@@ -1,16 +1,9 @@
-A placeholder for something cool
+A test command
 
 Usage: test [OPTIONS] ARGS...
 
-Examples:
-
-  # Do a thing
-  $ test do thing --now
-
-  # Do a different thing
-  $ test do thing --different
-
 Options:
 
+  -f  --force    bool  Force something               (env: $MYTOOL_FORCE)
   -h  --help     bool  Show help for test            
   -V  --version  bool  Show version info for test    

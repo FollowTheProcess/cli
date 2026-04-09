@@ -88,7 +88,7 @@ func buildDoCommand() (*cli.Command, error) {
 		cli.Example("Do it for a specific duration", "demo do something --duration 1m30s"),
 		cli.Version("do version"),
 		cli.Arg(&thing, "thing", "Thing to do"),
-		cli.Flag(&options.count, "count", 'c', "Number of times to do the thing", cli.FlagDefault(1)),
+		cli.Flag(&options.count, "count", 'c', "Number of times to do the thing", cli.FlagDefault(1), cli.Env[int]("DEMO_COUNT")),
 		cli.Flag(&options.fast, "fast", 'f', "Do the thing quickly"),
 		cli.Flag(&options.verbosity, "verbosity", 'v', "Increase the verbosity level"),
 		cli.Flag(&options.duration, "duration", 'd', "Do the thing for a specific duration", cli.FlagDefault(1*time.Second)),
