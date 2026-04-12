@@ -2,8 +2,8 @@ go.followtheprocess.codes/diff v0.1.1 h1:pQpnow+Uj39S4xxNC6FLLfsJnolVM5+a90EIo5Q
 go.followtheprocess.codes/diff v0.1.1/go.mod h1:bDSZPC9CvkRr8HlOwjE1bl/8qFAmiA3LVtkThRnniis=
 go.followtheprocess.codes/hue v1.1.0 h1:bPq21YLdWxQ0ki4lIvXCYtgutaGaDUYaSIENDdrrlNQ=
 go.followtheprocess.codes/hue v1.1.0/go.mod h1:VnCeVmYESGmX7fZJSFs59u8G+5zseCwGdFiJGHCFg4o=
-go.followtheprocess.codes/snapshot v0.9.1 h1:q90k4ZsV4WNrJkAXo6gLqYLgE3RipnzSOXU5o5Moyts=
-go.followtheprocess.codes/snapshot v0.9.1/go.mod h1:IKWetABJnYaG6rZAsINXAc6rB0TxoxdysBC3R2HvwWo=
+go.followtheprocess.codes/snapshot v0.10.0 h1:ED46ZTVaVSMU82eelo0RoqeBXZHTySo/Wckx42TGpMw=
+go.followtheprocess.codes/snapshot v0.10.0/go.mod h1:xZPHtzDm4/nX5fxW/j0RSdI02CPaFPqMG7OQ+270uJA=
 go.followtheprocess.codes/test v1.2.0 h1:MWuEVS7ijQLp9qCGYNmzTazWIfEL/TbQid4PnaVFzaQ=
 go.followtheprocess.codes/test v1.2.0/go.mod h1:ZbzmY8F5w44x9kk1vdvJlBu+9dhunHtXf/A1ydXaYP4=
 go.yaml.in/yaml/v4 v4.0.0-rc.4 h1:UP4+v6fFrBIb1l934bDl//mmnoIZEDK0idg1+AIvX5U=
