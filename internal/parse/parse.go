@@ -194,19 +194,22 @@ func Float64(str string) (float64, error) {
 //
 // # Safety
 //
-// This function uses [unsafe.Pointer] underneath to reassign the types but we know this is safe to do
-// based on the compile time checks provided by generics. Further, it fits the following valid pattern
-// specified in the docs for [unsafe.Pointer].
+// Cast uses [unsafe.Pointer] to reinterpret *T1 as *T2. The type parameters are
+// both [any]. The compiler does not enforce that T1 and T2 are layout-compatible,
+// so callers are fully responsible for that invariant.
 //
-// Conversion of a *T1 to Pointer to *T2
+// All current call sites follow the same pattern: within a type switch on
+// any(*f.value) (where f.value is *T for some [flag.Flaggable] T), the matched
+// case has already proven the dynamic type, so *T and *Matched point to
+// bit-identical memory. The unsafe.Pointer round-trip is a no-op at runtime, it
+// exists solely because Go does not let us assign across generic type parameters
+// without going through [any], which would allocate.
 //
-// Provided that T2 is no larger than T1 and that the two share an equivalent
-// memory layout, this conversion allows reinterpreting data of one type as
-// data of another type.
+// This matches the [unsafe.Pointer] rule "(1) Conversion of a *T1 to Pointer to
+// *T2": T2 is no larger than T1 and shares an equivalent memory layout.
 //
-// This describes our use case as we're converting a *T to e.g a *string but *only* when we know
-// that a Flag[T] is actually Flag[string], so the memory layout and size is guaranteed by the
-// compiler to be equivalent.
+// If a new call site is added, verify the type-switch invariant holds. Cast
+// outside that pattern is undefined behaviour.
 func Cast[T2, T1 any](v *T1) *T2 {
 	return (*T2)(unsafe.Pointer(v))
 }
