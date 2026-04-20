@@ -396,7 +396,7 @@ One example is generics, consider how you define a flag:
 
 ```go
 var force bool
-cli.New("demo", cli.Flag(&force, "force", 'f', false, "Force something"))
+cli.New("demo", cli.Flag(&force, "force", 'f', "Force something"))
 ```
 
 Note the type `bool` is inferred by `cli.Flag`. This will work with any type allowed by the `Flaggable` generic constraint so you'll get compile time feedback if you've got it wrong. No more `flag.BoolStringSliceVarP` 🎉
@@ -414,7 +414,7 @@ cmd, err := cli.New(
     cli.Version("v1.2.3"),
     cli.Stdout(os.Stdout),
     cli.Example("Do a thing", "test run thing --now"),
-    cli.Flag(&count, "count", 'c', 0, "Count the things"),
+    cli.Flag(&count, "count", 'c', "Count the things"),
 )
 ```
 
