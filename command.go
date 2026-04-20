@@ -325,8 +325,8 @@ func (cmd *Command) flagSet() *flag.Set {
 
 // root returns the root of the command tree.
 func (cmd *Command) root() *Command {
-	if cmd.parent != nil {
-		return cmd.parent.root()
+	for cmd.parent != nil {
+		cmd = cmd.parent
 	}
 
 	return cmd
