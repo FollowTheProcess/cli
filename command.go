@@ -316,12 +316,6 @@ func (cmd *Command) ExtraArgs() (args []string, ok bool) {
 
 // Flags returns the set of flags for the command.
 func (cmd *Command) flagSet() *flag.Set {
-	if cmd == nil {
-		// Only thing to do really, slightly more helpful than a generic
-		// nil pointer dereference
-		panic("flagSet called on a nil Command")
-	}
-
 	if cmd.flags == nil {
 		return flag.NewSet()
 	}

@@ -92,6 +92,9 @@ func (c *config) build() *Command {
 // Successive calls will simply overwrite any previous calls. Without this option
 // the command will default to [os.Stdin].
 //
+// Subcommands cannot override the stdin of the root command, when retrieving the
+// stdin with [Command.Stdin], the root's stdin will be returned.
+//
 //	// Set stdin to os.Stdin (the default anyway)
 //	cli.New("test", cli.Stdin(os.Stdin))
 func Stdin(stdin io.Reader) Option {
@@ -112,6 +115,9 @@ func Stdin(stdin io.Reader) Option {
 //
 // Successive calls will simply overwrite any previous calls. Without this option
 // the command will default to [os.Stdout].
+//
+// Subcommands cannot override the stdout of the root command, when retrieving the
+// stdout with [Command.Stdout], the root's stdout will be returned.
 //
 //	// Set stdout to a temporary buffer
 //	buf := &bytes.Buffer{}
@@ -134,6 +140,9 @@ func Stdout(stdout io.Writer) Option {
 //
 // Successive calls will simply overwrite any previous calls. Without this option
 // the command will default to [os.Stderr].
+//
+// Subcommands cannot override the stderr of the root command, when retrieving the
+// stdin with [Command.Stderr], the root's stderr will be returned.
 //
 //	// Set stderr to a temporary buffer
 //	buf := &bytes.Buffer{}
