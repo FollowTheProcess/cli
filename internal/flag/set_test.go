@@ -1364,6 +1364,609 @@ func TestParse(t *testing.T) {
 			args:    []string{},
 			wantErr: false,
 		},
+		{
+			name: "int accepts negative value via long space form",
+			newSet: func(t *testing.T) *flag.Set {
+				set := flag.NewSet()
+				f, err := flag.New(new(int), "count", 'c', "Count", flag.Config[int]{})
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("count")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "-42")
+			},
+			args:    []string{"--count", "-42"},
+			wantErr: false,
+		},
+		{
+			name: "int accepts negative value via long equals form",
+			newSet: func(t *testing.T) *flag.Set {
+				set := flag.NewSet()
+				f, err := flag.New(new(int), "count", 'c', "Count", flag.Config[int]{})
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("count")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "-42")
+			},
+			args:    []string{"--count=-42"},
+			wantErr: false,
+		},
+		{
+			name: "int accepts negative value via short space form",
+			newSet: func(t *testing.T) *flag.Set {
+				set := flag.NewSet()
+				f, err := flag.New(new(int), "count", 'c', "Count", flag.Config[int]{})
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("count")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "-42")
+			},
+			args:    []string{"-c", "-42"},
+			wantErr: false,
+		},
+		{
+			name: "int accepts negative value via short equals form",
+			newSet: func(t *testing.T) *flag.Set {
+				set := flag.NewSet()
+				f, err := flag.New(new(int), "count", 'c', "Count", flag.Config[int]{})
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("count")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "-42")
+			},
+			args:    []string{"-c=-42"},
+			wantErr: false,
+		},
+		{
+			name: "int accepts negative value via short attached form",
+			newSet: func(t *testing.T) *flag.Set {
+				set := flag.NewSet()
+				f, err := flag.New(new(int), "count", 'c', "Count", flag.Config[int]{})
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("count")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "-42")
+			},
+			args:    []string{"-c-42"},
+			wantErr: false,
+		},
+		{
+			name: "int8 accepts negative value",
+			newSet: func(t *testing.T) *flag.Set {
+				set := flag.NewSet()
+				f, err := flag.New(new(int8), "count", 'c', "Count", flag.Config[int8]{})
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("count")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "-128")
+			},
+			args:    []string{"--count", "-128"},
+			wantErr: false,
+		},
+		{
+			name: "int16 accepts negative value",
+			newSet: func(t *testing.T) *flag.Set {
+				set := flag.NewSet()
+				f, err := flag.New(new(int16), "count", 'c', "Count", flag.Config[int16]{})
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("count")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "-32768")
+			},
+			args:    []string{"--count", "-32768"},
+			wantErr: false,
+		},
+		{
+			name: "int32 accepts negative value",
+			newSet: func(t *testing.T) *flag.Set {
+				set := flag.NewSet()
+				f, err := flag.New(new(int32), "count", 'c', "Count", flag.Config[int32]{})
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("count")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "-2147483648")
+			},
+			args:    []string{"--count=-2147483648"},
+			wantErr: false,
+		},
+		{
+			name: "int64 accepts negative value",
+			newSet: func(t *testing.T) *flag.Set {
+				set := flag.NewSet()
+				f, err := flag.New(new(int64), "count", 'c', "Count", flag.Config[int64]{})
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("count")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "-9223372036854775808")
+			},
+			args:    []string{"-c", "-9223372036854775808"},
+			wantErr: false,
+		},
+		{
+			name: "float accepts negative value",
+			newSet: func(t *testing.T) *flag.Set {
+				set := flag.NewSet()
+				f, err := flag.New(new(float64), "ratio", 'r', "Ratio", flag.Config[float64]{})
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("ratio")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "-3.14")
+			},
+			args:    []string{"--ratio", "-3.14"},
+			wantErr: false,
+		},
+		{
+			name: "string accepts empty value via long space form",
+			newSet: func(t *testing.T) *flag.Set {
+				set := flag.NewSet()
+				f, err := flag.New(new(string), "name", 'n', "Name", flag.Config[string]{DefaultValue: "placeholder"})
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("name")
+				test.True(t, exists)
+				// Default was "placeholder"; confirm it's been overwritten to empty
+				test.Equal(t, f.String(), "")
+			},
+			args:    []string{"--name", ""},
+			wantErr: false,
+		},
+		{
+			name: "string accepts empty value via long equals form",
+			newSet: func(t *testing.T) *flag.Set {
+				set := flag.NewSet()
+				f, err := flag.New(new(string), "name", 'n', "Name", flag.Config[string]{DefaultValue: "placeholder"})
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("name")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "")
+			},
+			args:    []string{"--name="},
+			wantErr: false,
+		},
+		{
+			name: "string accepts empty value via short space form",
+			newSet: func(t *testing.T) *flag.Set {
+				set := flag.NewSet()
+				f, err := flag.New(new(string), "name", 'n', "Name", flag.Config[string]{DefaultValue: "placeholder"})
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("name")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "")
+			},
+			args:    []string{"-n", ""},
+			wantErr: false,
+		},
+		{
+			name: "string accepts empty value via short equals form",
+			newSet: func(t *testing.T) *flag.Set {
+				set := flag.NewSet()
+				f, err := flag.New(new(string), "name", 'n', "Name", flag.Config[string]{DefaultValue: "placeholder"})
+				test.Ok(t, err)
+
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("name")
+				test.True(t, exists)
+				// -n= should be symmetric with --name= (both set to empty string),
+				// matching Go stdlib flag, argparse, clap, urfave, etc.
+				test.Equal(t, f.String(), "")
+			},
+			args:    []string{"-n="},
+			wantErr: false,
+		},
+		{
+			name: "slice env var of only commas yields empty slice",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_ITEMS", ",")
+
+				var val []string
+
+				f, err := flag.New(&val, "item", 'i', "Add item", flag.Config[[]string]{EnvVar: "MYTOOL_ITEMS"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("item")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "[]")
+			},
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "slice env var empty string yields empty slice",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_ITEMS", "")
+
+				var val []string
+
+				f, err := flag.New(&val, "item", 'i', "Add item", flag.Config[[]string]{EnvVar: "MYTOOL_ITEMS"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("item")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "[]")
+			},
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "slice env var skips empty and whitespace-only items",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_ITEMS", "a,, ,b")
+
+				var val []string
+
+				f, err := flag.New(&val, "item", 'i', "Add item", flag.Config[[]string]{EnvVar: "MYTOOL_ITEMS"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("item")
+				test.True(t, exists)
+				test.Equal(t, f.String(), `["a", "b"]`)
+			},
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "slice env var splits on every comma (no escape mechanism)",
+			newSet: func(t *testing.T) *flag.Set {
+				// Any comma in an env var value is interpreted as a separator —
+				// there is no way to embed a literal comma in a slice item.
+				// Users needing commas should pass values via --flag one,two.
+				t.Setenv("MYTOOL_ITEMS", "a,b,c")
+
+				var val []string
+
+				f, err := flag.New(&val, "item", 'i', "Add item", flag.Config[[]string]{EnvVar: "MYTOOL_ITEMS"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("item")
+				test.True(t, exists)
+				test.Equal(t, f.String(), `["a", "b", "c"]`)
+			},
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "slice env var trims surrounding whitespace from items",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_ITEMS", " a , b , c ")
+
+				var val []string
+
+				f, err := flag.New(&val, "item", 'i', "Add item", flag.Config[[]string]{EnvVar: "MYTOOL_ITEMS"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("item")
+				test.True(t, exists)
+				test.Equal(t, f.String(), `["a", "b", "c"]`)
+			},
+			args:    []string{},
+			wantErr: false,
+		},
+		{
+			name: "combined short flags with equals value",
+			newSet: func(t *testing.T) *flag.Set {
+				// -abc=x → a and b are bool and get implied true, c gets "x"
+				set := flag.NewSet()
+
+				a, err := flag.New(new(bool), "alpha", 'a', "Alpha", flag.Config[bool]{})
+				test.Ok(t, err)
+				b, err := flag.New(new(bool), "beta", 'b', "Beta", flag.Config[bool]{})
+				test.Ok(t, err)
+				c, err := flag.New(new(string), "charlie", 'c', "Charlie", flag.Config[string]{})
+				test.Ok(t, err)
+
+				test.Ok(t, flag.AddToSet(set, a))
+				test.Ok(t, flag.AddToSet(set, b))
+				test.Ok(t, flag.AddToSet(set, c))
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				a, ok := set.Get("alpha")
+				test.True(t, ok)
+				test.Equal(t, a.String(), format.True)
+
+				b, ok := set.Get("beta")
+				test.True(t, ok)
+				test.Equal(t, b.String(), format.True)
+
+				c, ok := set.Get("charlie")
+				test.True(t, ok)
+				test.Equal(t, c.String(), "x")
+			},
+			args:    []string{"-abc=x"},
+			wantErr: false,
+		},
+		{
+			name: "combined short flags with space separated value",
+			newSet: func(t *testing.T) *flag.Set {
+				// -abc x → a, b bool; c consumes next arg as value
+				set := flag.NewSet()
+
+				a, err := flag.New(new(bool), "alpha", 'a', "Alpha", flag.Config[bool]{})
+				test.Ok(t, err)
+				b, err := flag.New(new(bool), "beta", 'b', "Beta", flag.Config[bool]{})
+				test.Ok(t, err)
+				c, err := flag.New(new(string), "charlie", 'c', "Charlie", flag.Config[string]{})
+				test.Ok(t, err)
+
+				test.Ok(t, flag.AddToSet(set, a))
+				test.Ok(t, flag.AddToSet(set, b))
+				test.Ok(t, flag.AddToSet(set, c))
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				a, ok := set.Get("alpha")
+				test.True(t, ok)
+				test.Equal(t, a.String(), format.True)
+
+				b, ok := set.Get("beta")
+				test.True(t, ok)
+				test.Equal(t, b.String(), format.True)
+
+				c, ok := set.Get("charlie")
+				test.True(t, ok)
+				test.Equal(t, c.String(), "x")
+			},
+			args:    []string{"-abc", "x"},
+			wantErr: false,
+		},
+		{
+			name: "combined short flags with multiple bools and trailing equals value",
+			newSet: func(t *testing.T) *flag.Set {
+				// -abcf=value → a, b, c bool; f non-bool gets "value"
+				set := flag.NewSet()
+
+				a, err := flag.New(new(bool), "alpha", 'a', "Alpha", flag.Config[bool]{})
+				test.Ok(t, err)
+				b, err := flag.New(new(bool), "beta", 'b', "Beta", flag.Config[bool]{})
+				test.Ok(t, err)
+				c, err := flag.New(new(bool), "charlie", 'c', "Charlie", flag.Config[bool]{})
+				test.Ok(t, err)
+				fl, err := flag.New(new(string), "file", 'f', "File", flag.Config[string]{})
+				test.Ok(t, err)
+
+				test.Ok(t, flag.AddToSet(set, a))
+				test.Ok(t, flag.AddToSet(set, b))
+				test.Ok(t, flag.AddToSet(set, c))
+				test.Ok(t, flag.AddToSet(set, fl))
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				a, ok := set.Get("alpha")
+				test.True(t, ok)
+				test.Equal(t, a.String(), format.True)
+
+				b, ok := set.Get("beta")
+				test.True(t, ok)
+				test.Equal(t, b.String(), format.True)
+
+				c, ok := set.Get("charlie")
+				test.True(t, ok)
+				test.Equal(t, c.String(), format.True)
+
+				fl, ok := set.Get("file")
+				test.True(t, ok)
+				test.Equal(t, fl.String(), "value")
+			},
+			args:    []string{"-abcf=value"},
+			wantErr: false,
+		},
+		{
+			name: "bool explicit equals false beats env var true",
+			newSet: func(t *testing.T) *flag.Set {
+				// Env var pre-sets to true; CLI --verbose=false must win.
+				t.Setenv("MYTOOL_VERBOSE", "true")
+
+				var val bool
+
+				f, err := flag.New(&val, "verbose", 'v', "Verbose", flag.Config[bool]{EnvVar: "MYTOOL_VERBOSE"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("verbose")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "false")
+			},
+			args:    []string{"--verbose=false"},
+			wantErr: false,
+		},
+		{
+			name: "bool short equals false beats env var true",
+			newSet: func(t *testing.T) *flag.Set {
+				t.Setenv("MYTOOL_VERBOSE", "true")
+
+				var val bool
+
+				f, err := flag.New(&val, "verbose", 'v', "Verbose", flag.Config[bool]{EnvVar: "MYTOOL_VERBOSE"})
+				test.Ok(t, err)
+
+				set := flag.NewSet()
+				err = flag.AddToSet(set, f)
+				test.Ok(t, err)
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				f, exists := set.Get("verbose")
+				test.True(t, exists)
+				test.Equal(t, f.String(), "false")
+			},
+			args:    []string{"-v=false"},
+			wantErr: false,
+		},
+		{
+			name: "combined short flags where early flag needs value captures rest",
+			newSet: func(t *testing.T) *flag.Set {
+				// -fgh — f is non-bool so consumes the rest of the cluster as its value
+				// i.e. f gets "gh", and g/h are not parsed as flags.
+				set := flag.NewSet()
+
+				fl, err := flag.New(new(string), "file", 'f', "File", flag.Config[string]{})
+				test.Ok(t, err)
+				g, err := flag.New(new(bool), "gamma", 'g', "Gamma", flag.Config[bool]{})
+				test.Ok(t, err)
+				h, err := flag.New(new(bool), "hotel", 'h', "Hotel", flag.Config[bool]{})
+				test.Ok(t, err)
+
+				test.Ok(t, flag.AddToSet(set, fl))
+				test.Ok(t, flag.AddToSet(set, g))
+				test.Ok(t, flag.AddToSet(set, h))
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				fl, ok := set.Get("file")
+				test.True(t, ok)
+				test.Equal(t, fl.String(), "gh")
+
+				g, ok := set.Get("gamma")
+				test.True(t, ok)
+				test.Equal(t, g.String(), "false")
+
+				h, ok := set.Get("hotel")
+				test.True(t, ok)
+				test.Equal(t, h.String(), "false")
+			},
+			args:    []string{"-fgh"},
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {
