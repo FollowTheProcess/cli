@@ -351,8 +351,8 @@ func (s *Set) parseSingleShortFlag(shorthands string, rest []string) (string, []
 		}
 
 		switch {
-		case len(shorthands) > 2 && shorthands[1] == '=':
-			// '-f=value'
+		case len(shorthands) >= 2 && shorthands[1] == '=':
+			// '-f=value' (value may be empty, symmetric with '--flag=')
 			value := shorthands[2:]
 
 			err := flag.Set(value)
