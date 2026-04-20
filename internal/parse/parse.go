@@ -69,7 +69,7 @@ func ErrorSlice[T any](kind Kind, name, str string, typ T, err error) error {
 
 // Int parses an int from a string.
 func Int(str string) (int, error) {
-	val, err := strconv.ParseInt(str, base10, 0)
+	val, err := strconv.ParseInt(str, base10, bits64)
 	if err != nil {
 		return 0, err
 	}
