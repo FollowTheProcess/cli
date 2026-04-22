@@ -5,7 +5,7 @@ Usage: test [OPTIONS] SRC [DEST]
 Arguments:
 
   src   string  The file to copy        [required]
-  dest  string  Destination to copy to  [default destination.txt]
+  dest  string  Destination to copy to  [default: destination.txt]
 
 Options:
 
