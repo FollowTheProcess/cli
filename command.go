@@ -579,7 +579,7 @@ func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 	for _, arg := range cmd.args {
 		line := fmt.Sprintf("  %s\t%s\t%s\t[required]", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage())
 		if arg.Default() != "" {
-			line = fmt.Sprintf("  %s\t%s\t%s\t[default %s]", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage(), arg.Default())
+			line = fmt.Sprintf("  %s\t%s\t%s\t[default: %s]", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage(), arg.Default())
 		}
 
 		fmt.Fprintln(tw, line)

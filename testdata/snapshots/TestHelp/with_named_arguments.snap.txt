@@ -5,8 +5,8 @@ Usage: test [OPTIONS] SRC [DEST] [OTHER]
 Arguments:
 
   src    string  The file to copy        [required]
-  dest   string  Destination to copy to  [default default.txt]
-  other  int     Something else          [default 0]
+  dest   string  Destination to copy to  [default: default.txt]
+  other  int     Something else          [default: 0]
 
 Options:
 
