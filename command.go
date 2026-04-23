@@ -372,17 +372,14 @@ func (cmd *Command) hasShortFlag(name string) bool {
 // (if any) subcommand is being requested and return that command along with the arguments
 // that were meant for it.
 func findRequestedCommand(cmd *Command, args []string) (*Command, []string) {
-	// Any arguments without flags could be names of subcommands
-	argsWithoutFlags := stripFlags(cmd, args)
-	if len(argsWithoutFlags) == 0 {
-		// If there are no non-flag arguments, we must already be either at the root command
+	// The next non-flag argument (if any) is the first immediate subcommand
+	// e.g. in 'go mod tidy' we're looking for 'mod'.
+	nextSubCommand, ok := firstNonFlagArg(cmd, args)
+	if !ok {
+		// No non-flag arguments, so we must already be either at the root command
 		// or the correct subcommand
 		return cmd, args
 	}
-
-	// The next non-flag argument will be the first immediate subcommand
-	// e.g. in 'go mod tidy', argsWithoutFlags[0] will be 'mod'
-	nextSubCommand := argsWithoutFlags[0]
 
 	// Lookup this immediate subcommand by name and if we find it, recursively call
 	// this function so we eventually end up at the end of the command tree with
@@ -430,43 +427,37 @@ func findSubCommand(cmd *Command, next string) *Command {
 	return nil
 }
 
-// stripFlags takes a slice of raw command line arguments (including possible flags) and removes
-// any arguments that are flags or values passed in to flags e.g. --flag value.
-func stripFlags(cmd *Command, args []string) []string {
-	if len(args) == 0 {
-		return args
-	}
-
-	argsWithoutFlags := []string{}
-
-	for len(args) > 0 {
-		arg := args[0]
-		args = args[1:]
-
+// firstNonFlagArg walks args and returns the first positional (non-flag)
+// argument along with a boolean indicating whether one was found.
+//
+// It consumes flag-value pairs (e.g. '--flag value' or '-f value') so they
+// aren't mistaken for positional arguments, and stops at '--'.
+func firstNonFlagArg(cmd *Command, args []string) (arg string, ok bool) {
+	for i := 0; i < len(args); i++ {
+		a := args[i]
 		switch {
-		case arg == "--":
+		case a == "--":
 			// "--" terminates the flags
-			return argsWithoutFlags
-		case strings.HasPrefix(arg, "--") && !strings.Contains(arg, "=") && !cmd.hasFlag(arg[2:]):
-			// If '--flag arg' then delete arg from args
-			fallthrough // (do the same as below)
-		case strings.HasPrefix(arg, "-") && !strings.Contains(arg, "=") && len(arg) == 2 && !cmd.hasShortFlag(arg[1:]):
-			// If '-f arg' then delete 'arg' from args or break the loop if len(args) <= 1.
-			if len(args) <= 1 {
-				return argsWithoutFlags
+			return "", false
+		case strings.HasPrefix(a, "--") && !strings.Contains(a, "=") && !cmd.hasFlag(a[2:]):
+			// If '--flag value' then skip value
+			fallthrough
+		case strings.HasPrefix(a, "-") && !strings.Contains(a, "=") && len(a) == 2 && !cmd.hasShortFlag(a[1:]):
+			// '-f value' skip the value too. If there isn't one, we're done.
+			if i+1 >= len(args) {
+				return "", false
 			}
 
-			args = args[1:]
+			i++
 
 			continue
-
-		case arg != "" && !strings.HasPrefix(arg, "-"):
-			// We have a valid positional arg
-			argsWithoutFlags = append(argsWithoutFlags, arg)
+		case a != "" && !strings.HasPrefix(a, "-"):
+			// First valid positional arg
+			return a, true
 		}
 	}
 
-	return argsWithoutFlags
+	return "", false
 }
 
 // showHelp is the default for a command's helpFunc.
