@@ -653,7 +653,7 @@ func writeSubcommands(cmd *Command, s *strings.Builder) error {
 func writeFlags(cmd *Command, s *strings.Builder) error {
 	tw := style.Tabwriter(s)
 
-	for name, fl := range cmd.flags.All() {
+	for name, fl := range cmd.flags.Sorted() {
 		var shorthand string
 		if fl.Short() != publicflag.NoShortHand {
 			shorthand = "-" + string(fl.Short())

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"iter"
+	"maps"
 	"os"
 	"slices"
 	"strings"
@@ -200,9 +201,9 @@ func (s *Set) Parse(args []string) error {
 	return nil
 }
 
-// All returns an iterator through the flags in the flagset
+// Sorted returns an iterator through the flags in the flagset
 // in alphabetical order by name.
-func (s *Set) All() iter.Seq2[string, Value] {
+func (s *Set) Sorted() iter.Seq2[string, Value] {
 	return func(yield func(string, Value) bool) {
 		names := make([]string, 0, len(s.flags))
 		for name := range s.flags {
@@ -217,6 +218,12 @@ func (s *Set) All() iter.Seq2[string, Value] {
 			}
 		}
 	}
+}
+
+// All returns an iterator through the flags in the flagset
+// in alphabetical order by name.
+func (s *Set) All() iter.Seq2[string, Value] {
+	return maps.All(s.flags)
 }
 
 // applyEnvVars looks up each configured environment variable and applies its value
