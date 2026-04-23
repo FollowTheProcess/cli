@@ -24,11 +24,14 @@ var _ Value = &Flag[string]{} // This will fail if we violate our Value interfac
 
 // Flag represents a single command line flag.
 type Flag[T flag.Flaggable] struct {
-	value  *T     // The actual stored value
-	name   string // The name of the flag as appears on the command line, e.g. "force" for a --force flag
-	usage  string // one line description of the flag, e.g. "Force deletion without confirmation"
-	envVar string // Name of an environment variable that may set this flag's value if the flag is not explicitly provided on the command line
-	short  rune   // Optional shorthand version of the flag, e.g. "f" for a -f flag
+	value      *T     // The actual stored value
+	name       string // The name of the flag as appears on the command line, e.g. "force" for a --force flag
+	usage      string // one line description of the flag, e.g. "Force deletion without confirmation"
+	envVar     string // Name of an environment variable that may set this flag's value if the flag is not explicitly provided on the command line
+	typeStr    string // Cached result of Type()
+	noArgValue string // Cached result of NoArgValue()
+	short      rune   // Optional shorthand version of the flag, e.g. "f" for a -f flag
+	isSlice    bool   // Cached result of IsSlice()
 }
 
 // New constructs and returns a new [Flag].
@@ -50,12 +53,17 @@ func New[T flag.Flaggable](p *T, name string, short rune, usage string, config C
 
 	*p = config.DefaultValue
 
+	typeStr, noArgValue, isSlice := typeInfo[T]()
+
 	return &Flag[T]{
-		value:  p,
-		name:   name,
-		usage:  usage,
-		short:  short,
-		envVar: config.EnvVar,
+		value:      p,
+		name:       name,
+		usage:      usage,
+		short:      short,
+		envVar:     config.EnvVar,
+		typeStr:    typeStr,
+		noArgValue: noArgValue,
+		isSlice:    isSlice,
 	}, nil
 }
 
@@ -99,34 +107,24 @@ func (f *Flag[T]) EnvVar() string {
 // IsSlice reports whether the flag holds a slice value that accumulates repeated
 // calls to Set. Returns false for []byte and net.IP, which are parsed atomically.
 func (f *Flag[T]) IsSlice() bool {
-	if f.value == nil {
-		return false
-	}
-
-	switch any(*f.value).(type) {
-	case []int, []int8, []int16, []int32, []int64,
-		[]uint, []uint16, []uint32, []uint64,
-		[]float32, []float64, []string:
-		return true
-	default:
-		return false
-	}
+	return f.isSlice
 }
 
 // NoArgValue returns a string representation of value the flag should hold
 // when it is given no arguments on the command line. For example a boolean flag
 // --delete, when passed without arguments implies --delete true.
 func (f *Flag[T]) NoArgValue() string {
-	switch f.Type() {
-	case format.TypeBool:
-		// Boolean flags imply passing true, "--force" vs "--force true"
-		return format.True
-	case format.TypeCount:
-		// Count flags imply passing 1, "--count --count" or "-cc" should inc by 2
-		return "1"
-	default:
-		return ""
+	return f.noArgValue
+}
+
+// Type returns a string representation of the type of the Flag.
+func (f *Flag[T]) Type() string {
+	if f.value == nil {
+		// Nil-safe behaviour for zero-value composite-literal flags.
+		return format.Nil
 	}
+
+	return f.typeStr
 }
 
 // String implements [fmt.Stringer] for a [Flag], and also implements the String
@@ -214,79 +212,82 @@ func (f *Flag[T]) String() string {
 	}
 }
 
-// Type returns a string representation of the type of the Flag.
-func (f *Flag[T]) Type() string { //nolint:cyclop // No other way of doing this realistically
-	if f.value == nil {
-		return format.Nil
-	}
+// typeInfo computes the type-dependent metadata (Type string, NoArgValue,
+// IsSlice) for a flag of type T. It is called once per flag at construction
+// so that the hot path of Parse never has to type-switch on any(*f.value),
+// which would otherwise box the value on every call.
+func typeInfo[T flag.Flaggable]() (typeStr, noArgValue string, isSlice bool) { //nolint:cyclop // No other way of doing this realistically
+	var zero T
 
-	switch typ := any(*f.value).(type) {
+	switch typ := any(zero).(type) {
 	case int:
-		return format.TypeInt
+		return format.TypeInt, "", false
 	case int8:
-		return format.TypeInt8
+		return format.TypeInt8, "", false
 	case int16:
-		return format.TypeInt16
+		return format.TypeInt16, "", false
 	case int32:
-		return format.TypeInt32
+		return format.TypeInt32, "", false
 	case int64:
-		return format.TypeInt64
+		return format.TypeInt64, "", false
 	case flag.Count:
-		return format.TypeCount
+		return format.TypeCount, "1", false
 	case uint:
-		return format.TypeUint
+		return format.TypeUint, "", false
 	case uint8:
-		return format.TypeUint8
+		return format.TypeUint8, "", false
 	case uint16:
-		return format.TypeUint16
+		return format.TypeUint16, "", false
 	case uint32:
-		return format.TypeUint32
+		return format.TypeUint32, "", false
 	case uint64:
-		return format.TypeUint64
+		return format.TypeUint64, "", false
 	case uintptr:
-		return format.TypeUintptr
+		return format.TypeUintptr, "", false
 	case float32:
-		return format.TypeFloat32
+		return format.TypeFloat32, "", false
 	case float64:
-		return format.TypeFloat64
+		return format.TypeFloat64, "", false
 	case string:
-		return format.TypeString
+		return format.TypeString, "", false
 	case bool:
-		return format.TypeBool
+		return format.TypeBool, format.True, false
 	case []byte:
-		return format.TypeBytesHex
+		return format.TypeBytesHex, "", false
 	case time.Time:
-		return format.TypeTime
+		return format.TypeTime, "", false
 	case time.Duration:
-		return format.TypeDuration
+		return format.TypeDuration, "", false
 	case net.IP:
-		return format.TypeIP
+		return format.TypeIP, "", false
 	case *url.URL:
-		return format.TypeURL
+		return format.TypeURL, "", false
 	case []int:
-		return format.TypeIntSlice
+		return format.TypeIntSlice, "", true
 	case []int8:
-		return format.TypeInt8Slice
+		return format.TypeInt8Slice, "", true
 	case []int16:
-		return format.TypeInt16Slice
+		return format.TypeInt16Slice, "", true
 	case []int32:
-		return format.TypeInt32Slice
+		return format.TypeInt32Slice, "", true
 	case []int64:
-		return format.TypeInt64Slice
+		return format.TypeInt64Slice, "", true
 	case []uint:
-		return format.TypeUintSlice
+		return format.TypeUintSlice, "", true
 	case []uint16:
-		return format.TypeUint16Slice
+		return format.TypeUint16Slice, "", true
 	case []uint32:
-		return format.TypeUint32Slice
+		return format.TypeUint32Slice, "", true
 	case []uint64:
-		return format.TypeUint64Slice
+		return format.TypeUint64Slice, "", true
 	case []float32:
-		return format.TypeFloat32Slice
+		return format.TypeFloat32Slice, "", true
 	case []float64:
-		return format.TypeFloat64Slice
+		return format.TypeFloat64Slice, "", true
+	case []string:
+		return format.TypeStringSlice, "", true
 	default:
-		return fmt.Sprintf("%T", typ)
+		return fmt.Sprintf("%T", typ), "", false
 	}
 }
 

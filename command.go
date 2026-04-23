@@ -25,6 +25,16 @@ const (
 	defaultShort      = "A placeholder for something cool" // defaultShort is the default value for cli.Short.
 )
 
+// Pre-styled section headers used in the help text. hue's Text allocates
+// a new string each call, so we do the styling once at init time.
+var (
+	usageTitle     = style.Title.Text("Usage")
+	optionsTitle   = style.Title.Text("Options")
+	commandsTitle  = style.Title.Text("Commands")
+	argumentsTitle = style.Title.Text("Arguments")
+	examplesTitle  = style.Title.Text("Examples")
+)
+
 // Builder is a function that constructs and returns a [Command], it makes constructing
 // complex command trees easier as they can be passed directly to the [SubCommands] option.
 type Builder func() (*Command, error)
@@ -486,7 +496,7 @@ func showHelp(cmd *Command) error {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString(style.Title.Text("Usage"))
+	s.WriteString(usageTitle)
 	s.WriteString(": ")
 	s.WriteString(style.Bold.Text(cmd.name))
 
@@ -536,7 +546,7 @@ func showHelp(cmd *Command) error {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString(style.Title.Text("Options"))
+	s.WriteString(optionsTitle)
 	s.WriteString(":\n\n")
 
 	if err := writeFlags(cmd, s); err != nil {
@@ -579,17 +589,16 @@ func writePositionalArgs(cmd *Command, s *strings.Builder) {
 // text string builder.
 func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
 	s.WriteString("\n\n")
-	s.WriteString(style.Title.Text("Arguments"))
+	s.WriteString(argumentsTitle)
 	s.WriteString(":\n\n")
 	tw := style.Tabwriter(s)
 
 	for _, arg := range cmd.args {
-		line := fmt.Sprintf("  %s\t%s\t%s\t[required]", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage())
-		if arg.Default() != "" {
-			line = fmt.Sprintf("  %s\t%s\t%s\t[default: %s]", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage(), arg.Default())
+		if def := arg.Default(); def != "" {
+			fmt.Fprintf(tw, "  %s\t%s\t%s\t[default: %s]\n", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage(), def)
+		} else {
+			fmt.Fprintf(tw, "  %s\t%s\t%s\t[required]\n", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage())
 		}
-
-		fmt.Fprintln(tw, line)
 	}
 
 	if err := tw.Flush(); err != nil {
@@ -609,7 +618,7 @@ func writeExamples(cmd *Command, s *strings.Builder) {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString(style.Title.Text("Examples"))
+	s.WriteString(examplesTitle)
 	s.WriteByte(':')
 	s.WriteString("\n\n")
 
@@ -640,7 +649,7 @@ func writeSubcommands(cmd *Command, s *strings.Builder) error {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString(style.Title.Text("Commands"))
+	s.WriteString(commandsTitle)
 	s.WriteByte(':')
 	s.WriteString("\n\n")
 
@@ -678,7 +687,7 @@ func writeFlags(cmd *Command, s *strings.Builder) error {
 			envStr = "(env: $" + fl.EnvVar() + ")"
 		}
 
-		line := fmt.Sprintf("  %s\t--%s\t%s\t%s\t%s\t%s",
+		fmt.Fprintf(tw, "  %s\t--%s\t%s\t%s\t%s\t%s\n",
 			style.Bold.Text(shorthand),
 			style.Bold.Text(name),
 			fl.Type(),
@@ -686,8 +695,6 @@ func writeFlags(cmd *Command, s *strings.Builder) error {
 			defaultStr,
 			envStr,
 		)
-
-		fmt.Fprintln(tw, line)
 	}
 
 	if err := tw.Flush(); err != nil {
