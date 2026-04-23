@@ -11,6 +11,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"go.followtheprocess.codes/hue/tabwriter"
+
 	publicflag "go.followtheprocess.codes/cli/flag"
 
 	"go.followtheprocess.codes/cli/internal/arg"
@@ -23,6 +25,22 @@ const (
 	versionBufferSize = 256                                // versionBufferSize is sufficient to hold a full --version text.
 	defaultVersion    = "dev"                              // defaultVersion is the version shown in --version when the user has not provided one.
 	defaultShort      = "A placeholder for something cool" // defaultShort is the default value for cli.Short.
+)
+
+// Pre-styled section headers used in the help text.
+//
+// hue.Style.Text allocates a new string every call so we can't make these
+// compile-time constants, but there's no reason to re-style fixed section
+// headers on every help render either. Doing it once at package init drops a
+// handful of allocs per showHelp.
+//
+//nolint:gochecknoglobals // Caching the styled titles.
+var (
+	usageTitle     = style.Title.Text("Usage")
+	optionsTitle   = style.Title.Text("Options")
+	commandsTitle  = style.Title.Text("Commands")
+	argumentsTitle = style.Title.Text("Arguments")
+	examplesTitle  = style.Title.Text("Examples")
 )
 
 // Builder is a function that constructs and returns a [Command], it makes constructing
@@ -362,17 +380,14 @@ func (cmd *Command) hasShortFlag(name string) bool {
 // (if any) subcommand is being requested and return that command along with the arguments
 // that were meant for it.
 func findRequestedCommand(cmd *Command, args []string) (*Command, []string) {
-	// Any arguments without flags could be names of subcommands
-	argsWithoutFlags := stripFlags(cmd, args)
-	if len(argsWithoutFlags) == 0 {
-		// If there are no non-flag arguments, we must already be either at the root command
+	// The next non-flag argument (if any) is the first immediate subcommand
+	// e.g. in 'go mod tidy' we're looking for 'mod'.
+	nextSubCommand, ok := firstNonFlagArg(cmd, args)
+	if !ok {
+		// No non-flag arguments, so we must already be either at the root command
 		// or the correct subcommand
 		return cmd, args
 	}
-
-	// The next non-flag argument will be the first immediate subcommand
-	// e.g. in 'go mod tidy', argsWithoutFlags[0] will be 'mod'
-	nextSubCommand := argsWithoutFlags[0]
 
 	// Lookup this immediate subcommand by name and if we find it, recursively call
 	// this function so we eventually end up at the end of the command tree with
@@ -388,12 +403,19 @@ func findRequestedCommand(cmd *Command, args []string) (*Command, []string) {
 
 // argsMinusFirstX removes only the first x from args.  Otherwise, commands that look like
 // openshift admin policy add-role-to-user admin my-user, lose the admin argument (arg[4]).
+//
+// The input slice is not mutated so that repeated Execute calls on the same
+// Command see the original rawArgs.
 func argsMinusFirstX(args []string, x string) []string {
 	// Note: this is borrowed from Cobra but ours is a lot simpler because we don't support
 	// persistent flags
 	for i, arg := range args {
 		if arg == x {
-			return slices.Delete(args, i, i+1)
+			result := make([]string, 0, len(args)-1)
+			result = append(result, args[:i]...)
+			result = append(result, args[i+1:]...)
+
+			return result
 		}
 	}
 
@@ -413,43 +435,37 @@ func findSubCommand(cmd *Command, next string) *Command {
 	return nil
 }
 
-// stripFlags takes a slice of raw command line arguments (including possible flags) and removes
-// any arguments that are flags or values passed in to flags e.g. --flag value.
-func stripFlags(cmd *Command, args []string) []string {
-	if len(args) == 0 {
-		return args
-	}
-
-	argsWithoutFlags := []string{}
-
-	for len(args) > 0 {
-		arg := args[0]
-		args = args[1:]
-
+// firstNonFlagArg walks args and returns the first positional (non-flag)
+// argument along with a boolean indicating whether one was found.
+//
+// It consumes flag-value pairs (e.g. '--flag value' or '-f value') so they
+// aren't mistaken for positional arguments, and stops at '--'.
+func firstNonFlagArg(cmd *Command, args []string) (arg string, ok bool) {
+	for i := 0; i < len(args); i++ {
+		a := args[i]
 		switch {
-		case arg == "--":
+		case a == "--":
 			// "--" terminates the flags
-			return argsWithoutFlags
-		case strings.HasPrefix(arg, "--") && !strings.Contains(arg, "=") && !cmd.hasFlag(arg[2:]):
-			// If '--flag arg' then delete arg from args
-			fallthrough // (do the same as below)
-		case strings.HasPrefix(arg, "-") && !strings.Contains(arg, "=") && len(arg) == 2 && !cmd.hasShortFlag(arg[1:]):
-			// If '-f arg' then delete 'arg' from args or break the loop if len(args) <= 1.
-			if len(args) <= 1 {
-				return argsWithoutFlags
+			return "", false
+		case strings.HasPrefix(a, "--") && !strings.Contains(a, "=") && !cmd.hasFlag(a[2:]):
+			// If '--flag value' then skip value
+			fallthrough
+		case strings.HasPrefix(a, "-") && !strings.Contains(a, "=") && len(a) == 2 && !cmd.hasShortFlag(a[1:]):
+			// '-f value' skip the value too. If there isn't one, we're done.
+			if i+1 >= len(args) {
+				return "", false
 			}
 
-			args = args[1:]
+			i++
 
 			continue
-
-		case arg != "" && !strings.HasPrefix(arg, "-"):
-			// We have a valid positional arg
-			argsWithoutFlags = append(argsWithoutFlags, arg)
+		case a != "" && !strings.HasPrefix(a, "-"):
+			// First valid positional arg
+			return a, true
 		}
 	}
 
-	return argsWithoutFlags
+	return "", false
 }
 
 // showHelp is the default for a command's helpFunc.
@@ -467,6 +483,11 @@ func showHelp(cmd *Command) error {
 	s := &strings.Builder{}
 	s.Grow(helpBufferSize)
 
+	// One tabwriter threaded through every aligned section, reset
+	// between them with ResetTabwriter so only the first section pays the
+	// internal-buffer allocation cost.
+	tw := style.Tabwriter(s)
+
 	// If we have a short description, write that
 	if cmd.short != "" {
 		s.WriteString(cmd.short)
@@ -479,7 +500,7 @@ func showHelp(cmd *Command) error {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString(style.Title.Text("Usage"))
+	s.WriteString(usageTitle)
 	s.WriteString(": ")
 	s.WriteString(style.Bold.Text(cmd.name))
 
@@ -503,7 +524,7 @@ func showHelp(cmd *Command) error {
 
 	// If we have defined, list them explicitly and use their descriptions
 	if len(cmd.args) != 0 {
-		if err := writeArgumentsSection(cmd, s); err != nil {
+		if err := writeArgumentsSection(cmd, s, tw); err != nil {
 			return err
 		}
 	}
@@ -515,7 +536,7 @@ func showHelp(cmd *Command) error {
 
 	// Now show subcommands
 	if len(cmd.subcommands) != 0 {
-		if err := writeSubcommands(cmd, s); err != nil {
+		if err := writeSubcommands(cmd, s, tw); err != nil {
 			return err
 		}
 	}
@@ -529,10 +550,10 @@ func showHelp(cmd *Command) error {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString(style.Title.Text("Options"))
+	s.WriteString(optionsTitle)
 	s.WriteString(":\n\n")
 
-	if err := writeFlags(cmd, s); err != nil {
+	if err := writeFlags(cmd, s, tw); err != nil {
 		return err
 	}
 
@@ -570,19 +591,18 @@ func writePositionalArgs(cmd *Command, s *strings.Builder) {
 
 // writeArgumentsSection writes the entire positional arguments block to the help
 // text string builder.
-func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
+func writeArgumentsSection(cmd *Command, s *strings.Builder, tw *tabwriter.Writer) error {
 	s.WriteString("\n\n")
-	s.WriteString(style.Title.Text("Arguments"))
+	s.WriteString(argumentsTitle)
 	s.WriteString(":\n\n")
-	tw := style.Tabwriter(s)
+	style.ResetTabwriter(tw, s)
 
 	for _, arg := range cmd.args {
-		line := fmt.Sprintf("  %s\t%s\t%s\t[required]", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage())
-		if arg.Default() != "" {
-			line = fmt.Sprintf("  %s\t%s\t%s\t[default: %s]", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage(), arg.Default())
+		if def := arg.Default(); def != "" {
+			fmt.Fprintf(tw, "  %s\t%s\t%s\t[default: %s]\n", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage(), def)
+		} else {
+			fmt.Fprintf(tw, "  %s\t%s\t%s\t[required]\n", style.Bold.Text(arg.Name()), arg.Type(), arg.Usage())
 		}
-
-		fmt.Fprintln(tw, line)
 	}
 
 	if err := tw.Flush(); err != nil {
@@ -602,7 +622,7 @@ func writeExamples(cmd *Command, s *strings.Builder) {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString(style.Title.Text("Examples"))
+	s.WriteString(examplesTitle)
 	s.WriteByte(':')
 	s.WriteString("\n\n")
 
@@ -625,7 +645,7 @@ func writeExamples(cmd *Command, s *strings.Builder) {
 }
 
 // writeSubcommands writes the subcommand block to the help text string builder.
-func writeSubcommands(cmd *Command, s *strings.Builder) error {
+func writeSubcommands(cmd *Command, s *strings.Builder, tw *tabwriter.Writer) error {
 	// If there were examples, the last one would have printed a newline
 	if len(cmd.examples) != 0 {
 		s.WriteByte('\n')
@@ -633,11 +653,12 @@ func writeSubcommands(cmd *Command, s *strings.Builder) error {
 		s.WriteString("\n\n")
 	}
 
-	s.WriteString(style.Title.Text("Commands"))
+	s.WriteString(commandsTitle)
 	s.WriteByte(':')
 	s.WriteString("\n\n")
 
-	tw := style.Tabwriter(s)
+	style.ResetTabwriter(tw, s)
+
 	for _, subcommand := range cmd.subcommands {
 		fmt.Fprintf(tw, "  %s\t%s\n", style.Bold.Text(subcommand.name), subcommand.short)
 	}
@@ -650,8 +671,8 @@ func writeSubcommands(cmd *Command, s *strings.Builder) error {
 }
 
 // writeFlags writes the flag usage block to the help text string builder.
-func writeFlags(cmd *Command, s *strings.Builder) error {
-	tw := style.Tabwriter(s)
+func writeFlags(cmd *Command, s *strings.Builder, tw *tabwriter.Writer) error {
+	style.ResetTabwriter(tw, s)
 
 	for name, fl := range cmd.flags.Sorted() {
 		var shorthand string
@@ -671,7 +692,7 @@ func writeFlags(cmd *Command, s *strings.Builder) error {
 			envStr = "(env: $" + fl.EnvVar() + ")"
 		}
 
-		line := fmt.Sprintf("  %s\t--%s\t%s\t%s\t%s\t%s",
+		fmt.Fprintf(tw, "  %s\t--%s\t%s\t%s\t%s\t%s\n",
 			style.Bold.Text(shorthand),
 			style.Bold.Text(name),
 			fl.Type(),
@@ -679,8 +700,6 @@ func writeFlags(cmd *Command, s *strings.Builder) error {
 			defaultStr,
 			envStr,
 		)
-
-		fmt.Fprintln(tw, line)
 	}
 
 	if err := tw.Flush(); err != nil {
