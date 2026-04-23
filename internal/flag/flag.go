@@ -20,7 +20,7 @@ import (
 	"go.followtheprocess.codes/cli/internal/parse"
 )
 
-var _ Value = Flag[string]{} // This will fail if we violate our Value interface
+var _ Value = &Flag[string]{} // This will fail if we violate our Value interface
 
 // Flag represents a single command line flag.
 type Flag[T flag.Flaggable] struct {
@@ -35,45 +35,43 @@ type Flag[T flag.Flaggable] struct {
 //
 // The name should be as it appears on the command line, e.g. "force" for a --force flag. An optional
 // shorthand can be created by setting short to a single letter value, e.g. "f" to also create a -f version of "force".
-func New[T flag.Flaggable](p *T, name string, short rune, usage string, config Config[T]) (Flag[T], error) {
+func New[T flag.Flaggable](p *T, name string, short rune, usage string, config Config[T]) (*Flag[T], error) {
 	if err := validateFlagName(name); err != nil {
-		return Flag[T]{}, fmt.Errorf("invalid flag name %q: %w", name, err)
+		return nil, fmt.Errorf("invalid flag name %q: %w", name, err)
 	}
 
 	if err := validateFlagShort(short); err != nil {
-		return Flag[T]{}, fmt.Errorf("invalid shorthand for flag %q: %w", name, err)
+		return nil, fmt.Errorf("invalid shorthand for flag %q: %w", name, err)
 	}
 
 	if p == nil {
-		p = new(T)
+		return nil, fmt.Errorf("flag %q: target pointer must not be nil", name)
 	}
 
 	*p = config.DefaultValue
 
-	flag := Flag[T]{
+	return &Flag[T]{
 		value:  p,
 		name:   name,
 		usage:  usage,
 		short:  short,
 		envVar: config.EnvVar,
-	}
-
-	return flag, nil
+	}, nil
 }
 
 // Name returns the name of the [Flag].
-func (f Flag[T]) Name() string {
+func (f *Flag[T]) Name() string {
 	return f.name
 }
 
 // Short returns the shorthand registered for the flag (e.g. -d for --delete), or
 // NoShortHand if the flag should be long only.
-func (f Flag[T]) Short() rune {
+func (f *Flag[T]) Short() rune {
 	return f.short
 }
 
 // Usage returns the usage line for the flag.
-func (f Flag[T]) Usage() string {
+func (f *Flag[T]) Usage() string {
 	return f.usage
 }
 
@@ -81,7 +79,7 @@ func (f Flag[T]) Usage() string {
 //
 // If the flag's default is unset (i.e. the zero value for its type),
 // an empty string is returned.
-func (f Flag[T]) Default() string {
+func (f *Flag[T]) Default() string {
 	// Special case a --help flag, because if we didn't, when you call --help
 	// it would show up with a default of true because you've passed it
 	// so it's value is true here
@@ -94,13 +92,13 @@ func (f Flag[T]) Default() string {
 
 // EnvVar returns the name of the environment variable associated with this flag,
 // or an empty string if none was configured.
-func (f Flag[T]) EnvVar() string {
+func (f *Flag[T]) EnvVar() string {
 	return f.envVar
 }
 
 // IsSlice reports whether the flag holds a slice value that accumulates repeated
 // calls to Set. Returns false for []byte and net.IP, which are parsed atomically.
-func (f Flag[T]) IsSlice() bool {
+func (f *Flag[T]) IsSlice() bool {
 	if f.value == nil {
 		return false
 	}
@@ -118,7 +116,7 @@ func (f Flag[T]) IsSlice() bool {
 // NoArgValue returns a string representation of value the flag should hold
 // when it is given no arguments on the command line. For example a boolean flag
 // --delete, when passed without arguments implies --delete true.
-func (f Flag[T]) NoArgValue() string {
+func (f *Flag[T]) NoArgValue() string {
 	switch f.Type() {
 	case format.TypeBool:
 		// Boolean flags imply passing true, "--force" vs "--force true"
@@ -135,7 +133,7 @@ func (f Flag[T]) NoArgValue() string {
 // part of [Value], allowing a flag to print itself.
 //
 //nolint:cyclop // No other way of doing this realistically
-func (f Flag[T]) String() string {
+func (f *Flag[T]) String() string {
 	if f.value == nil {
 		return format.Nil
 	}
@@ -217,7 +215,7 @@ func (f Flag[T]) String() string {
 }
 
 // Type returns a string representation of the type of the Flag.
-func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this realistically
+func (f *Flag[T]) Type() string { //nolint:cyclop // No other way of doing this realistically
 	if f.value == nil {
 		return format.Nil
 	}
@@ -295,7 +293,7 @@ func (f Flag[T]) Type() string { //nolint:cyclop // No other way of doing this r
 // Set sets a [Flag] value based on string input, i.e. parsing from the command line.
 //
 //nolint:gocognit,maintidx // No other way of doing this realistically
-func (f Flag[T]) Set(str string) error {
+func (f *Flag[T]) Set(str string) error {
 	if f.value == nil {
 		return fmt.Errorf("cannot set value %s, flag.value was nil", str)
 	}

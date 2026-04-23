@@ -1059,14 +1059,12 @@ func TestFlagValidation(t *testing.T) {
 
 func TestFlagNilSafety(t *testing.T) {
 	t.Run("with new", func(t *testing.T) {
-		// Should be impossible to make a nil pointer dereference when using .New
+		// Passing a nil target is an error
 		var bang *bool
 
-		flag, err := flag.New(bang, "bang", 'b', "Nil go bang?", flag.Config[bool]{})
-		test.Ok(t, err)
-
-		test.Equal(t, flag.String(), "false")
-		test.Equal(t, flag.Type(), "bool")
+		f, err := flag.New(bang, "bang", 'b', "Nil go bang?", flag.Config[bool]{})
+		test.Err(t, err)
+		test.Equal(t, f, nil)
 	})
 
 	t.Run("composite literal", func(t *testing.T) {
