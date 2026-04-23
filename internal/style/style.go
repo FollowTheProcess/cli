@@ -38,3 +38,13 @@ const (
 func Tabwriter(w io.Writer) *tabwriter.Writer {
 	return tabwriter.NewWriter(w, minWidth, tabWidth, padding, padChar, flags)
 }
+
+// ResetTabwriter re-initialises an existing [tabwriter.Writer] with the cli
+// house style, pointing it at w. It returns the same writer for chaining.
+//
+// Init reuses the writer's internal buffers rather than allocating new ones,
+// so threading a single writer through the help renderer avoids a fresh
+// tabwriter allocation per section.
+func ResetTabwriter(tw *tabwriter.Writer, w io.Writer) *tabwriter.Writer {
+	return tw.Init(w, minWidth, tabWidth, padding, padChar, flags)
+}

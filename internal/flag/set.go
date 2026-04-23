@@ -8,6 +8,7 @@ import (
 	"os"
 	"slices"
 	"strings"
+	"unicode/utf8"
 
 	"go.followtheprocess.codes/cli/flag"
 	"go.followtheprocess.codes/cli/internal/format"
@@ -17,17 +18,20 @@ import (
 type Set struct {
 	flags      map[string]Value  // The actual stored flags, can lookup by name
 	shorthands map[rune]Value    // The flags by shorthand
-	envVars    map[string]string // flag name → env var name
+	envVars    map[string]string // flag name → env var name. Lazily created on first flag with an env var
 	args       []string          // Arguments minus flags or flag values
 	extra      []string          // Arguments after "--" was hit
 }
 
+// typicalFlagCount is a rough guess at the number of flags a single
+// command is likely to have so we can right size the maps.
+const typicalFlagCount = 4
+
 // NewSet builds and returns a new set of flags.
 func NewSet() *Set {
 	return &Set{
-		flags:      make(map[string]Value),
-		shorthands: make(map[rune]Value),
-		envVars:    make(map[string]string),
+		flags:      make(map[string]Value, typicalFlagCount),
+		shorthands: make(map[rune]Value, typicalFlagCount),
 	}
 }
 
@@ -59,6 +63,10 @@ func AddToSet[T flag.Flaggable](set *Set, f *Flag[T]) error {
 	set.flags[name] = f
 
 	if f.envVar != "" {
+		if set.envVars == nil {
+			set.envVars = make(map[string]string, typicalFlagCount)
+		}
+
 		set.envVars[name] = f.envVar
 	}
 
@@ -162,8 +170,15 @@ func (s *Set) Parse(args []string) error {
 		return errors.New("Parse called on a nil set")
 	}
 
-	if err = s.applyEnvVars(); err != nil {
-		return fmt.Errorf("could not set flag from env: %w", err)
+	// Reset any positional state from a previous Parse so that successive calls
+	// (e.g. re-executing a Command) don't accumulate args
+	s.args = s.args[:0]
+	s.extra = nil
+
+	if len(s.envVars) > 0 {
+		if err = s.applyEnvVars(); err != nil {
+			return fmt.Errorf("could not set flag from env: %w", err)
+		}
 	}
 
 	for len(args) > 0 {
@@ -351,71 +366,68 @@ func (s *Set) parseShortFlag(short string, rest []string) (remaining []string, e
 
 // parseSingleShortFlag parses a single short flag entry.
 func (s *Set) parseSingleShortFlag(shorthands string, rest []string) (string, []string, error) {
-	for _, char := range shorthands {
-		if err := validateFlagShort(char); err != nil {
-			return "", nil, fmt.Errorf("invalid flag shorthand %q: %w", string(char), err)
-		}
+	char, _ := utf8.DecodeRuneInString(shorthands)
 
-		flag, exists := s.shorthands[char]
-		if !exists {
-			return "", nil, fmt.Errorf("unrecognised shorthand flag: %q in -%s", string(char), shorthands)
-		}
-
-		switch {
-		case len(shorthands) >= 2 && shorthands[1] == '=':
-			// '-f=value' (value may be empty, symmetric with '--flag=')
-			value := shorthands[2:]
-
-			err := flag.Set(value)
-			if err != nil {
-				return "", nil, err
-			}
-			// No more shorthands to parse as we got given a value
-			// Nothing to trim off the arguments as "-f=value" is all 1 arg
-			return "", rest, nil
-
-		case flag.NoArgValue() != "":
-			// -f with implied value e.g. boolean or count
-			err := flag.Set(flag.NoArgValue())
-			if err != nil {
-				return "", nil, err
-			}
-
-			// We've consumed a single short from the string so trim that off
-			return shorthands[1:], rest, nil
-
-		case len(shorthands) > 1:
-			// '-fvalue'
-			value := shorthands[1:]
-
-			err := flag.Set(value)
-			if err != nil {
-				return "", nil, err
-			}
-
-			// No more shorthands to parse as we got given a value
-			// Nothing to trim off as "-fvalue" is all 1 arg
-			return "", rest, nil
-
-		case len(rest) > 0:
-			// '-f value'
-			value := rest[0]
-
-			err := flag.Set(value)
-			if err != nil {
-				return "", nil, err
-			}
-
-			// We've consumed an argument from rest as it was the value to this flag
-			// as well as a shorthand
-			return shorthands[1:], rest[1:], nil
-
-		default:
-			// '-f' with required value
-			return "", nil, fmt.Errorf("flag %s needs an argument: %q in -%s", flag.Name(), string(char), shorthands)
-		}
+	if err := validateFlagShort(char); err != nil {
+		return "", nil, fmt.Errorf("invalid flag shorthand %q: %w", string(char), err)
 	}
 
-	// Didn't match any of our rules, must be invalid short flag syntax
-	return "", nil, fmt.Errorf("invalid short flag syntax: %s", shorthands)
+	flag, exists := s.shorthands[char]
+	if !exists {
+		return "", nil, fmt.Errorf("unrecognised shorthand flag: %q in -%s", string(char), shorthands)
+	}
+
+	switch {
+	case len(shorthands) >= 2 && shorthands[1] == '=':
+		// '-f=value' (value may be empty, symmetric with '--flag=')
+		value := shorthands[2:]
+
+		err := flag.Set(value)
+		if err != nil {
+			return "", nil, err
+		}
+		// No more shorthands to parse as we got given a value
+		// Nothing to trim off the arguments as "-f=value" is all 1 arg
+		return "", rest, nil
+
+	case flag.NoArgValue() != "":
+		// -f with implied value e.g. boolean or count
+		err := flag.Set(flag.NoArgValue())
+		if err != nil {
+			return "", nil, err
+		}
+
+		// We've consumed a single short from the string so trim that off
+		return shorthands[1:], rest, nil
+
+	case len(shorthands) > 1:
+		// '-fvalue'
+		value := shorthands[1:]
+
+		err := flag.Set(value)
+		if err != nil {
+			return "", nil, err
+		}
+
+		// No more shorthands to parse as we got given a value
+		// Nothing to trim off as "-fvalue" is all 1 arg
+		return "", rest, nil
+
+	case len(rest) > 0:
+		// '-f value'
+		value := rest[0]
+
+		err := flag.Set(value)
+		if err != nil {
+			return "", nil, err
+		}
+
+		// We've consumed an argument from rest as it was the value to this flag
+		// as well as a shorthand
+		return shorthands[1:], rest[1:], nil
+
+	default:
+		// '-f' with required value
+		return "", nil, fmt.Errorf("flag %s needs an argument: %q in -%s", flag.Name(), string(char), shorthands)
+	}
 }

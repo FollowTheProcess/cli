@@ -1986,6 +1986,46 @@ func TestParse(t *testing.T) {
 	}
 }
 
+func TestParseResetsState(t *testing.T) {
+	t.Run("positional args do not accumulate", func(t *testing.T) {
+		set := flag.NewSet()
+
+		f, err := flag.New(new(bool), "delete", 'd', "Delete something", flag.Config[bool]{})
+		test.Ok(t, err)
+		test.Ok(t, flag.AddToSet(set, f))
+
+		args := []string{"one", "two", "--delete"}
+
+		test.Ok(t, set.Parse(args))
+		test.EqualFunc(t, set.Args(), []string{"one", "two"}, slices.Equal)
+
+		test.Ok(t, set.Parse(args))
+		test.EqualFunc(t, set.Args(), []string{"one", "two"}, slices.Equal)
+	})
+
+	t.Run("extra args do not accumulate", func(t *testing.T) {
+		set := flag.NewSet()
+
+		args := []string{"pos", "--", "extra", "more"}
+
+		test.Ok(t, set.Parse(args))
+		test.EqualFunc(t, set.ExtraArgs(), []string{"extra", "more"}, slices.Equal)
+
+		test.Ok(t, set.Parse(args))
+		test.EqualFunc(t, set.ExtraArgs(), []string{"extra", "more"}, slices.Equal)
+	})
+
+	t.Run("previous extras cleared when next call has none", func(t *testing.T) {
+		set := flag.NewSet()
+
+		test.Ok(t, set.Parse([]string{"a", "--", "x"}))
+		test.EqualFunc(t, set.ExtraArgs(), []string{"x"}, slices.Equal)
+
+		test.Ok(t, set.Parse([]string{"a", "b"}))
+		test.Equal(t, len(set.ExtraArgs()), 0)
+	})
+}
+
 func TestFlagSet(t *testing.T) {
 	tests := []struct {
 		newSet func(t *testing.T) *flag.Set      // Function to build the flag set under test
@@ -2490,6 +2530,156 @@ func BenchmarkParse(b *testing.B) {
 	args := []string{"some", "args", "here", "--delete", "--count", "10", "--name", "John"}
 
 	for b.Loop() {
+		err := set.Parse(args)
+		if err != nil {
+			b.Fatalf("Parse returned an error: %v", err)
+		}
+	}
+}
+
+// Benchmarks Parse on a flag set invoked exclusively via shorthand flags.
+func BenchmarkParseShort(b *testing.B) {
+	set := flag.NewSet()
+	f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
+	test.Ok(b, err)
+
+	f2, err := flag.New(new(bool), "delete", 'd', "Delete something", flag.Config[bool]{})
+	test.Ok(b, err)
+
+	f3, err := flag.New(new(string), "name", 'n', "Name something", flag.Config[string]{})
+	test.Ok(b, err)
+
+	test.Ok(b, flag.AddToSet(set, f))
+	test.Ok(b, flag.AddToSet(set, f2))
+	test.Ok(b, flag.AddToSet(set, f3))
+
+	args := []string{"some", "args", "here", "-d", "-c", "10", "-n", "John"}
+
+	for b.Loop() {
+		err := set.Parse(args)
+		if err != nil {
+			b.Fatalf("Parse returned an error: %v", err)
+		}
+	}
+}
+
+// Benchmarks Parse with a mix of long and short flags, representative of how
+// users typically invoke a real CLI.
+func BenchmarkParseMixed(b *testing.B) {
+	set := flag.NewSet()
+	f, err := flag.New(new(int), "count", 'c', "Count something", flag.Config[int]{})
+	test.Ok(b, err)
+
+	f2, err := flag.New(new(bool), "delete", 'd', "Delete something", flag.Config[bool]{})
+	test.Ok(b, err)
+
+	f3, err := flag.New(new(string), "name", 'n', "Name something", flag.Config[string]{})
+	test.Ok(b, err)
+
+	f4, err := flag.New(new(bool), "verbose", 'v', "Verbose output", flag.Config[bool]{})
+	test.Ok(b, err)
+
+	test.Ok(b, flag.AddToSet(set, f))
+	test.Ok(b, flag.AddToSet(set, f2))
+	test.Ok(b, flag.AddToSet(set, f3))
+	test.Ok(b, flag.AddToSet(set, f4))
+
+	args := []string{"some", "args", "here", "-d", "--count", "10", "-n", "John", "--verbose"}
+
+	for b.Loop() {
+		err := set.Parse(args)
+		if err != nil {
+			b.Fatalf("Parse returned an error: %v", err)
+		}
+	}
+}
+
+// Benchmarks Parse when flags have environment variables attached, so include
+// the cost of the Getenv syscall.
+func BenchmarkParseWithEnv(b *testing.B) {
+	build := func(b *testing.B) (*flag.Set, []string) {
+		b.Helper()
+
+		set := flag.NewSet()
+
+		f, err := flag.New(
+			new(int),
+			"count",
+			'c',
+			"Count something",
+			flag.Config[int]{EnvVar: "BENCH_PARSE_COUNT"},
+		)
+		test.Ok(b, err)
+
+		f2, err := flag.New(
+			new(string),
+			"name",
+			'n',
+			"Name something",
+			flag.Config[string]{EnvVar: "BENCH_PARSE_NAME"},
+		)
+		test.Ok(b, err)
+
+		f3, err := flag.New(
+			new(bool),
+			"force",
+			'f',
+			"Force something",
+			flag.Config[bool]{EnvVar: "BENCH_PARSE_FORCE"},
+		)
+		test.Ok(b, err)
+
+		test.Ok(b, flag.AddToSet(set, f))
+		test.Ok(b, flag.AddToSet(set, f2))
+		test.Ok(b, flag.AddToSet(set, f3))
+
+		return set, []string{"positional"}
+	}
+
+	b.Run("unset", func(b *testing.B) {
+		set, args := build(b)
+
+		for b.Loop() {
+			err := set.Parse(args)
+			if err != nil {
+				b.Fatalf("Parse returned an error: %v", err)
+			}
+		}
+	})
+
+	b.Run("set", func(b *testing.B) {
+		b.Setenv("BENCH_PARSE_COUNT", "10")
+		b.Setenv("BENCH_PARSE_NAME", "John")
+		b.Setenv("BENCH_PARSE_FORCE", "true")
+
+		set, args := build(b)
+
+		for b.Loop() {
+			err := set.Parse(args)
+			if err != nil {
+				b.Fatalf("Parse returned an error: %v", err)
+			}
+		}
+	})
+}
+
+// Benchmarks Parse on a slice flag multiple times. A slice flag is a
+// read/write operation.
+func BenchmarkParseSliceFlag(b *testing.B) {
+	var items []string
+
+	set := flag.NewSet()
+	f, err := flag.New(&items, "item", 'i', "An item", flag.Config[[]string]{})
+	test.Ok(b, err)
+
+	test.Ok(b, flag.AddToSet(set, f))
+
+	args := []string{"--item", "one", "--item", "two", "--item", "three", "--item", "four"}
+
+	for b.Loop() {
+		// Reset between iterations so the slice doesn't grow forever
+		items = items[:0]
+
 		err := set.Parse(args)
 		if err != nil {
 			b.Fatalf("Parse returned an error: %v", err)

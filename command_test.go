@@ -1056,6 +1056,41 @@ func TestCommandOptionOrder(t *testing.T) {
 	}
 }
 
+func TestExecuteSubCommandRepeatRun(t *testing.T) {
+	// Repeated invocations of the same Command must be able to be repeatedly executed
+	leaf := func() (*cli.Command, error) {
+		var force bool
+
+		return cli.New(
+			"leaf",
+			cli.Short("A leaf subcommand"),
+			cli.Flag(&force, "force", 'f', "Force something"),
+			cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
+		)
+	}
+
+	mid := func() (*cli.Command, error) {
+		return cli.New(
+			"mid",
+			cli.Short("An intermediate subcommand"),
+			cli.SubCommands(leaf),
+		)
+	}
+
+	cmd, err := cli.New(
+		"root",
+		cli.SubCommands(mid),
+		cli.OverrideArgs([]string{"mid", "leaf", "--force"}),
+		cli.Stderr(io.Discard),
+		cli.Stdout(io.Discard),
+	)
+	test.Ok(t, err)
+
+	for range 3 {
+		test.Ok(t, cmd.Execute(t.Context()))
+	}
+}
+
 func BenchmarkExecuteHelp(b *testing.B) {
 	sub1 := func() (*cli.Command, error) {
 		return cli.New(
@@ -1113,7 +1148,7 @@ func BenchmarkExecuteHelp(b *testing.B) {
 	}
 }
 
-// Benchmarks calling New to build a typical CLI.
+// BenchmarkNew measures calling New to build a small CLI.
 func BenchmarkNew(b *testing.B) {
 	for b.Loop() {
 		_, err := cli.New(
@@ -1129,6 +1164,80 @@ func BenchmarkNew(b *testing.B) {
 		)
 		if err != nil {
 			b.Fatal(err)
+		}
+	}
+}
+
+// BenchmarkExecute measures the performance of actually invoking a CLI.
+func BenchmarkExecute(b *testing.B) {
+	var (
+		force bool
+		name  string
+		count int
+		first string
+	)
+
+	cmd, err := cli.New(
+		"bench-execute",
+		cli.Short("A runnable command to benchmark Execute"),
+		cli.Flag(&force, "force", 'f', "Force something"),
+		cli.Flag(&name, "name", 'n', "Name of the thing"),
+		cli.Flag(&count, "count", 'c', "Count of things", cli.FlagDefault(1)),
+		cli.Arg(&first, "first", "A positional argument"),
+		cli.OverrideArgs([]string{"positional", "--force", "--name", "bench", "--count", "10"}),
+		cli.Stderr(io.Discard),
+		cli.Stdout(io.Discard),
+		cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
+	)
+	test.Ok(b, err)
+
+	for b.Loop() {
+		err := cmd.Execute(b.Context())
+		if err != nil {
+			b.Fatalf("Execute returned an error: %v", err)
+		}
+	}
+}
+
+// BenchmarkExecuteSubcommand measures executing a subcommand.
+func BenchmarkExecuteSubcommand(b *testing.B) {
+	leaf := func() (*cli.Command, error) {
+		var (
+			force bool
+			name  string
+		)
+
+		return cli.New(
+			"leaf",
+			cli.Short("A leaf subcommand"),
+			cli.Flag(&force, "force", 'f', "Force something"),
+			cli.Flag(&name, "name", 'n', "Name of the thing"),
+			cli.Run(func(ctx context.Context, cmd *cli.Command) error { return nil }),
+		)
+	}
+
+	mid := func() (*cli.Command, error) {
+		return cli.New(
+			"mid",
+			cli.Short("An intermediate subcommand"),
+			cli.SubCommands(leaf),
+		)
+	}
+
+	cmd, err := cli.New(
+		"bench-sub",
+		cli.Short("A command with nested subcommands"),
+		cli.SubCommands(mid),
+		cli.OverrideArgs([]string{"mid", "leaf", "--force", "--name", "bench"}),
+		cli.Stderr(io.Discard),
+		cli.Stdout(io.Discard),
+	)
+	test.Ok(b, err)
+
+	for b.Loop() {
+		err := cmd.Execute(b.Context())
+		if err != nil {
+			b.Fatalf("Execute returned an error: %v", err)
 		}
 	}
 }
