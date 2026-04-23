@@ -20,6 +20,9 @@
 # Task
 !Taskfile.yml
 
+# mise
+!mise.toml
+
 # Git
 !.gitattributes
 !.gitignore
