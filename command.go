@@ -388,12 +388,19 @@ func findRequestedCommand(cmd *Command, args []string) (*Command, []string) {
 
 // argsMinusFirstX removes only the first x from args.  Otherwise, commands that look like
 // openshift admin policy add-role-to-user admin my-user, lose the admin argument (arg[4]).
+//
+// The input slice is not mutated so that repeated Execute calls on the same
+// Command see the original rawArgs.
 func argsMinusFirstX(args []string, x string) []string {
 	// Note: this is borrowed from Cobra but ours is a lot simpler because we don't support
 	// persistent flags
 	for i, arg := range args {
 		if arg == x {
-			return slices.Delete(args, i, i+1)
+			result := make([]string, 0, len(args)-1)
+			result = append(result, args[:i]...)
+			result = append(result, args[i+1:]...)
+
+			return result
 		}
 	}
 

@@ -162,6 +162,11 @@ func (s *Set) Parse(args []string) error {
 		return errors.New("Parse called on a nil set")
 	}
 
+	// Reset any positional state from a previous Parse so that successive calls
+	// (e.g. re-executing a Command) don't accumulate args
+	s.args = s.args[:0]
+	s.extra = nil
+
 	if err = s.applyEnvVars(); err != nil {
 		return fmt.Errorf("could not set flag from env: %w", err)
 	}
