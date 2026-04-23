@@ -2307,6 +2307,98 @@ func TestHelpVersion(t *testing.T) {
 	}
 }
 
+func TestSorted(t *testing.T) {
+	tests := []struct {
+		newSet func(t *testing.T) *flag.Set
+		test   func(t *testing.T, set *flag.Set)
+		name   string
+	}{
+		{
+			name: "empty",
+			newSet: func(t *testing.T) *flag.Set {
+				return flag.NewSet()
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				// Iterator should yield no values
+				got := maps.Collect(set.Sorted())
+				test.Equal(t, len(got), 0)
+			},
+		},
+		{
+			name: "full",
+			newSet: func(t *testing.T) *flag.Set {
+				set := flag.NewSet()
+
+				verbose, err := flag.New(new(bool), "verbose", 'v', "Show verbose info", flag.Config[bool]{})
+				test.Ok(t, err)
+
+				debug, err := flag.New(new(bool), "debug", 'd', "Show debug info", flag.Config[bool]{})
+				test.Ok(t, err)
+
+				thing, err := flag.New(new(string), "thing", 't', "A thing", flag.Config[string]{})
+				test.Ok(t, err)
+
+				number, err := flag.New(new(int), "number", 'n', "Number of times", flag.Config[int]{})
+				test.Ok(t, err)
+
+				duration, err := flag.New(new(time.Duration), "duration", 'D', "The time to do something for", flag.Config[time.Duration]{})
+				test.Ok(t, err)
+
+				test.Ok(t, flag.AddToSet(set, verbose))
+				test.Ok(t, flag.AddToSet(set, debug))
+				test.Ok(t, flag.AddToSet(set, thing))
+				test.Ok(t, flag.AddToSet(set, number))
+				test.Ok(t, flag.AddToSet(set, duration))
+
+				return set
+			},
+			test: func(t *testing.T, set *flag.Set) {
+				next, stop := iter.Pull2(set.Sorted())
+				defer stop()
+
+				// Should now be in alphabetical order
+				name, fl, ok := next()
+				test.True(t, ok)
+				test.Equal(t, name, "debug")
+				test.Equal(t, fl.Name(), "debug")
+
+				name, fl, ok = next()
+				test.True(t, ok)
+				test.Equal(t, name, "duration")
+				test.Equal(t, fl.Name(), "duration")
+
+				name, fl, ok = next()
+				test.True(t, ok)
+				test.Equal(t, name, "number")
+				test.Equal(t, fl.Name(), "number")
+
+				name, fl, ok = next()
+				test.True(t, ok)
+				test.Equal(t, name, "thing")
+				test.Equal(t, fl.Name(), "thing")
+
+				name, fl, ok = next()
+				test.True(t, ok)
+				test.Equal(t, name, "verbose")
+				test.Equal(t, fl.Name(), "verbose")
+
+				// Thats it
+				name, fl, ok = next()
+				test.False(t, ok)
+				test.Equal(t, name, "")
+				test.Equal(t, fl, nil)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			set := tt.newSet(t)
+			tt.test(t, set)
+		})
+	}
+}
+
 func TestAll(t *testing.T) {
 	tests := []struct {
 		newSet func(t *testing.T) *flag.Set
@@ -2353,41 +2445,16 @@ func TestAll(t *testing.T) {
 				return set
 			},
 			test: func(t *testing.T, set *flag.Set) {
-				// Iterator should yield no values
-				next, stop := iter.Pull2(set.All())
-				defer stop()
+				// Should get everything back, but order is not deterministic
+				all := maps.Collect(set.All())
 
-				// Should now be in alphabetical order
-				name, fl, ok := next()
-				test.True(t, ok)
-				test.Equal(t, name, "debug")
-				test.Equal(t, fl.Name(), "debug")
+				want := []string{"verbose", "debug", "thing", "number", "duration"}
+				slices.Sort(want)
 
-				name, fl, ok = next()
-				test.True(t, ok)
-				test.Equal(t, name, "duration")
-				test.Equal(t, fl.Name(), "duration")
+				got := slices.Collect(maps.Keys(all))
+				slices.Sort(got)
 
-				name, fl, ok = next()
-				test.True(t, ok)
-				test.Equal(t, name, "number")
-				test.Equal(t, fl.Name(), "number")
-
-				name, fl, ok = next()
-				test.True(t, ok)
-				test.Equal(t, name, "thing")
-				test.Equal(t, fl.Name(), "thing")
-
-				name, fl, ok = next()
-				test.True(t, ok)
-				test.Equal(t, name, "verbose")
-				test.Equal(t, fl.Name(), "verbose")
-
-				// Thats it
-				name, fl, ok = next()
-				test.False(t, ok)
-				test.Equal(t, name, "")
-				test.Equal(t, fl, nil)
+				test.EqualFunc(t, got, want, slices.Equal)
 			},
 		},
 	}
