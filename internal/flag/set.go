@@ -17,17 +17,20 @@ import (
 type Set struct {
 	flags      map[string]Value  // The actual stored flags, can lookup by name
 	shorthands map[rune]Value    // The flags by shorthand
-	envVars    map[string]string // flag name → env var name
+	envVars    map[string]string // flag name → env var name. Lazily created on first flag with an env var
 	args       []string          // Arguments minus flags or flag values
 	extra      []string          // Arguments after "--" was hit
 }
 
+// typicalFlagCount is a rough guess at the number of flags a single
+// command is likely to have so we can right size the maps.
+const typicalFlagCount = 4
+
 // NewSet builds and returns a new set of flags.
 func NewSet() *Set {
 	return &Set{
-		flags:      make(map[string]Value),
-		shorthands: make(map[rune]Value),
-		envVars:    make(map[string]string),
+		flags:      make(map[string]Value, typicalFlagCount),
+		shorthands: make(map[rune]Value, typicalFlagCount),
 	}
 }
 
@@ -59,6 +62,10 @@ func AddToSet[T flag.Flaggable](set *Set, f *Flag[T]) error {
 	set.flags[name] = f
 
 	if f.envVar != "" {
+		if set.envVars == nil {
+			set.envVars = make(map[string]string, typicalFlagCount)
+		}
+
 		set.envVars[name] = f.envVar
 	}
 
@@ -167,8 +174,10 @@ func (s *Set) Parse(args []string) error {
 	s.args = s.args[:0]
 	s.extra = nil
 
-	if err = s.applyEnvVars(); err != nil {
-		return fmt.Errorf("could not set flag from env: %w", err)
+	if len(s.envVars) > 0 {
+		if err = s.applyEnvVars(); err != nil {
+			return fmt.Errorf("could not set flag from env: %w", err)
+		}
 	}
 
 	for len(args) > 0 {
