@@ -8,6 +8,7 @@ import (
 	"os"
 	"slices"
 	"strings"
+	"unicode/utf8"
 
 	"go.followtheprocess.codes/cli/flag"
 	"go.followtheprocess.codes/cli/internal/format"
@@ -365,71 +366,68 @@ func (s *Set) parseShortFlag(short string, rest []string) (remaining []string, e
 
 // parseSingleShortFlag parses a single short flag entry.
 func (s *Set) parseSingleShortFlag(shorthands string, rest []string) (string, []string, error) {
-	for _, char := range shorthands {
-		if err := validateFlagShort(char); err != nil {
-			return "", nil, fmt.Errorf("invalid flag shorthand %q: %w", string(char), err)
-		}
+	char, _ := utf8.DecodeRuneInString(shorthands)
 
-		flag, exists := s.shorthands[char]
-		if !exists {
-			return "", nil, fmt.Errorf("unrecognised shorthand flag: %q in -%s", string(char), shorthands)
-		}
-
-		switch {
-		case len(shorthands) >= 2 && shorthands[1] == '=':
-			// '-f=value' (value may be empty, symmetric with '--flag=')
-			value := shorthands[2:]
-
-			err := flag.Set(value)
-			if err != nil {
-				return "", nil, err
-			}
-			// No more shorthands to parse as we got given a value
-			// Nothing to trim off the arguments as "-f=value" is all 1 arg
-			return "", rest, nil
-
-		case flag.NoArgValue() != "":
-			// -f with implied value e.g. boolean or count
-			err := flag.Set(flag.NoArgValue())
-			if err != nil {
-				return "", nil, err
-			}
-
-			// We've consumed a single short from the string so trim that off
-			return shorthands[1:], rest, nil
-
-		case len(shorthands) > 1:
-			// '-fvalue'
-			value := shorthands[1:]
-
-			err := flag.Set(value)
-			if err != nil {
-				return "", nil, err
-			}
-
-			// No more shorthands to parse as we got given a value
-			// Nothing to trim off as "-fvalue" is all 1 arg
-			return "", rest, nil
-
-		case len(rest) > 0:
-			// '-f value'
-			value := rest[0]
-
-			err := flag.Set(value)
-			if err != nil {
-				return "", nil, err
-			}
-
-			// We've consumed an argument from rest as it was the value to this flag
-			// as well as a shorthand
-			return shorthands[1:], rest[1:], nil
-
-		default:
-			// '-f' with required value
-			return "", nil, fmt.Errorf("flag %s needs an argument: %q in -%s", flag.Name(), string(char), shorthands)
-		}
+	if err := validateFlagShort(char); err != nil {
+		return "", nil, fmt.Errorf("invalid flag shorthand %q: %w", string(char), err)
 	}
 
-	// Didn't match any of our rules, must be invalid short flag syntax
-	return "", nil, fmt.Errorf("invalid short flag syntax: %s", shorthands)
+	flag, exists := s.shorthands[char]
+	if !exists {
+		return "", nil, fmt.Errorf("unrecognised shorthand flag: %q in -%s", string(char), shorthands)
+	}
+
+	switch {
+	case len(shorthands) >= 2 && shorthands[1] == '=':
+		// '-f=value' (value may be empty, symmetric with '--flag=')
+		value := shorthands[2:]
+
+		err := flag.Set(value)
+		if err != nil {
+			return "", nil, err
+		}
+		// No more shorthands to parse as we got given a value
+		// Nothing to trim off the arguments as "-f=value" is all 1 arg
+		return "", rest, nil
+
+	case flag.NoArgValue() != "":
+		// -f with implied value e.g. boolean or count
+		err := flag.Set(flag.NoArgValue())
+		if err != nil {
+			return "", nil, err
+		}
+
+		// We've consumed a single short from the string so trim that off
+		return shorthands[1:], rest, nil
+
+	case len(shorthands) > 1:
+		// '-fvalue'
+		value := shorthands[1:]
+
+		err := flag.Set(value)
+		if err != nil {
+			return "", nil, err
+		}
+
+		// No more shorthands to parse as we got given a value
+		// Nothing to trim off as "-fvalue" is all 1 arg
+		return "", rest, nil
+
+	case len(rest) > 0:
+		// '-f value'
+		value := rest[0]
+
+		err := flag.Set(value)
+		if err != nil {
+			return "", nil, err
+		}
+
+		// We've consumed an argument from rest as it was the value to this flag
+		// as well as a shorthand
+		return shorthands[1:], rest[1:], nil
+
+	default:
+		// '-f' with required value
+		return "", nil, fmt.Errorf("flag %s needs an argument: %q in -%s", flag.Name(), string(char), shorthands)
+	}
 }
