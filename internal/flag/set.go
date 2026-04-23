@@ -31,9 +31,13 @@ func NewSet() *Set {
 }
 
 // AddToSet adds a flag to the given Set.
-func AddToSet[T flag.Flaggable](set *Set, f Flag[T]) error {
+func AddToSet[T flag.Flaggable](set *Set, f *Flag[T]) error {
 	if set == nil {
 		return errors.New("cannot add flag to a nil set")
+	}
+
+	if f == nil {
+		return errors.New("cannot add nil flag to a set")
 	}
 
 	name := f.Name()
