@@ -25,8 +25,14 @@ const (
 	defaultShort      = "A placeholder for something cool" // defaultShort is the default value for cli.Short.
 )
 
-// Pre-styled section headers used in the help text. hue's Text allocates
-// a new string each call, so we do the styling once at init time.
+// Pre-styled section headers used in the help text.
+//
+// hue.Style.Text allocates a new string every call so we can't make these
+// compile-time constants, but there's no reason to re-style fixed section
+// headers on every help render either. Doing it once at package init drops a
+// handful of allocs per showHelp.
+//
+//nolint:gochecknoglobals // Caching the styled titles.
 var (
 	usageTitle     = style.Title.Text("Usage")
 	optionsTitle   = style.Title.Text("Options")

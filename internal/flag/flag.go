@@ -346,15 +346,6 @@ func (f *Flag[T]) Set(str string) error {
 
 		return nil
 	case flag.Count:
-		// We have to do a bit of custom stuff here as an increment is a read and write op
-		// First read the current value of the flag and cast it to a Count so we
-		// can increment it
-		current, ok := any(*f.value).(flag.Count)
-		if !ok {
-			// This basically shouldn't ever happen but it's easy enough to handle nicely
-			return errBadType(*f.value)
-		}
-
 		// Add the count and store it back, we still parse the given str rather
 		// than just +1 every time as this allows people to do e.g. --verbosity=3
 		// as well as -vvv
@@ -363,7 +354,7 @@ func (f *Flag[T]) Set(str string) error {
 			return parse.Error(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		newValue := current + flag.Count(val)
+		newValue := typ + flag.Count(val)
 		*f.value = *parse.Cast[T](&newValue)
 
 		return nil
@@ -500,182 +491,118 @@ func (f *Flag[T]) Set(str string) error {
 		return nil
 	case []int:
 		// Like Count, a slice flag is a read/write op
-		slice, ok := any(*f.value).([]int)
-		if !ok {
-			return errBadType(*f.value)
-		}
-
-		// Append the given value to the slice
 		newValue, err := parse.Int(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		slice = append(slice, newValue)
-		*f.value = *parse.Cast[T](&slice)
+		typ = append(typ, newValue)
+		*f.value = *parse.Cast[T](&typ)
 
 		return nil
 	case []int8:
-		slice, ok := any(*f.value).([]int8)
-		if !ok {
-			return errBadType(*f.value)
-		}
-
 		newValue, err := parse.Int8(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		slice = append(slice, newValue)
-		*f.value = *parse.Cast[T](&slice)
+		typ = append(typ, newValue)
+		*f.value = *parse.Cast[T](&typ)
 
 		return nil
 	case []int16:
-		slice, ok := any(*f.value).([]int16)
-		if !ok {
-			return errBadType(*f.value)
-		}
-
 		newValue, err := parse.Int16(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		slice = append(slice, newValue)
-		*f.value = *parse.Cast[T](&slice)
+		typ = append(typ, newValue)
+		*f.value = *parse.Cast[T](&typ)
 
 		return nil
 	case []int32:
-		slice, ok := any(*f.value).([]int32)
-		if !ok {
-			return errBadType(*f.value)
-		}
-
 		newValue, err := parse.Int32(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		slice = append(slice, newValue)
-		*f.value = *parse.Cast[T](&slice)
+		typ = append(typ, newValue)
+		*f.value = *parse.Cast[T](&typ)
 
 		return nil
 	case []int64:
-		slice, ok := any(*f.value).([]int64)
-		if !ok {
-			return errBadType(*f.value)
-		}
-
 		newValue, err := parse.Int64(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		slice = append(slice, newValue)
-		*f.value = *parse.Cast[T](&slice)
+		typ = append(typ, newValue)
+		*f.value = *parse.Cast[T](&typ)
 
 		return nil
-
 	case []uint:
-		slice, ok := any(*f.value).([]uint)
-		if !ok {
-			return errBadType(*f.value)
-		}
-
-		// Append the given value to the slice
 		newValue, err := parse.Uint(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		slice = append(slice, newValue)
-		*f.value = *parse.Cast[T](&slice)
+		typ = append(typ, newValue)
+		*f.value = *parse.Cast[T](&typ)
 
 		return nil
 	case []uint16:
-		slice, ok := any(*f.value).([]uint16)
-		if !ok {
-			return errBadType(*f.value)
-		}
-
 		newValue, err := parse.Uint16(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		slice = append(slice, newValue)
-		*f.value = *parse.Cast[T](&slice)
+		typ = append(typ, newValue)
+		*f.value = *parse.Cast[T](&typ)
 
 		return nil
 	case []uint32:
-		slice, ok := any(*f.value).([]uint32)
-		if !ok {
-			return errBadType(*f.value)
-		}
-
 		newValue, err := parse.Uint32(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		slice = append(slice, newValue)
-		*f.value = *parse.Cast[T](&slice)
+		typ = append(typ, newValue)
+		*f.value = *parse.Cast[T](&typ)
 
 		return nil
 	case []uint64:
-		slice, ok := any(*f.value).([]uint64)
-		if !ok {
-			return errBadType(*f.value)
-		}
-
 		newValue, err := parse.Uint64(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		slice = append(slice, newValue)
-		*f.value = *parse.Cast[T](&slice)
+		typ = append(typ, newValue)
+		*f.value = *parse.Cast[T](&typ)
 
 		return nil
 	case []float32:
-		slice, ok := any(*f.value).([]float32)
-		if !ok {
-			return errBadType(*f.value)
-		}
-
 		newValue, err := parse.Float32(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		slice = append(slice, newValue)
-		*f.value = *parse.Cast[T](&slice)
+		typ = append(typ, newValue)
+		*f.value = *parse.Cast[T](&typ)
 
 		return nil
 	case []float64:
-		slice, ok := any(*f.value).([]float64)
-		if !ok {
-			return errBadType(*f.value)
-		}
-
 		newValue, err := parse.Float64(str)
 		if err != nil {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, typ, err)
 		}
 
-		slice = append(slice, newValue)
-		*f.value = *parse.Cast[T](&slice)
+		typ = append(typ, newValue)
+		*f.value = *parse.Cast[T](&typ)
 
 		return nil
 	case []string:
-		slice, ok := any(*f.value).([]string)
-		if !ok {
-			return errBadType(*f.value)
-		}
-
-		// No parsing to do because a string is... well, a string
-		slice = append(slice, str)
-		*f.value = *parse.Cast[T](&slice)
+		typ = append(typ, str)
+		*f.value = *parse.Cast[T](&typ)
 
 		return nil
 	default:
@@ -745,12 +672,6 @@ func validateFlagShort(short rune) error {
 	}
 
 	return nil
-}
-
-// errBadType makes a consistent error in the face of a bad type
-// assertion.
-func errBadType[T flag.Flaggable](value T) error {
-	return fmt.Errorf("bad value %v, could not cast to %T", value, value)
 }
 
 // isZeroIsh reports whether value is the zero value (ish) for it's type.
