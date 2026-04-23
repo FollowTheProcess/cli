@@ -11,6 +11,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"go.followtheprocess.codes/hue/tabwriter"
+
 	publicflag "go.followtheprocess.codes/cli/flag"
 
 	"go.followtheprocess.codes/cli/internal/arg"
@@ -481,6 +483,11 @@ func showHelp(cmd *Command) error {
 	s := &strings.Builder{}
 	s.Grow(helpBufferSize)
 
+	// One tabwriter threaded through every aligned section, reset
+	// between them with ResetTabwriter so only the first section pays the
+	// internal-buffer allocation cost.
+	tw := style.Tabwriter(s)
+
 	// If we have a short description, write that
 	if cmd.short != "" {
 		s.WriteString(cmd.short)
@@ -517,7 +524,7 @@ func showHelp(cmd *Command) error {
 
 	// If we have defined, list them explicitly and use their descriptions
 	if len(cmd.args) != 0 {
-		if err := writeArgumentsSection(cmd, s); err != nil {
+		if err := writeArgumentsSection(cmd, s, tw); err != nil {
 			return err
 		}
 	}
@@ -529,7 +536,7 @@ func showHelp(cmd *Command) error {
 
 	// Now show subcommands
 	if len(cmd.subcommands) != 0 {
-		if err := writeSubcommands(cmd, s); err != nil {
+		if err := writeSubcommands(cmd, s, tw); err != nil {
 			return err
 		}
 	}
@@ -546,7 +553,7 @@ func showHelp(cmd *Command) error {
 	s.WriteString(optionsTitle)
 	s.WriteString(":\n\n")
 
-	if err := writeFlags(cmd, s); err != nil {
+	if err := writeFlags(cmd, s, tw); err != nil {
 		return err
 	}
 
@@ -584,11 +591,11 @@ func writePositionalArgs(cmd *Command, s *strings.Builder) {
 
 // writeArgumentsSection writes the entire positional arguments block to the help
 // text string builder.
-func writeArgumentsSection(cmd *Command, s *strings.Builder) error {
+func writeArgumentsSection(cmd *Command, s *strings.Builder, tw *tabwriter.Writer) error {
 	s.WriteString("\n\n")
 	s.WriteString(argumentsTitle)
 	s.WriteString(":\n\n")
-	tw := style.Tabwriter(s)
+	style.ResetTabwriter(tw, s)
 
 	for _, arg := range cmd.args {
 		if def := arg.Default(); def != "" {
@@ -638,7 +645,7 @@ func writeExamples(cmd *Command, s *strings.Builder) {
 }
 
 // writeSubcommands writes the subcommand block to the help text string builder.
-func writeSubcommands(cmd *Command, s *strings.Builder) error {
+func writeSubcommands(cmd *Command, s *strings.Builder, tw *tabwriter.Writer) error {
 	// If there were examples, the last one would have printed a newline
 	if len(cmd.examples) != 0 {
 		s.WriteByte('\n')
@@ -650,7 +657,8 @@ func writeSubcommands(cmd *Command, s *strings.Builder) error {
 	s.WriteByte(':')
 	s.WriteString("\n\n")
 
-	tw := style.Tabwriter(s)
+	style.ResetTabwriter(tw, s)
+
 	for _, subcommand := range cmd.subcommands {
 		fmt.Fprintf(tw, "  %s\t%s\n", style.Bold.Text(subcommand.name), subcommand.short)
 	}
@@ -663,8 +671,8 @@ func writeSubcommands(cmd *Command, s *strings.Builder) error {
 }
 
 // writeFlags writes the flag usage block to the help text string builder.
-func writeFlags(cmd *Command, s *strings.Builder) error {
-	tw := style.Tabwriter(s)
+func writeFlags(cmd *Command, s *strings.Builder, tw *tabwriter.Writer) error {
+	style.ResetTabwriter(tw, s)
 
 	for name, fl := range cmd.flags.Sorted() {
 		var shorthand string
