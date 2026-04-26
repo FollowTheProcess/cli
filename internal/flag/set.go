@@ -290,9 +290,6 @@ func (s *Set) parseLongFlag(long string, rest []string) (remaining []string, err
 
 	// name will either be the entire string or the name before the "="
 	name, value, containsEquals := strings.Cut(name, "=")
-	if err := validateFlagName(name); err != nil {
-		return nil, fmt.Errorf("invalid flag name %q: %w", name, err)
-	}
 
 	flag, exists := s.flags[name]
 	if !exists {
@@ -367,10 +364,6 @@ func (s *Set) parseShortFlag(short string, rest []string) (remaining []string, e
 // parseSingleShortFlag parses a single short flag entry.
 func (s *Set) parseSingleShortFlag(shorthands string, rest []string) (string, []string, error) {
 	char, _ := utf8.DecodeRuneInString(shorthands)
-
-	if err := validateFlagShort(char); err != nil {
-		return "", nil, fmt.Errorf("invalid flag shorthand %q: %w", string(char), err)
-	}
 
 	flag, exists := s.shorthands[char]
 	if !exists {
