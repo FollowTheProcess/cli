@@ -1043,6 +1043,13 @@ func TestFlagValidation(t *testing.T) {
 			wantErr:  true,
 			errMsg:   `invalid shorthand for flag "delete": invalid character, must be a single ASCII letter, got "本"`,
 		},
+		{
+			name:     "short is whitespace",
+			flagName: "delete",
+			short:    ' ',
+			wantErr:  true,
+			errMsg:   `invalid shorthand for flag "delete": cannot contain whitespace`,
+		},
 	}
 
 	for _, tt := range tests {

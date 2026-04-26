@@ -379,47 +379,37 @@ func (cmd *Command) hasShortFlag(name string) bool {
 // findRequestedCommand uses the raw arguments and the command tree to determine what
 // (if any) subcommand is being requested and return that command along with the arguments
 // that were meant for it.
-func findRequestedCommand(cmd *Command, args []string) (*Command, []string) {
-	// The next non-flag argument (if any) is the first immediate subcommand
-	// e.g. in 'go mod tidy' we're looking for 'mod'.
-	nextSubCommand, ok := firstNonFlagArg(cmd, args)
-	if !ok {
-		// No non-flag arguments, so we must already be either at the root command
-		// or the correct subcommand
-		return cmd, args
-	}
-
-	// Lookup this immediate subcommand by name and if we find it, recursively call
-	// this function so we eventually end up at the end of the command tree with
-	// the right arguments
-	next := findSubCommand(cmd, nextSubCommand)
-	if next != nil {
-		return findRequestedCommand(next, argsMinusFirstX(args, nextSubCommand))
-	}
-
-	// Found it
-	return cmd, args
-}
-
-// argsMinusFirstX removes only the first x from args.  Otherwise, commands that look like
-// openshift admin policy add-role-to-user admin my-user, lose the admin argument (arg[4]).
 //
-// The input slice is not mutated so that repeated Execute calls on the same
-// Command see the original rawArgs.
-func argsMinusFirstX(args []string, x string) []string {
-	// Note: this is borrowed from Cobra but ours is a lot simpler because we don't support
-	// persistent flags
-	for i, arg := range args {
-		if arg == x {
-			result := make([]string, 0, len(args)-1)
-			result = append(result, args[:i]...)
-			result = append(result, args[i+1:]...)
+// On the first descent into a subcommand it snapshots args into a working
+// slice that we own; subsequent levels then mutate that slice in place via
+// [slices.Delete]. The original cmd.rawArgs is never touched, so re-Execute
+// on the same Command still sees pristine input.
+func findRequestedCommand(cmd *Command, args []string) (*Command, []string) {
+	owned := false
 
-			return result
+	for {
+		// The next non-flag argument (if any) is the immediate subcommand
+		// e.g. in 'go mod tidy' we're looking for 'mod'.
+		idx, ok := firstNonFlagArg(cmd, args)
+		if !ok {
+			return cmd, args
 		}
-	}
 
-	return args
+		next := findSubCommand(cmd, args[idx])
+		if next == nil {
+			return cmd, args
+		}
+
+		if !owned {
+			working := make([]string, len(args))
+			copy(working, args)
+			args = working
+			owned = true
+		}
+
+		args = slices.Delete(args, idx, idx+1)
+		cmd = next
+	}
 }
 
 // findSubCommand searches the immediate subcommands of cmd by name, looking for next.
@@ -435,25 +425,25 @@ func findSubCommand(cmd *Command, next string) *Command {
 	return nil
 }
 
-// firstNonFlagArg walks args and returns the first positional (non-flag)
-// argument along with a boolean indicating whether one was found.
+// firstNonFlagArg walks args and returns the index of the first positional
+// (non-flag) argument along with a boolean indicating whether one was found.
 //
 // It consumes flag-value pairs (e.g. '--flag value' or '-f value') so they
 // aren't mistaken for positional arguments, and stops at '--'.
-func firstNonFlagArg(cmd *Command, args []string) (arg string, ok bool) {
+func firstNonFlagArg(cmd *Command, args []string) (idx int, ok bool) {
 	for i := 0; i < len(args); i++ {
 		a := args[i]
 		switch {
 		case a == "--":
 			// "--" terminates the flags
-			return "", false
+			return -1, false
 		case strings.HasPrefix(a, "--") && !strings.Contains(a, "=") && !cmd.hasFlag(a[2:]):
 			// If '--flag value' then skip value
 			fallthrough
 		case strings.HasPrefix(a, "-") && !strings.Contains(a, "=") && len(a) == 2 && !cmd.hasShortFlag(a[1:]):
 			// '-f value' skip the value too. If there isn't one, we're done.
 			if i+1 >= len(args) {
-				return "", false
+				return -1, false
 			}
 
 			i++
@@ -461,11 +451,11 @@ func firstNonFlagArg(cmd *Command, args []string) (arg string, ok bool) {
 			continue
 		case a != "" && !strings.HasPrefix(a, "-"):
 			// First valid positional arg
-			return a, true
+			return i, true
 		}
 	}
 
-	return "", false
+	return -1, false
 }
 
 // showHelp is the default for a command's helpFunc.

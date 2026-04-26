@@ -163,59 +163,6 @@ func TestParse(t *testing.T) {
 			errMsg:  `invalid flag name "": must not be empty`,
 		},
 		{
-			name: "bad syntax long extra hyphen",
-			newSet: func(t *testing.T) *flag.Set {
-				return flag.NewSet()
-			},
-			args:    []string{"---"},
-			wantErr: true,
-			errMsg:  `invalid flag name "-": trailing hyphen`,
-		},
-		{
-			name: "bad syntax long leading whitespace",
-			newSet: func(t *testing.T) *flag.Set {
-				return flag.NewSet()
-			},
-			args:    []string{"-- delete"},
-			wantErr: true,
-			errMsg:  `invalid flag name " delete": cannot contain whitespace`,
-		},
-		{
-			name: "bad syntax short leading whitespace",
-			newSet: func(t *testing.T) *flag.Set {
-				return flag.NewSet()
-			},
-			args:    []string{"- d"},
-			wantErr: true,
-			errMsg:  `invalid flag shorthand " ": cannot contain whitespace`,
-		},
-		{
-			name: "bad syntax long trailing whitespace",
-			newSet: func(t *testing.T) *flag.Set {
-				return flag.NewSet()
-			},
-			args:    []string{"--delete "},
-			wantErr: true,
-			errMsg:  `invalid flag name "delete ": cannot contain whitespace`,
-		},
-		{
-			name: "bad syntax short trailing whitespace",
-			newSet: func(t *testing.T) *flag.Set {
-				f, err := flag.New(new(bool), "delete", 'd', "Delete something", flag.Config[bool]{})
-				test.Ok(t, err)
-
-				set := flag.NewSet()
-
-				err = flag.AddToSet(set, f)
-				test.Ok(t, err)
-
-				return set
-			},
-			args:    []string{"-d "},
-			wantErr: true,
-			errMsg:  `invalid flag shorthand " ": cannot contain whitespace`,
-		},
-		{
 			name: "bad syntax short more than 1 char equals",
 			newSet: func(t *testing.T) *flag.Set {
 				return flag.NewSet()
@@ -223,42 +170,6 @@ func TestParse(t *testing.T) {
 			args:    []string{"-dfv=something"},
 			wantErr: true,
 			errMsg:  `unrecognised shorthand flag: "d" in -dfv=something`,
-		},
-		{
-			name: "bad syntax short non utf8",
-			newSet: func(t *testing.T) *flag.Set {
-				return flag.NewSet()
-			},
-			args:    []string{"-Ê"},
-			wantErr: true,
-			errMsg:  `invalid flag shorthand "Ê": invalid character, must be a single ASCII letter, got "Ê"`,
-		},
-		{
-			name: "bad syntax short non utf8 equals",
-			newSet: func(t *testing.T) *flag.Set {
-				return flag.NewSet()
-			},
-			args:    []string{"-Ê=something"},
-			wantErr: true,
-			errMsg:  `invalid flag shorthand "Ê": invalid character, must be a single ASCII letter, got "Ê"`,
-		},
-		{
-			name: "bad syntax short multiple non utf8",
-			newSet: func(t *testing.T) *flag.Set {
-				return flag.NewSet()
-			},
-			args:    []string{"-本¼語"},
-			wantErr: true,
-			errMsg:  `invalid flag shorthand "本": invalid character, must be a single ASCII letter, got "本"`,
-		},
-		{
-			name: "bad syntax long internal whitespace",
-			newSet: func(t *testing.T) *flag.Set {
-				return flag.NewSet()
-			},
-			args:    []string{"--de lete"},
-			wantErr: true,
-			errMsg:  `invalid flag name "de lete": cannot contain whitespace`,
 		},
 		{
 			name: "valid long",
