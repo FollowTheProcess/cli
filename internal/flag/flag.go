@@ -141,76 +141,76 @@ func (f *Flag[T]) String() string {
 
 	switch f.kind {
 	case kind.Int:
-		return format.Int(*parse.Cast[int, T](f.value))
+		return format.Int(*parse.Cast[int](f.value))
 	case kind.Int8:
-		return format.Int(*parse.Cast[int8, T](f.value))
+		return format.Int(*parse.Cast[int8](f.value))
 	case kind.Int16:
-		return format.Int(*parse.Cast[int16, T](f.value))
+		return format.Int(*parse.Cast[int16](f.value))
 	case kind.Int32:
-		return format.Int(*parse.Cast[int32, T](f.value))
+		return format.Int(*parse.Cast[int32](f.value))
 	case kind.Int64:
-		return format.Int(*parse.Cast[int64, T](f.value))
+		return format.Int(*parse.Cast[int64](f.value))
 	case kind.Count:
-		return format.Uint(*parse.Cast[flag.Count, T](f.value))
+		return format.Uint(*parse.Cast[flag.Count](f.value))
 	case kind.Uint:
-		return format.Uint(*parse.Cast[uint, T](f.value))
+		return format.Uint(*parse.Cast[uint](f.value))
 	case kind.Uint8:
-		return format.Uint(*parse.Cast[uint8, T](f.value))
+		return format.Uint(*parse.Cast[uint8](f.value))
 	case kind.Uint16:
-		return format.Uint(*parse.Cast[uint16, T](f.value))
+		return format.Uint(*parse.Cast[uint16](f.value))
 	case kind.Uint32:
-		return format.Uint(*parse.Cast[uint32, T](f.value))
+		return format.Uint(*parse.Cast[uint32](f.value))
 	case kind.Uint64:
-		return format.Uint(*parse.Cast[uint64, T](f.value))
+		return format.Uint(*parse.Cast[uint64](f.value))
 	case kind.Uintptr:
-		return format.Uint(*parse.Cast[uintptr, T](f.value))
+		return format.Uint(*parse.Cast[uintptr](f.value))
 	case kind.Float32:
-		return format.Float32(*parse.Cast[float32, T](f.value))
+		return format.Float32(*parse.Cast[float32](f.value))
 	case kind.Float64:
-		return format.Float64(*parse.Cast[float64, T](f.value))
+		return format.Float64(*parse.Cast[float64](f.value))
 	case kind.String:
-		return *parse.Cast[string, T](f.value)
+		return *parse.Cast[string](f.value)
 	case kind.Bool:
-		return strconv.FormatBool(*parse.Cast[bool, T](f.value))
+		return strconv.FormatBool(*parse.Cast[bool](f.value))
 	case kind.BytesHex:
-		return hex.EncodeToString(*parse.Cast[[]byte, T](f.value))
+		return hex.EncodeToString(*parse.Cast[[]byte](f.value))
 	case kind.Time:
-		return parse.Cast[time.Time, T](f.value).Format(time.RFC3339)
+		return parse.Cast[time.Time](f.value).Format(time.RFC3339)
 	case kind.Duration:
-		return parse.Cast[time.Duration, T](f.value).String()
+		return parse.Cast[time.Duration](f.value).String()
 	case kind.IP:
-		return parse.Cast[net.IP, T](f.value).String()
+		return parse.Cast[net.IP](f.value).String()
 	case kind.URL:
-		u := *parse.Cast[*url.URL, T](f.value)
+		u := *parse.Cast[*url.URL](f.value)
 		if u == nil {
 			return format.Nil
 		}
 
 		return u.String()
 	case kind.IntSlice:
-		return format.Slice(*parse.Cast[[]int, T](f.value))
+		return format.Slice(*parse.Cast[[]int](f.value))
 	case kind.Int8Slice:
-		return format.Slice(*parse.Cast[[]int8, T](f.value))
+		return format.Slice(*parse.Cast[[]int8](f.value))
 	case kind.Int16Slice:
-		return format.Slice(*parse.Cast[[]int16, T](f.value))
+		return format.Slice(*parse.Cast[[]int16](f.value))
 	case kind.Int32Slice:
-		return format.Slice(*parse.Cast[[]int32, T](f.value))
+		return format.Slice(*parse.Cast[[]int32](f.value))
 	case kind.Int64Slice:
-		return format.Slice(*parse.Cast[[]int64, T](f.value))
+		return format.Slice(*parse.Cast[[]int64](f.value))
 	case kind.UintSlice:
-		return format.Slice(*parse.Cast[[]uint, T](f.value))
+		return format.Slice(*parse.Cast[[]uint](f.value))
 	case kind.Uint16Slice:
-		return format.Slice(*parse.Cast[[]uint16, T](f.value))
+		return format.Slice(*parse.Cast[[]uint16](f.value))
 	case kind.Uint32Slice:
-		return format.Slice(*parse.Cast[[]uint32, T](f.value))
+		return format.Slice(*parse.Cast[[]uint32](f.value))
 	case kind.Uint64Slice:
-		return format.Slice(*parse.Cast[[]uint64, T](f.value))
+		return format.Slice(*parse.Cast[[]uint64](f.value))
 	case kind.Float32Slice:
-		return format.Slice(*parse.Cast[[]float32, T](f.value))
+		return format.Slice(*parse.Cast[[]float32](f.value))
 	case kind.Float64Slice:
-		return format.Slice(*parse.Cast[[]float64, T](f.value))
+		return format.Slice(*parse.Cast[[]float64](f.value))
 	case kind.StringSlice:
-		return format.Slice(*parse.Cast[[]string, T](f.value))
+		return format.Slice(*parse.Cast[[]string](f.value))
 	default:
 		return fmt.Sprintf("Flag.String: unsupported flag type: %T", *f.value)
 	}
@@ -366,7 +366,7 @@ func (f *Flag[T]) Set(str string) error {
 			return parse.Error(parse.KindFlag, f.name, str, *f.value, err)
 		}
 
-		newValue := *parse.Cast[flag.Count, T](f.value) + flag.Count(val)
+		newValue := *parse.Cast[flag.Count](f.value) + flag.Count(val)
 		*f.value = *parse.Cast[T](&newValue)
 
 		return nil
@@ -499,7 +499,7 @@ func (f *Flag[T]) Set(str string) error {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, *f.value, err)
 		}
 
-		typ := append(*parse.Cast[[]int, T](f.value), newValue)
+		typ := append(*parse.Cast[[]int](f.value), newValue)
 		*f.value = *parse.Cast[T](&typ)
 
 		return nil
@@ -509,7 +509,7 @@ func (f *Flag[T]) Set(str string) error {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, *f.value, err)
 		}
 
-		typ := append(*parse.Cast[[]int8, T](f.value), newValue)
+		typ := append(*parse.Cast[[]int8](f.value), newValue)
 		*f.value = *parse.Cast[T](&typ)
 
 		return nil
@@ -519,7 +519,7 @@ func (f *Flag[T]) Set(str string) error {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, *f.value, err)
 		}
 
-		typ := append(*parse.Cast[[]int16, T](f.value), newValue)
+		typ := append(*parse.Cast[[]int16](f.value), newValue)
 		*f.value = *parse.Cast[T](&typ)
 
 		return nil
@@ -529,7 +529,7 @@ func (f *Flag[T]) Set(str string) error {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, *f.value, err)
 		}
 
-		typ := append(*parse.Cast[[]int32, T](f.value), newValue)
+		typ := append(*parse.Cast[[]int32](f.value), newValue)
 		*f.value = *parse.Cast[T](&typ)
 
 		return nil
@@ -539,7 +539,7 @@ func (f *Flag[T]) Set(str string) error {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, *f.value, err)
 		}
 
-		typ := append(*parse.Cast[[]int64, T](f.value), newValue)
+		typ := append(*parse.Cast[[]int64](f.value), newValue)
 		*f.value = *parse.Cast[T](&typ)
 
 		return nil
@@ -549,7 +549,7 @@ func (f *Flag[T]) Set(str string) error {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, *f.value, err)
 		}
 
-		typ := append(*parse.Cast[[]uint, T](f.value), newValue)
+		typ := append(*parse.Cast[[]uint](f.value), newValue)
 		*f.value = *parse.Cast[T](&typ)
 
 		return nil
@@ -559,7 +559,7 @@ func (f *Flag[T]) Set(str string) error {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, *f.value, err)
 		}
 
-		typ := append(*parse.Cast[[]uint16, T](f.value), newValue)
+		typ := append(*parse.Cast[[]uint16](f.value), newValue)
 		*f.value = *parse.Cast[T](&typ)
 
 		return nil
@@ -569,7 +569,7 @@ func (f *Flag[T]) Set(str string) error {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, *f.value, err)
 		}
 
-		typ := append(*parse.Cast[[]uint32, T](f.value), newValue)
+		typ := append(*parse.Cast[[]uint32](f.value), newValue)
 		*f.value = *parse.Cast[T](&typ)
 
 		return nil
@@ -579,7 +579,7 @@ func (f *Flag[T]) Set(str string) error {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, *f.value, err)
 		}
 
-		typ := append(*parse.Cast[[]uint64, T](f.value), newValue)
+		typ := append(*parse.Cast[[]uint64](f.value), newValue)
 		*f.value = *parse.Cast[T](&typ)
 
 		return nil
@@ -589,7 +589,7 @@ func (f *Flag[T]) Set(str string) error {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, *f.value, err)
 		}
 
-		typ := append(*parse.Cast[[]float32, T](f.value), newValue)
+		typ := append(*parse.Cast[[]float32](f.value), newValue)
 		*f.value = *parse.Cast[T](&typ)
 
 		return nil
@@ -599,12 +599,12 @@ func (f *Flag[T]) Set(str string) error {
 			return parse.ErrorSlice(parse.KindFlag, f.name, str, *f.value, err)
 		}
 
-		typ := append(*parse.Cast[[]float64, T](f.value), newValue)
+		typ := append(*parse.Cast[[]float64](f.value), newValue)
 		*f.value = *parse.Cast[T](&typ)
 
 		return nil
 	case kind.StringSlice:
-		typ := *parse.Cast[[]string, T](f.value)
+		typ := *parse.Cast[[]string](f.value)
 		typ = append(typ, str)
 		*f.value = *parse.Cast[T](&typ)
 
@@ -689,72 +689,72 @@ func validateFlagShort(short rune) error {
 func (f *Flag[T]) isZeroIsh() bool {
 	switch f.kind {
 	case kind.Int:
-		return *parse.Cast[int, T](f.value) == 0
+		return *parse.Cast[int](f.value) == 0
 	case kind.Int8:
-		return *parse.Cast[int8, T](f.value) == 0
+		return *parse.Cast[int8](f.value) == 0
 	case kind.Int16:
-		return *parse.Cast[int16, T](f.value) == 0
+		return *parse.Cast[int16](f.value) == 0
 	case kind.Int32:
-		return *parse.Cast[int32, T](f.value) == 0
+		return *parse.Cast[int32](f.value) == 0
 	case kind.Int64:
-		return *parse.Cast[int64, T](f.value) == 0
+		return *parse.Cast[int64](f.value) == 0
 	case kind.Uint:
-		return *parse.Cast[uint, T](f.value) == 0
+		return *parse.Cast[uint](f.value) == 0
 	case kind.Uint8:
-		return *parse.Cast[uint8, T](f.value) == 0
+		return *parse.Cast[uint8](f.value) == 0
 	case kind.Uint16:
-		return *parse.Cast[uint16, T](f.value) == 0
+		return *parse.Cast[uint16](f.value) == 0
 	case kind.Uint32:
-		return *parse.Cast[uint32, T](f.value) == 0
+		return *parse.Cast[uint32](f.value) == 0
 	case kind.Uint64:
-		return *parse.Cast[uint64, T](f.value) == 0
+		return *parse.Cast[uint64](f.value) == 0
 	case kind.Uintptr:
-		return *parse.Cast[uintptr, T](f.value) == 0
+		return *parse.Cast[uintptr](f.value) == 0
 	case kind.Float32:
-		return *parse.Cast[float32, T](f.value) == 0
+		return *parse.Cast[float32](f.value) == 0
 	case kind.Float64:
-		return *parse.Cast[float64, T](f.value) == 0
+		return *parse.Cast[float64](f.value) == 0
 	case kind.Count:
-		return *parse.Cast[flag.Count, T](f.value) == 0
+		return *parse.Cast[flag.Count](f.value) == 0
 	case kind.String:
-		return *parse.Cast[string, T](f.value) == ""
+		return *parse.Cast[string](f.value) == ""
 	case kind.Bool:
-		return !*parse.Cast[bool, T](f.value)
+		return !*parse.Cast[bool](f.value)
 	case kind.BytesHex:
-		return len(*parse.Cast[[]byte, T](f.value)) == 0
+		return len(*parse.Cast[[]byte](f.value)) == 0
 	case kind.IP:
-		return len(*parse.Cast[net.IP, T](f.value)) == 0
+		return len(*parse.Cast[net.IP](f.value)) == 0
 	case kind.URL:
-		return *parse.Cast[*url.URL, T](f.value) == nil
+		return *parse.Cast[*url.URL](f.value) == nil
 	case kind.IntSlice:
-		return len(*parse.Cast[[]int, T](f.value)) == 0
+		return len(*parse.Cast[[]int](f.value)) == 0
 	case kind.Int8Slice:
-		return len(*parse.Cast[[]int8, T](f.value)) == 0
+		return len(*parse.Cast[[]int8](f.value)) == 0
 	case kind.Int16Slice:
-		return len(*parse.Cast[[]int16, T](f.value)) == 0
+		return len(*parse.Cast[[]int16](f.value)) == 0
 	case kind.Int32Slice:
-		return len(*parse.Cast[[]int32, T](f.value)) == 0
+		return len(*parse.Cast[[]int32](f.value)) == 0
 	case kind.Int64Slice:
-		return len(*parse.Cast[[]int64, T](f.value)) == 0
+		return len(*parse.Cast[[]int64](f.value)) == 0
 	case kind.UintSlice:
-		return len(*parse.Cast[[]uint, T](f.value)) == 0
+		return len(*parse.Cast[[]uint](f.value)) == 0
 	case kind.Uint16Slice:
-		return len(*parse.Cast[[]uint16, T](f.value)) == 0
+		return len(*parse.Cast[[]uint16](f.value)) == 0
 	case kind.Uint32Slice:
-		return len(*parse.Cast[[]uint32, T](f.value)) == 0
+		return len(*parse.Cast[[]uint32](f.value)) == 0
 	case kind.Uint64Slice:
-		return len(*parse.Cast[[]uint64, T](f.value)) == 0
+		return len(*parse.Cast[[]uint64](f.value)) == 0
 	case kind.Float32Slice:
-		return len(*parse.Cast[[]float32, T](f.value)) == 0
+		return len(*parse.Cast[[]float32](f.value)) == 0
 	case kind.Float64Slice:
-		return len(*parse.Cast[[]float64, T](f.value)) == 0
+		return len(*parse.Cast[[]float64](f.value)) == 0
 	case kind.StringSlice:
-		return len(*parse.Cast[[]string, T](f.value)) == 0
+		return len(*parse.Cast[[]string](f.value)) == 0
 	case kind.Time:
 		var zero time.Time
-		return parse.Cast[time.Time, T](f.value).Equal(zero)
+		return parse.Cast[time.Time](f.value).Equal(zero)
 	case kind.Duration:
-		return *parse.Cast[time.Duration, T](f.value) == 0
+		return *parse.Cast[time.Duration](f.value) == 0
 	default:
 		return false
 	}

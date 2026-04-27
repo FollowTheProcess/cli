@@ -337,50 +337,50 @@ func typeInfo[T arg.Argable]() (kind.Kind, string) {
 func formatValue[T arg.Argable](k kind.Kind, p *T) string {
 	switch k {
 	case kind.Int:
-		return format.Int(*parse.Cast[int, T](p))
+		return format.Int(*parse.Cast[int](p))
 	case kind.Int8:
-		return format.Int(*parse.Cast[int8, T](p))
+		return format.Int(*parse.Cast[int8](p))
 	case kind.Int16:
-		return format.Int(*parse.Cast[int16, T](p))
+		return format.Int(*parse.Cast[int16](p))
 	case kind.Int32:
-		return format.Int(*parse.Cast[int32, T](p))
+		return format.Int(*parse.Cast[int32](p))
 	case kind.Int64:
-		return format.Int(*parse.Cast[int64, T](p))
+		return format.Int(*parse.Cast[int64](p))
 	case kind.Uint:
-		return format.Uint(*parse.Cast[uint, T](p))
+		return format.Uint(*parse.Cast[uint](p))
 	case kind.Uint8:
-		return format.Uint(*parse.Cast[uint8, T](p))
+		return format.Uint(*parse.Cast[uint8](p))
 	case kind.Uint16:
-		return format.Uint(*parse.Cast[uint16, T](p))
+		return format.Uint(*parse.Cast[uint16](p))
 	case kind.Uint32:
-		return format.Uint(*parse.Cast[uint32, T](p))
+		return format.Uint(*parse.Cast[uint32](p))
 	case kind.Uint64:
-		return format.Uint(*parse.Cast[uint64, T](p))
+		return format.Uint(*parse.Cast[uint64](p))
 	case kind.Uintptr:
-		return format.Uint(*parse.Cast[uintptr, T](p))
+		return format.Uint(*parse.Cast[uintptr](p))
 	case kind.Float32:
-		return format.Float32(*parse.Cast[float32, T](p))
+		return format.Float32(*parse.Cast[float32](p))
 	case kind.Float64:
-		return format.Float64(*parse.Cast[float64, T](p))
+		return format.Float64(*parse.Cast[float64](p))
 	case kind.String:
-		return *parse.Cast[string, T](p)
+		return *parse.Cast[string](p)
 	case kind.URL:
-		u := *parse.Cast[*url.URL, T](p)
+		u := *parse.Cast[*url.URL](p)
 		if u == nil {
 			return format.Nil
 		}
 
 		return u.String()
 	case kind.Bool:
-		return strconv.FormatBool(*parse.Cast[bool, T](p))
+		return strconv.FormatBool(*parse.Cast[bool](p))
 	case kind.BytesHex:
-		return hex.EncodeToString(*parse.Cast[[]byte, T](p))
+		return hex.EncodeToString(*parse.Cast[[]byte](p))
 	case kind.Time:
-		return parse.Cast[time.Time, T](p).Format(time.RFC3339)
+		return parse.Cast[time.Time](p).Format(time.RFC3339)
 	case kind.Duration:
-		return parse.Cast[time.Duration, T](p).String()
+		return parse.Cast[time.Duration](p).String()
 	case kind.IP:
-		return parse.Cast[net.IP, T](p).String()
+		return parse.Cast[net.IP](p).String()
 	default:
 		return fmt.Sprintf("Arg.String: unsupported arg type: %T", *p)
 	}
