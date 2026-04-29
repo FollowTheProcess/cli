@@ -8,7 +8,6 @@ This directory contains a bunch of example programs built with `cli` to show you
   - [`./subcommands`](#subcommands)
   - [`./namedargs`](#namedargs)
   - [`./cancel`](#cancel)
-  - [`./completion`](#completion)
     - [TODO](#todo)
 
 ## `./cover`
@@ -39,16 +38,6 @@ This examples shows how `cli` requiring you to pass a `context.Context` to your 
 
 ![cancel](../docs/img/cancel.gif)
 
-## `./completion`
-
-Demonstrates how to add shell completion support to any CLI by wiring in `cli.CompletionSubCommand()`. Running `mytool completion` outputs a [carapace-spec] YAML document describing the full command tree. Redirect it once to register completions with [carapace-bin]:
-
-```shell
-mytool completion > ~/.config/carapace/specs/mytool.yaml
-```
-
-carapace-bin then provides completions across bash, zsh, fish, nushell, PowerShell, and more — no shell-specific scripts required.
-
 ### TODO
 
 - Replicate one or two well known CLI tools as an example
@@ -57,5 +46,3 @@ carapace-bin then provides completions across bash, zsh, fish, nushell, PowerShe
 
 [quickstart]: <https://github.com/FollowTheProcess/cli#quickstart>
 [freeze]: <https://github.com/charmbracelet/freeze>
-[carapace-spec]: <https://github.com/carapace-sh/carapace-spec>
-[carapace-bin]: <https://github.com/carapace-sh/carapace-bin>
