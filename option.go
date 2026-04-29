@@ -17,74 +17,19 @@ import (
 
 // Option is a functional option for configuring a [Command].
 type Option interface {
-	// Apply the option to the config, returning an error if the
-	// option cannot be applied for whatever reason.
-	apply(cfg *config) error
+	apply(cmd *Command) error
 }
 
-// option is a function adapter implementing the Option interface, analogous
-// to http.HandlerFunc.
-type option func(cfg *config) error
+type stdinOpt struct{ stdin io.Reader }
 
-// apply implements the Option interface for option.
-func (o option) apply(cfg *config) error {
-	return o(cfg)
-}
-
-// config represents the internal configuration of a [Command].
-type config struct {
-	stdin         io.Reader
-	stdout        io.Writer
-	stderr        io.Writer
-	run           func(ctx context.Context, cmd *Command) error
-	flags         *internalflag.Set
-	parent        *Command
-	name          string
-	short         string
-	long          string
-	version       string
-	commit        string
-	buildDate     string
-	examples      []example
-	rawArgs       []string
-	args          []internalarg.Value
-	subcommands   []*Command
-	helpCalled    bool
-	versionCalled bool
-}
-
-// build builds an returns a Command from the config.
-//
-// The returned command is a completely standalone CLI program with no back-references
-// to the config, so is effectively immutable to the user.
-func (c *config) build() *Command {
-	cmd := &Command{
-		stdin:         c.stdin,
-		stdout:        c.stdout,
-		stderr:        c.stderr,
-		run:           c.run,
-		flags:         c.flags,
-		parent:        c.parent,
-		name:          c.name,
-		short:         c.short,
-		long:          c.long,
-		version:       c.version,
-		commit:        c.commit,
-		buildDate:     c.buildDate,
-		examples:      c.examples,
-		rawArgs:       c.rawArgs,
-		args:          c.args,
-		subcommands:   c.subcommands,
-		helpCalled:    c.helpCalled,
-		versionCalled: c.versionCalled,
+func (o stdinOpt) apply(cmd *Command) error {
+	if o.stdin == nil {
+		return errors.New("cannot set Stdin to nil")
 	}
 
-	// Loop through each subcommand and set this command as their immediate parent
-	for _, subcommand := range cmd.subcommands {
-		subcommand.parent = cmd
-	}
+	cmd.stdin = o.stdin
 
-	return cmd
+	return nil
 }
 
 // Stdin is an [Option] that sets the Stdin for a [Command].
@@ -98,17 +43,19 @@ func (c *config) build() *Command {
 //	// Set stdin to os.Stdin (the default anyway)
 //	cli.New("test", cli.Stdin(os.Stdin))
 func Stdin(stdin io.Reader) Option {
-	f := func(cfg *config) error {
-		if stdin == nil {
-			return errors.New("cannot set Stdin to nil")
-		}
+	return stdinOpt{stdin: stdin}
+}
 
-		cfg.stdin = stdin
+type stdoutOpt struct{ stdout io.Writer }
 
-		return nil
+func (o stdoutOpt) apply(cmd *Command) error {
+	if o.stdout == nil {
+		return errors.New("cannot set Stdout to nil")
 	}
 
-	return option(f)
+	cmd.stdout = o.stdout
+
+	return nil
 }
 
 // Stdout is an [Option] that sets the Stdout for a [Command].
@@ -123,17 +70,19 @@ func Stdin(stdin io.Reader) Option {
 //	buf := &bytes.Buffer{}
 //	cli.New("test", cli.Stdout(buf))
 func Stdout(stdout io.Writer) Option {
-	f := func(cfg *config) error {
-		if stdout == nil {
-			return errors.New("cannot set Stdout to nil")
-		}
+	return stdoutOpt{stdout: stdout}
+}
 
-		cfg.stdout = stdout
+type stderrOpt struct{ stderr io.Writer }
 
-		return nil
+func (o stderrOpt) apply(cmd *Command) error {
+	if o.stderr == nil {
+		return errors.New("cannot set Stderr to nil")
 	}
 
-	return option(f)
+	cmd.stderr = o.stderr
+
+	return nil
 }
 
 // Stderr is an [Option] that sets the Stderr for a [Command].
@@ -148,17 +97,15 @@ func Stdout(stdout io.Writer) Option {
 //	buf := &bytes.Buffer{}
 //	cli.New("test", cli.Stderr(buf))
 func Stderr(stderr io.Writer) Option {
-	f := func(cfg *config) error {
-		if stderr == nil {
-			return errors.New("cannot set Stderr to nil")
-		}
+	return stderrOpt{stderr: stderr}
+}
 
-		cfg.stderr = stderr
+type noColourOpt struct{ noColour bool }
 
-		return nil
-	}
+func (o noColourOpt) apply(_ *Command) error {
+	hue.Enabled(!o.noColour)
 
-	return option(f)
+	return nil
 }
 
 // NoColour is an [Option] that disables all colour output from the [Command].
@@ -168,14 +115,19 @@ func Stderr(stderr io.Writer) Option {
 //
 // Setting this option takes precedence over all other colour configuration.
 func NoColour(noColour bool) Option {
-	f := func(_ *config) error {
-		// Just disable the internal colour package entirely
-		hue.Enabled(!noColour)
+	return noColourOpt{noColour: noColour}
+}
 
-		return nil
+type shortOpt struct{ short string }
+
+func (o shortOpt) apply(cmd *Command) error {
+	if o.short == "" {
+		return errors.New("cannot set command short description to an empty string")
 	}
 
-	return option(f)
+	cmd.short = strings.TrimSpace(o.short)
+
+	return nil
 }
 
 // Short is an [Option] that sets the one line usage summary for a [Command].
@@ -189,17 +141,19 @@ func NoColour(noColour bool) Option {
 //
 //	cli.New("rm", cli.Short("Delete files and directories"))
 func Short(short string) Option {
-	f := func(cfg *config) error {
-		if short == "" {
-			return errors.New("cannot set command short description to an empty string")
-		}
+	return shortOpt{short: short}
+}
 
-		cfg.short = strings.TrimSpace(short)
+type longOpt struct{ long string }
 
-		return nil
+func (o longOpt) apply(cmd *Command) error {
+	if o.long == "" {
+		return errors.New("cannot set command long description to an empty string")
 	}
 
-	return option(f)
+	cmd.long = strings.TrimSpace(o.long)
+
+	return nil
 }
 
 // Long is an [Option] that sets the full description for a [Command].
@@ -213,17 +167,26 @@ func Short(short string) Option {
 //
 //	cli.New("rm", cli.Long("... lots of text here"))
 func Long(long string) Option {
-	f := func(cfg *config) error {
-		if long == "" {
-			return errors.New("cannot set command long description to an empty string")
-		}
+	return longOpt{long: long}
+}
 
-		cfg.long = strings.TrimSpace(long)
+type exampleOpt struct {
+	comment string
+	command string
+}
 
-		return nil
+func (o exampleOpt) apply(cmd *Command) error {
+	if o.comment == "" {
+		return errors.New("example comment cannot be empty")
 	}
 
-	return option(f)
+	if o.command == "" {
+		return errors.New("example command cannot be empty")
+	}
+
+	cmd.examples = append(cmd.examples, example(o))
+
+	return nil
 }
 
 // Example is an [Option] that adds an example to a [Command].
@@ -244,21 +207,21 @@ func Long(long string) Option {
 //
 // An arbitrary number of examples can be added to a [Command], and calls to [Example] are additive.
 func Example(comment, command string) Option {
-	f := func(cfg *config) error {
-		if comment == "" {
-			return errors.New("example comment cannot be empty")
-		}
+	return exampleOpt{comment: comment, command: command}
+}
 
-		if command == "" {
-			return errors.New("example command cannot be empty")
-		}
+type runOpt struct {
+	run func(ctx context.Context, cmd *Command) error
+}
 
-		cfg.examples = append(cfg.examples, example{comment: comment, command: command})
-
-		return nil
+func (o runOpt) apply(cmd *Command) error {
+	if o.run == nil {
+		return errors.New("cannot set Run to nil")
 	}
 
-	return option(f)
+	cmd.run = o.run
+
+	return nil
 }
 
 // Run is an [Option] that sets the run function for a [Command].
@@ -268,17 +231,19 @@ func Example(comment, command string) Option {
 //
 // Successive calls overwrite previous ones.
 func Run(run func(ctx context.Context, cmd *Command) error) Option {
-	f := func(cfg *config) error {
-		if run == nil {
-			return errors.New("cannot set Run to nil")
-		}
+	return runOpt{run: run}
+}
 
-		cfg.run = run
+type overrideArgsOpt struct{ args []string }
 
-		return nil
+func (o overrideArgsOpt) apply(cmd *Command) error {
+	if o.args == nil {
+		return errors.New("cannot set Args to nil")
 	}
 
-	return option(f)
+	cmd.rawArgs = o.args
+
+	return nil
 }
 
 // OverrideArgs is an [Option] that sets the arguments for a [Command], overriding
@@ -292,17 +257,15 @@ func Run(run func(ctx context.Context, cmd *Command) error) Option {
 //	// Override arguments for testing
 //	cli.New("test", cli.OverrideArgs([]string{"test", "me"}))
 func OverrideArgs(args []string) Option {
-	f := func(cfg *config) error {
-		if args == nil {
-			return errors.New("cannot set Args to nil")
-		}
+	return overrideArgsOpt{args: args}
+}
 
-		cfg.rawArgs = args
+type versionOpt struct{ version string }
 
-		return nil
-	}
+func (o versionOpt) apply(cmd *Command) error {
+	cmd.version = o.version
 
-	return option(f)
+	return nil
 }
 
 // Version is an [Option] that sets the version for a [Command].
@@ -311,13 +274,15 @@ func OverrideArgs(args []string) Option {
 //
 //	cli.New("test", cli.Version("v1.2.3"))
 func Version(version string) Option {
-	f := func(cfg *config) error {
-		cfg.version = version
+	return versionOpt{version: version}
+}
 
-		return nil
-	}
+type commitOpt struct{ commit string }
 
-	return option(f)
+func (o commitOpt) apply(cmd *Command) error {
+	cmd.commit = o.commit
+
+	return nil
 }
 
 // Commit is an [Option] that sets the commit hash for a binary built with CLI. It is particularly
@@ -332,13 +297,15 @@ func Version(version string) Option {
 //
 // [ldflags]: https://www.digitalocean.com/community/tutorials/using-ldflags-to-set-version-information-for-go-applications
 func Commit(commit string) Option {
-	f := func(cfg *config) error {
-		cfg.commit = commit
+	return commitOpt{commit: commit}
+}
 
-		return nil
-	}
+type buildDateOpt struct{ date string }
 
-	return option(f)
+func (o buildDateOpt) apply(cmd *Command) error {
+	cmd.buildDate = o.date
+
+	return nil
 }
 
 // BuildDate is an [Option] that sets the build date for a binary built with CLI. It is particularly
@@ -353,13 +320,29 @@ func Commit(commit string) Option {
 //
 // [ldflags]: https://www.digitalocean.com/community/tutorials/using-ldflags-to-set-version-information-for-go-applications
 func BuildDate(date string) Option {
-	f := func(cfg *config) error {
-		cfg.buildDate = date
+	return buildDateOpt{date: date}
+}
 
-		return nil
+type subCommandsOpt struct{ builders []Builder }
+
+// In Cobra the AddCommand method has to protect against a command adding itself
+// as a subcommand, this is impossible in cli due to the functional options pattern, the
+// root command will not exist as a variable inside the call to cli.New.
+func (o subCommandsOpt) apply(cmd *Command) error {
+	for _, builder := range o.builders {
+		subcommand, err := builder()
+		if err != nil {
+			return fmt.Errorf("could not build subcommand: %w", err)
+		}
+
+		cmd.subcommands = append(cmd.subcommands, subcommand)
 	}
 
-	return option(f)
+	if name, found := anyDuplicates(cmd.subcommands...); found {
+		return fmt.Errorf("subcommand %q already defined", name)
+	}
+
+	return nil
 }
 
 // SubCommands is an [Option] that attaches 1 or more subcommands to the command being configured.
@@ -369,29 +352,40 @@ func BuildDate(date string) Option {
 // This option is additive and can be called as many times as desired, subcommands are
 // effectively appended on every call.
 func SubCommands(builders ...Builder) Option {
-	// Note: In Cobra the AddCommand method has to protect against a command adding itself
-	// as a subcommand, this is impossible in cli due to the functional options pattern, the
-	// root command will not exist as a variable inside the call to cli.New.
-	f := func(cfg *config) error {
-		// Add the subcommands to the command this is being called on
-		for _, builder := range builders {
-			subcommand, err := builder()
-			if err != nil {
-				return fmt.Errorf("could not build subcommand: %w", err)
-			}
+	return subCommandsOpt{builders: builders}
+}
 
-			cfg.subcommands = append(cfg.subcommands, subcommand)
-		}
+type flagOpt[T flag.Flaggable] struct {
+	target  *T
+	name    string
+	usage   string
+	options []FlagOption[T]
+	short   rune
+}
 
-		// Any duplicates in the list of subcommands (by name) is an error
-		if name, found := anyDuplicates(cfg.subcommands...); found {
-			return fmt.Errorf("subcommand %q already defined", name)
-		}
-
-		return nil
+func (o flagOpt[T]) apply(cmd *Command) error {
+	if _, ok := cmd.flags.Get(o.name); ok {
+		return fmt.Errorf("flag %q already defined", o.name)
 	}
 
-	return option(f)
+	var flagCfg internalflag.Config[T]
+
+	for _, option := range o.options {
+		if err := option.apply(&flagCfg); err != nil {
+			return fmt.Errorf("could not apply flag option: %w", err)
+		}
+	}
+
+	f, err := internalflag.New(o.target, o.name, o.short, o.usage, flagCfg)
+	if err != nil {
+		return err
+	}
+
+	if err := internalflag.AddToSet(cmd.flags, f); err != nil {
+		return fmt.Errorf("could not add flag %q to command %q: %w", o.name, cmd.name, err)
+	}
+
+	return nil
 }
 
 // Flag is an [Option] that adds a typed flag to a [Command], storing its value in a variable via its
@@ -413,32 +407,33 @@ func SubCommands(builders ...Builder) Option {
 //	var force bool
 //	cli.New("rm", cli.Flag(&force, "force", 'f', "Force deletion without confirmation"))
 func Flag[T flag.Flaggable](target *T, name string, short rune, usage string, options ...FlagOption[T]) Option {
-	f := func(cfg *config) error {
-		if _, ok := cfg.flags.Get(name); ok {
-			return fmt.Errorf("flag %q already defined", name)
+	return flagOpt[T]{target: target, name: name, short: short, usage: usage, options: options}
+}
+
+type argOpt[T arg.Argable] struct {
+	target  *T
+	name    string
+	usage   string
+	options []ArgOption[T]
+}
+
+func (o argOpt[T]) apply(cmd *Command) error {
+	var argCfg internalarg.Config[T]
+
+	for _, option := range o.options {
+		if err := option.apply(&argCfg); err != nil {
+			return fmt.Errorf("could not apply arg option: %w", err)
 		}
-
-		var flagCfg internalflag.Config[T]
-
-		for _, option := range options {
-			if err := option.apply(&flagCfg); err != nil {
-				return fmt.Errorf("could not apply flag option: %w", err)
-			}
-		}
-
-		f, err := internalflag.New(target, name, short, usage, flagCfg)
-		if err != nil {
-			return err
-		}
-
-		if err := internalflag.AddToSet(cfg.flags, f); err != nil {
-			return fmt.Errorf("could not add flag %q to command %q: %w", name, cfg.name, err)
-		}
-
-		return nil
 	}
 
-	return option(f)
+	a, err := internalarg.New(o.target, o.name, o.usage, argCfg)
+	if err != nil {
+		return err
+	}
+
+	cmd.args = append(cmd.args, a)
+
+	return nil
 }
 
 // Arg is an [Option] that adds a typed argument to a [Command], storing its value in a variable via its
@@ -458,26 +453,15 @@ func Flag[T flag.Flaggable](target *T, name string, short rune, usage string, op
 //	var number int
 //	cli.New("add", cli.Arg(&number, "number", "Add a number", cli.ArgDefault(1)))
 func Arg[T arg.Argable](p *T, name, usage string, options ...ArgOption[T]) Option {
-	f := func(cfg *config) error {
-		var argCfg internalarg.Config[T]
+	return argOpt[T]{target: p, name: name, usage: usage, options: options}
+}
 
-		for _, option := range options {
-			if err := option.apply(&argCfg); err != nil {
-				return fmt.Errorf("could not apply arg option: %w", err)
-			}
-		}
+type argDefaultOpt[T arg.Argable] struct{ value T }
 
-		a, err := internalarg.New(p, name, usage, argCfg)
-		if err != nil {
-			return err
-		}
-
-		cfg.args = append(cfg.args, a)
-
-		return nil
-	}
-
-	return option(f)
+//nolint:unused // Satisfies the unexported ArgOption.apply method, staticcheck can't see across the interface.
+func (o argDefaultOpt[T]) apply(cfg *internalarg.Config[T]) error {
+	cfg.DefaultValue = &o.value
+	return nil
 }
 
 // ArgDefault is a [cli.ArgOption] that sets the default value for a positional argument.
@@ -488,12 +472,20 @@ func Arg[T arg.Argable](p *T, name, usage string, options ...ArgOption[T]) Optio
 // If a default is given and the argument is not provided via the command line, the
 // default is used in its place.
 func ArgDefault[T arg.Argable](value T) ArgOption[T] {
-	f := func(cfg *internalarg.Config[T]) error {
-		cfg.DefaultValue = &value
-		return nil
+	return argDefaultOpt[T]{value: value}
+}
+
+type envOpt[T flag.Flaggable] struct{ name string }
+
+//nolint:unused // Satisfies the unexported FlagOption.apply method, staticcheck can't see across the interface.
+func (o envOpt[T]) apply(cfg *internalflag.Config[T]) error {
+	if o.name == "" {
+		return errors.New("env var name cannot be empty")
 	}
 
-	return argOption[T](f)
+	cfg.EnvVar = o.name
+
+	return nil
 }
 
 // Env is a [FlagOption] that associates an environment variable with a flag.
@@ -514,15 +506,15 @@ func ArgDefault[T arg.Argable](value T) ArgOption[T] {
 //	var noApprove bool
 //	cli.Flag(&noApprove, "no-approve", cli.NoShortHand, "Skip approval", cli.Env[bool]("MYTOOL_NO_APPROVE"))
 func Env[T flag.Flaggable](name string) FlagOption[T] {
-	return flagOption[T](func(cfg *internalflag.Config[T]) error {
-		if name == "" {
-			return errors.New("env var name cannot be empty")
-		}
+	return envOpt[T]{name: name}
+}
 
-		cfg.EnvVar = name
+type flagDefaultOpt[T flag.Flaggable] struct{ value T }
 
-		return nil
-	})
+//nolint:unused // Satisfies the unexported FlagOption.apply method, staticcheck can't see across the interface.
+func (o flagDefaultOpt[T]) apply(cfg *internalflag.Config[T]) error {
+	cfg.DefaultValue = o.value
+	return nil
 }
 
 // FlagDefault is a [cli.FlagOption] that sets the default value for command line flag.
@@ -531,10 +523,7 @@ func Env[T flag.Flaggable](name string) FlagOption[T] {
 // option, you may set a non-zero default value that the flag should inherit if not
 // provided on the command line.
 func FlagDefault[T flag.Flaggable](value T) FlagOption[T] {
-	return flagOption[T](func(cfg *internalflag.Config[T]) error {
-		cfg.DefaultValue = value
-		return nil
-	})
+	return flagDefaultOpt[T]{value: value}
 }
 
 // anyDuplicates checks the list of commands for ones with duplicate names, if a duplicate
@@ -559,36 +548,10 @@ func anyDuplicates(cmds ...*Command) (string, bool) {
 
 // ArgOption is a functional option for configuring an [Arg].
 type ArgOption[T arg.Argable] interface {
-	// Apply the option to the config, returning an error if the
-	// option cannot be applied for whatever reason.
 	apply(cfg *internalarg.Config[T]) error
-}
-
-// option is a function adapter implementing the Option interface, analogous
-// to http.HandlerFunc.
-type argOption[T arg.Argable] func(cfg *internalarg.Config[T]) error
-
-// apply implements the Option interface for option.
-//
-//nolint:unused // This is a false positive, this has to be here
-func (a argOption[T]) apply(cfg *internalarg.Config[T]) error {
-	return a(cfg)
 }
 
 // FlagOption is a functional option for configuring a [Flag].
 type FlagOption[T flag.Flaggable] interface {
-	// Apply the option to the config, returning an error if the
-	// option cannot be applied for whatever reason.
 	apply(cfg *internalflag.Config[T]) error
-}
-
-// flagOption is a function adapter implementing the [FlagOption] interface, analogous
-// to http.HandlerFunc.
-type flagOption[T flag.Flaggable] func(cfg *internalflag.Config[T]) error
-
-// apply implements [FlagOption] for flagOption.
-//
-//nolint:unused // This is a false positive, this has to be here
-func (f flagOption[T]) apply(cfg *internalflag.Config[T]) error {
-	return f(cfg)
 }
