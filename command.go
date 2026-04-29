@@ -65,8 +65,7 @@ func New(name string, options ...Option) (*Command, error) {
 		return nil, fmt.Errorf("bad arguments expected [<command> <args>...], got %v", os.Args)
 	}
 
-	// Default implementation
-	cfg := config{
+	cmd := &Command{
 		flags:   flag.NewSet(),
 		stdin:   os.Stdin,
 		stdout:  os.Stdout,
@@ -81,30 +80,47 @@ func New(name string, options ...Option) (*Command, error) {
 	// to report in one go
 	var errs error
 	for _, option := range options {
-		errs = errors.Join(errs, option.apply(&cfg))
+		errs = errors.Join(errs, option.apply(cmd))
 	}
 
-	// Ensure we always have at least help and version flags
-	err := Flag(&cfg.helpCalled, "help", 'h', "Show help for "+name).apply(&cfg)
-	errs = errors.Join(errs, err) // nil errors are discarded in join
-
-	err = Flag(&cfg.versionCalled, "version", 'V', "Show version info for "+name).apply(&cfg)
-
-	errs = errors.Join(errs, err)
+	// Ensure we always have at least help and version flags. Wired in
+	// directly rather than via the Flag option to skip the closure +
+	// Option interface boxing on every cli.New.
+	errs = errors.Join(
+		errs,
+		addAutoBoolFlag(cmd.flags, &cmd.helpCalled, "help", 'h', "Show help for "+name),
+		addAutoBoolFlag(cmd.flags, &cmd.versionCalled, "version", 'V', "Show version info for "+name),
+	)
 	if errs != nil {
 		return nil, errs
 	}
 
 	// Additional validation that can't be done per-option
 	// A command cannot have no subcommands and no run function, it must define one or the other
-	if cfg.run == nil && len(cfg.subcommands) == 0 {
+	if cmd.run == nil && len(cmd.subcommands) == 0 {
 		return nil, fmt.Errorf(
 			"command %s has no subcommands and no run function, a command must either be runnable or have subcommands",
-			cfg.name,
+			cmd.name,
 		)
 	}
 
-	return cfg.build(), nil
+	// Loop through each subcommand and set this command as their immediate parent
+	for _, subcommand := range cmd.subcommands {
+		subcommand.parent = cmd
+	}
+
+	return cmd, nil
+}
+
+// addAutoBoolFlag wires the implicit --help / --version flags onto the
+// flag set without going through the Flag option.
+func addAutoBoolFlag(set *flag.Set, target *bool, name string, short rune, usage string) error {
+	f, err := flag.New(target, name, short, usage, flag.Config[bool]{})
+	if err != nil {
+		return err
+	}
+
+	return flag.AddToSet(set, f)
 }
 
 // Command represents a CLI command.
