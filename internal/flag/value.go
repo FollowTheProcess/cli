@@ -33,7 +33,7 @@ type Value interface {
 
 	// IsSlice reports whether the flag holds a slice value that accumulates
 	// repeated calls to Set (e.g. []string, []int). Note that []byte and net.IP
-	// are NOT slice flags in this sense — they are parsed atomically.
+	// are NOT slice flags in this sense, they are parsed atomically.
 	IsSlice() bool
 
 	// Set sets the stored value of a flag by parsing the string "str".
