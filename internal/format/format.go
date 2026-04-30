@@ -5,6 +5,7 @@ package format
 
 import (
 	"strconv"
+	"unsafe"
 
 	"go.followtheprocess.codes/cli/internal/constraints"
 )
@@ -143,6 +144,18 @@ func Slice[T any](s []T) string {
 	}
 }
 
+// toString casts b to a string by reinterpreting the bytes.
+//
+// This is the same trick [strings.Builder.String] uses to avoid the
+// allocation of doing `string(b)`. The caveat is b MUST not be mutated
+// after passing to this function.
+//
+// This is fine in our case here as the []byte buffer is created in the function body
+// and never escapes.
+func toString(b []byte) string {
+	return unsafe.String(unsafe.SliceData(b), len(b))
+}
+
 func formatSignedSlice[T constraints.Signed](s []T) string {
 	buf := make([]byte, 0, bracketsCap+len(s)*intElemHint)
 	buf = append(buf, '[')
@@ -155,7 +168,7 @@ func formatSignedSlice[T constraints.Signed](s []T) string {
 
 	buf = append(buf, ']')
 
-	return string(buf)
+	return toString(buf)
 }
 
 func formatUnsignedSlice[T constraints.Unsigned](s []T) string {
@@ -170,7 +183,7 @@ func formatUnsignedSlice[T constraints.Unsigned](s []T) string {
 
 	buf = append(buf, ']')
 
-	return string(buf)
+	return toString(buf)
 }
 
 func formatFloat32Slice(s []float32) string {
@@ -185,7 +198,7 @@ func formatFloat32Slice(s []float32) string {
 
 	buf = append(buf, ']')
 
-	return string(buf)
+	return toString(buf)
 }
 
 func formatFloat64Slice(s []float64) string {
@@ -200,7 +213,7 @@ func formatFloat64Slice(s []float64) string {
 
 	buf = append(buf, ']')
 
-	return string(buf)
+	return toString(buf)
 }
 
 func formatStringSlice(s []string) string {
@@ -220,7 +233,7 @@ func formatStringSlice(s []string) string {
 
 	buf = append(buf, ']')
 
-	return string(buf)
+	return toString(buf)
 }
 
 func formatBoolSlice(s []bool) string {
@@ -235,5 +248,5 @@ func formatBoolSlice(s []bool) string {
 
 	buf = append(buf, ']')
 
-	return string(buf)
+	return toString(buf)
 }

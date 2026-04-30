@@ -171,48 +171,36 @@ func BenchmarkSlice(b *testing.B) {
 	bools := []bool{true, false, true, false, true, false, true, false}
 
 	b.Run("ints", func(b *testing.B) {
-		b.ReportAllocs()
-
 		for b.Loop() {
 			_ = Slice(ints)
 		}
 	})
 
 	b.Run("int64s", func(b *testing.B) {
-		b.ReportAllocs()
-
 		for b.Loop() {
 			_ = Slice(int64s)
 		}
 	})
 
 	b.Run("uints", func(b *testing.B) {
-		b.ReportAllocs()
-
 		for b.Loop() {
 			_ = Slice(uints)
 		}
 	})
 
 	b.Run("floats", func(b *testing.B) {
-		b.ReportAllocs()
-
 		for b.Loop() {
 			_ = Slice(floats)
 		}
 	})
 
 	b.Run("strings", func(b *testing.B) {
-		b.ReportAllocs()
-
 		for b.Loop() {
 			_ = Slice(strs)
 		}
 	})
 
 	b.Run("bools", func(b *testing.B) {
-		b.ReportAllocs()
-
 		for b.Loop() {
 			_ = Slice(bools)
 		}
@@ -220,8 +208,6 @@ func BenchmarkSlice(b *testing.B) {
 
 	b.Run("empty", func(b *testing.B) {
 		var s []int
-
-		b.ReportAllocs()
 
 		for b.Loop() {
 			_ = Slice(s)
