@@ -4,10 +4,7 @@
 package format
 
 import (
-	"fmt"
-	"reflect"
 	"strconv"
-	"strings"
 
 	"go.followtheprocess.codes/cli/internal/constraints"
 )
@@ -17,6 +14,17 @@ const (
 	floatFmt       = 'g'
 	floatPrecision = -1
 	slice          = "[]"
+
+	// Capacity hints used to pre-size []byte buffers in the slice formatters.
+	// The "brackets" pair is the leading '[' and trailing ']'.
+	//
+	// The per-element hints are good enough default cases to minimise the
+	// buffer growing and re-allocating.
+	bracketsCap    = 2
+	intElemHint    = 4 // "-12, "
+	floatElemHint  = 8 // "-1.234, "
+	boolElemHint   = 7 // "false, "
+	stringElemHint = 4 // surrounding quotes plus ", "
 )
 
 const (
@@ -99,39 +107,133 @@ func Float64(f float64) string {
 //	Slice([]int{1, 2, 3, 4}) // "[1, 2, 3, 4]"
 //	Slice([]string{"one", "two", "three"}) // `["one", "two", "three"]`
 func Slice[T any](s []T) string {
-	length := len(s)
-
-	if length == 0 {
-		// If it's empty or nil, avoid doing the work below
-		// and just return "[]"
+	if len(s) == 0 {
 		return slice
 	}
 
-	builder := &strings.Builder{}
-	builder.WriteByte('[')
+	switch v := any(s).(type) {
+	case []string:
+		return formatStringSlice(v)
+	case []bool:
+		return formatBoolSlice(v)
+	case []int:
+		return formatSignedSlice(v)
+	case []int8:
+		return formatSignedSlice(v)
+	case []int16:
+		return formatSignedSlice(v)
+	case []int32:
+		return formatSignedSlice(v)
+	case []int64:
+		return formatSignedSlice(v)
+	case []uint:
+		return formatUnsignedSlice(v)
+	case []uint16:
+		return formatUnsignedSlice(v)
+	case []uint32:
+		return formatUnsignedSlice(v)
+	case []uint64:
+		return formatUnsignedSlice(v)
+	case []float32:
+		return formatFloat32Slice(v)
+	case []float64:
+		return formatFloat64Slice(v)
+	default:
+		return slice
+	}
+}
 
-	typ := reflect.TypeFor[T]().Kind()
+func formatSignedSlice[T constraints.Signed](s []T) string {
+	buf := make([]byte, 0, bracketsCap+len(s)*intElemHint)
+	buf = append(buf, '[')
+	buf = strconv.AppendInt(buf, int64(s[0]), base10)
 
-	first := fmt.Sprintf("%v", s[0])
-	if typ == reflect.String {
-		first = strconv.Quote(first)
+	for _, e := range s[1:] {
+		buf = append(buf, ", "...)
+		buf = strconv.AppendInt(buf, int64(e), base10)
 	}
 
-	builder.WriteString(first)
+	buf = append(buf, ']')
 
-	for _, element := range s[1:] {
-		builder.WriteString(", ")
+	return string(buf)
+}
 
-		str := fmt.Sprintf("%v", element)
-		if typ == reflect.String {
-			// If it's a string, quote it
-			str = strconv.Quote(str)
-		}
+func formatUnsignedSlice[T constraints.Unsigned](s []T) string {
+	buf := make([]byte, 0, bracketsCap+len(s)*intElemHint)
+	buf = append(buf, '[')
+	buf = strconv.AppendUint(buf, uint64(s[0]), base10)
 
-		builder.WriteString(str)
+	for _, e := range s[1:] {
+		buf = append(buf, ", "...)
+		buf = strconv.AppendUint(buf, uint64(e), base10)
 	}
 
-	builder.WriteByte(']')
+	buf = append(buf, ']')
 
-	return builder.String()
+	return string(buf)
+}
+
+func formatFloat32Slice(s []float32) string {
+	buf := make([]byte, 0, bracketsCap+len(s)*floatElemHint)
+	buf = append(buf, '[')
+	buf = strconv.AppendFloat(buf, float64(s[0]), floatFmt, floatPrecision, bits32)
+
+	for _, e := range s[1:] {
+		buf = append(buf, ", "...)
+		buf = strconv.AppendFloat(buf, float64(e), floatFmt, floatPrecision, bits32)
+	}
+
+	buf = append(buf, ']')
+
+	return string(buf)
+}
+
+func formatFloat64Slice(s []float64) string {
+	buf := make([]byte, 0, bracketsCap+len(s)*floatElemHint)
+	buf = append(buf, '[')
+	buf = strconv.AppendFloat(buf, s[0], floatFmt, floatPrecision, bits64)
+
+	for _, e := range s[1:] {
+		buf = append(buf, ", "...)
+		buf = strconv.AppendFloat(buf, e, floatFmt, floatPrecision, bits64)
+	}
+
+	buf = append(buf, ']')
+
+	return string(buf)
+}
+
+func formatStringSlice(s []string) string {
+	capacity := bracketsCap
+	for _, e := range s {
+		capacity += len(e) + stringElemHint
+	}
+
+	buf := make([]byte, 0, capacity)
+	buf = append(buf, '[')
+	buf = strconv.AppendQuote(buf, s[0])
+
+	for _, e := range s[1:] {
+		buf = append(buf, ", "...)
+		buf = strconv.AppendQuote(buf, e)
+	}
+
+	buf = append(buf, ']')
+
+	return string(buf)
+}
+
+func formatBoolSlice(s []bool) string {
+	buf := make([]byte, 0, bracketsCap+len(s)*boolElemHint)
+	buf = append(buf, '[')
+	buf = strconv.AppendBool(buf, s[0])
+
+	for _, e := range s[1:] {
+		buf = append(buf, ", "...)
+		buf = strconv.AppendBool(buf, e)
+	}
+
+	buf = append(buf, ']')
+
+	return string(buf)
 }

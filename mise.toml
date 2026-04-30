@@ -41,11 +41,7 @@ sources = ["**/*.go"]
 [tasks.lint]
 description = "Run the linters and auto-fix if possible"
 depends = ["fmt"]
-run = [
-  "golangci-lint run --fix",
-  "typos",
-  "nilaway ./...",
-]
+run = ["golangci-lint run --fix", "typos", "nilaway ./..."]
 sources = ["**/*.go", ".golangci.yml"]
 
 [tasks.docs]
@@ -86,14 +82,8 @@ run = "fd . -e go | xargs wc -l | sort -nr | head"
 
 [tasks.clean]
 description = "Remove build artifacts and other clutter"
-run = [
-  "go clean ./...",
-  "rm -rf *.out",
-]
+run = ["go clean ./...", "rm -rf *.out"]
 
 [tasks.update]
 description = "Updates dependencies in go.mod and go.sum"
-run = [
-  "go get -u ./...",
-  "go mod tidy",
-]
+run = ["go get -u ./...", "go mod tidy"]

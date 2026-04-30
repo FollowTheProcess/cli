@@ -63,17 +63,168 @@ func TestFloat64(t *testing.T) {
 }
 
 func TestSlice(t *testing.T) {
-	oneString := []string{"one"}
-	twoStrings := []string{"one", "two"}
-	strings := []string{"one", "two", "three"}
-	ints := []int{1, 2, 3}
-	floats := []float64{1.0, 2.0, 3.0}
-	bools := []bool{true, true, false}
+	tests := []struct {
+		got  func() string
+		name string
+		want string
+	}{
+		{
+			name: "nil string slice",
+			got:  func() string { return Slice([]string(nil)) },
+			want: "[]",
+		},
+		{
+			name: "empty int slice",
+			got:  func() string { return Slice([]int{}) },
+			want: "[]",
+		},
+		{
+			name: "one string",
+			got:  func() string { return Slice([]string{"one"}) },
+			want: `["one"]`,
+		},
+		{
+			name: "two strings",
+			got:  func() string { return Slice([]string{"one", "two"}) },
+			want: `["one", "two"]`,
+		},
+		{
+			name: "three strings",
+			got:  func() string { return Slice([]string{"one", "two", "three"}) },
+			want: `["one", "two", "three"]`,
+		},
+		{
+			name: "strings with escapes",
+			got:  func() string { return Slice([]string{"hi\nthere", "tab\there", `quote"here`}) },
+			want: `["hi\nthere", "tab\there", "quote\"here"]`,
+		},
+		{
+			name: "empty string element",
+			got:  func() string { return Slice([]string{""}) },
+			want: `[""]`,
+		},
+		{
+			name: "ints",
+			got:  func() string { return Slice([]int{1, 2, 3}) },
+			want: "[1, 2, 3]",
+		},
+		{
+			name: "negative ints",
+			got:  func() string { return Slice([]int{-1, 0, 1}) },
+			want: "[-1, 0, 1]",
+		},
+		{
+			name: "int8s",
+			got:  func() string { return Slice([]int8{-128, 0, 127}) },
+			want: "[-128, 0, 127]",
+		},
+		{
+			name: "int64s",
+			got:  func() string { return Slice([]int64{-1 << 62, 0, 1 << 62}) },
+			want: "[-4611686018427387904, 0, 4611686018427387904]",
+		},
+		{
+			name: "uints",
+			got:  func() string { return Slice([]uint{1, 2, 3}) },
+			want: "[1, 2, 3]",
+		},
+		{
+			name: "uint64s",
+			got:  func() string { return Slice([]uint64{0, 1, 1 << 63}) },
+			want: "[0, 1, 9223372036854775808]",
+		},
+		{
+			name: "floats",
+			got:  func() string { return Slice([]float64{1.0, 2.0, 3.0}) },
+			want: "[1, 2, 3]",
+		},
+		{
+			name: "floats with decimals",
+			got:  func() string { return Slice([]float64{1.5, -2.25, 3.125}) },
+			want: "[1.5, -2.25, 3.125]",
+		},
+		{
+			name: "float32s",
+			got:  func() string { return Slice([]float32{1.5, -2.25, 3.125}) },
+			want: "[1.5, -2.25, 3.125]",
+		},
+		{
+			name: "bools",
+			got:  func() string { return Slice([]bool{true, true, false}) },
+			want: "[true, true, false]",
+		},
+	}
 
-	test.Equal(t, Slice(oneString), `["one"]`)
-	test.Equal(t, Slice(twoStrings), `["one", "two"]`)
-	test.Equal(t, Slice(strings), `["one", "two", "three"]`, test.Context("strings"))
-	test.Equal(t, Slice(ints), "[1, 2, 3]", test.Context("ints"))
-	test.Equal(t, Slice(floats), "[1, 2, 3]", test.Context("floats"))
-	test.Equal(t, Slice(bools), "[true, true, false]", test.Context("bools"))
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			test.Equal(t, tt.got(), tt.want)
+		})
+	}
+}
+
+func BenchmarkSlice(b *testing.B) {
+	ints := []int{1, 2, 3, 4, 5, 6, 7, 8}
+	int64s := []int64{1, 2, 3, 4, 5, 6, 7, 8}
+	uints := []uint{1, 2, 3, 4, 5, 6, 7, 8}
+	floats := []float64{1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5}
+	strs := []string{"alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta"}
+	bools := []bool{true, false, true, false, true, false, true, false}
+
+	b.Run("ints", func(b *testing.B) {
+		b.ReportAllocs()
+
+		for b.Loop() {
+			_ = Slice(ints)
+		}
+	})
+
+	b.Run("int64s", func(b *testing.B) {
+		b.ReportAllocs()
+
+		for b.Loop() {
+			_ = Slice(int64s)
+		}
+	})
+
+	b.Run("uints", func(b *testing.B) {
+		b.ReportAllocs()
+
+		for b.Loop() {
+			_ = Slice(uints)
+		}
+	})
+
+	b.Run("floats", func(b *testing.B) {
+		b.ReportAllocs()
+
+		for b.Loop() {
+			_ = Slice(floats)
+		}
+	})
+
+	b.Run("strings", func(b *testing.B) {
+		b.ReportAllocs()
+
+		for b.Loop() {
+			_ = Slice(strs)
+		}
+	})
+
+	b.Run("bools", func(b *testing.B) {
+		b.ReportAllocs()
+
+		for b.Loop() {
+			_ = Slice(bools)
+		}
+	})
+
+	b.Run("empty", func(b *testing.B) {
+		var s []int
+
+		b.ReportAllocs()
+
+		for b.Loop() {
+			_ = Slice(s)
+		}
+	})
 }

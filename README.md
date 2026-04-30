@@ -191,7 +191,7 @@ cli.Flag(&force, "force", 'f', "Force deletion", cli.Env[bool]("MYTOOL_FORCE"))
 
 > [!NOTE]
 > `cli.Env` requires an explicit type parameter because Go cannot infer it from the string argument alone.
-> The compiler enforces that the type matches the flag — `cli.Env[string](...)` on a `bool` flag is a compile error.
+> The compiler enforces that the type matches the flag, `cli.Env[string](...)` on a `bool` flag is a compile error.
 
 When `MYTOOL_FORCE=true` is set in the environment, `--force` is implied. Passing `--force=false` on the command line always wins.
 

@@ -682,7 +682,7 @@ func validateFlagShort(short rune) error {
 //
 // "ish" means that empty slices will return true despite their official zero
 // value being nil. The primary use is to determine whether a default value is
-// worth displaying to the user in the help text — an empty slice is probably
+// worth displaying to the user in the help text, an empty slice is probably
 // not.
 //
 //nolint:cyclop // Not much else we can do here
