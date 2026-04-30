@@ -984,7 +984,7 @@ func TestParse(t *testing.T) {
 			test: func(t *testing.T, set *flag.Set) {
 				f, exists := set.Get("verbosity")
 				test.True(t, exists)
-				// Env var contributes 2, CLI contributes 1 more — total 3
+				// Env var contributes 2, CLI contributes 1 more, total 3
 				test.Equal(t, f.String(), "3")
 			},
 			args:    []string{"--verbosity"},
@@ -1633,9 +1633,6 @@ func TestParse(t *testing.T) {
 		{
 			name: "slice env var splits on every comma (no escape mechanism)",
 			newSet: func(t *testing.T) *flag.Set {
-				// Any comma in an env var value is interpreted as a separator —
-				// there is no way to embed a literal comma in a slice item.
-				// Users needing commas should pass values via --flag one,two.
 				t.Setenv("MYTOOL_ITEMS", "a,b,c")
 
 				var val []string
@@ -1845,7 +1842,7 @@ func TestParse(t *testing.T) {
 		{
 			name: "combined short flags where early flag needs value captures rest",
 			newSet: func(t *testing.T) *flag.Set {
-				// -fgh — f is non-bool so consumes the rest of the cluster as its value
+				// -fgh. f is non-bool so consumes the rest of the cluster as its value
 				// i.e. f gets "gh", and g/h are not parsed as flags.
 				set := flag.NewSet()
 
