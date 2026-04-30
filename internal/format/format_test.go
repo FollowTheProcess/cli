@@ -119,6 +119,16 @@ func TestSlice(t *testing.T) {
 			want: "[-128, 0, 127]",
 		},
 		{
+			name: "int16s",
+			got:  func() string { return Slice([]int16{-32768, 0, 32767}) },
+			want: "[-32768, 0, 32767]",
+		},
+		{
+			name: "int32s",
+			got:  func() string { return Slice([]int32{-2147483648, 0, 2147483647}) },
+			want: "[-2147483648, 0, 2147483647]",
+		},
+		{
 			name: "int64s",
 			got:  func() string { return Slice([]int64{-1 << 62, 0, 1 << 62}) },
 			want: "[-4611686018427387904, 0, 4611686018427387904]",
@@ -127,6 +137,16 @@ func TestSlice(t *testing.T) {
 			name: "uints",
 			got:  func() string { return Slice([]uint{1, 2, 3}) },
 			want: "[1, 2, 3]",
+		},
+		{
+			name: "uint16s",
+			got:  func() string { return Slice([]uint16{0, 1, 65535}) },
+			want: "[0, 1, 65535]",
+		},
+		{
+			name: "uint32s",
+			got:  func() string { return Slice([]uint32{0, 1, 4294967295}) },
+			want: "[0, 1, 4294967295]",
 		},
 		{
 			name: "uint64s",
@@ -152,6 +172,11 @@ func TestSlice(t *testing.T) {
 			name: "bools",
 			got:  func() string { return Slice([]bool{true, true, false}) },
 			want: "[true, true, false]",
+		},
+		{
+			name: "unsupported type falls through to empty",
+			got:  func() string { return Slice([]uintptr{1, 2, 3}) },
+			want: "[]",
 		},
 	}
 
