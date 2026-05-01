@@ -29,6 +29,7 @@ linters:
     - gocyclo # I prefer cognitive complexity
     - godox # "todo" and "fixme" comments are allowed
     - goheader # No need
+    - gomodguard # Deprecated in v2.12.0, replaced by gomodguard_v2 which is enabled by default
     - gosmopolitan # No need
     - grouper # Imports take care of themselves, rest is common sense
     - ireturn # Returning an interface is sometimes a good abstraction
@@ -54,6 +55,7 @@ linters:
           - prealloc # These kinds of optimisations will make no difference to test code
           - gosec # Tests don't need security stuff
           - gochecknoglobals # e.g. global test flags
+          - goconst # Table driven tests naturally repeat string literals
           - maintidx # Flags table driven tests
 
   settings:
