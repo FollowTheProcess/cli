@@ -39,7 +39,7 @@ const base10 = 10
 
 // Error produces a formatted parse error.
 //
-// The kind should must be [KindArgument] or [KindFlag], with name and str being the
+// The kind must be [KindArgument] or [KindFlag], with name and str being the
 // name of the arg/flag and the invalid text that triggered the error.
 //
 // The type T is the type we were parsing str into and err is any underlying
@@ -47,7 +47,7 @@ const base10 = 10
 //
 //	// Make a flag parse error
 //	var force bool
-//	return parse.Error(parse.KindArgument, "force", "faklse", force, strconv.ErrSyntax)
+//	return parse.Error(parse.KindFlag, "force", "faklse", force, strconv.ErrSyntax)
 func Error[T any](kind Kind, name, str string, typ T, err error) error {
 	// Ordinarily I wouldn't have a package like this concern itself with
 	// details of other packages (like flag/arg) but given this package exists to produce consistent
