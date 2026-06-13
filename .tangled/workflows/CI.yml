@@ -8,7 +8,7 @@ engine: nixery
 
 dependencies:
   nixpkgs:
-    - go
+    - go_1_26
     - golangci-lint
     - gcc  # Needed for CGO_ENABLED=1 (go test -race)
 
