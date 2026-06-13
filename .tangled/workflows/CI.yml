@@ -7,9 +7,10 @@ when:
 engine: nixery
 
 dependencies:
-  nixpkgs:
-    - go_1_26
+  nixpkgs/nixpkgs-unstable:
+    - go
     - golangci-lint
+  nixpkgs:
     - gcc  # Needed for CGO_ENABLED=1 (go test -race)
 
 steps:
