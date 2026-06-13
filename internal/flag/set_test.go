@@ -714,7 +714,13 @@ func TestParse(t *testing.T) {
 			name: "valid count long",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(publicflag.Count), "count", 'c', "Count something", flag.Config[publicflag.Count]{})
+				f, err := flag.New(
+					new(publicflag.Count),
+					"count",
+					'c',
+					"Count something",
+					flag.Config[publicflag.Count]{},
+				)
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -736,7 +742,13 @@ func TestParse(t *testing.T) {
 			name: "valid count short",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(publicflag.Count), "count", 'c', "Count something", flag.Config[publicflag.Count]{})
+				f, err := flag.New(
+					new(publicflag.Count),
+					"count",
+					'c',
+					"Count something",
+					flag.Config[publicflag.Count]{},
+				)
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -758,7 +770,13 @@ func TestParse(t *testing.T) {
 			name: "valid count super short",
 			newSet: func(t *testing.T) *flag.Set {
 				set := flag.NewSet()
-				f, err := flag.New(new(publicflag.Count), "count", 'c', "Count something", flag.Config[publicflag.Count]{})
+				f, err := flag.New(
+					new(publicflag.Count),
+					"count",
+					'c',
+					"Count something",
+					flag.Config[publicflag.Count]{},
+				)
 				test.Ok(t, err)
 
 				err = flag.AddToSet(set, f)
@@ -972,7 +990,13 @@ func TestParse(t *testing.T) {
 
 				var val publicflag.Count
 
-				f, err := flag.New(&val, "verbosity", 'v', "Increase verbosity", flag.Config[publicflag.Count]{EnvVar: "MYTOOL_VERBOSITY"})
+				f, err := flag.New(
+					&val,
+					"verbosity",
+					'v',
+					"Increase verbosity",
+					flag.Config[publicflag.Count]{EnvVar: "MYTOOL_VERBOSITY"},
+				)
 				test.Ok(t, err)
 
 				set := flag.NewSet()
@@ -1089,7 +1113,13 @@ func TestParse(t *testing.T) {
 
 				var val time.Duration
 
-				f, err := flag.New(&val, "timeout", 't', "Request timeout", flag.Config[time.Duration]{EnvVar: "MYTOOL_TIMEOUT"})
+				f, err := flag.New(
+					&val,
+					"timeout",
+					't',
+					"Request timeout",
+					flag.Config[time.Duration]{EnvVar: "MYTOOL_TIMEOUT"},
+				)
 				test.Ok(t, err)
 
 				set := flag.NewSet()
@@ -1113,7 +1143,13 @@ func TestParse(t *testing.T) {
 
 				var val time.Duration
 
-				f, err := flag.New(&val, "timeout", 't', "Request timeout", flag.Config[time.Duration]{EnvVar: "MYTOOL_TIMEOUT"})
+				f, err := flag.New(
+					&val,
+					"timeout",
+					't',
+					"Request timeout",
+					flag.Config[time.Duration]{EnvVar: "MYTOOL_TIMEOUT"},
+				)
 				test.Ok(t, err)
 
 				set := flag.NewSet()
@@ -1137,7 +1173,13 @@ func TestParse(t *testing.T) {
 
 				var val time.Duration
 
-				f, err := flag.New(&val, "timeout", 't', "Request timeout", flag.Config[time.Duration]{EnvVar: "MYTOOL_TIMEOUT"})
+				f, err := flag.New(
+					&val,
+					"timeout",
+					't',
+					"Request timeout",
+					flag.Config[time.Duration]{EnvVar: "MYTOOL_TIMEOUT"},
+				)
 				test.Ok(t, err)
 
 				set := flag.NewSet()
@@ -2289,7 +2331,13 @@ func TestSorted(t *testing.T) {
 				number, err := flag.New(new(int), "number", 'n', "Number of times", flag.Config[int]{})
 				test.Ok(t, err)
 
-				duration, err := flag.New(new(time.Duration), "duration", 'D', "The time to do something for", flag.Config[time.Duration]{})
+				duration, err := flag.New(
+					new(time.Duration),
+					"duration",
+					'D',
+					"The time to do something for",
+					flag.Config[time.Duration]{},
+				)
 				test.Ok(t, err)
 
 				test.Ok(t, flag.AddToSet(set, verbose))
@@ -2381,7 +2429,13 @@ func TestAll(t *testing.T) {
 				number, err := flag.New(new(int), "number", 'n', "Number of times", flag.Config[int]{})
 				test.Ok(t, err)
 
-				duration, err := flag.New(new(time.Duration), "duration", 'D', "The time to do something for", flag.Config[time.Duration]{})
+				duration, err := flag.New(
+					new(time.Duration),
+					"duration",
+					'D',
+					"The time to do something for",
+					flag.Config[time.Duration]{},
+				)
 				test.Ok(t, err)
 
 				test.Ok(t, flag.AddToSet(set, verbose))

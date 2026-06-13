@@ -461,6 +461,7 @@ type argDefaultOpt[T arg.Argable] struct{ value T }
 //nolint:unused // Satisfies the unexported ArgOption.apply method, staticcheck can't see across the interface.
 func (o argDefaultOpt[T]) apply(cfg *internalarg.Config[T]) error {
 	cfg.DefaultValue = &o.value
+
 	return nil
 }
 
@@ -514,6 +515,7 @@ type flagDefaultOpt[T flag.Flaggable] struct{ value T }
 //nolint:unused // Satisfies the unexported FlagOption.apply method, staticcheck can't see across the interface.
 func (o flagDefaultOpt[T]) apply(cfg *internalflag.Config[T]) error {
 	cfg.DefaultValue = o.value
+
 	return nil
 }
 

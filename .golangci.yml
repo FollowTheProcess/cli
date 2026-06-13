@@ -11,57 +11,51 @@ formatters:
       extra-rules: true
 
     golines:
-      max-len: 140
-      shorten-comments: true
-      reformat-tags: true
+      max-len: 120
 
 linters:
   default: all
   disable:
-    - cyclop # I prefer cognitive complexity
-    - decorder # Don't care about this
-    - dupl # Basically every table driven test ever triggers this
-    - dupword # Messes with test cases more often than not
-    - err113 # Opaque errors are fine
-    - exhaustruct # No
-    - forbidigo # Nothing to forbid
-    - funlen # Bad metric for complexity
-    - gocyclo # I prefer cognitive complexity
-    - godox # "todo" and "fixme" comments are allowed
-    - goheader # No need
-    - gomodguard # Deprecated in v2.12.0, replaced by gomodguard_v2 which is enabled by default
-    - gosmopolitan # No need
-    - grouper # Imports take care of themselves, rest is common sense
-    - ireturn # Returning an interface is sometimes a good abstraction
-    - lll # Auto formatters do this and what they can't do I don't care about
-    - nlreturn # Similar to wsl
-    - noinlineerr # Inline errors are fine
-    - nonamedreturns # Used sparingly in short functions these are fine
-    - paralleltest # This makes go test -v ./... much more difficult to read
-    - thelper # Lots of false positives in here due to the way I do table tests
-    - unparam # gopls is better and more subtle
-    - varnamelen # Lots of false positives of things that are fine
-    - wrapcheck # Not every error must be wrapped
-    - wsl # Deprecated
+    - cyclop  # gocognit is the single complexity linter, cognitive beats cyclomatic
+    - decorder  # Don't care about this
+    - err113  # Not everything needs this
+    - exhaustruct  # This is just a bad idea
+    - forbidigo  # Nothing to forbid
+    - funlen  # Bad metric for complexity
+    - gocyclo  # Prefer cognitive complexity over naive metrics
+    - godox  # "todo" and "fixme" comments are allowed
+    - gomodguard  # Deprecated
+    - ireturn  # The Arg and Flag interfaces are intentionally opaque
+    - lll  # Auto formatters do this and what they can't do I don't care about
+    - maintidx  # Prefer cognitive
+    - mnd  # Annoying and too sensitive
+    - nestif  # Nesting depth is the dominant factor in gocognit's score already
+    - noinlineerr  # Inline errors are fine
+    - nonamedreturns  # Named returns are often helpful documentation, it's naked returns that are the issue
+    - paralleltest  # I've never had Go tests take longer than a few seconds, it's fine
+    - unparam  # gopls is better and more subtle
+    - varnamelen  # Lots of false positives of things that are fine
+    - wrapcheck  # Not every error must be wrapped
+    - wsl  # Deprecated
 
   exclusions:
     presets:
       # See https://golangci-lint.run/usage/false-positives/#exclusion-presets
-      - std-error-handling
       - common-false-positives
+      - std-error-handling
     rules:
       - path: _test\.go
         linters:
-          - prealloc # These kinds of optimisations will make no difference to test code
-          - gosec # Tests don't need security stuff
-          - gochecknoglobals # e.g. global test flags
-          - goconst # Table driven tests naturally repeat string literals
-          - maintidx # Flags table driven tests
+          - dupl  # Common false positives with table driven tests
+          - dupword  # Messes with test cases more often than not
+          - gochecknoglobals  # Flags and env vars
+          - goconst  # Sometimes repetition is okay in tests
+          - gosec  # Tests don't need security stuff
+          - gosmopolitan  # Testing unicode flags etc.
+          - thelper  # Lots of false positives because of how I've done CLI tests
+          - prealloc  # These kinds of optimisations will make no difference to test code
 
   settings:
-    cyclop:
-      max-complexity: 20
-
     depguard:
       rules:
         main:
@@ -73,105 +67,50 @@ linters:
               desc: use math/rand/v2 instead
 
     errcheck:
-      check-type-assertions: true
       check-blank: true
+      check-type-assertions: true
 
     exhaustive:
       check:
-        - switch
         - map
+        - switch
       default-signifies-exhaustive: true
-
-    staticcheck:
-      checks:
-        - all
 
     gosec:
       excludes:
-        - G104 # Errors not checked, handled by errcheck
+        - G104  # Errors not checked, handled by errcheck
 
     govet:
       enable-all: true
 
     nakedret:
-      max-func-lines: 0 # Disallow any naked returns
+      max-func-lines: 0  # Disallow any naked returns
 
     nolintlint:
       allow-unused: false
       require-explanation: true
       require-specific: true
 
+    revive:
+      # every other revive rule overlaps one or more of the other
+      # linters. These are the ones nothing else covers.
+      enable-all-rules: false
+      rules:
+        - name: context-as-argument  # ctx must be the first parameter
+        - name: deep-exit  # os.Exit / log.Fatal outside main and init
+        - name: modifies-parameter  # don't mutate value parameters
+        - name: modifies-value-receiver  # value receiver mutations are lost
+        - name: unexported-return  # exported func returning an unexported type
+
+    staticcheck:
+      checks:
+        - all
+
     usetesting:
       context-background: true
       context-todo: true
       os-chdir: true
+      os-create-temp: true
       os-mkdir-temp: true
       os-setenv: true
-      os-create-temp: true
       os-temp-dir: true
-
-    revive:
-      max-open-files: 256
-      enable-all-rules: true
-      rules:
-        - name: add-constant
-          disabled: true # goconst does this
-
-        - name: argument-limit
-          arguments:
-            - 5
-
-        - name: cognitive-complexity
-          disabled: true # gocognit does this
-
-        - name: comment-spacings
-          arguments:
-            - "nolint:"
-
-        - name: cyclomatic
-          disabled: true # cyclop does this
-
-        - name: enforce-switch-style
-          disabled: true # exhaustive handles this
-
-        - name: exported
-          arguments:
-            - checkPrivateReceivers
-            - checkPublicInterface
-
-        - name: function-length
-          disabled: true # Bad proxy for complexity
-
-        - name: function-result-limit
-          arguments:
-            - 3
-
-        - name: import-shadowing
-          disabled: true # predeclared does this
-
-        - name: line-length-limit
-          disabled: true # gofmt/golines handles this well enough
-
-        - name: max-public-structs
-          disabled: true # This is a dumb rule
-
-        - name: redefines-builtin-id
-          disabled: true # predeclared does this
-
-        - name: unhandled-error
-          disabled: true # errcheck handles this
-
-        - name: flag-parameter
-          disabled: true # As far as I can work out this just doesn't like bools
-
-        - name: unused-parameter
-          disabled: true # The gopls unused analyzer covers this better
-
-        - name: unused-receiver
-          disabled: true # As above
-
-        - name: var-naming
-          disabled: true
-
-        - name: package-naming
-          disabled: true

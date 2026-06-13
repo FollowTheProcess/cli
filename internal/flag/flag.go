@@ -752,6 +752,7 @@ func (f *Flag[T]) isZeroIsh() bool {
 		return len(*parse.Cast[[]string](f.value)) == 0
 	case kind.Time:
 		var zero time.Time
+
 		return parse.Cast[time.Time](f.value).Equal(zero)
 	case kind.Duration:
 		return *parse.Cast[time.Duration](f.value) == 0

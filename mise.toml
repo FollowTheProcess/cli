@@ -22,20 +22,14 @@ sources = ["**/*.go", ".golangci.yml", "**/*.md"]
 
 [tasks.test]
 description = "Run the test suite"
-usage = '''
-arg "[args]..." help="Extra args to pass to go test"
-'''
 # -race needs CGO (https://go.dev/doc/articles/race_detector#Requirements)
 env = { CGO_ENABLED = "1" }
-run = "go test -race ./... {{arg(name='args', default='')}}"
+run = "go test -race ./..."
 sources = ["**/*.go", "**/testdata/**/*", "go.mod", "go.sum"]
 
 [tasks.bench]
 description = "Run all project benchmarks"
-usage = '''
-arg "[args]..." help="Extra args to pass to go test"
-'''
-run = "go test ./... -run None -benchmem -bench . {{arg(name='args', default='')}}"
+run = "go test ./... -run None -benchmem -bench ."
 sources = ["**/*.go"]
 
 [tasks.lint]

@@ -23,6 +23,7 @@ func TestInt(t *testing.T) {
 
 	reference := func(str string) (int, error) {
 		val, err := strconv.ParseInt(str, base10, 0)
+
 		return int(val), err
 	}
 
@@ -40,6 +41,7 @@ func TestInt8(t *testing.T) {
 
 	reference := func(str string) (int8, error) {
 		val, err := strconv.ParseInt(str, base10, bits8)
+
 		return int8(val), err
 	}
 
@@ -57,6 +59,7 @@ func TestInt16(t *testing.T) {
 
 	reference := func(str string) (int16, error) {
 		val, err := strconv.ParseInt(str, base10, bits16)
+
 		return int16(val), err
 	}
 
@@ -74,6 +77,7 @@ func TestInt32(t *testing.T) {
 
 	reference := func(str string) (int32, error) {
 		val, err := strconv.ParseInt(str, base10, bits32)
+
 		return int32(val), err
 	}
 
@@ -91,6 +95,7 @@ func TestInt64(t *testing.T) {
 
 	reference := func(str string) (int64, error) {
 		val, err := strconv.ParseInt(str, base10, bits64)
+
 		return val, err
 	}
 
@@ -108,6 +113,7 @@ func TestUint(t *testing.T) {
 
 	reference := func(str string) (uint, error) {
 		val, err := strconv.ParseUint(str, base10, 0)
+
 		return uint(val), err
 	}
 
@@ -125,6 +131,7 @@ func TestUint8(t *testing.T) {
 
 	reference := func(str string) (uint8, error) {
 		val, err := strconv.ParseUint(str, base10, bits8)
+
 		return uint8(val), err
 	}
 
@@ -142,6 +149,7 @@ func TestUint16(t *testing.T) {
 
 	reference := func(str string) (uint16, error) {
 		val, err := strconv.ParseUint(str, base10, bits16)
+
 		return uint16(val), err
 	}
 
@@ -159,6 +167,7 @@ func TestUint32(t *testing.T) {
 
 	reference := func(str string) (uint32, error) {
 		val, err := strconv.ParseUint(str, base10, bits32)
+
 		return uint32(val), err
 	}
 
@@ -176,6 +185,7 @@ func TestUint64(t *testing.T) {
 
 	reference := func(str string) (uint64, error) {
 		val, err := strconv.ParseUint(str, base10, bits64)
+
 		return val, err
 	}
 
@@ -193,6 +203,7 @@ func TestFloat32(t *testing.T) {
 
 	reference := func(str string) (float32, error) {
 		val, err := strconv.ParseFloat(str, bits32)
+
 		return float32(val), err
 	}
 
@@ -210,6 +221,7 @@ func TestFloat64(t *testing.T) {
 
 	reference := func(str string) (float64, error) {
 		val, err := strconv.ParseFloat(str, bits64)
+
 		return float64(val), err
 	}
 

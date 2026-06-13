@@ -33,6 +33,9 @@
 !.github/**/*.yaml
 !.github/renovate.json
 
+# Tangled
+!.tangled/**/*.yml
+
 # Docs
 !docs/**/*.png
 !docs/**/*.gif
