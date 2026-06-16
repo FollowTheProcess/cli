@@ -10,7 +10,7 @@
 Tiny, simple, but powerful CLI framework for modern Go 🚀
 
 <p align="center">
-<img src="https://github.com/FollowTheProcess/cli/raw/main/docs/img/demo.png" alt="demo">
+<img src="https://assets.followtheprocess.codes/projects/cli/demo.png" alt="demo">
 </p>
 
 > [!WARNING]
@@ -93,7 +93,7 @@ func run() error {
 
 Will get you the following:
 
-![quickstart](https://github.com/FollowTheProcess/cli/raw/main/docs/img/quickstart.gif)
+![quickstart](https://assets.followtheprocess.codes/projects/cli/quickstart.gif)
 
 > [!TIP]
 > See usage section below and more examples under [`./examples`](https://github.com/FollowTheProcess/cli/tree/main/examples)

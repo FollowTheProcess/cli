@@ -18,25 +18,25 @@ Not really an example, but holds the source code used to generate the cover imag
 
 Implements the [quickstart] command from the main project README
 
-![quickstart](../docs/img/quickstart.gif)
+![quickstart](https://assets.followtheprocess.codes/projects/cli/quickstart.gif)
 
 ## `./subcommands`
 
 A CLI with multiple subcommands, each with their own flags and expected arguments. Shows how to easily store parsed flag values in an options struct and pass them around your program.
 
-![subcommands](../docs/img/subcommands.gif)
+![subcommands](https://assets.followtheprocess.codes/projects/cli/subcommands.gif)
 
 ## `./namedargs`
 
 A CLI with named positional arguments that may or may not have default values. Shows how to retrieve these arguments by name and use them without having to care if they were provided or you're using the default.
 
-![namedargs](../docs/img/namedargs.gif)
+![namedargs](https://assets.followtheprocess.codes/projects/cli/namedargs.gif)
 
 ## `./cancel`
 
 This examples shows how `cli` requiring you to pass a `context.Context` to your run functions leads to elegant and resilient cancellation and `CTRL+C` handling.
 
-![cancel](../docs/img/cancel.gif)
+![cancel](https://assets.followtheprocess.codes/projects/cli/cancel.gif)
 
 ### TODO
 
