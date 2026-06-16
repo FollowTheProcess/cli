@@ -37,8 +37,6 @@
 !.tangled/**/*.yml
 
 # Docs
-!docs/**/*.png
-!docs/**/*.gif
 !docs/**/*.tape
 !docs/src/freeze.json
 !README.md
