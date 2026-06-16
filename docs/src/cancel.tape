@@ -1,4 +1,4 @@
-Output ./docs/img/cancel.gif
+Output .assets/cancel.gif
 
 Set FontSize 18
 Set FontFamily "Geist Mono"

@@ -1,4 +1,4 @@
-Output ./docs/img/subcommands.gif
+Output .assets/subcommands.gif
 
 Set FontSize 18
 Set FontFamily "Geist Mono"

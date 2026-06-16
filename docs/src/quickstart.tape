@@ -56,7 +56,7 @@
 #   Show                            Show the subsequent commands in the output
 
 # Run from the repo root
-Output ./docs/img/quickstart.gif
+Output .assets/quickstart.gif
 
 Set FontSize 18
 Set FontFamily "Geist Mono"

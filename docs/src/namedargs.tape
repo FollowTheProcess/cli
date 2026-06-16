@@ -1,4 +1,4 @@
-Output ./docs/img/namedargs.gif
+Output .assets/namedargs.gif
 
 Set FontSize 18
 Set FontFamily "Geist Mono"

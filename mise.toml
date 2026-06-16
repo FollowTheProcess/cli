@@ -44,13 +44,19 @@ raw = true
 run = "pkgsite -open"
 
 [tasks.demo]
-description = "Render the demo gifs in parallel"
+description = "Render the demo gifs"
 run = [
   'for file in ./docs/src/*.tape; do vhs "$file" & done; wait',
-  "freeze ./examples/cover/main.go --config ./docs/src/freeze.json --output ./docs/img/demo.png --show-line-numbers",
+  "freeze ./examples/cover/main.go --config ./docs/src/freeze.json --output .assets/demo.png --show-line-numbers",
 ]
 sources = ["./docs/src/*.tape", "**/*.go"]
-outputs = ["./docs/img/*.gif", "./docs/img/demo.png"]
+outputs = [".assets/*.gif", ".assets/demo.png"]
+
+[tasks.upload]
+description = "Upload the demo gifs to my personal CDN. (Requires AWS auth)"
+depends = "demo"
+sources = [".assets/*.gif", ".assets/*.png"]
+run = "aws s3 cp .assets/ s3://assets.followtheprocess.codes/projects/cli/ --recursive --sse AES256"
 
 [tasks.cov]
 description = "Calculate test coverage (pass --open to view as HTML in a browser)"
