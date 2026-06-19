@@ -1,0 +1,28 @@
+name: Tangled Mirror
+
+on:
+  delete:  # Also prune tangled
+  push:
+    branches:
+      - main
+    tags:
+      - "*"
+
+concurrency:
+  group: tangled-mirror
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  mirror:
+    name: Mirror to tangled
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: FollowTheProcess/tangled-mirror@v1
+        with:
+          tangled-ssh-key: ${{ secrets.TANGLED_SSH_KEY }}
+          tangled-handle: followtheprocess.codes
