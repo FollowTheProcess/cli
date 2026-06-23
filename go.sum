@@ -2,12 +2,12 @@ go.followtheprocess.codes/diff v0.2.0 h1:NuEPvXSUEIeBqpSukuhkAUchS1EaiH7PYSj9zes
 go.followtheprocess.codes/diff v0.2.0/go.mod h1:bDSZPC9CvkRr8HlOwjE1bl/8qFAmiA3LVtkThRnniis=
 go.followtheprocess.codes/hue v1.2.0 h1:irFHJvgXIgFWyc2z2EYd87raFNZ8nHFvQSfXhozo+ow=
 go.followtheprocess.codes/hue v1.2.0/go.mod h1:GxmAqxUuqDAWxXKzanv1GM7SgclNU6yIq4f9rYgDd1k=
-go.followtheprocess.codes/snapshot v0.10.1 h1:GWNOdDxGtRiw0HVKnidhCHI0ymmZaaiHAARimyjNVU4=
-go.followtheprocess.codes/snapshot v0.10.1/go.mod h1:vCkJeHMLa4mOP451SrA9m+Ym5tumx66hXm318jAwf5Y=
+go.followtheprocess.codes/snapshot v0.11.0 h1:kZniEW/+QB9i9/wdHS9q6AMueAYtE4YFyQRA6W3ksas=
+go.followtheprocess.codes/snapshot v0.11.0/go.mod h1:Sj2A1XQ3gmt0jKUsp8C5X9OPstMKo7VI5vcfR38/+s0=
 go.followtheprocess.codes/test v1.4.0 h1:LBZYn2MqOW20HLe1AJm3lMLplSWH+zycfC7mmS9NF2w=
 go.followtheprocess.codes/test v1.4.0/go.mod h1:/Lq3YrwTqU/tb1wbO+Kt7Gs1I3qzFu/o/CUykOavoVA=
-go.yaml.in/yaml/v4 v4.0.0-rc.4 h1:UP4+v6fFrBIb1l934bDl//mmnoIZEDK0idg1+AIvX5U=
-go.yaml.in/yaml/v4 v4.0.0-rc.4/go.mod h1:aZqd9kCMsGL7AuUv/m/PvWLdg5sjJsZ4oHDEnfPPfY0=
+go.yaml.in/yaml/v4 v4.0.0-rc.6 h1:1h7H1ohdUh93/FyE4YaDa1Zh64K6VVbjF4K6WUxMtH4=
+go.yaml.in/yaml/v4 v4.0.0-rc.6/go.mod h1:aZqd9kCMsGL7AuUv/m/PvWLdg5sjJsZ4oHDEnfPPfY0=
 golang.org/x/sys v0.46.0 h1:noSf2Fq6F8DBgS+LysIkx7rIExoNHJsxOAtPp4rthXw=
 golang.org/x/sys v0.46.0/go.mod h1:4GL1E5IUh+htKOUEOaiffhrAeqysfVGipDYzABqnCmw=
 golang.org/x/term v0.44.0 h1:0rLvDRCtNj0gZkyIXhCyOb2OAzEhLVqc4B+hrsBhrmc=
