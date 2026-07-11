@@ -698,7 +698,8 @@ func writeFlags(cmd *Command, s *strings.Builder, tw *tabwriter.Writer) error {
 			envStr = "(env: $" + fl.EnvVar() + ")"
 		}
 
-		fmt.Fprintf(tw, "  %s\t--%s\t%s\t%s\t%s\t%s\n",
+		fmt.Fprintf(
+			tw, "  %s\t--%s\t%s\t%s\t%s\t%s\n",
 			style.Bold.Text(shorthand),
 			style.Bold.Text(name),
 			fl.Type(),
