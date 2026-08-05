@@ -48,6 +48,7 @@
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
+            awscli2
             charm-freeze
             fd
             go
