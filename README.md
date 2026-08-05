@@ -2,7 +2,6 @@
 
 [![License](https://img.shields.io/github/license/FollowTheProcess/cli)](https://github.com/FollowTheProcess/cli)
 [![Go Reference](https://pkg.go.dev/badge/go.followtheprocess.codes/cli.svg)](https://pkg.go.dev/go.followtheprocess.codes/cli)
-[![Go Report Card](https://goreportcard.com/badge/github.com/FollowTheProcess/cli)](https://goreportcard.com/report/github.com/FollowTheProcess/cli)
 [![GitHub](https://img.shields.io/github/v/release/FollowTheProcess/cli?logo=github&sort=semver)](https://github.com/FollowTheProcess/cli)
 [![CI](https://github.com/FollowTheProcess/cli/workflows/CI/badge.svg)](https://github.com/FollowTheProcess/cli/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/FollowTheProcess/cli/branch/main/graph/badge.svg)](https://codecov.io/gh/FollowTheProcess/cli)
@@ -151,7 +150,7 @@ This pattern can be repeated recursively to create complex command structures.
 
 ### Flags
 
-Flags in `cli` are generic, that is, there is *one* way to add a flag to your command, and that's with the `cli.Flag` option to `cli.New`
+Flags in `cli` are generic, that is, there is _one_ way to add a flag to your command, and that's with the `cli.Flag` option to `cli.New`
 
 ```go
 // These will get set at command line parse time
@@ -267,7 +266,7 @@ cli.New(
 
 This will return a `[]string` containing all the positional arguments to your command (not flags, they've already been parsed out!)
 
-Or, if you want to get smarter 🧠 `cli` allows you to define *type safe* representations of your arguments, with or without default values! This follows a similar
+Or, if you want to get smarter 🧠 `cli` allows you to define _type safe_ representations of your arguments, with or without default values! This follows a similar
 idea to [Flags](#flags)
 
 That works like this:
@@ -356,7 +355,7 @@ These errors are joined and bubbled up to you in one go via `cli.New` so you don
 - Customisation in areas where it makes sense, sensible opinionated defaults everywhere else
 - No reflection or struct tags
 
-There is one and only one way to do things (and that is *usually* to use an option in `cli.New`)
+There is one and only one way to do things (and that is _usually_ to use an option in `cli.New`)
 
 ### 👨🏻‍🔬 Use Modern Techniques
 
@@ -394,7 +393,7 @@ cmd, err := cli.New(
 
 Typically, commands are implemented as a big struct with lots of fields. `cli` is no different in this regard.
 
-What *is* different though is that this large struct can **only** be configured with `cli.New`. Once you've built your command, it can't be modified.
+What _is_ different though is that this large struct can **only** be configured with `cli.New`. Once you've built your command, it can't be modified.
 
 This eliminates a whole class of bugs and prevents misconfiguration and footguns 🔫
 
