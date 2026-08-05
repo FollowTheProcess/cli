@@ -39,6 +39,6 @@ categories:
       - dependencies
       - build
 
-template: |
+template: |-
   ## Changes
   $CHANGES

@@ -42,6 +42,11 @@
 !README.md
 !LICENSE
 
+# Nix
+!*.nix
+!/flake.lock
+!/.envrc
+
 # Other
 !.rumdl.toml
 !.typos.toml

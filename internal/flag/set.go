@@ -145,7 +145,7 @@ func (s *Set) Version() (value, ok bool) {
 // Args returns a slice of all the non-flag arguments, including any
 // following a "--" terminator.
 func (s *Set) Args() []string {
-	if s == nil {
+	if s == nil || s.args == nil {
 		return []string{}
 	}
 

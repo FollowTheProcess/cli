@@ -13,8 +13,14 @@ concurrency:
 permissions: {}
 
 jobs:
-  ci:
-    name: CI
+  go:
+    name: Go
     permissions:
       contents: read
     uses: FollowTheProcess/ci/.github/workflows/Go.yml@v4
+
+  nix:
+    name: Nix
+    permissions:
+      contents: read
+    uses: FollowTheProcess/ci/.github/workflows/Nix.yml@v4
