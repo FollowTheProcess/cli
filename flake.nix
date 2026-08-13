@@ -21,17 +21,16 @@
         "aarch64-linux"
         "x86_64-linux"
         "aarch64-darwin"
-        "x86_64-darwin"
       ];
 
       perSystem = { pkgs, ... }: {
         treefmt.programs = {
           deadnix.enable = true;
-          gofmt.enable = true;
           nixfmt.enable = true;
           shellcheck.enable = true;
           shfmt.enable = true;
           statix.enable = true;
+          typos.enable = true;
           yamlfmt = {
             enable = true;
             settings.formatter = {
@@ -44,6 +43,13 @@
               trim_trailing_whitespace = true;
             };
           };
+        };
+
+        # Use golangci-lint fmt as a Go formatter
+        treefmt.settings.formatter.golangci-lint-fmt = {
+          command = "${pkgs.golangci-lint}/bin/golangci-lint";
+          options = [ "fmt" ];
+          includes = [ "*.go" ];
         };
 
         devShells.default = pkgs.mkShell {
