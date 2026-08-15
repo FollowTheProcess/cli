@@ -730,7 +730,7 @@ func writeFooter(cmd *Command, s *strings.Builder) {
 // showVersion is the default implementation of the --version flag.
 func showVersion(cmd *Command) error {
 	if cmd == nil {
-		return errors.New("defaultVersion called on a nil Command")
+		return errors.New("showVersion called on a nil Command")
 	}
 
 	name := cmd.name // Incase we need to show the subcommand name
