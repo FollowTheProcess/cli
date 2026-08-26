@@ -8,7 +8,9 @@ formatters:
 
   settings:
     gofumpt:
-      extra-rules: true
+      extra:
+        group-params: true
+        balance-calls: true
 
     golines:
       max-len: 120
@@ -20,6 +22,7 @@ linters:
     - decorder  # Don't care about this
     - err113  # Not everything needs this
     - exhaustruct  # This is just a bad idea
+    - exhaustruct_v5  # Still a bad idea
     - forbidigo  # Nothing to forbid
     - funlen  # Bad metric for complexity
     - gocyclo  # Prefer cognitive complexity over naive metrics

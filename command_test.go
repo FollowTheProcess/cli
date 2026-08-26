@@ -358,7 +358,8 @@ func TestHelp(t *testing.T) {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub1")
 
 				return nil
-			}))
+			}),
+		)
 	}
 
 	sub2 := func() (*cli.Command, error) {
@@ -606,7 +607,8 @@ func TestVersion(t *testing.T) {
 				fmt.Fprintln(cmd.Stdout(), "Hello from sub1")
 
 				return nil
-			}))
+			}),
+		)
 	}
 
 	sub2 := func() (*cli.Command, error) {
@@ -1033,7 +1035,8 @@ func TestCommandOptionOrder(t *testing.T) {
 		[]cli.Option{
 			cli.Stderr(baseLineStderr), // Set output streams specific to the baseline
 			cli.Stdout(baseLineStdout),
-		})
+		},
+	)
 
 	baseline, err := cli.New("baseline", baseLineOptions...)
 	test.Ok(t, err)

@@ -458,7 +458,6 @@ func Arg[T arg.Argable](p *T, name, usage string, options ...ArgOption[T]) Optio
 
 type argDefaultOpt[T arg.Argable] struct{ value T }
 
-//nolint:unused // Satisfies the unexported ArgOption.apply method, staticcheck can't see across the interface.
 func (o argDefaultOpt[T]) apply(cfg *internalarg.Config[T]) error {
 	cfg.DefaultValue = &o.value
 
@@ -478,7 +477,6 @@ func ArgDefault[T arg.Argable](value T) ArgOption[T] {
 
 type envOpt[T flag.Flaggable] struct{ name string }
 
-//nolint:unused // Satisfies the unexported FlagOption.apply method, staticcheck can't see across the interface.
 func (o envOpt[T]) apply(cfg *internalflag.Config[T]) error {
 	if o.name == "" {
 		return errors.New("env var name cannot be empty")
@@ -512,7 +510,6 @@ func Env[T flag.Flaggable](name string) FlagOption[T] {
 
 type flagDefaultOpt[T flag.Flaggable] struct{ value T }
 
-//nolint:unused // Satisfies the unexported FlagOption.apply method, staticcheck can't see across the interface.
 func (o flagDefaultOpt[T]) apply(cfg *internalflag.Config[T]) error {
 	cfg.DefaultValue = o.value
 
