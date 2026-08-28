@@ -1,6 +1,6 @@
 module go.followtheprocess.codes/cli
 
-go 1.26
+go 1.27
 
 ignore (
 	./docs

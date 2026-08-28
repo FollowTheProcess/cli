@@ -57,7 +57,7 @@
             awscli2
             charm-freeze
             fd
-            go
+            go_1_27
             golangci-lint
             golangci-lint-langserver
             goperf
